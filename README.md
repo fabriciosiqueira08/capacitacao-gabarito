@@ -55,10 +55,14 @@ git checkout main      # tudo pronto (o que aparece projetado na aula)
 | Branch | Contém |
 |---|---|
 | `aula-01` | App gerado + rota de status |
-| `aula-02` | + migrations, `User`, concerns, validador de senha |
+| `aula-02` | + migrations, `User`, concerns, associações, validador de senha |
 | `aula-03` | + rotas, services, mailer, serializer, testes |
 | `aula-04` | + Dockerfile, Kamal, GitHub Actions |
-| `main` | Tudo + slides + documentação completa |
+| `main` | Tudo, mais os slides, os PDFs e os roteiros |
+
+Cada checkpoint carrega **o código daquele ponto e as apostilas até aquela aula** — nada além
+disso. Slides, PDFs e roteiros do instrutor são gerados e vivem só na `main`, para não ficarem
+desatualizados em quatro lugares a cada regeração.
 
 ---
 
