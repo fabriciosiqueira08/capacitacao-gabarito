@@ -135,6 +135,32 @@ Olhe `error.details` na resposta: cada item tem `field` e `message`.
 
 ---
 
+## GitHub
+
+### O CI ficou vermelho logo no primeiro push
+
+O `rails new` já cria um `.github/workflows/ci.yml`, e ele roda sozinho a cada push. Nas Aulas 1 e 2
+ele deve passar. Se ficar vermelho, abra o log em **Actions** e veja qual dos três jobs quebrou:
+
+- **lint** — é o RuboCop. Rode `bin/rubocop -a` para corrigir o que dá sozinho.
+- **test** — rode `bin/rails test` na sua máquina; o erro é o mesmo.
+- **scan_ruby** — Brakeman ou uma gem com CVE. `bin/brakeman --no-pager` mostra o motivo.
+
+Na Aula 4 esse arquivo é substituído pelo nosso, que roda os testes contra um Postgres de verdade.
+
+### `gh: command not found`
+
+O GitHub CLI não está instalado. Volte ao passo 7 de [`00-preparacao.md`](00-preparacao.md).
+
+### `gh repo create` reclama de autenticação
+
+```bash
+gh auth status     # tem que dizer "Logged in to github.com"
+gh auth login      # se não estiver
+```
+
+---
+
 ## Azure e VM
 
 ### `NotAvailableForSubscription` ao criar a VM
