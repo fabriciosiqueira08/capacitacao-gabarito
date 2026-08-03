@@ -89,6 +89,25 @@ Rede:
 Marque tudo com tags (`ambiente=capacitacao`, `dono=<seunome>`): é assim que você acha recurso
 órfão consumindo crédito depois.
 
+### Antes: duas chaves, um par
+
+**Criptografia assimétrica** usa duas chaves que se completam. A **pública** você espalha; a
+**privada** nunca sai da sua máquina. O que uma fecha, só a outra abre.
+
+Daí saem duas coisas diferentes:
+
+- **sigilo** — eu fecho com a *sua* pública, e só você abre;
+- **assinatura** — eu fecho com a *minha* privada, e todo mundo confere que fui eu.
+
+**É assim que o SSH funciona.** Você põe a sua chave pública no servidor (`~/.ssh/authorized_keys`).
+Ao conectar, o servidor manda um desafio; você responde assinando com a privada; o servidor confere
+com a pública que já tinha. **A senha nunca trafega — nem existe.**
+
+E é por isso que perder a chave privada é perder o acesso à máquina.
+
+> Compare com o JWT da Aula 3: lá a assinatura usa uma chave **simétrica** (HS256) — a mesma chave
+> assina e confere, porque quem assina e quem confere são o mesmo servidor.
+
 ### A chave privada
 
 O portal oferece o download **uma vez**.
@@ -184,6 +203,22 @@ exit
 ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP
 docker run --rm hello-world
 ```
+
+### Root e permissões
+
+`root` é o usuário que pode tudo — sem "tem certeza?". Você trabalha como `azureuser` e chama
+`sudo` quando precisa.
+
+Todo arquivo tem dono, grupo e três permissões: ler, escrever, executar.
+
+```bash
+chmod 600 arquivo    # dono lê e escreve; mais ninguém vê nada
+chmod 700 pasta      # dono entra; mais ninguém
+```
+
+O SSH **exige** `600` numa chave privada — com permissão mais frouxa ele recusa usar o arquivo.
+
+E nunca rode a aplicação como root: o Dockerfile já cria um usuário `rails` justamente para isso.
 
 ### Swap
 
@@ -372,6 +407,20 @@ seguro no Git. A chave que decripta é `config/master.key`, que **nunca** vai pa
 
 Em produção, `master.key` vira o secret `RAILS_MASTER_KEY`.
 
+### Antes: o que é uma variável de ambiente
+
+Um par `nome=valor` que o sistema operacional entrega ao processo quando ele sobe.
+
+```bash
+export JWT_SECRET=abc123
+```
+
+E o programa lê com `ENV["JWT_SECRET"]`.
+
+**Por que não deixar o valor no código?** Porque o código vai para o Git. A ideia é: mesmo código,
+ambientes diferentes, valores diferentes. É um dos [12 fatores](https://12factor.net/config), e é
+como o Kamal injeta segredo no container.
+
 ### Credentials × ENV
 
 | | Quando |
@@ -521,6 +570,51 @@ gh variable set APP_HOST
 ---
 
 ## 9. Cloudflare e TLS
+
+### HTTPS é HTTP dentro de um túnel
+
+O HTTP da Aula 1 é **texto puro**: quem estiver no caminho — o roteador do café, o provedor — lê
+tudo, inclusive a senha. O **TLS** embrulha esse texto num túnel criptografado.
+
+Mesmo protocolo, mesmos verbos, mesmos cabeçalhos, só que fechado. O "S" de HTTPS é isso, e nada
+além disso.
+
+### O handshake, em três passos
+
+1. O servidor apresenta o **certificado** dele.
+2. O cliente confere se confia em **quem assinou** aquele certificado.
+3. Os dois combinam uma chave temporária e conversam com ela.
+
+O par de chaves assimétricas só serve para o passo 3. Depois disso a conversa usa criptografia
+**simétrica**, que é muito mais rápida.
+
+### Certificado e autoridade
+
+Um certificado diz: *"esta chave pública pertence a este domínio"* — e vem **assinado por uma
+Autoridade Certificadora (CA)**.
+
+O seu navegador já nasce com uma lista de CAs em que confia. Confia na CA → confia em quem ela
+assinou. É uma cadeia.
+
+- **Autoassinado** é você jurando que é você. O navegador não aceita.
+- **Let's Encrypt** é uma CA pública e gratuita, em que os navegadores confiam.
+- **Cloudflare Origin CA** *não* é pública — e é exatamente por isso que ela funciona aqui, como
+  você vai ver.
+
+### Proxy reverso
+
+Um proxy comum fica na frente do **cliente**. Um proxy **reverso** fica na frente do **servidor**:
+recebe tudo na 443, termina o TLS, e repassa para a aplicação em HTTP interno.
+
+Assim o Rails não precisa saber nada de certificado. Na nossa arquitetura há dois:
+
+```
+navegador → Cloudflare → kamal-proxy (na sua VM) → Rails
+             (proxy 1)      (proxy 2)
+```
+
+É por isso que `config.assume_ssl = true`: ele avisa o Rails de que o "http" que chegou já veio de
+um "https" lá fora, e o Rails para de montar URLs erradas.
 
 ### DNS
 
