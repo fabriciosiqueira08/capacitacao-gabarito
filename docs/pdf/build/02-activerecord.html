@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Aula 2 — Banco, ActiveRecord e o model User</title>
+<link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
+<style>@page { @bottom-left { content: "Capacitação Back-end · Automic Jr."; } }</style>
+</head>
+<body><main>
+<h1 id="aula-2-banco-de-dados-activerecord-e-o-model-user">Aula 2 — Banco de dados, ActiveRecord e o model <code>User</code></h1>
+<p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: um <code>User</code> com validações e senha hasheada, testado.
+<strong>Checkpoint</strong>: <code>git checkout aula-02</code></p>
+<hr>
+<h2 id="1-por-que-postgres-e-nao-sqlite">1. Por que Postgres, e não SQLite</h2>
+<p>SQLite é um arquivo. Funciona muito bem para um app de celular ou um script. Para um servidor com
+várias requisições ao mesmo tempo, ele trava — só uma escrita por vez no banco inteiro.</p>
+<p>Postgres é um servidor: aguenta concorrência, tem tipos ricos (<code>jsonb</code>, arrays, intervalos de
+tempo), índices parciais e transações de verdade. É o que o <code>seem-backend</code> usa em produção, então é
+o que usamos aqui — <strong>desenvolver no mesmo banco da produção evita a categoria inteira de bug que
+só aparece no deploy.</strong></p>
+<hr>
+<h3 id="transacao">Transação</h3>
+<p>Um bloco de operações que acontece <strong>inteiro ou não acontece</strong>. Deu erro no meio, o banco desfaz
+tudo — isso se chama <em>rollback</em>.</p>
+<p>O exemplo clássico é transferir dinheiro: debitar de um e creditar no outro têm que ser a mesma
+operação. Debitar sozinho é dinheiro que sumiu.</p>
+<pre><code class="language-ruby">User.transaction do
+  user.save!
+  user.invalidate_sessions!
+  user.clear_password_reset_code!
+end
+</code></pre>
+<p>Repare no <code>!</code>: dentro de uma transação você <strong>quer</strong> que estoure. <code>save</code> devolve <code>false</code> em silêncio
+e a transação seguiria feliz, gravando metade.</p>
+<p>Na Aula 3, trocar a senha vai precisar exatamente disso.</p>
+<hr>
+<h2 id="2-activerecord">2. ActiveRecord</h2>
+<p>É o ORM do Rails: cada classe é uma tabela, cada objeto é uma linha.</p>
+<table>
+<thead>
+<tr>
+<th>Django ORM</th>
+<th>ActiveRecord</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>User.objects.filter(role="admin")</code></td>
+<td><code>User.where(role: "admin")</code></td>
+</tr>
+<tr>
+<td><code>User.objects.get(id=1)</code></td>
+<td><code>User.find(1)</code></td>
+</tr>
+<tr>
+<td><code>User.objects.all().order_by("-created_at")</code></td>
+<td><code>User.order(created_at: :desc)</code></td>
+</tr>
+<tr>
+<td><code>User.objects.count()</code></td>
+<td><code>User.count</code></td>
+</tr>
+<tr>
+<td><code>u.save()</code></td>
+<td><code>u.save</code></td>
+</tr>
+</tbody>
+</table>
+<p>A diferença de filosofia: no Django você declara os campos na classe. <strong>No Rails a classe não
+declara nada</strong> — ela lê as colunas do banco em tempo de execução. A fonte da verdade é a migration.</p>
+<pre><code class="language-ruby">class User &lt; ApplicationRecord
+end
+</code></pre>
+<p>Isso já tem <code>name</code>, <code>email</code>, <code>id</code>, <code>created_at</code> — tudo que existir na tabela <code>users</code>.</p>
+<hr>
+<h3 id="activesupport-os-metodos-que-o-rails-inventou">ActiveSupport: os métodos que o Rails inventou</h3>
+<p>O Rails adiciona métodos às classes do próprio Ruby. Isso é a gem <code>activesupport</code>, não Ruby puro —
+fora do Rails esses métodos somem.</p>
+<pre><code class="language-ruby">15.minutes
+1.day.ago
+2.weeks.from_now
+Time.current        # respeita o fuso configurado na app; Time.now não
+</code></pre>
+<p>E o par que você vai usar mais que qualquer outro:</p>
+<pre><code class="language-ruby">nil.blank?       # true
+&quot;&quot;.blank?        # true
+&quot;   &quot;.blank?     # true   ← só espaço também conta como vazio
+[].blank?        # true
+0.blank?         # false  ← zero NÃO é vazio
+
+&quot;oi&quot;.present?    # true — present? é o contrário de blank?
+</code></pre>
+<blockquote>
+<p><strong>Pegadinha para quem vem de Python</strong>: em Ruby puro, só <code>nil</code> e <code>false</code> são falsos. <code>if 0</code>
+executa. <code>if ""</code> executa. É justamente por isso que <code>blank?</code> existe.</p>
+</blockquote>
+<hr>
+<h2 id="3-migrations">3. Migrations</h2>
+<p>Uma migration é uma <strong>mudança no banco, versionada em código</strong>. Ela roda uma vez, em ordem, em
+todas as máquinas: a sua, a do colega e o servidor.</p>
+<pre><code class="language-bash">bin/rails generate migration CreateUsers
+</code></pre>
+<p>Isso cria <code>db/migrate/20260803142949_create_users.rb</code>. O número é a data e hora — é ele que define
+a ordem.</p>
+<pre><code class="language-ruby">class CreateUsers &lt; ActiveRecord::Migration[8.1]
+  def change
+    create_table :users do |t|
+      t.string :name, null: false
+      t.string :email, null: false
+      t.string :password_digest, null: false
+      t.string :course, null: false
+      t.string :matricula, null: false
+      t.datetime :terms_accepted_at, null: false
+
+      t.timestamps
+    end
+
+    add_index :users, :email, unique: true
+    add_index :users, :matricula, unique: true
+  end
+end
+</code></pre>
+<pre><code class="language-bash">bin/rails db:migrate
+</code></pre>
+<p>Repare em duas coisas:</p>
+<ul>
+<li><strong><code>t.timestamps</code></strong> cria <code>created_at</code> e <code>updated_at</code>, e o Rails mantém as duas sozinho.</li>
+<li><strong><code>add_index ... unique: true</code></strong> é uma restrição no banco, não só validação no model. Isso
+  importa: duas requisições simultâneas passam pela validação juntas (as duas consultam e as duas
+  não acham ninguém), mas só uma vence o índice único. <strong>Validação de model é para dar mensagem
+  bonita; índice é para garantir.</strong></li>
+</ul>
+<h3 id="schemarb"><code>schema.rb</code></h3>
+<p>Depois de migrar, o Rails reescreve <code>db/schema.rb</code> — o retrato atual do banco. É ele que <code>db:prepare</code>
+usa para criar o banco de teste, e por isso <strong>vai versionado</strong>. Você nunca edita esse arquivo à mão.</p>
+<h3 id="migrations-sao-incrementais">Migrations são incrementais</h3>
+<p>Neste projeto a tabela <code>users</code> nasceu em três migrations, porque as funcionalidades chegaram em
+momentos diferentes:</p>
+<pre><code>20260803142949_create_users.rb                    # o básico
+20260803142950_add_email_verification_to_users.rb # confirmação de e-mail
+20260803142951_add_password_reset_to_users.rb     # recuperação de senha
+</code></pre>
+<p>É assim que acontece na vida real. Nunca edite uma migration que já rodou em produção — crie outra.</p>
+<hr>
+<h2 id="4-senha-o-que-nunca-fazer">4. Senha: o que nunca fazer</h2>
+<p><strong>Nunca guarde senha em texto.</strong> Se o banco vazar — e bancos vazam — você entregou a senha de
+todos. E como as pessoas repetem senha, você entregou o e-mail e o banco delas junto.</p>
+<h3 id="hash-nao-e-criptografia">Hash não é criptografia</h3>
+<p>Criptografia tem volta (com a chave). <strong>Hash não tem volta</strong>: é um caminho só. Você não guarda a
+senha; guarda o resultado de passar a senha pela função. Na hora do login, passa de novo e compara
+os resultados.</p>
+<h3 id="por-que-bcrypt-e-nao-sha-256">Por que bcrypt e não SHA-256</h3>
+<p>SHA-256 é rápido — <strong>e isso é o problema</strong>. Uma GPU testa bilhões de SHA-256 por segundo. bcrypt foi
+feito para ser <strong>lento de propósito</strong> e tem um fator de custo ajustável: quando o hardware melhora,
+você aumenta o custo.</p>
+<p>bcrypt também gera um <strong>salt</strong> aleatório por senha. Sem salt, duas pessoas com a mesma senha teriam
+o mesmo hash, e uma tabela pronta (<em>rainbow table</em>) quebraria as duas de uma vez.</p>
+<pre><code>$2a$12$R9h/cIPz0gi.URNNX3kh2O...
+ │   │  └── salt + hash
+ │   └── fator de custo (12 = 2^12 iterações)
+ └── versão do algoritmo
+</code></pre>
+<h3 id="has_secure_password"><code>has_secure_password</code></h3>
+<pre><code class="language-ruby"># Gemfile
+gem &quot;bcrypt&quot;, &quot;~&gt; 3.1.7&quot;
+</code></pre>
+<pre><code class="language-ruby">class User &lt; ApplicationRecord
+  has_secure_password validations: false
+end
+</code></pre>
+<p>Isso dá ao model:</p>
+<ul>
+<li><code>user.password = "..."</code> — recebe a senha em texto e grava o digest em <code>password_digest</code></li>
+<li><code>user.authenticate("...")</code> — devolve o usuário se bater, <code>false</code> se não</li>
+<li><code>user.password_confirmation</code> — a confirmação, se você usar</li>
+</ul>
+<p>A senha em texto <strong>nunca toca o banco</strong>. Ela vive na memória durante a requisição e some.</p>
+<blockquote>
+<p><code>validations: false</code> desliga as validações padrão porque a nossa política de senha é mais
+exigente. Ela mora em <code>PasswordPolicyValidator</code>.</p>
+</blockquote>
+<hr>
+<h2 id="5-validacoes">5. Validações</h2>
+<pre><code class="language-ruby">validates :name, presence: true, length: { maximum: 120 }
+validates :email, presence: true,
+                  uniqueness: { case_sensitive: false },
+                  format: { with: URI::MailTo::EMAIL_REGEXP }
+validates :course, presence: true
+validates :matricula, presence: true, uniqueness: true, format: { with: /\A\d{7}\z/ }
+validates :terms_accepted_at, presence: true, on: :create
+validate  :password_meets_policy, if: -&gt; { password.present? }
+</code></pre>
+<ul>
+<li><code>validates</code> (plural) usa um validador pronto. <code>validate</code> (singular) chama um método seu.</li>
+<li><code>on: :create</code> só valida na criação — os termos são aceitos uma vez.</li>
+<li><code>if:</code> recebe um lambda. Só valida a senha quando ela foi informada (na edição de perfil ela não é).</li>
+</ul>
+<p>No console:</p>
+<pre><code class="language-ruby">u = User.new(name: &quot;Teste&quot;)
+u.valid?          # false
+u.errors.full_messages
+</code></pre>
+<h3 id="regra-de-ouro-normalize-antes-de-validar">Regra de ouro: normalize antes de validar</h3>
+<p><code>Ana@UFOP.br</code> e <code>ana@ufop.br</code> são o mesmo e-mail. <code>20.112-34</code> e <code>2011234</code> são a mesma matrícula.</p>
+<pre><code class="language-ruby">def self.normalize_email(email)
+  email.to_s.strip.downcase
+end
+
+def self.normalize_matricula(matricula)
+  matricula.to_s.gsub(/\D/, &quot;&quot;)
+end
+</code></pre>
+<p>Sem isso o índice único não serve para nada: o banco acha que são valores diferentes.</p>
+<hr>
+<h2 id="6-associacoes">6. Associações</h2>
+<p>Uma tabela nunca basta. Todo sistema real tem tabelas que se referem umas às outras: usuário tem
+muitos pedidos; palestra acontece numa sala; sala tem muitas palestras.</p>
+<p>Vamos criar a segunda tabela do projeto: <strong><code>login_events</code></strong>, o histórico de acessos da conta. É o
+que o seu banco usa para mandar "novo acesso detectado" por e-mail.</p>
+<h3 id="quem-guarda-a-chave">Quem guarda a chave</h3>
+<p>A relação um-para-muitos mora numa coluna só: a <strong>chave estrangeira</strong>. <code>login_events.user_id</code>
+aponta para <code>users.id</code>.</p>
+<ul>
+<li>quem <strong>carrega</strong> a coluna usa <code>belongs_to</code>;</li>
+<li>quem é <strong>apontado</strong> usa <code>has_many</code>.</li>
+</ul>
+<blockquote>
+<p>Regra prática: a chave fica sempre no lado "muitos".</p>
+</blockquote>
+<h3 id="a-migration">A migration</h3>
+<pre><code class="language-ruby">create_table :login_events do |t|
+  t.references :user, null: false, foreign_key: true
+  t.string   :client, null: false
+  t.string   :ip_address
+  t.datetime :occurred_at, null: false
+  t.timestamps
+end
+
+add_index :login_events, [ :user_id, :occurred_at ]
+</code></pre>
+<ul>
+<li><strong><code>t.references :user</code></strong> cria a coluna <code>user_id</code>, o índice <strong>e</strong> a chave estrangeira.</li>
+<li><strong><code>foreign_key: true</code></strong> faz o <strong>banco</strong> recusar uma linha órfã — não é só validação de model.</li>
+<li>O índice composto tem <code>user_id</code> primeiro porque a consulta é sempre "os últimos logins <strong>deste</strong>
+  usuário". Num índice composto, <strong>a ordem das colunas importa</strong>: primeiro o que filtra.</li>
+</ul>
+<h3 id="os-dois-lados">Os dois lados</h3>
+<pre><code class="language-ruby">class User &lt; ApplicationRecord
+  has_many :login_events, dependent: :delete_all
+end
+
+class LoginEvent &lt; ApplicationRecord
+  belongs_to :user
+
+  scope :recentes, -&gt; { order(occurred_at: :desc) }
+end
+</code></pre>
+<ul>
+<li><strong><code>dependent: :delete_all</code></strong> — apagar o usuário apaga o histórico junto. Sem isso sobram linhas
+  apontando para um <code>id</code> que não existe mais.</li>
+<li><strong><code>belongs_to</code> já exige presença</strong> desde o Rails 5: <code>LoginEvent</code> sem <code>user</code> é inválido.</li>
+<li><strong><code>scope</code></strong> é uma consulta com nome, e ela encadeia.</li>
+</ul>
+<h3 id="usando">Usando</h3>
+<pre><code class="language-ruby"># Criar PELA associação já preenche o user_id — não precisa passar:
+user.login_events.create!(client: &quot;mobile&quot;, occurred_at: Time.current)
+
+user.login_events.count
+user.login_events.recentes.limit(5)
+evento.user.name                      # navega para o outro lado
+</code></pre>
+<h3 id="a-armadilha-n1">A armadilha N+1</h3>
+<pre><code class="language-ruby">users.each { |u| puts u.login_events.count }
+</code></pre>
+<p>Com 100 usuários isso são <strong>101 consultas</strong>: uma para buscar os usuários e cem para buscar o
+histórico de cada um. É o problema de performance número 1 de aplicação Rails.</p>
+<p>A correção é uma palavra:</p>
+<pre><code class="language-ruby">User.includes(:login_events).each { |u| puts u.login_events.count }
+</code></pre>
+<p>Duas consultas, sempre. O <code>seem-backend</code> usa a gem <strong>Bullet</strong>, que estoura um erro em
+desenvolvimento quando você escreve um N+1 sem perceber.</p>
+<hr>
+<h2 id="7-concerns-o-mixin-da-aula-1-na-pratica">7. Concerns — o mixin da Aula 1, na prática</h2>
+<p>O <code>User</code> vai ganhar confirmação de e-mail e recuperação de senha. São dois assuntos que não
+conversam entre si. Jogar os dois no <code>user.rb</code> produz um arquivo de 800 linhas que ninguém abre com
+vontade.</p>
+<p>Cada assunto vira um módulo em <code>app/models/concerns/</code>:</p>
+<pre><code class="language-ruby"># app/models/concerns/email_verifiable.rb
+module EmailVerifiable
+  extend ActiveSupport::Concern
+
+  CODE_TTL = 15.minutes
+  RESEND_COOLDOWN = 1.minute
+
+  included do
+    scope :email_verified, -&gt; { where.not(email_verified_at: nil) }
+  end
+
+  def email_verified?
+    email_verified_at.present?
+  end
+
+  def issue_email_verification_code!
+    code = format(&quot;%06d&quot;, SecureRandom.random_number(1_000_000))
+
+    update!(
+      email_verification_code_digest: BCrypt::Password.create(code),
+      email_verification_expires_at: CODE_TTL.from_now,
+      email_verification_sent_at: Time.current
+    )
+
+    code
+  end
+end
+</code></pre>
+<pre><code class="language-ruby">class User &lt; ApplicationRecord
+  include EmailVerifiable
+  include PasswordResettable
+end
+</code></pre>
+<ul>
+<li><code>extend ActiveSupport::Concern</code> habilita o bloco <code>included do ... end</code>, onde vão coisas que só
+  fazem sentido na classe (scopes, validações, associações).</li>
+<li>O código completo dos dois concerns está em <code>app/models/concerns/</code>.</li>
+</ul>
+<h3 id="tres-decisoes-dentro-do-concern-e-o-porque-de-cada-uma">Três decisões dentro do concern, e o porquê de cada uma</h3>
+<p><strong>1. O código de 6 dígitos também vira digest bcrypt.</strong> Ele é uma senha temporária. Quem lê o banco
+não pode confirmar a conta de ninguém.</p>
+<p><strong>2. O código em texto só existe no retorno do método.</strong> <code>issue_email_verification_code!</code> devolve o
+código para o service mandar por e-mail, e depois ele some. Não fica em coluna, nem em log.</p>
+<p><strong>3. <code>email_verified_at</code> é data, não booleano.</strong> Um booleano responde "sim". Uma data responde "sim,
+em 12 de agosto às 14h" — e isso você vai querer saber quando alguém abrir um chamado.</p>
+<hr>
+<h2 id="8-o-console">8. O console</h2>
+<pre><code class="language-bash">bin/rails console
+</code></pre>
+<pre><code class="language-ruby">u = User.new(
+  name: &quot;Ana Souza&quot;,
+  email: &quot;ana@aluno.ufop.edu.br&quot;,
+  password: &quot;Automic@2026&quot;,
+  course: &quot;Engenharia de Controle e Automação&quot;,
+  matricula: &quot;2011234&quot;,
+  terms_accepted_at: Time.current
+)
+
+u.valid?
+u.save
+u.password_digest          # o hash, não a senha
+u.authenticate(&quot;Automic@2026&quot;)   # devolve o user
+u.authenticate(&quot;errada&quot;)         # false
+
+User.count
+User.where(&quot;email LIKE ?&quot;, &quot;%ufop%&quot;)
+User.find_by(email: &quot;ana@aluno.ufop.edu.br&quot;)
+
+codigo = u.issue_email_verification_code!
+u.verify_email_code!(codigo)
+u.email_verified?
+</code></pre>
+<blockquote>
+<p><code>bin/rails console --sandbox</code> desfaz tudo ao sair. Bom para experimentar sem sujar o banco.</p>
+</blockquote>
+<hr>
+<h2 id="9-seeds-e-fixtures">9. Seeds e fixtures</h2>
+<p><strong>Seeds</strong> povoam o banco de desenvolvimento:</p>
+<pre><code class="language-bash">bin/rails db:seed
+</code></pre>
+<p><strong>Fixtures</strong> são os dados dos testes, em <code>test/fixtures/users.yml</code>. O Rails carrega antes de cada
+teste e limpa depois — todo teste começa do mesmo estado.</p>
+<pre><code class="language-yaml">ana:
+  name: Ana Souza
+  email: ana@aluno.ufop.edu.br
+  password_digest: &lt;%= BCrypt::Password.create(&quot;Automic@2026&quot;) %&gt;
+  email_verified_at: &lt;%= 1.day.ago.to_fs(:db) %&gt;
+</code></pre>
+<p>No teste, <code>users(:ana)</code> devolve esse registro.</p>
+<hr>
+<h2 id="10-testando-o-model">10. Testando o model</h2>
+<pre><code class="language-ruby">test &quot;guarda o digest e nunca a senha em texto&quot; do
+  user = build_user
+  user.save!
+
+  assert_not_equal &quot;Automic@2026&quot;, user.password_digest
+  assert user.authenticate(&quot;Automic@2026&quot;)
+  assert_not user.authenticate(&quot;outra-senha&quot;)
+end
+</code></pre>
+<pre><code class="language-bash">bin/rails test
+bin/rails test test/models/user_test.rb          # só um arquivo
+bin/rails test test/models/user_test.rb:42       # só um teste
+</code></pre>
+<p>O Rails vem com <strong>Minitest</strong>. Se você conhece <code>pytest</code>, a ideia é a mesma; a sintaxe é <code>assert_*</code>.</p>
+<hr>
+<h2 id="11-uma-sutileza-de-seguranca-authenticate_by_email">11. Uma sutileza de segurança: <code>authenticate_by_email</code></h2>
+<pre><code class="language-ruby">DUMMY_PASSWORD_DIGEST = BCrypt::Password.create(&quot;automic-timing-safe-dummy&quot;).freeze
+
+def self.authenticate_by_email(email, password)
+  user = find_by(email: normalize_email(email))
+  digest = user&amp;.password_digest || DUMMY_PASSWORD_DIGEST
+  autenticado = BCrypt::Password.new(digest).is_password?(password.to_s)
+
+  user if autenticado
+end
+</code></pre>
+<p>Por que esse <code>DUMMY_PASSWORD_DIGEST</code>?</p>
+<p>O jeito ingênuo seria <code>return nil unless user</code>. Só que bcrypt é lento <strong>de propósito</strong>. Se o e-mail
+não existe, a resposta volta em 1ms; se existe e a senha está errada, volta em 100ms. Cronometrando
+as respostas, dá para descobrir quem tem conta no sistema — é um <strong>ataque de temporização</strong>.</p>
+<p>Rodando o bcrypt sempre, com um digest descartável quando não há usuário, as duas respostas custam
+o mesmo. Vamos usar esse método na Aula 3.</p>
+<hr>
+<h2 id="exercicio-da-aula">Exercício da aula</h2>
+<ol>
+<li>Crie as três migrations e rode <code>bin/rails db:migrate</code>.</li>
+<li>Abra <code>db/schema.rb</code> e confira que as colunas estão lá.</li>
+<li>Escreva o <code>User</code> com <code>has_secure_password</code> e as validações.</li>
+<li>Crie os dois concerns e inclua no <code>User</code>.</li>
+<li>No console: crie um usuário, veja o <code>password_digest</code>, teste <code>authenticate</code>.</li>
+<li>Emita um código de verificação e confirme com ele. Depois tente confirmar de novo — tem que
+   recusar.</li>
+<li>
+<p>Escreva os testes e rode <code>bin/rails test</code>.</p>
+</li>
+<li>
+<p>Crie a migration de <code>login_events</code>, o model com <code>belongs_to</code> e o <code>has_many</code> no <code>User</code>.</p>
+</li>
+<li>No console: <code>users(:ana).login_events.create!(...)</code>, depois <code>user.login_events.recentes</code>.</li>
+<li>Apague um usuário que tenha eventos e confira que o histórico foi junto.</li>
+</ol>
+<p><strong>Bônus</strong>: escreva o N+1 de propósito (<code>User.all.each { |u| puts u.login_events.count }</code>), olhe o
+log para contar as consultas, e conserte com <code>includes</code>.</p>
+<p>Travou? <code>git checkout aula-02</code>.</p>
+<hr>
+<h2 id="recapitulando">Recapitulando</h2>
+<ul>
+<li>Migration é a fonte da verdade do banco. O model não declara colunas.</li>
+<li>Índice único é garantia; validação é mensagem bonita. Você quer os dois.</li>
+<li>Senha vira hash bcrypt, com salt, e nunca volta.</li>
+<li>Concern é o mixin do Rails: um assunto por arquivo.</li>
+<li>Normalize antes de validar, ou o índice único não serve para nada.</li>
+<li>A chave estrangeira fica no lado "muitos": <code>belongs_to</code> carrega, <code>has_many</code> é apontado.</li>
+<li>Transação é tudo ou nada. Dentro dela, use os métodos com <code>!</code>.</li>
+<li><code>includes</code> resolve N+1, e N+1 é o problema de performance mais comum em Rails.</li>
+</ul>
+<p><strong>Na próxima</strong>: as rotas. O usuário vai conseguir se cadastrar, entrar, sair e recuperar a senha.</p>
+</main></body>
+</html>

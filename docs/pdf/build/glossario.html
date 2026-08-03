@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Glossário</title>
+<link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
+<style>@page { @bottom-left { content: "Capacitação Back-end · Automic Jr."; } }</style>
+</head>
+<body><main>
+<h1 id="glossario">Glossário</h1>
+<p>Termos que aparecem nas quatro aulas, em ordem alfabética.</p>
+<hr>
+<p><strong>Accessory</strong> — Container que o Kamal gerencia mas não faz deploy junto com a aplicação. O Postgres
+é um. <code>kamal deploy</code> não sobe accessory; use <code>kamal accessory boot|reboot</code>.</p>
+<p><strong>ActiveRecord</strong> — O ORM do Rails. Cada classe é uma tabela, cada objeto é uma linha. Equivalente
+ao Django ORM.</p>
+<p><strong>API</strong> — <em>Application Programming Interface</em>. A porta de entrada do sistema para outros programas.
+Aqui, uma API REST que responde JSON.</p>
+<p><strong>Associação</strong> — Ligação entre dois models. <code>has_many</code> no lado "um", <code>belongs_to</code> no lado "muitos" —
+que é quem carrega a chave estrangeira.</p>
+<p><strong>Base64</strong> — Forma de escrever bytes usando só letras e números, para caber em texto. <strong>Não é
+criptografia</strong>: não tem chave e qualquer um desfaz. O JWT é Base64.</p>
+<p><strong>Bcrypt</strong> — Função de hash feita para senha. Lenta de propósito, com fator de custo ajustável e
+salt aleatório por senha. Ver <strong><code>02-activerecord.md</code></strong>.</p>
+<p><strong>Bearer</strong> — O esquema do cabeçalho <code>Authorization: Bearer &lt;token&gt;</code>. "Portador": quem apresenta o
+token é tratado como o dono dele.</p>
+<p><strong><code>before_action</code></strong> — Filtro que roda antes da action do controller. Se ele renderizar algo, a
+action não é chamada.</p>
+<p><strong>Brakeman</strong> — Análise estática de segurança para Rails. Procura SQL injection, mass assignment,
+redirect aberto e afins.</p>
+<p><strong>Bundler</strong> — O gerenciador de dependências do Ruby. Lê o <code>Gemfile</code>, resolve versões e escreve o
+<code>Gemfile.lock</code>.</p>
+<p><strong>CA (Autoridade Certificadora)</strong> — Quem assina certificados. O navegador nasce com uma lista de CAs
+em que confia; confiar na CA é confiar em quem ela assinou.</p>
+<p><strong>Certificado</strong> — Documento que afirma "esta chave pública pertence a este domínio", assinado por
+uma CA.</p>
+<p><strong>Chave estrangeira</strong> — Coluna que aponta para o <code>id</code> de outra tabela (<code>login_events.user_id</code>). Com
+<code>foreign_key: true</code>, o banco recusa linha órfã.</p>
+<p><strong>CI/CD</strong> — <em>Continuous Integration / Continuous Deployment</em>. CI roda testes e verificações a cada
+push; CD publica automaticamente o que passou.</p>
+<p><strong>Concern</strong> — Módulo Ruby que uma classe inclui para ganhar um conjunto de métodos. É o mixin do
+Rails. Vive em <code>app/models/concerns/</code> ou <code>app/controllers/concerns/</code>.</p>
+<p><strong>Container</strong> — Uma instância rodando de uma imagem Docker. Descartável.</p>
+<p><strong>Cookie</strong> — Par nome=valor que o servidor manda no <code>Set-Cookie</code> e o navegador reenvia sozinho em
+toda requisição àquele site. É a memória que o HTTP não tem, colada por fora.</p>
+<p><strong>CORS</strong> — <em>Cross-Origin Resource Sharing</em>. A regra do navegador que impede uma página de um domínio
+chamar uma API de outro sem permissão explícita. Não se aplica a app nativo.</p>
+<p><strong>Credentials</strong> — Arquivo YAML criptografado do Rails (<code>config/credentials.yml.enc</code>), decriptado
+pela <code>master.key</code>.</p>
+<p><strong>Criptografia assimétrica</strong> — Duas chaves que se completam: a pública se espalha, a privada nunca
+sai da máquina. Base do SSH e do TLS.</p>
+<p><strong>CSRF</strong> — <em>Cross-Site Request Forgery</em>. Site malicioso dispara requisição para a sua API, e o
+navegador anexa o cookie da vítima. Mitigado com <code>same_site</code>.</p>
+<p><strong>CVE</strong> — <em>Common Vulnerabilities and Exposures</em>. O identificador público de uma vulnerabilidade
+conhecida. <code>bundler-audit</code> procura CVE nas suas gems.</p>
+<p><strong>Denylist</strong> — Lista de tokens revogados. No nosso logout, indexada pelo <code>jti</code> do JWT.</p>
+<p><strong>Digest</strong> — O resultado de passar um valor por uma função de hash. <code>password_digest</code> guarda o
+digest, nunca a senha.</p>
+<p><strong>DNS</strong> — A agenda telefônica da internet: traduz um nome (<code>api.exemplo.com</code>) no IP da máquina. A
+resposta fica em cache pelo TTL.</p>
+<p><strong>Docker</strong> — Empacota aplicação e dependências numa imagem que roda igual em qualquer lugar.</p>
+<p><strong>Dockerfile</strong> — A receita da imagem. O nosso é multi-stage: um estágio compila, o final só copia o
+resultado.</p>
+<p><strong>Enumeração de usuários</strong> — Ataque em que respostas diferentes (mensagem, status ou tempo) revelam
+quem tem conta no sistema. Combatido com respostas idênticas e tempo constante.</p>
+<p><strong>Fixture</strong> — Dados de teste em YAML, carregados antes de cada teste e limpos depois.</p>
+<p><strong>Gem</strong> — Biblioteca Ruby. O equivalente do pacote do pip.</p>
+<p><strong>ghcr.io</strong> — GitHub Container Registry. Onde a imagem Docker fica hospedada.</p>
+<p><strong>Handshake (TLS)</strong> — A negociação inicial: o servidor apresenta o certificado, o cliente valida a
+cadeia, e os dois combinam uma chave temporária.</p>
+<p><strong>Health check</strong> — Rota que responde 200 se a aplicação está de pé. A nossa é <code>/up</code>. O Kamal só
+troca o tráfego para o container novo depois que ela passa.</p>
+<p><strong>Imagem</strong> — A receita congelada: sistema, runtime, dependências e código. Imutável.</p>
+<p><strong>IP</strong> — O endereço da máquina na rede (<code>57.156.65.151</code>). <code>127.0.0.1</code> é sempre "esta máquina aqui".</p>
+<p><strong>jti</strong> — <em>JWT ID</em>. Identificador único de um token, usado para revogá-lo individualmente.</p>
+<p><strong>JWT</strong> — <em>JSON Web Token</em>. Cabeçalho, payload e assinatura, em Base64, separados por ponto. O
+payload é <strong>público</strong>; a assinatura só garante que ninguém o alterou.</p>
+<p><strong>Kamal</strong> — Ferramenta de deploy com Docker via SSH, feita pela equipe do Rails. Zero-downtime, sem
+agente na máquina.</p>
+<p><strong>Mass assignment</strong> — Vulnerabilidade em que o cliente manda um campo que não devia poder mandar
+(ex.: <code>role: admin</code>). Evitada com strong parameters.</p>
+<p><strong>Middleware</strong> — Camadas que a requisição atravessa antes de chegar ao controller. CORS, cookies e
+rate limit moram aí. <code>bin/rails middleware</code> lista a pilha.</p>
+<p><strong>Migration</strong> — Mudança no banco, versionada em código, que roda uma vez em cada máquina.</p>
+<p><strong>Minitest</strong> — O framework de teste que vem com o Rails.</p>
+<p><strong>mise</strong> — Gerenciador de versões de runtime. O <code>pyenv</code> do mundo Ruby.</p>
+<p><strong>MVC</strong> — <em>Model-View-Controller</em>. Model = dados e regras; View = a saída (aqui, JSON); Controller =
+recebe a requisição e decide.</p>
+<p><strong>N+1</strong> — Carregar uma lista e depois consultar o banco item a item. 100 registros viram 101
+consultas. Resolve-se com <code>includes</code>.</p>
+<p><strong>NSG</strong> — <em>Network Security Group</em>. O firewall da Azure, com regras de entrada e saída por porta e
+origem.</p>
+<p><strong>OIDC</strong> — <em>OpenID Connect</em>. Permite o GitHub Actions autenticar na Azure com um token de curta
+duração, sem guardar segredo de longa duração.</p>
+<p><strong>OOM killer</strong> — O mecanismo do kernel Linux que mata processos quando a RAM acaba. É por isso que
+a VM tem swap.</p>
+<p><strong>Origin CA</strong> — Certificado emitido pelo Cloudflare para o trecho Cloudflare → seu servidor.
+Navegador não confia nele diretamente, e não precisa: o usuário vê o certificado público do
+Cloudflare.</p>
+<p><strong>ORM</strong> — <em>Object-Relational Mapping</em>. Traduz objetos em linhas de tabela.</p>
+<p><strong>OTP</strong> — <em>One-Time Password</em>. O código de 6 dígitos, válido por 15 minutos e uma vez só.</p>
+<p><strong>Payload</strong> — O miolo do JWT, onde ficam <code>sub</code>, <code>exp</code>, <code>jti</code>. Público.</p>
+<p><strong>Porta</strong> — Número de 1 a 65535 que identifica um programa dentro da máquina. 22 SSH, 80 HTTP, 443
+HTTPS, 5432 Postgres, 3000 Rails em dev.</p>
+<p><strong>Postgres</strong> — O banco relacional que usamos em desenvolvimento e em produção.</p>
+<p><strong>Proxied (Cloudflare)</strong> — Nuvem laranja no DNS: o tráfego passa pelo Cloudflare antes de chegar à
+sua máquina, e o IP real não aparece no DNS.</p>
+<p><strong>Proxy reverso</strong> — Fica na frente do servidor: recebe na 443, termina o TLS e repassa para a
+aplicação em HTTP interno. O <code>kamal-proxy</code> é um.</p>
+<p><strong>Puma</strong> — O servidor web do Rails.</p>
+<p><strong>rack-attack</strong> — Middleware que bloqueia abuso por IP. Está no <code>seem-backend</code>, não no app do curso.</p>
+<p><strong>Registry</strong> — Repositório de imagens Docker. O "GitHub das imagens".</p>
+<p><strong>REST</strong> — Estilo de organizar a API: cada coisa é um recurso com um endereço, e o verbo HTTP diz o
+que fazer com ele.</p>
+<p><strong>Rollback</strong> — O banco desfazendo uma transação que falhou no meio. Também: <code>kamal rollback</code>, que
+volta para a versão anterior da imagem.</p>
+<p><strong>root</strong> — O usuário do Linux que pode tudo, sem confirmação. Você trabalha como usuário comum e
+chama <code>sudo</code> quando precisa.</p>
+<p><strong>RuboCop</strong> — O linter de Ruby. O <code>black</code>/<code>ruff</code> do mundo Python.</p>
+<p><strong>Salt</strong> — Valor aleatório misturado à senha antes do hash, para que senhas iguais gerem digests
+diferentes. O bcrypt gera um por senha, automaticamente.</p>
+<p><strong>Scope</strong> — Consulta com nome, definida no model e encadeável:
+<code>user.login_events.recentes.limit(5)</code>.</p>
+<p><strong>Serializer</strong> — Decide o que de um objeto vai para o JSON — e, principalmente, o que não vai.</p>
+<p><strong>Service object</strong> — Classe que representa um caso de uso (<code>Users::Register</code>). Tira a regra de
+negócio do controller.</p>
+<p><strong>Solid Cache / Solid Queue</strong> — Cache e fila do Rails 8, guardados no próprio Postgres. A denylist
+do logout usa o cache.</p>
+<p><strong>Strong parameters</strong> — Filtro que declara quais campos a requisição pode mandar. No Rails 8,
+<code>params.expect</code>.</p>
+<p><strong><code>Struct</code></strong> — Classe de uma linha para agrupar valores sem comportamento. O
+<code>namedtuple</code>/<code>dataclass</code> do Ruby. Todo service do projeto devolve um.</p>
+<p><strong>sub</strong> — <em>Subject</em>. O claim do JWT que diz de quem é o token — no nosso caso, o <code>user.id</code>.</p>
+<p><strong>Swap</strong> — Área em disco usada como extensão da RAM. Lenta, mas evita que o OOM killer mate a
+aplicação.</p>
+<p><strong>TLS</strong> — O túnel criptografado que embrulha o HTTP e o transforma em HTTPS. Mesmo protocolo, só que
+fechado.</p>
+<p><strong>Token version</strong> — Contador no <code>User</code> que vai dentro do JWT. Incrementar invalida todos os tokens
+daquele usuário de uma vez.</p>
+<p><strong>Transação</strong> — Bloco em que ou tudo acontece, ou nada acontece. <code>User.transaction do ... end</code>.</p>
+<p><strong>TTL</strong> — <em>Time To Live</em>. Por quanto tempo algo vale. Nosso código OTP tem TTL de 15 minutos; as
+entradas da denylist têm o TTL do que restava do token.</p>
+<p><strong>Variável de ambiente</strong> — Par nome=valor que o sistema entrega ao processo. Lida com <code>ENV["NOME"]</code>.
+É como configuração e segredo entram sem passar pelo código.</p>
+<p><strong>Volume (Docker)</strong> — Área de disco que sobrevive ao container. É o que faz o banco não sumir a cada
+deploy. <strong>Não é backup.</strong></p>
+<p><strong>VPS</strong> — <em>Virtual Private Server</em>. Um computador virtual que é seu, com acesso root.</p>
+<p><strong>WSL2</strong> — <em>Windows Subsystem for Linux</em>. Um Linux de verdade dentro do Windows. Obrigatório para
+quem desenvolve Rails no Windows.</p>
+<p><strong>XSS</strong> — <em>Cross-Site Scripting</em>. O atacante roda JavaScript dentro da sua página, geralmente porque
+você exibiu texto de usuário sem escapar. É contra isso que <code>httponly</code> protege o token.</p>
+<p><strong>Zeitwerk</strong> — O autoloader do Rails. Descobre o arquivo pelo nome da classe:
+<code>Api::V1::StatusController</code> → <code>app/controllers/api/v1/status_controller.rb</code>. É o que dispensa o
+<code>require</code>.</p>
+<p><strong>Índice</strong> — Estrutura no banco que acelera busca. Com <code>unique: true</code>, vira restrição: o banco
+recusa duplicata mesmo com duas requisições simultâneas.</p>
+</main></body>
+</html>

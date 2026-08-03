@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Aula 4 — VPS, Docker, Kamal e deploy</title>
+<link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
+<style>@page { @bottom-left { content: "Capacitação Back-end · Automic Jr."; } }</style>
+</head>
+<body><main>
+<h1 id="aula-4-vps-docker-kamal-e-deploy">Aula 4 — VPS, Docker, Kamal e deploy</h1>
+<p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: a sua API no ar, em <code>https://seunome.capacita.&lt;domínio&gt;</code>,
+com deploy automático a cada push na <code>main</code>.
+<strong>Checkpoint</strong>: <code>git checkout aula-04</code></p>
+<blockquote>
+<p>Este roteiro é a versão para a turma do guia de infraestrutura do <code>seem-backend</code>. As decisões são
+as mesmas; a máquina é menor.</p>
+</blockquote>
+<hr>
+<h2 id="1-o-que-e-uma-vps">1. O que é uma VPS</h2>
+<p><strong>VPS</strong> = <em>Virtual Private Server</em>. Um computador virtual, dentro de um servidor físico de um
+provedor, que é seu: você tem acesso root, escolhe o sistema, instala o que quiser.</p>
+<table>
+<thead>
+<tr>
+<th>Opção</th>
+<th>O que você controla</th>
+<th>O que você opera</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hospedagem compartilhada</td>
+<td>quase nada</td>
+<td>nada</td>
+</tr>
+<tr>
+<td><strong>PaaS</strong> (Heroku, Render, Fly)</td>
+<td>o app</td>
+<td>nada — mas paga mais e obedece as regras deles</td>
+</tr>
+<tr>
+<td><strong>VPS</strong></td>
+<td>tudo</td>
+<td>tudo: SO, atualizações, firewall, banco</td>
+</tr>
+<tr>
+<td>Kubernetes</td>
+<td>tudo, em escala</td>
+<td>muito mais</td>
+</tr>
+</tbody>
+</table>
+<h3 id="por-que-vm-com-containers-e-nao-kubernetes">Por que VM com containers, e não Kubernetes</h3>
+<p>O <code>seem-backend</code> atende ~500 usuários num evento de uma semana. Kubernetes adicionaria custo e
+operação sem resolver um problema que existe. A escolha foi:</p>
+<ul>
+<li>menos peças para monitorar;</li>
+<li>deploy reproduzível com Docker e Kamal;</li>
+<li>banco e aplicação perto um do outro;</li>
+<li>recuperação simples numa VM substituta;</li>
+<li><strong>evoluir só quando uma métrica real pedir.</strong></li>
+</ul>
+<blockquote>
+<p>Escolher a ferramenta grande antes do problema grande é a forma mais cara de errar.</p>
+</blockquote>
+<p><strong>O que isso custa, e é honesto admitir</strong>: uma VM é ponto único de falha. Volume Docker não é
+backup. O Postgres não é gerenciado — quem cuida dele é você.</p>
+<hr>
+<h2 id="2-criar-a-vm-na-azure">2. Criar a VM na Azure</h2>
+<h3 id="cotas-antes-de-tudo">Cotas antes de tudo</h3>
+<p>A assinatura Azure for Students não oferece todos os tamanhos em todas as regiões. O portal
+responde:</p>
+<pre><code>NotAvailableForSubscription
+</code></pre>
+<p>O caminho certo:</p>
+<ol>
+<li><strong>Assinaturas → Azure for Students → Uso + cotas</strong></li>
+<li>filtre por <code>Compute</code></li>
+<li>veja as cotas regionais</li>
+<li>escolha uma região onde o tamanho aparece</li>
+</ol>
+<blockquote>
+<p>Não insista num tamanho marcado como indisponível. Pedir aumento de cota não resolve quando a
+oferta não está habilitada para a assinatura.</p>
+</blockquote>
+<h3 id="o-assistente">O assistente</h3>
+<p><strong>Máquinas virtuais → Criar → Máquina virtual do Azure</strong></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grupo de recursos</td>
+<td>Novo: <code>rg-capacita-&lt;seunome&gt;</code></td>
+</tr>
+<tr>
+<td>Nome</td>
+<td><code>vm-capacita-&lt;seunome&gt;</code></td>
+</tr>
+<tr>
+<td>Região</td>
+<td>uma com cota disponível</td>
+</tr>
+<tr>
+<td>Imagem</td>
+<td>Ubuntu Server 24.04 LTS — x64 Gen2</td>
+</tr>
+<tr>
+<td>Tamanho</td>
+<td><code>Standard_B1s</code> (1 vCPU, 1 GiB) ou maior, se houver crédito</td>
+</tr>
+<tr>
+<td>Autenticação</td>
+<td>Chave pública SSH</td>
+</tr>
+<tr>
+<td>Usuário</td>
+<td><code>azureuser</code></td>
+</tr>
+<tr>
+<td>Tipo de chave</td>
+<td>Ed25519</td>
+</tr>
+<tr>
+<td><strong>Portas públicas</strong></td>
+<td><strong>Nenhuma</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>"Nenhuma" é a escolha mais importante da tela.</strong> O assistente, se deixado, cria uma regra
+liberando SSH para a internet inteira. Bots varrem a porta 22 do IPv4 todo, o dia todo. Vamos abrir
+a 22 só para o seu IP.</p>
+<p>Rede:</p>
+<ul>
+<li>VNet e sub-rede: aceite os padrões</li>
+<li>IP público: Standard</li>
+<li>NSG: avançado (é o firewall — vamos mexer nele)</li>
+</ul>
+<p>Marque tudo com tags (<code>ambiente=capacitacao</code>, <code>dono=&lt;seunome&gt;</code>): é assim que você acha recurso
+órfão consumindo crédito depois.</p>
+<h3 id="antes-duas-chaves-um-par">Antes: duas chaves, um par</h3>
+<p><strong>Criptografia assimétrica</strong> usa duas chaves que se completam. A <strong>pública</strong> você espalha; a
+<strong>privada</strong> nunca sai da sua máquina. O que uma fecha, só a outra abre.</p>
+<p>Daí saem duas coisas diferentes:</p>
+<ul>
+<li><strong>sigilo</strong> — eu fecho com a <em>sua</em> pública, e só você abre;</li>
+<li><strong>assinatura</strong> — eu fecho com a <em>minha</em> privada, e todo mundo confere que fui eu.</li>
+</ul>
+<p><strong>É assim que o SSH funciona.</strong> Você põe a sua chave pública no servidor (<code>~/.ssh/authorized_keys</code>).
+Ao conectar, o servidor manda um desafio; você responde assinando com a privada; o servidor confere
+com a pública que já tinha. <strong>A senha nunca trafega — nem existe.</strong></p>
+<p>E é por isso que perder a chave privada é perder o acesso à máquina.</p>
+<blockquote>
+<p>Compare com o JWT da Aula 3: lá a assinatura usa uma chave <strong>simétrica</strong> (HS256) — a mesma chave
+assina e confere, porque quem assina e quem confere são o mesmo servidor.</p>
+</blockquote>
+<h3 id="a-chave-privada">A chave privada</h3>
+<p>O portal oferece o download <strong>uma vez</strong>.</p>
+<pre><code class="language-bash">mkdir -p ~/.ssh
+mv ~/Downloads/vm-capacita-seunome_key.pem ~/.ssh/azure-capacita
+chmod 600 ~/.ssh/azure-capacita
+</code></pre>
+<p><code>chmod 600</code> = só você lê. O SSH <strong>recusa</strong> usar uma chave com permissão frouxa.</p>
+<blockquote>
+<p>Chave privada não vai por e-mail, não vai por WhatsApp, não vai para o Git. Nunca.</p>
+</blockquote>
+<h3 id="abrir-o-ssh-so-para-voce">Abrir o SSH só para você</h3>
+<p>No NSG da VM, <strong>Regras de segurança de entrada → Adicionar</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Origem</td>
+<td>Endereços IP</td>
+</tr>
+<tr>
+<td>IPs de origem</td>
+<td><code>SEU_IP/32</code></td>
+</tr>
+<tr>
+<td>Portas de destino</td>
+<td><code>22</code></td>
+</tr>
+<tr>
+<td>Protocolo</td>
+<td>TCP</td>
+</tr>
+<tr>
+<td>Prioridade</td>
+<td><code>100</code></td>
+</tr>
+<tr>
+<td>Nome</td>
+<td><code>allow-ssh-meu-ip</code></td>
+</tr>
+</tbody>
+</table>
+<p>Descubra o seu IP:</p>
+<pre><code class="language-bash">curl -4 ifconfig.me
+</code></pre>
+<p>O <code>/32</code> significa "exatamente este endereço". Precisa também de:</p>
+<table>
+<thead>
+<tr>
+<th>Porta</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>80</code></td>
+<td>HTTP (o Cloudflare precisa alcançar)</td>
+</tr>
+<tr>
+<td><code>443</code></td>
+<td>HTTPS</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Internet de casa troca de IP. Quando o SSH parar de conectar do nada, é isso: atualize a regra.</p>
+</blockquote>
+<h3 id="primeiro-acesso">Primeiro acesso</h3>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP_PUBLICO
+</code></pre>
+<hr>
+<h2 id="3-preparar-o-ubuntu">3. Preparar o Ubuntu</h2>
+<h3 id="atualizar">Atualizar</h3>
+<pre><code class="language-bash">sudo apt update &amp;&amp; sudo apt upgrade -y
+test -f /var/run/reboot-required &amp;&amp; sudo reboot
+</code></pre>
+<h3 id="docker-do-repositorio-oficial">Docker, do repositório oficial</h3>
+<p>O <code>apt install docker.io</code> do Ubuntu instala uma versão velha. Use o repositório da Docker:</p>
+<pre><code class="language-bash">sudo apt install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+sudo tee /etc/apt/sources.list.d/docker.sources &gt;/dev/null &lt;&lt;EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release &amp;&amp; echo &quot;${UBUNTU_CODENAME:-$VERSION_CODENAME}&quot;)
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+</code></pre>
+<p>Libere o Docker para o <code>azureuser</code>:</p>
+<pre><code class="language-bash">sudo usermod -aG docker azureuser
+exit
+</code></pre>
+<p><strong>Saia e entre de novo</strong> — grupo só vale em sessão nova.</p>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP
+docker run --rm hello-world
+</code></pre>
+<h3 id="root-e-permissoes">Root e permissões</h3>
+<p><code>root</code> é o usuário que pode tudo — sem "tem certeza?". Você trabalha como <code>azureuser</code> e chama
+<code>sudo</code> quando precisa.</p>
+<p>Todo arquivo tem dono, grupo e três permissões: ler, escrever, executar.</p>
+<pre><code class="language-bash">chmod 600 arquivo    # dono lê e escreve; mais ninguém vê nada
+chmod 700 pasta      # dono entra; mais ninguém
+</code></pre>
+<p>O SSH <strong>exige</strong> <code>600</code> numa chave privada — com permissão mais frouxa ele recusa usar o arquivo.</p>
+<p>E nunca rode a aplicação como root: o Dockerfile já cria um usuário <code>rails</code> justamente para isso.</p>
+<h3 id="swap">Swap</h3>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'sudo bash -s' &lt; scripts/server-swap.sh
+</code></pre>
+<p>Numa VM de 1 GiB, Rails + Postgres + build estouram a RAM e o kernel mata o processo que estiver na
+frente (<em>OOM killer</em>), com uma mensagem que não explica nada. 2 GiB de swap resolvem.</p>
+<h3 id="endurecer-o-ssh">Endurecer o SSH</h3>
+<p><strong>Mantenha a sessão atual aberta</strong> enquanto testa em outro terminal.</p>
+<pre><code class="language-bash">sudo tee /etc/ssh/sshd_config.d/99-hardening.conf &gt;/dev/null &lt;&lt;'EOF'
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+EOF
+
+sudo sshd -t          # valida a sintaxe ANTES de recarregar
+sudo systemctl reload ssh
+</code></pre>
+<p>Em outro terminal:</p>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'echo OK'
+</code></pre>
+<p>Só feche a primeira sessão depois que isso responder. Errar a config do SSH com uma sessão só
+aberta é o jeito clássico de perder acesso à máquina.</p>
+<hr>
+<h2 id="4-docker">4. Docker</h2>
+<h3 id="imagem-container">Imagem × container</h3>
+<p><strong>Imagem</strong> é a receita: o sistema, o Ruby, as gems, o seu código, congelados. <strong>Container</strong> é o
+bolo: uma instância rodando. Uma imagem, muitos containers.</p>
+<h3 id="o-dockerfile-do-rails">O Dockerfile do Rails</h3>
+<p>O Rails 8 gera um Dockerfile de produção pronto. Vale ler:</p>
+<pre><code class="language-dockerfile">FROM ruby:3.4.9-slim AS base
+# ...
+
+FROM base AS build
+RUN apt-get install -y build-essential libpq-dev ...
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+COPY . .
+
+FROM base
+RUN groupadd --system --gid 1000 rails &amp;&amp; useradd rails --uid 1000 --gid 1000
+USER 1000:1000
+COPY --from=build &quot;${BUNDLE_PATH}&quot; &quot;${BUNDLE_PATH}&quot;
+COPY --from=build /rails /rails
+</code></pre>
+<p>Duas decisões importantes:</p>
+<p><strong>Multi-stage.</strong> O estágio <code>build</code> instala compilador e headers para compilar as gems nativas. A
+imagem final copia só o resultado. Compilador não vai para produção: menos peso e menos ferramenta
+à mão de quem invadir.</p>
+<p><strong>Usuário não-root.</strong> Se alguém escapar da aplicação, cai num usuário sem privilégio. É uma linha
+que muda o tamanho do estrago.</p>
+<h3 id="dockerignore"><code>.dockerignore</code></h3>
+<p>Diz o que <strong>não</strong> entra na imagem: <code>.git</code>, <code>log/</code>, <code>tmp/</code>, <code>node_modules</code>. Sem ele a imagem fica
+gorda e — pior — o histórico do Git vai junto.</p>
+<h3 id="registry">Registry</h3>
+<p>O registry é o "GitHub das imagens". Usamos o <strong>ghcr.io</strong> (GitHub Container Registry): já vem com a
+conta e o Actions autentica sozinho com o <code>GITHUB_TOKEN</code>.</p>
+<p>O fluxo: <strong>Actions faz o build → empurra a imagem para o ghcr.io → a VM puxa e roda.</strong></p>
+<p>A sua máquina nunca faz o build de produção.</p>
+<hr>
+<h2 id="5-kamal">5. Kamal</h2>
+<p>O Kamal (feito pela mesma turma do Rails) faz <em>zero-downtime deploy</em> com Docker, via SSH. Sem
+agente, sem painel: ele conecta na sua máquina e roda <code>docker</code>.</p>
+<p>O que ele faz num <code>kamal deploy</code>:</p>
+<ol>
+<li>builda a imagem e empurra para o registry</li>
+<li>conecta na VM por SSH</li>
+<li>puxa a imagem</li>
+<li>sobe o container novo <strong>ao lado</strong> do antigo</li>
+<li>espera o health check do novo passar</li>
+<li>manda o tráfego para o novo e derruba o antigo</li>
+</ol>
+<p>Falhou o health check? Ele não troca. O antigo continua servindo.</p>
+<h3 id="configdeployyml-por-partes"><code>config/deploy.yml</code>, por partes</h3>
+<pre><code class="language-yaml">service: automic-auth-api
+image: &lt;%= ENV.fetch(&quot;GHCR_USER&quot;) %&gt;/automic-auth-api
+</code></pre>
+<p>O arquivo é ERB: dá para usar <code>ENV</code>. É por isso que este <code>deploy.yml</code> é <strong>igual para todo mundo da
+turma</strong> — o que muda vem das variables do Actions.</p>
+<pre><code class="language-yaml">ssh:
+  user: azureuser
+run_directory: /home/azureuser/.kamal
+</code></pre>
+<p>Sem login root, então o Kamal precisa de um lugar para gravar lock e auditoria.</p>
+<pre><code class="language-yaml">env:
+  clear:
+    SOLID_QUEUE_IN_PUMA: &quot;true&quot;
+    WEB_CONCURRENCY: &quot;1&quot;
+    DB_HOST: automic-auth-api-db
+  secret:
+    - RAILS_MASTER_KEY
+    - JWT_SECRET
+</code></pre>
+<ul>
+<li><strong><code>clear</code></strong> vai como texto no comando <code>docker run</code>. Configuração, não segredo.</li>
+<li><strong><code>secret</code></strong> vai por um arquivo de ambiente, com permissão restrita no servidor.</li>
+</ul>
+<p>Colocar <code>JWT_SECRET</code> no <code>clear</code> seria o mesmo que publicá-lo: ele apareceria em <code>docker inspect</code> e
+no histórico do shell.</p>
+<p><code>DB_HOST: automic-auth-api-db</code> é o <strong>nome do container</strong> do banco. Containers na mesma rede Docker
+se enxergam por nome — não precisa de IP.</p>
+<pre><code class="language-yaml">accessories:
+  db:
+    image: postgres:16
+    directories:
+      - data:/var/lib/postgresql/data
+</code></pre>
+<p><strong>Accessory</strong> é um container que o Kamal gerencia mas não faz deploy junto com o app. O
+<code>directories</code> cria o volume: é ele que faz os dados sobreviverem a deploy e a rebuild.</p>
+<blockquote>
+<p>⚠️ <code>kamal deploy</code> <strong>não</strong> sobe accessories. Depois de mudar env de accessory:
+<code>kamal accessory reboot db</code>.</p>
+</blockquote>
+<h3 id="as-tres-camadas-de-segredo">As três camadas de segredo</h3>
+<pre><code>GitHub Actions Secrets
+        ↓  (viram variáveis de ambiente no runner)
+.kamal/secrets
+        ↓  (referencia as variáveis — nenhum valor aqui, por isso vai para o Git)
+config/deploy.yml (env.secret)
+        ↓  (o Kamal injeta no container)
+ENV[&quot;JWT_SECRET&quot;] no Rails
+</code></pre>
+<p>Nenhum valor real toca o repositório em nenhum ponto.</p>
+<hr>
+<h2 id="6-segredos-do-rails">6. Segredos do Rails</h2>
+<h3 id="credentials-e-masterkey"><code>credentials</code> e <code>master.key</code></h3>
+<pre><code class="language-bash">bin/rails credentials:edit
+</code></pre>
+<p>O Rails abre um YAML no editor, e ao salvar grava <code>config/credentials.yml.enc</code> — criptografado,
+seguro no Git. A chave que decripta é <code>config/master.key</code>, que <strong>nunca</strong> vai para o Git (já está no
+<code>.gitignore</code>).</p>
+<p>Em produção, <code>master.key</code> vira o secret <code>RAILS_MASTER_KEY</code>.</p>
+<h3 id="antes-o-que-e-uma-variavel-de-ambiente">Antes: o que é uma variável de ambiente</h3>
+<p>Um par <code>nome=valor</code> que o sistema operacional entrega ao processo quando ele sobe.</p>
+<pre><code class="language-bash">export JWT_SECRET=abc123
+</code></pre>
+<p>E o programa lê com <code>ENV["JWT_SECRET"]</code>.</p>
+<p><strong>Por que não deixar o valor no código?</strong> Porque o código vai para o Git. A ideia é: mesmo código,
+ambientes diferentes, valores diferentes. É um dos <a href="https://12factor.net/config">12 fatores</a>, e é
+como o Kamal injeta segredo no container.</p>
+<h3 id="credentials-env">Credentials × ENV</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Quando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Credentials</strong></td>
+<td>segredo estável, que é do app: chave de API de terceiro</td>
+</tr>
+<tr>
+<td><strong>ENV</strong></td>
+<td>o que muda por ambiente ou por máquina: senha do banco, host de SMTP</td>
+</tr>
+</tbody>
+</table>
+<p>Este projeto usa ENV para quase tudo, porque quem provisiona (Kamal) já sabe injetar.</p>
+<p>Gere o <code>JWT_SECRET</code>:</p>
+<pre><code class="language-bash">bin/rails secret
+</code></pre>
+<hr>
+<h2 id="7-github-actions">7. GitHub Actions</h2>
+<h3 id="ci-o-portao">CI: o portão</h3>
+<p><code>.github/workflows/ci.yml</code> roda em todo push e PR:</p>
+<ul>
+<li><strong><code>scan_ruby</code></strong> — Brakeman (segurança estática) e bundler-audit (CVE em gems)</li>
+<li><strong><code>lint</code></strong> — RuboCop</li>
+<li><strong><code>test</code></strong> — <code>bin/rails test</code> contra um Postgres descartável</li>
+</ul>
+<p>Se qualquer um falhar, o código não entra na <code>main</code>. Isso é o que faz "deploy automático" não ser
+"publicar bug automático".</p>
+<h3 id="deploy-o-interessante">Deploy: o interessante</h3>
+<p>O ponto delicado é o SSH. A porta 22 está fechada para a internet. O runner do GitHub tem IP
+diferente a cada execução — não dá para liberar antes.</p>
+<p>A sequência:</p>
+<pre><code>1. autentica na Azure (OIDC)
+2. descobre o próprio IP público
+3. cria uma regra no NSG liberando a 22 só para esse IP/32
+4. faz o deploy
+5. APAGA a regra — mesmo se o deploy falhar
+</code></pre>
+<p>O passo 5 tem <code>if: always()</code>. <strong>Deixar a 22 aberta é o erro que transforma um deploy ruim num
+incidente de segurança.</strong></p>
+<hr>
+<h2 id="8-oidc-por-que-nao-usar-senha">8. OIDC — por que não usar senha</h2>
+<p>O jeito comum seria criar um <em>client secret</em> na Azure e guardar como secret do GitHub. Problemas:
+ele é longo, vale por meses, e quem tiver acesso ao repositório tem acesso à sua Azure.</p>
+<p><strong>OIDC</strong> (OpenID Connect) inverte: o GitHub emite, a cada execução, um token de curta duração que
+diz "sou o workflow do repositório X, na branch Y". A Azure verifica e devolve um acesso temporário.</p>
+<p><strong>Não existe segredo de longa duração em lugar nenhum.</strong></p>
+<h3 id="criando">Criando</h3>
+<p><strong>1. Registro de aplicativo</strong> — Microsoft Entra ID → Registros de aplicativo → Novo registro:</p>
+<ul>
+<li>nome: <code>github-capacita-&lt;seunome&gt;</code></li>
+<li>contas: somente este diretório</li>
+<li>URI de redirecionamento: vazia</li>
+<li><strong>não crie segredo do cliente</strong></li>
+</ul>
+<p>Anote: Application (client) ID, Directory (tenant) ID, Subscription ID.</p>
+<p><strong>2. Credencial federada</strong> — no app criado, Certificados e segredos → Credenciais federadas →
+Adicionar → cenário <strong>GitHub Actions</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Organização</td>
+<td>seu usuário do GitHub</td>
+</tr>
+<tr>
+<td>Repositório</td>
+<td>nome do repositório</td>
+</tr>
+<tr>
+<td>Tipo de entidade</td>
+<td>Branch</td>
+</tr>
+<tr>
+<td>Branch</td>
+<td><code>main</code></td>
+</tr>
+</tbody>
+</table>
+<p>O subject resultante:</p>
+<pre><code>repo:SEU-USUARIO/SEU-REPO:ref:refs/heads/main
+</code></pre>
+<blockquote>
+<p>Precisa bater <strong>caractere por caractere</strong> com o que o GitHub emite. Erro de maiúscula, de nome ou
+de branch dá <code>AADSTS700213</code> — e a mensagem não ajuda.</p>
+</blockquote>
+<p><strong>3. Permissão mínima</strong> — no <strong>NSG</strong> (não na assinatura), IAM → Adicionar atribuição de função →
+<strong>Colaborador de Rede</strong> → o app criado.</p>
+<p>Escopo no NSG e não na assinatura: se a credencial vazar, o estrago se limita a regras de firewall
+daquela máquina.</p>
+<p><strong>4. Chave SSH de deploy</strong> — separada da sua chave pessoal:</p>
+<pre><code class="language-bash">ssh-keygen -t ed25519 -f ~/.ssh/capacita-github -C &quot;github-actions&quot; -N &quot;&quot;
+
+ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP \
+  'umask 077; mkdir -p ~/.ssh; cat &gt;&gt; ~/.ssh/authorized_keys' &lt; ~/.ssh/capacita-github.pub
+</code></pre>
+<p>Chave separada dá para revogar o acesso do CI sem trocar o seu.</p>
+<h3 id="cadastrando-no-github">Cadastrando no GitHub</h3>
+<p><strong>Settings → Secrets and variables → Actions</strong></p>
+<p><strong>Secrets:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AZURE_CLIENT_ID</code></td>
+<td>Application (client) ID</td>
+</tr>
+<tr>
+<td><code>AZURE_TENANT_ID</code></td>
+<td>Directory (tenant) ID</td>
+</tr>
+<tr>
+<td><code>AZURE_SUBSCRIPTION_ID</code></td>
+<td>Subscription ID</td>
+</tr>
+<tr>
+<td><code>AZURE_SSH_PRIVATE_KEY</code></td>
+<td>conteúdo de <code>~/.ssh/capacita-github</code> (a privada)</td>
+</tr>
+<tr>
+<td><code>RAILS_MASTER_KEY</code></td>
+<td>conteúdo de <code>config/master.key</code></td>
+</tr>
+<tr>
+<td><code>AUTOMIC_AUTH_API_DATABASE_PASSWORD</code></td>
+<td>invente uma senha longa</td>
+</tr>
+<tr>
+<td><code>JWT_SECRET</code></td>
+<td>saída de <code>bin/rails secret</code></td>
+</tr>
+<tr>
+<td><code>SMTP_ADDRESS</code> / <code>SMTP_USERNAME</code> / <code>SMTP_PASSWORD</code></td>
+<td>do provedor de e-mail</td>
+</tr>
+<tr>
+<td><code>KAMAL_PROXY_SSL_CERTIFICATE</code></td>
+<td>certificado Origin CA</td>
+</tr>
+<tr>
+<td><code>KAMAL_PROXY_SSL_PRIVATE_KEY</code></td>
+<td>chave do Origin CA</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variables</strong> (não são segredo):</p>
+<table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Exemplo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GHCR_USER</code></td>
+<td>seu usuário do GitHub</td>
+</tr>
+<tr>
+<td><code>AZURE_VM_IP</code></td>
+<td><code>57.156.65.151</code></td>
+</tr>
+<tr>
+<td><code>APP_HOST</code></td>
+<td><code>seunome.capacita.exemplo.tech</code></td>
+</tr>
+<tr>
+<td><code>AZURE_RESOURCE_GROUP</code></td>
+<td><code>rg-capacita-seunome</code></td>
+</tr>
+<tr>
+<td><code>AZURE_NSG_NAME</code></td>
+<td>nome do NSG</td>
+</tr>
+<tr>
+<td><code>CORS_ORIGINS</code></td>
+<td><code>http://localhost:5173</code></td>
+</tr>
+<tr>
+<td><code>MAILER_FROM</code></td>
+<td><code>Capacitação &lt;noreply@exemplo.tech&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p>Pelo CLI (não deixa o valor no histórico do shell):</p>
+<pre><code class="language-bash">gh secret set JWT_SECRET
+gh secret set KAMAL_PROXY_SSL_CERTIFICATE &lt; origin-ca.pem
+gh variable set APP_HOST
+</code></pre>
+<hr>
+<h2 id="9-cloudflare-e-tls">9. Cloudflare e TLS</h2>
+<h3 id="https-e-http-dentro-de-um-tunel">HTTPS é HTTP dentro de um túnel</h3>
+<p>O HTTP da Aula 1 é <strong>texto puro</strong>: quem estiver no caminho — o roteador do café, o provedor — lê
+tudo, inclusive a senha. O <strong>TLS</strong> embrulha esse texto num túnel criptografado.</p>
+<p>Mesmo protocolo, mesmos verbos, mesmos cabeçalhos, só que fechado. O "S" de HTTPS é isso, e nada
+além disso.</p>
+<h3 id="o-handshake-em-tres-passos">O handshake, em três passos</h3>
+<ol>
+<li>O servidor apresenta o <strong>certificado</strong> dele.</li>
+<li>O cliente confere se confia em <strong>quem assinou</strong> aquele certificado.</li>
+<li>Os dois combinam uma chave temporária e conversam com ela.</li>
+</ol>
+<p>O par de chaves assimétricas só serve para o passo 3. Depois disso a conversa usa criptografia
+<strong>simétrica</strong>, que é muito mais rápida.</p>
+<h3 id="certificado-e-autoridade">Certificado e autoridade</h3>
+<p>Um certificado diz: <em>"esta chave pública pertence a este domínio"</em> — e vem <strong>assinado por uma
+Autoridade Certificadora (CA)</strong>.</p>
+<p>O seu navegador já nasce com uma lista de CAs em que confia. Confia na CA → confia em quem ela
+assinou. É uma cadeia.</p>
+<ul>
+<li><strong>Autoassinado</strong> é você jurando que é você. O navegador não aceita.</li>
+<li><strong>Let's Encrypt</strong> é uma CA pública e gratuita, em que os navegadores confiam.</li>
+<li><strong>Cloudflare Origin CA</strong> <em>não</em> é pública — e é exatamente por isso que ela funciona aqui, como
+  você vai ver.</li>
+</ul>
+<h3 id="proxy-reverso">Proxy reverso</h3>
+<p>Um proxy comum fica na frente do <strong>cliente</strong>. Um proxy <strong>reverso</strong> fica na frente do <strong>servidor</strong>:
+recebe tudo na 443, termina o TLS, e repassa para a aplicação em HTTP interno.</p>
+<p>Assim o Rails não precisa saber nada de certificado. Na nossa arquitetura há dois:</p>
+<pre><code>navegador → Cloudflare → kamal-proxy (na sua VM) → Rails
+             (proxy 1)      (proxy 2)
+</code></pre>
+<p>É por isso que <code>config.assume_ssl = true</code>: ele avisa o Rails de que o "http" que chegou já veio de
+um "https" lá fora, e o Rails para de montar URLs erradas.</p>
+<h3 id="dns">DNS</h3>
+<p>No Cloudflare, no domínio da capacitação:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tipo</td>
+<td><code>A</code></td>
+</tr>
+<tr>
+<td>Nome</td>
+<td><code>seunome.capacita</code></td>
+</tr>
+<tr>
+<td>Conteúdo</td>
+<td>o IP público da sua VM</td>
+</tr>
+<tr>
+<td>Proxy</td>
+<td><strong>Proxied</strong> (nuvem laranja)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Proxied</strong> significa que o tráfego passa pelo Cloudflare antes de chegar na sua VM. Você ganha
+cache, proteção contra DDoS e — o principal aqui — o IP real da sua máquina não aparece no DNS.</p>
+<h3 id="certificado-origin-ca">Certificado Origin CA</h3>
+<p>SSL/TLS → <strong>Origin Server</strong> → Create Certificate. O Cloudflare gera o par e mostra <strong>uma vez</strong>.
+Copie os dois para os secrets <code>KAMAL_PROXY_SSL_CERTIFICATE</code> e <code>KAMAL_PROXY_SSL_PRIVATE_KEY</code>.</p>
+<h3 id="full-strict">Full (strict)</h3>
+<p>SSL/TLS → Overview → <strong>Full (strict)</strong>.</p>
+<p>Os três modos:</p>
+<table>
+<thead>
+<tr>
+<th>Modo</th>
+<th>Cloudflare → sua VM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flexible</td>
+<td><strong>em texto puro</strong> — não use</td>
+</tr>
+<tr>
+<td>Full</td>
+<td>criptografado, mas aceita certificado inválido</td>
+</tr>
+<tr>
+<td><strong>Full (strict)</strong></td>
+<td>criptografado e o certificado é validado</td>
+</tr>
+</tbody>
+</table>
+<p>Com <code>Flexible</code>, o cadeado aparece para o usuário e a senha dele trafega em claro no último trecho.
+É pior que não ter HTTPS, porque mente.</p>
+<h3 id="por-que-nao-lets-encrypt">Por que não Let's Encrypt</h3>
+<p>O Kamal sabe emitir Let's Encrypt sozinho. Aqui não dá:</p>
+<ul>
+<li>com o DNS <strong>proxied</strong>, o desafio HTTP-01 não chega ao seu servidor como o Let's Encrypt espera;</li>
+<li>daria para tirar o proxy durante a emissão, mas isso expõe o IP e vira ritual manual a cada
+  renovação.</li>
+</ul>
+<p>O Origin CA resolve: protege o trecho Cloudflare → Azure, dispensa desafio, funciona com Full
+(strict) e vale anos. O certificado que o <strong>usuário</strong> vê é o público do Cloudflare — o Origin CA
+nunca aparece para o navegador (e por isso não precisa ser confiável por ele).</p>
+<hr>
+<h2 id="10-o-primeiro-deploy">10. O primeiro deploy</h2>
+<pre><code class="language-bash">GHCR_USER=seu-usuario AZURE_VM_IP=1.2.3.4 APP_HOST=seunome.capacita.exemplo.tech \
+  bundle exec kamal config
+</code></pre>
+<p>Isso valida o <code>deploy.yml</code> sem tocar em nada. Depois:</p>
+<p><strong>Actions → Deploy (Kamal) → Run workflow → command: <code>setup</code></strong></p>
+<p><code>setup</code> instala o Docker se faltar, sobe os accessories e faz o primeiro deploy. Só na primeira vez
+— depois é <code>deploy</code>.</p>
+<p>Deu certo:</p>
+<pre><code class="language-bash">curl https://seunome.capacita.exemplo.tech/api/v1/status
+</code></pre>
+<pre><code class="language-json">{&quot;status&quot;:&quot;ok&quot;,&quot;service&quot;:&quot;automic-auth-api&quot;,&quot;environment&quot;:&quot;production&quot;}
+</code></pre>
+<p><strong>A partir daqui, <code>git push</code> na <code>main</code> faz deploy sozinho.</strong></p>
+<hr>
+<h2 id="11-operar">11. Operar</h2>
+<pre><code class="language-bash">export GHCR_USER=... AZURE_VM_IP=... APP_HOST=...
+
+kamal app logs -f              # logs ao vivo
+kamal app exec --interactive --reuse &quot;bin/rails console&quot;
+kamal app exec &quot;bin/rails db:migrate&quot;
+kamal app details              # o que está rodando
+kamal accessory reboot db      # depois de mudar env do banco
+kamal rollback                 # volta para a versão anterior
+</code></pre>
+<p>Na VM:</p>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP
+docker ps
+free -h
+df -h
+</code></pre>
+<h3 id="backup">Backup</h3>
+<p><strong>Volume Docker não é backup.</strong> Se a VM sumir, o volume some junto.</p>
+<pre><code class="language-bash">ssh azureuser@SEU_IP \
+  'docker exec automic-auth-api-db pg_dump -U automic_auth_api automic_auth_api_production' \
+  | gzip &gt; backup-$(date +%F).sql.gz
+</code></pre>
+<p>E, o que quase ninguém faz: <strong>restaure num banco de teste</strong>. Backup que nunca foi restaurado não é
+backup, é esperança.</p>
+<hr>
+<h2 id="exercicio-da-aula">Exercício da aula</h2>
+<ol>
+<li>Crie a VM na Azure, sem porta pública nenhuma.</li>
+<li>Abra a 22 só para o seu IP, mais a 80 e a 443.</li>
+<li>Instale o Docker e rode o <code>hello-world</code>.</li>
+<li>Rode o <code>server-swap.sh</code> e endureça o SSH.</li>
+<li>Configure o OIDC e cadastre todos os secrets e variables.</li>
+<li>Crie o registro DNS e o certificado Origin CA. Ligue o Full (strict).</li>
+<li>Rode o workflow com <code>command: setup</code>.</li>
+<li><code>curl https://seunome.capacita.&lt;domínio&gt;/api/v1/status</code></li>
+<li>Faça o fluxo completo da Aula 3 <strong>contra a sua API em produção</strong>: cadastro, e-mail de verdade na
+   sua caixa de entrada, login, logout, recuperação de senha.</li>
+<li>Mude a mensagem da rota de status, dê push na <code>main</code> e veja o deploy acontecer sozinho.</li>
+</ol>
+<hr>
+<h2 id="recapitulando">Recapitulando</h2>
+<ul>
+<li>VPS: você controla tudo, e opera tudo.</li>
+<li>Escolha a ferramenta do tamanho do problema. Kubernetes não era o tamanho.</li>
+<li>Imagem é receita, container é bolo. Multi-stage e usuário não-root.</li>
+<li><code>clear</code> é configuração, <code>secret</code> é segredo — e a diferença aparece no <code>docker inspect</code>.</li>
+<li>Volume é o que faz o dado sobreviver ao deploy. E ainda assim não é backup.</li>
+<li>OIDC troca segredo de longa duração por token de curta. Prefira sempre.</li>
+<li>A porta 22 abre por um minuto e fecha — inclusive quando dá errado.</li>
+<li>Full (strict), sempre. <code>Flexible</code> mente para o usuário.</li>
+</ul>
+<hr>
+<h2 id="o-que-o-seem-backend-tem-a-mais">O que o <code>seem-backend</code> tem a mais</h2>
+<p>O que ficou de fora daqui, e por quê:</p>
+<table>
+<thead>
+<tr>
+<th>Recurso</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Datadog</strong> (logs)</td>
+<td>logs centralizados e Error Tracking, com o app logando JSON estruturado</td>
+</tr>
+<tr>
+<td><strong>rack-attack</strong></td>
+<td>bloqueia scanner e rajada de erro por IP — a internet bate na sua porta o dia todo</td>
+</tr>
+<tr>
+<td><strong>Active Storage</strong></td>
+<td>foto de perfil, em volume Docker persistente</td>
+</tr>
+<tr>
+<td><strong>Solid Queue</strong> dedicado</td>
+<td>processamento em background</td>
+</tr>
+<tr>
+<td><strong>Audit log</strong></td>
+<td>histórico de toda mutação feita por admin</td>
+</tr>
+<tr>
+<td><strong>Export .xlsx</strong></td>
+<td>relatório de presença</td>
+</tr>
+<tr>
+<td><strong>OpenAPI/Swagger</strong></td>
+<td>contrato da API documentado</td>
+</tr>
+</tbody>
+</table>
+<p>Nenhum deles é difícil depois do que você viu aqui. Todos estão no
+<a href="https://github.com/fabriciosiqueira08/seem-backend"><code>seem-backend</code></a> — agora dá para ler.</p>
+</main></body>
+</html>

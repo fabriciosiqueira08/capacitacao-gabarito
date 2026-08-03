@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Roteiro — Aula 2</title>
+<link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
+<style>@page { @bottom-left { content: "Capacitação Back-end · roteiro do instrutor"; } }</style>
+</head>
+<body><main>
+<h1 id="roteiro-aula-2-banco-activerecord-e-o-model-user">Roteiro — Aula 2: banco, ActiveRecord e o model <code>User</code></h1>
+<p><strong>Deck</strong>: <code>slides/build/aula-02-banco-de-dados-e-activerecord.pptx</code> (48 slides)
+<strong>Apostila da turma</strong>: <strong><code>02-activerecord.md</code></strong> · <strong>Checkpoint</strong>: <code>aula-02</code></p>
+<blockquote>
+<p>É a aula mais tranquila das quatro em termos de tempo. Use a folga para o console ao vivo — é o
+que mais fixa.</p>
+</blockquote>
+<hr>
+<h2 id="antes-de-comecar">Antes de começar</h2>
+<ul>
+<li>[ ] <code>git checkout aula-01</code> num diretório de socorro, com o banco já preparado.</li>
+<li>[ ] <code>docker compose up -d</code> rodando no seu, para o console não travar na hora.</li>
+<li>[ ] Terminal grande, com o <code>bin/rails console</code> já aberto e testado.</li>
+<li>[ ] Ter em mãos um exemplo real de vazamento de senha para citar (LinkedIn 2012, 6,5 milhões de
+      hashes SHA-1 sem salt — quebrados em dias).</li>
+<li>[ ] Conferir quem não terminou a prática da Aula 1 e resolver nos primeiros 10 minutos.</li>
+</ul>
+<hr>
+<h2 id="cronograma">Cronograma</h2>
+<table>
+<thead>
+<tr>
+<th>Relógio</th>
+<th>Slides</th>
+<th>Bloco</th>
+<th>Min</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00:00</td>
+<td>1–3</td>
+<td>Abertura e retomada</td>
+<td>6</td>
+</tr>
+<tr>
+<td>00:06</td>
+<td>4–9</td>
+<td>Banco, transação, Postgres, container</td>
+<td>18</td>
+</tr>
+<tr>
+<td>00:24</td>
+<td>10–15</td>
+<td>ActiveRecord, ActiveSupport, <code>blank?</code></td>
+<td>18</td>
+</tr>
+<tr>
+<td>00:42</td>
+<td>16–19</td>
+<td>Migrations e <code>schema.rb</code></td>
+<td>20</td>
+</tr>
+<tr>
+<td>01:02</td>
+<td>20–25</td>
+<td>Senha: hash, bcrypt, <code>has_secure_password</code></td>
+<td>20</td>
+</tr>
+<tr>
+<td><strong>01:22</strong></td>
+<td>—</td>
+<td><strong>Intervalo</strong></td>
+<td>10</td>
+</tr>
+<tr>
+<td>01:32</td>
+<td>26–29</td>
+<td>Validações e normalização</td>
+<td>15</td>
+</tr>
+<tr>
+<td>01:47</td>
+<td>30–36</td>
+<td>Associações e N+1</td>
+<td>22</td>
+</tr>
+<tr>
+<td>02:09</td>
+<td>37–40</td>
+<td>Concerns</td>
+<td>15</td>
+</tr>
+<tr>
+<td>02:24</td>
+<td>41–45</td>
+<td>Console ao vivo, seeds, fixtures, teste</td>
+<td>17</td>
+</tr>
+<tr>
+<td>02:41</td>
+<td>46</td>
+<td>Prática</td>
+<td>35</td>
+</tr>
+<tr>
+<td>03:16</td>
+<td>47–48</td>
+<td>Recapitulação e fim</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Dá 3h20.</strong> Cortes possíveis:</p>
+<ol>
+<li>Slide 5 (<code>O MODELO RELACIONAL</code>, marcado <code># CORTÁVEL</code>) se a turma já viu SQL. <strong>−5 min</strong></li>
+<li>Slide 36 (<code>A ARMADILHA N+1</code>) — fica na apostila. <strong>−5 min</strong></li>
+<li>Encurtar a prática para 25 min e mandar o resto de casa. <strong>−10 min</strong></li>
+</ol>
+<hr>
+<h2 id="bloco-a-bloco">Bloco a bloco</h2>
+<h3 id="0000-retomada-13">00:00 — Retomada (1–3)</h3>
+<p>O slide 3 é a ponte: <em>"temos uma API que responde. Ela não guarda nada. Reiniciou, esqueceu tudo.
+Hoje ela ganha memória."</em></p>
+<h3 id="0006-banco-49">00:06 — Banco (4–9)</h3>
+<p><strong>Transação (6–7) é o slide que eles vão precisar na Aula 3.</strong> Use o exemplo do dinheiro: debitar de
+um e creditar no outro têm que ser a mesma operação; debitar sozinho é dinheiro que sumiu.</p>
+<p>Aponte o <code>!</code> no slide 7 e explique: dentro da transação você <strong>quer</strong> que estoure, porque <code>save</code>
+devolve <code>false</code> em silêncio e a transação seguiria feliz gravando metade.</p>
+<p>No 8, a frase: <em>"desenvolver no mesmo banco da produção elimina uma categoria inteira de bug."</em></p>
+<h3 id="0024-activerecord-1015">00:24 — ActiveRecord (10–15)</h3>
+<p>O slide 13 é o que causa espanto em quem vem de Django: <strong>a classe não declara nada</strong>.</p>
+<pre><code class="language-ruby">class User &lt; ApplicationRecord
+end
+</code></pre>
+<p>Diga: <em>"isso já tem todas as colunas. A fonte da verdade é a migration, não a classe."</em></p>
+<p><strong>15 é para rodar no console</strong>, não para ler:</p>
+<pre><code class="language-ruby">nil.blank?     # true
+&quot;&quot;.blank?      # true
+&quot;   &quot;.blank?   # true
+0.blank?       # false      ← aqui alguém vai reclamar
+</code></pre>
+<p>E a pegadinha que vem de Python: em Ruby, <code>if 0</code> executa. <code>if ""</code> executa. Só <code>nil</code> e <code>false</code> são
+falsos.</p>
+<h3 id="0042-migrations-1619">00:42 — Migrations (16–19)</h3>
+<p>Gere uma migration ao vivo:</p>
+<pre><code class="language-bash">bin/rails generate migration CreateUsers
+</code></pre>
+<p>Mostre o arquivo criado, o timestamp no nome, e diga que é ele que define a ordem.</p>
+<p><strong>O slide 18 tem o ponto mais importante do bloco</strong>: índice único é restrição do banco, validação é
+mensagem bonita. Duas requisições simultâneas passam pela validação juntas — as duas consultam, as
+duas não acham ninguém — mas só uma vence o índice.</p>
+<p>No 19, a regra: <strong>nunca edite migration que já rodou em produção.</strong> Crie outra.</p>
+<h3 id="0102-senha-2025">01:02 — Senha (20–25)</h3>
+<p>O bloco mais importante da aula inteira.</p>
+<ul>
+<li><strong>21</strong> — comece pelo susto. Cite o vazamento que você separou.</li>
+<li><strong>22</strong> — hash não é criptografia. Criptografia tem volta; hash não.</li>
+<li><strong>23</strong> — por que bcrypt e não SHA-256: SHA é rápido, <strong>e é esse o problema</strong>. GPU testa bilhões
+  por segundo. bcrypt é lento de propósito, com custo ajustável.</li>
+<li><strong>24</strong> — desmonte o hash na tela: versão, custo, salt, digest.</li>
+</ul>
+<p>Demonstre no console — é o momento em que a ficha cai:</p>
+<pre><code class="language-ruby">BCrypt::Password.create(&quot;senha123&quot;)
+BCrypt::Password.create(&quot;senha123&quot;)   # rode DE NOVO
+</code></pre>
+<p><strong>São diferentes.</strong> É o salt. Pergunte por que, antes de responder.</p>
+<h3 id="0132-validacoes-2629">01:32 — Validações (26–29)</h3>
+<p>O 29 (normalizar antes de validar) fecha com o 18: se você não normaliza, o índice único não serve
+para nada, porque o banco acha que <code>Ana@UFOP.br</code> e <code>ana@ufop.br</code> são valores diferentes.</p>
+<h3 id="0147-associacoes-3036">01:47 — Associações (30–36)</h3>
+<p>Bloco novo, e é o que eles mais vão usar no primeiro projeto de verdade.</p>
+<p>A regra que resume tudo (slide 32): <strong>a chave estrangeira fica no lado "muitos"</strong>. Quem carrega a
+coluna usa <code>belongs_to</code>; quem é apontado usa <code>has_many</code>.</p>
+<p>No console:</p>
+<pre><code class="language-ruby">ana = User.first
+ana.login_events.create!(client: &quot;mobile&quot;, occurred_at: Time.current)
+ana.login_events.count
+ana.login_events.recentes.first.user.name    # e volta
+</code></pre>
+<p><strong>Demonstre o N+1 de verdade</strong> (36) — com o log na tela:</p>
+<pre><code class="language-ruby">User.all.each { |u| puts u.login_events.count }      # conte as consultas
+User.includes(:login_events).each { |u| puts u.login_events.count }
+</code></pre>
+<p>A diferença no log é o argumento. Nenhum slide convence tanto.</p>
+<h3 id="0209-concerns-3740">02:09 — Concerns (37–40)</h3>
+<p>A ponte com a Aula 1: <em>"lembram do módulo que se inclui numa classe? Isto aqui é ele, com nome de
+Rails."</em></p>
+<p>O slide 40 tem as três decisões — a que mais rende é a terceira: <code>email_verified_at</code> é data, não
+booleano, porque um dia alguém vai abrir chamado perguntando <em>quando</em> a conta foi ativada.</p>
+<h3 id="0224-console-e-testes-4145">02:24 — Console e testes (41–45)</h3>
+<p>O slide 45 (<code>authenticate_by_email</code>) merece atenção: o ataque de temporização. Se a resposta volta
+em 1ms quando o e-mail não existe e em 100ms quando existe, dá para descobrir quem tem conta
+cronometrando. Guarde — volta na Aula 3.</p>
+<h3 id="0241-pratica-46">02:41 — Prática (46)</h3>
+<p>Circule. Os pontos onde travam:</p>
+<ul>
+<li>esqueceram <code>db:migrate</code> depois de criar a migration;</li>
+<li>escreveram <code>has_secure_password</code> sem adicionar a gem <code>bcrypt</code> no Gemfile;</li>
+<li><code>matricula</code> com máscara (<code>20.112-34</code>) falhando na validação — é exatamente o motivo de
+  <code>normalize_matricula</code> existir.</li>
+</ul>
+<hr>
+<h2 id="perguntas-que-vao-aparecer">Perguntas que vão aparecer</h2>
+<table>
+<thead>
+<tr>
+<th>Pergunta</th>
+<th>Resposta curta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Por que não SQLite? É mais simples."</td>
+<td>Uma escrita por vez no banco inteiro. Num servidor com várias requisições, trava.</td>
+</tr>
+<tr>
+<td>"Dá para descriptografar o <code>password_digest</code>?"</td>
+<td>Não. Não é criptografia, é hash: caminho só de ida. Nem você consegue ver a senha do usuário — e isso é a intenção.</td>
+</tr>
+<tr>
+<td>"Por que o bcrypt é lento? Isso não é ruim?"</td>
+<td>É lento <strong>de propósito</strong>. 100ms para você é nada; para quem tenta bilhões de senhas, é o que inviabiliza.</td>
+</tr>
+<tr>
+<td>"Se eu já valido no model, para que o índice único?"</td>
+<td>Concorrência. Duas requisições ao mesmo tempo passam pelas duas validações e só uma vence o índice.</td>
+</tr>
+<tr>
+<td>"Por que não <code>t.boolean :email_verified</code>?"</td>
+<td>Porque booleano responde "sim" e data responde "sim, dia 12 às 14h". Um dia alguém vai perguntar quando.</td>
+</tr>
+<tr>
+<td>"Posso apagar uma migration antiga e refazer?"</td>
+<td>Na sua máquina, sim. Depois que rodou em produção, nunca — crie outra.</td>
+</tr>
+<tr>
+<td>"<code>dependent: :delete_all</code> ou <code>:destroy</code>?"</td>
+<td><code>delete_all</code> é um <code>DELETE</code> só, direto no banco, e não roda callback. <code>:destroy</code> carrega cada registro e roda os callbacks. Aqui não há callback, então <code>delete_all</code> é mais rápido.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dever-de-casa">Dever de casa</h2>
+<ol>
+<li>Terminar a prática.</li>
+<li>Bônus: escrever o N+1 de propósito, contar as consultas no log e consertar com <code>includes</code>.</li>
+<li>Ler a seção "Uma sutileza de segurança" da apostila — ela é o começo da próxima aula.</li>
+</ol>
+</main></body>
+</html>

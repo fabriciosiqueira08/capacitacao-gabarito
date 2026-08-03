@@ -1,0 +1,3809 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Capacitação Back-end — apostila completa</title>
+<link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
+<style>@page { @bottom-left { content: "Capacitação Back-end · Automic Jr."; } }</style>
+</head>
+<body><main>
+<div class='capa'><h1>Capacitação Back-end — apostila completa</h1><p>Automic Jr. · quatro encontros</p></div>
+<div class='quebra'></div>
+<h2>Sumário</h2>
+
+<div class="toc">
+<ul>
+<li><a href="#aula-0-preparacao">Aula 0 — Preparação</a><ul>
+<li><a href="#1-se-voce-usa-windows-instale-o-wsl2-primeiro">1. Se você usa Windows: instale o WSL2 primeiro</a></li>
+<li><a href="#2-git">2. Git</a></li>
+<li><a href="#3-ruby-349-via-mise">3. Ruby 3.4.9 via mise</a><ul>
+<li><a href="#instalar-o-mise">Instalar o mise</a></li>
+<li><a href="#instalar-as-dependencias-de-compilacao-do-ruby">Instalar as dependências de compilação do Ruby</a></li>
+<li><a href="#instalar-o-ruby">Instalar o Ruby</a></li>
+<li><a href="#instalar-o-rails">Instalar o Rails</a></li>
+</ul>
+</li>
+<li><a href="#4-docker">4. Docker</a></li>
+<li><a href="#5-vs-code-e-extensoes">5. VS Code e extensões</a></li>
+<li><a href="#6-insomnia-ou-postman">6. Insomnia (ou Postman)</a></li>
+<li><a href="#7-contas">7. Contas</a><ul>
+<li><a href="#github">GitHub</a></li>
+<li><a href="#azure-for-students-faca-isso-com-antecedencia">Azure for Students — faça isso com antecedência</a></li>
+</ul>
+</li>
+<li><a href="#checagem-final">Checagem final</a></li>
+<li><a href="#se-algo-deu-errado">Se algo deu errado</a></li>
+</ul>
+</li>
+<li><a href="#aula-1-o-que-e-back-end-ruby-e-o-primeiro-rails">Aula 1 — O que é back-end, Ruby e o primeiro Rails</a><ul>
+<li><a href="#1-os-dois-lados">1. Os dois lados</a></li>
+<li><a href="#2-a-rede-o-minimo-necessario">2. A rede, o mínimo necessário</a><ul>
+<li><a href="#o-que-e-um-servidor-afinal">O que é um servidor, afinal</a></li>
+<li><a href="#ip-e-porta">IP e porta</a></li>
+<li><a href="#dns">DNS</a></li>
+<li><a href="#anatomia-de-uma-url">Anatomia de uma URL</a></li>
+</ul>
+</li>
+<li><a href="#3-http">3. HTTP</a><ul>
+<li><a href="#como-ela-e-por-dentro">Como ela é, por dentro</a></li>
+<li><a href="#cabecalhos">Cabeçalhos</a></li>
+<li><a href="#content-type-importa">Content-Type importa</a></li>
+<li><a href="#os-metodos">Os métodos</a></li>
+<li><a href="#os-status">Os status</a></li>
+<li><a href="#http-nao-tem-memoria">HTTP não tem memória</a></li>
+<li><a href="#veja-funcionando">Veja funcionando</a></li>
+</ul>
+</li>
+<li><a href="#4-api-rest">4. API REST</a></li>
+<li><a href="#5-ruby-partindo-do-python">5. Ruby, partindo do Python</a><ul>
+<li><a href="#tudo-e-objeto">Tudo é objeto</a></li>
+<li><a href="#simbolos">Símbolos</a></li>
+<li><a href="#blocos">Blocos</a></li>
+<li><a href="#e">? e !</a></li>
+<li><a href="#argumentos-nomeados-e-o-atalho-do-ruby-31">Argumentos nomeados, e o atalho do Ruby 3.1</a></li>
+<li><a href="#struct">Struct</a></li>
+<li><a href="#excecoes">Exceções</a></li>
+<li><a href="#modulos-e-mixins">Módulos e mixins</a></li>
+<li><a href="#dependencias">Dependências</a></li>
+<li><a href="#pratica-rapida">Prática rápida</a></li>
+</ul>
+</li>
+<li><a href="#6-rails">6. Rails</a><ul>
+<li><a href="#as-duas-leis">As duas leis</a></li>
+<li><a href="#rails-django">Rails × Django</a></li>
+<li><a href="#mvc">MVC</a></li>
+<li><a href="#zeitwerk-o-nome-diz-o-caminho">Zeitwerk: o nome diz o caminho</a></li>
+<li><a href="#os-tres-ambientes">Os três ambientes</a></li>
+</ul>
+</li>
+<li><a href="#7-mao-na-massa">7. Mão na massa</a><ul>
+<li><a href="#criar-o-projeto">Criar o projeto</a></li>
+<li><a href="#subir-o-banco">Subir o banco</a></li>
+<li><a href="#preparar-e-subir-a-aplicacao">Preparar e subir a aplicação</a></li>
+<li><a href="#o-tour-das-pastas">O tour das pastas</a></li>
+<li><a href="#os-comandos-do-dia-a-dia">Os comandos do dia a dia</a></li>
+</ul>
+</li>
+<li><a href="#8-a-primeira-rota">8. A primeira rota</a><ul>
+<li><a href="#teste">Teste</a></li>
+</ul>
+</li>
+<li><a href="#exercicio-da-aula">Exercício da aula</a></li>
+<li><a href="#recapitulando">Recapitulando</a></li>
+</ul>
+</li>
+<li><a href="#aula-2-banco-de-dados-activerecord-e-o-model-user">Aula 2 — Banco de dados, ActiveRecord e o model User</a><ul>
+<li><a href="#1-por-que-postgres-e-nao-sqlite">1. Por que Postgres, e não SQLite</a><ul>
+<li><a href="#transacao">Transação</a></li>
+</ul>
+</li>
+<li><a href="#2-activerecord">2. ActiveRecord</a><ul>
+<li><a href="#activesupport-os-metodos-que-o-rails-inventou">ActiveSupport: os métodos que o Rails inventou</a></li>
+</ul>
+</li>
+<li><a href="#3-migrations">3. Migrations</a><ul>
+<li><a href="#schemarb">schema.rb</a></li>
+<li><a href="#migrations-sao-incrementais">Migrations são incrementais</a></li>
+</ul>
+</li>
+<li><a href="#4-senha-o-que-nunca-fazer">4. Senha: o que nunca fazer</a><ul>
+<li><a href="#hash-nao-e-criptografia">Hash não é criptografia</a></li>
+<li><a href="#por-que-bcrypt-e-nao-sha-256">Por que bcrypt e não SHA-256</a></li>
+<li><a href="#has_secure_password">has_secure_password</a></li>
+</ul>
+</li>
+<li><a href="#5-validacoes">5. Validações</a><ul>
+<li><a href="#regra-de-ouro-normalize-antes-de-validar">Regra de ouro: normalize antes de validar</a></li>
+</ul>
+</li>
+<li><a href="#6-associacoes">6. Associações</a><ul>
+<li><a href="#quem-guarda-a-chave">Quem guarda a chave</a></li>
+<li><a href="#a-migration">A migration</a></li>
+<li><a href="#os-dois-lados">Os dois lados</a></li>
+<li><a href="#usando">Usando</a></li>
+<li><a href="#a-armadilha-n1">A armadilha N+1</a></li>
+</ul>
+</li>
+<li><a href="#7-concerns-o-mixin-da-aula-1-na-pratica">7. Concerns — o mixin da Aula 1, na prática</a><ul>
+<li><a href="#tres-decisoes-dentro-do-concern-e-o-porque-de-cada-uma">Três decisões dentro do concern, e o porquê de cada uma</a></li>
+</ul>
+</li>
+<li><a href="#8-o-console">8. O console</a></li>
+<li><a href="#9-seeds-e-fixtures">9. Seeds e fixtures</a></li>
+<li><a href="#10-testando-o-model">10. Testando o model</a></li>
+<li><a href="#11-uma-sutileza-de-seguranca-authenticate_by_email">11. Uma sutileza de segurança: authenticate_by_email</a></li>
+<li><a href="#exercicio-da-aula_1">Exercício da aula</a></li>
+<li><a href="#recapitulando_1">Recapitulando</a></li>
+</ul>
+</li>
+<li><a href="#aula-3-as-rotas-de-autenticacao">Aula 3 — As rotas de autenticação</a><ul>
+<li><a href="#1-o-caminho-de-uma-requisicao">1. O caminho de uma requisição</a></li>
+<li><a href="#2-a-arquitetura-de-pastas">2. A arquitetura de pastas</a><ul>
+<li><a href="#por-que-service-object">Por que service object</a></li>
+<li><a href="#por-que-serializer">Por que serializer</a></li>
+<li><a href="#um-formato-de-erro-so">Um formato de erro só</a></li>
+<li><a href="#before_action-o-filtro">before_action: o filtro</a></li>
+<li><a href="#a-pilha-de-middleware">A pilha de middleware</a></li>
+<li><a href="#strong-parameters">Strong parameters</a></li>
+</ul>
+</li>
+<li><a href="#3-rota-1-cadastro">3. Rota 1 — Cadastro</a><ul>
+<li><a href="#a-decisao-que-nao-e-obvia">A decisão que não é óbvia</a></li>
+</ul>
+</li>
+<li><a href="#4-e-mail-o-mailer">4. E-mail: o mailer</a><ul>
+<li><a href="#deliver_now-e-nao-deliver_later">deliver_now e não deliver_later</a></li>
+</ul>
+</li>
+<li><a href="#5-ativacao-da-conta">5. Ativação da conta</a></li>
+<li><a href="#6-o-problema-http-nao-tem-memoria">6. O problema: HTTP não tem memória</a><ul>
+<li><a href="#jwt">JWT</a></li>
+<li><a href="#o-detalhe-que-quebra-tudo">O detalhe que quebra tudo</a></li>
+</ul>
+</li>
+<li><a href="#7-rota-2-login">7. Rota 2 — Login</a><ul>
+<li><a href="#o-que-e-um-cookie">O que é um cookie</a></li>
+<li><a href="#xss">XSS</a></li>
+<li><a href="#csrf">CSRF</a></li>
+<li><a href="#401-403">401 × 403</a></li>
+<li><a href="#a-mesma-mensagem-para-os-dois-erros">A mesma mensagem para os dois erros</a></li>
+</ul>
+</li>
+<li><a href="#8-rota-3-logout-o-problema-dificil">8. Rota 3 — Logout, o problema difícil</a><ul>
+<li><a href="#a-apagar-no-cliente">a) Apagar no cliente</a></li>
+<li><a href="#b-denylist-por-jti-revoga-aquele-token">b) Denylist por jti — revoga aquele token</a></li>
+<li><a href="#c-token_version-derruba-tudo-de-uma-vez">c) token_version — derruba tudo de uma vez</a></li>
+<li><a href="#a-verificacao-completa">A verificação completa</a></li>
+</ul>
+</li>
+<li><a href="#9-rota-4-recuperacao-de-senha">9. Rota 4 — Recuperação de senha</a><ul>
+<li><a href="#request-sempre-responde-200">request sempre responde 200</a></li>
+<li><a href="#confirm-e-a-transacao">confirm e a transação</a></li>
+</ul>
+</li>
+<li><a href="#10-testando">10. Testando</a><ul>
+<li><a href="#as-ferramentas-de-qualidade">As ferramentas de qualidade</a></li>
+</ul>
+</li>
+<li><a href="#11-cors">11. CORS</a></li>
+<li><a href="#12-o-fluxo-inteiro-no-terminal">12. O fluxo inteiro, no terminal</a></li>
+<li><a href="#exercicio-da-aula_2">Exercício da aula</a></li>
+<li><a href="#recapitulando_2">Recapitulando</a></li>
+</ul>
+</li>
+<li><a href="#aula-4-vps-docker-kamal-e-deploy">Aula 4 — VPS, Docker, Kamal e deploy</a><ul>
+<li><a href="#1-o-que-e-uma-vps">1. O que é uma VPS</a><ul>
+<li><a href="#por-que-vm-com-containers-e-nao-kubernetes">Por que VM com containers, e não Kubernetes</a></li>
+</ul>
+</li>
+<li><a href="#2-criar-a-vm-na-azure">2. Criar a VM na Azure</a><ul>
+<li><a href="#cotas-antes-de-tudo">Cotas antes de tudo</a></li>
+<li><a href="#o-assistente">O assistente</a></li>
+<li><a href="#antes-duas-chaves-um-par">Antes: duas chaves, um par</a></li>
+<li><a href="#a-chave-privada">A chave privada</a></li>
+<li><a href="#abrir-o-ssh-so-para-voce">Abrir o SSH só para você</a></li>
+<li><a href="#primeiro-acesso">Primeiro acesso</a></li>
+</ul>
+</li>
+<li><a href="#3-preparar-o-ubuntu">3. Preparar o Ubuntu</a><ul>
+<li><a href="#atualizar">Atualizar</a></li>
+<li><a href="#docker-do-repositorio-oficial">Docker, do repositório oficial</a></li>
+<li><a href="#root-e-permissoes">Root e permissões</a></li>
+<li><a href="#swap">Swap</a></li>
+<li><a href="#endurecer-o-ssh">Endurecer o SSH</a></li>
+</ul>
+</li>
+<li><a href="#4-docker_1">4. Docker</a><ul>
+<li><a href="#imagem-container">Imagem × container</a></li>
+<li><a href="#o-dockerfile-do-rails">O Dockerfile do Rails</a></li>
+<li><a href="#dockerignore">.dockerignore</a></li>
+<li><a href="#registry">Registry</a></li>
+</ul>
+</li>
+<li><a href="#5-kamal">5. Kamal</a><ul>
+<li><a href="#configdeployyml-por-partes">config/deploy.yml, por partes</a></li>
+<li><a href="#as-tres-camadas-de-segredo">As três camadas de segredo</a></li>
+</ul>
+</li>
+<li><a href="#6-segredos-do-rails">6. Segredos do Rails</a><ul>
+<li><a href="#credentials-e-masterkey">credentials e master.key</a></li>
+<li><a href="#antes-o-que-e-uma-variavel-de-ambiente">Antes: o que é uma variável de ambiente</a></li>
+<li><a href="#credentials-env">Credentials × ENV</a></li>
+</ul>
+</li>
+<li><a href="#7-github-actions">7. GitHub Actions</a><ul>
+<li><a href="#ci-o-portao">CI: o portão</a></li>
+<li><a href="#deploy-o-interessante">Deploy: o interessante</a></li>
+</ul>
+</li>
+<li><a href="#8-oidc-por-que-nao-usar-senha">8. OIDC — por que não usar senha</a><ul>
+<li><a href="#criando">Criando</a></li>
+<li><a href="#cadastrando-no-github">Cadastrando no GitHub</a></li>
+</ul>
+</li>
+<li><a href="#9-cloudflare-e-tls">9. Cloudflare e TLS</a><ul>
+<li><a href="#https-e-http-dentro-de-um-tunel">HTTPS é HTTP dentro de um túnel</a></li>
+<li><a href="#o-handshake-em-tres-passos">O handshake, em três passos</a></li>
+<li><a href="#certificado-e-autoridade">Certificado e autoridade</a></li>
+<li><a href="#proxy-reverso">Proxy reverso</a></li>
+<li><a href="#dns_1">DNS</a></li>
+<li><a href="#certificado-origin-ca">Certificado Origin CA</a></li>
+<li><a href="#full-strict">Full (strict)</a></li>
+<li><a href="#por-que-nao-lets-encrypt">Por que não Let's Encrypt</a></li>
+</ul>
+</li>
+<li><a href="#10-o-primeiro-deploy">10. O primeiro deploy</a></li>
+<li><a href="#11-operar">11. Operar</a><ul>
+<li><a href="#backup">Backup</a></li>
+</ul>
+</li>
+<li><a href="#exercicio-da-aula_3">Exercício da aula</a></li>
+<li><a href="#recapitulando_3">Recapitulando</a></li>
+<li><a href="#o-que-o-seem-backend-tem-a-mais">O que o seem-backend tem a mais</a></li>
+</ul>
+</li>
+<li><a href="#ruby-para-quem-sabe-python">Ruby para quem sabe Python</a><ul>
+<li><a href="#sintaxe">Sintaxe</a><ul>
+<li><a href="#so-em-ruby">Só em Ruby</a></li>
+</ul>
+</li>
+<li><a href="#estruturas-de-dados">Estruturas de dados</a><ul>
+<li><a href="#simbolos_1">Símbolos</a></li>
+</ul>
+</li>
+<li><a href="#blocos-o-coracao-do-ruby">Blocos, o coração do Ruby</a></li>
+<li><a href="#argumentos-nomeados">Argumentos nomeados</a><ul>
+<li><a href="#o-atalho-do-ruby-31">O atalho do Ruby 3.1</a></li>
+</ul>
+</li>
+<li><a href="#struct_1">Struct</a></li>
+<li><a href="#excecoes_1">Exceções</a></li>
+<li><a href="#atalhos-de-literal">Atalhos de literal</a></li>
+<li><a href="#classes">Classes</a><ul>
+<li><a href="#e_1">? e !</a></li>
+</ul>
+</li>
+<li><a href="#modulos-e-mixins_1">Módulos e mixins</a></li>
+<li><a href="#dependencias-e-ferramentas">Dependências e ferramentas</a></li>
+<li><a href="#rails-django_1">Rails × Django</a><ul>
+<li><a href="#consultas-lado-a-lado">Consultas lado a lado</a></li>
+</ul>
+</li>
+<li><a href="#pegadinhas-de-quem-vem-do-python">Pegadinhas de quem vem do Python</a></li>
+</ul>
+</li>
+<li><a href="#glossario">Glossário</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a><ul>
+<li><a href="#ambiente">Ambiente</a><ul>
+<li><a href="#mise-command-not-found">mise: command not found</a></li>
+<li><a href="#a-instalacao-do-ruby-falha-compilando">A instalação do Ruby falha compilando</a></li>
+<li><a href="#gem-install-rails-reclama-de-permissao">gem install rails reclama de permissão</a></li>
+<li><a href="#permission-denied-ao-rodar-docker">permission denied ao rodar docker</a></li>
+<li><a href="#no-windows-docker-nao-aparece-dentro-do-ubuntu">No Windows, docker não aparece dentro do Ubuntu</a></li>
+</ul>
+</li>
+<li><a href="#banco">Banco</a><ul>
+<li><a href="#address-already-in-use-ao-subir-o-compose">address already in use ao subir o compose</a></li>
+<li><a href="#pgconnectionbad-could-not-connect-to-server">PG::ConnectionBad: could not connect to server</a></li>
+<li><a href="#pgundefinedtable-ou-pendingmigrationerror">PG::UndefinedTable ou PendingMigrationError</a></li>
+<li><a href="#quero-comecar-do-zero">Quero começar do zero</a></li>
+</ul>
+</li>
+<li><a href="#testes">Testes</a><ul>
+<li><a href="#um-teste-passa-sozinho-e-falha-junto-com-os-outros">Um teste passa sozinho e falha junto com os outros</a></li>
+<li><a href="#o-teste-de-logout-passa-mas-a-revogacao-nao-funciona">O teste de logout passa mas a revogação não funciona</a></li>
+<li><a href="#bulletnotificationunoptimizedqueryerror">Bullet::Notification::UnoptimizedQueryError</a></li>
+</ul>
+</li>
+<li><a href="#autenticacao">Autenticação</a><ul>
+<li><a href="#sempre-401-mesmo-com-o-token-certo">Sempre 401, mesmo com o token certo</a></li>
+<li><a href="#o-e-mail-nao-chega-em-desenvolvimento">O e-mail não chega em desenvolvimento</a></li>
+<li><a href="#actioncontrollerparametermissing-400">ActionController::ParameterMissing (400)</a></li>
+<li><a href="#422-no-cadastro-sem-dizer-o-motivo-direito">422 no cadastro sem dizer o motivo direito</a></li>
+</ul>
+</li>
+<li><a href="#azure-e-vm">Azure e VM</a><ul>
+<li><a href="#notavailableforsubscription-ao-criar-a-vm">NotAvailableForSubscription ao criar a VM</a></li>
+<li><a href="#ssh-da-timeout">SSH dá timeout</a></li>
+<li><a href="#permission-denied-publickey">Permission denied (publickey)</a></li>
+<li><a href="#perdi-o-acesso-depois-de-mexer-no-sshd">Perdi o acesso depois de mexer no sshd</a></li>
+</ul>
+</li>
+<li><a href="#deploy">Deploy</a><ul>
+<li><a href="#oidc-aadsts700213">OIDC: AADSTS700213</a></li>
+<li><a href="#az-command-not-found-ou-falha-transitoria-do-azure-cli">az: command not found ou falha transitória do Azure CLI</a></li>
+<li><a href="#a-regra-temporaria-ficou-no-nsg">A regra temporária ficou no NSG</a></li>
+<li><a href="#kamal-docker-is-not-installed">Kamal: Docker is not installed</a></li>
+<li><a href="#a-aplicacao-sobe-mas-nao-acha-o-banco">A aplicação sobe mas não acha o banco</a></li>
+<li><a href="#cloudflare-521-522">Cloudflare 521 / 522</a></li>
+<li><a href="#cloudflare-525-526">Cloudflare 525 / 526</a></li>
+<li><a href="#lets-encrypt-falha-atras-do-cloudflare">Let's Encrypt falha atrás do Cloudflare</a></li>
+<li><a href="#smtp-da-timeout-na-vm">SMTP dá timeout na VM</a></li>
+<li><a href="#o-deploy-passa-mas-o-site-responde-500">O deploy passa mas o site responde 500</a></li>
+<li><a href="#preciso-voltar-atras-agora">Preciso voltar atrás agora</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h1 id="aula-0-preparacao">Aula 0 — Preparação</h1>
+<blockquote>
+<p><strong>Faça isso antes do primeiro encontro.</strong> Instalar Ruby, Docker e criar contas leva tempo, e é o
+que mais atrasa capacitação. Se travar em algum passo, manda mensagem no grupo — não espere o dia.</p>
+</blockquote>
+<p>Ao final você deve conseguir rodar os quatro comandos da seção <a href="#checagem-final">Checagem final</a>.</p>
+<hr>
+<h2 id="1-se-voce-usa-windows-instale-o-wsl2-primeiro">1. Se você usa Windows: instale o WSL2 primeiro</h2>
+<p>Ruby e Rails rodam mal no Windows nativo. A forma suportada é o <strong>WSL2</strong> (um Linux de verdade dentro
+do Windows). Todo o resto deste guia você fará <strong>dentro do WSL2</strong>, não no PowerShell.</p>
+<p>No PowerShell <strong>como administrador</strong>:</p>
+<pre><code class="language-powershell">wsl --install -d Ubuntu-24.04
+</code></pre>
+<p>Reinicie o computador. Ao abrir o Ubuntu pela primeira vez, ele pede um usuário e uma senha —
+anote a senha, ela é o seu <code>sudo</code>.</p>
+<p>A partir daqui, "terminal" significa <strong>o terminal do Ubuntu (WSL2)</strong>.</p>
+<blockquote>
+<p>Se você usa Linux ou macOS, pule esta seção.</p>
+</blockquote>
+<hr>
+<h2 id="2-git">2. Git</h2>
+<pre><code class="language-bash"># Ubuntu / WSL2
+sudo apt update &amp;&amp; sudo apt install -y git curl build-essential
+
+# macOS (instala as ferramentas de linha de comando da Apple, que incluem o git)
+xcode-select --install
+</code></pre>
+<p>Configure seu nome e e-mail — eles vão em todo commit que você fizer:</p>
+<pre><code class="language-bash">git config --global user.name &quot;Seu Nome&quot;
+git config --global user.email &quot;seu@email.com&quot;
+</code></pre>
+<hr>
+<h2 id="3-ruby-349-via-mise">3. Ruby 3.4.9 via mise</h2>
+<p>O <code>mise</code> é um gerenciador de versões: ele instala a versão exata de Ruby que o projeto pede, sem
+mexer no Ruby do sistema. É o equivalente do <code>pyenv</code> do mundo Python.</p>
+<blockquote>
+<p><strong>Por que não <code>apt install ruby</code>?</strong> Porque a versão do sistema é antiga e compartilhada. Se dois
+projetos pedirem versões diferentes, você fica sem saída. <code>mise</code> resolve isso por projeto.</p>
+</blockquote>
+<h3 id="instalar-o-mise">Instalar o mise</h3>
+<pre><code class="language-bash">curl https://mise.run | sh
+echo 'eval &quot;$(~/.local/bin/mise activate bash)&quot;' &gt;&gt; ~/.bashrc
+exec bash
+</code></pre>
+<p>Usa <code>zsh</code> (padrão do macOS)? Troque as duas ocorrências de <code>bash</code> por <code>zsh</code> e o <code>~/.bashrc</code> por
+<code>~/.zshrc</code>.</p>
+<h3 id="instalar-as-dependencias-de-compilacao-do-ruby">Instalar as dependências de compilação do Ruby</h3>
+<pre><code class="language-bash"># Ubuntu / WSL2
+sudo apt install -y autoconf patch rustc libssl-dev libyaml-dev libreadline-dev \
+  zlib1g-dev libgmp-dev libncurses-dev libffi-dev libgdbm-dev libdb-dev uuid-dev \
+  libpq-dev libvips
+
+# macOS (precisa do Homebrew: https://brew.sh)
+brew install openssl@3 readline libyaml gmp libpq vips
+</code></pre>
+<h3 id="instalar-o-ruby">Instalar o Ruby</h3>
+<pre><code class="language-bash">mise use --global ruby@3.4.9
+</code></pre>
+<p>Isso compila o Ruby do zero — leva de <strong>5 a 15 minutos</strong>. É normal.</p>
+<pre><code class="language-bash">ruby -v      # ruby 3.4.9 ...
+gem -v
+</code></pre>
+<h3 id="instalar-o-rails">Instalar o Rails</h3>
+<pre><code class="language-bash">gem install rails -v 8.1.3
+rails -v     # Rails 8.1.3
+</code></pre>
+<hr>
+<h2 id="4-docker">4. Docker</h2>
+<p>O banco de dados (PostgreSQL) vai rodar dentro de um container Docker, em vez de instalado na sua
+máquina. Assim todo mundo tem exatamente a mesma versão, e desinstalar é apagar um container.</p>
+<ul>
+<li><strong>Windows/WSL2 e macOS</strong>: instale o <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>.
+  No Windows, nas configurações, habilite a integração com a distro <code>Ubuntu-24.04</code>.</li>
+<li><strong>Linux</strong>: siga o <a href="https://docs.docker.com/engine/install/ubuntu/">guia oficial</a> e depois rode
+  <code>sudo usermod -aG docker $USER</code> e <strong>saia e entre de novo na sessão</strong>.</li>
+</ul>
+<p>Testando:</p>
+<pre><code class="language-bash">docker run --rm hello-world
+</code></pre>
+<p>Se aparecer "Hello from Docker!", está pronto.</p>
+<hr>
+<h2 id="5-vs-code-e-extensoes">5. VS Code e extensões</h2>
+<p>Baixe em <a href="https://code.visualstudio.com">code.visualstudio.com</a>. No Windows, instale no <strong>Windows</strong>
+(não dentro do WSL) — ele se conecta ao WSL sozinho.</p>
+<p>Extensões (Ctrl+Shift+X e busque pelo nome):</p>
+<table>
+<thead>
+<tr>
+<th>Extensão</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ruby LSP</strong> (Shopify)</td>
+<td>Autocomplete, ir para definição, erros em tempo real</td>
+</tr>
+<tr>
+<td><strong>Ruby Rails</strong> (Aki)</td>
+<td>Navegação entre model/controller/view</td>
+</tr>
+<tr>
+<td><strong>Docker</strong> (Microsoft)</td>
+<td>Ver e gerenciar containers pela barra lateral</td>
+</tr>
+<tr>
+<td><strong>WSL</strong> (Microsoft)</td>
+<td><em>Só Windows</em> — abrir projetos do Ubuntu no VS Code</td>
+</tr>
+<tr>
+<td><strong>GitLens</strong></td>
+<td>Ver quem escreveu cada linha e quando</td>
+</tr>
+<tr>
+<td><strong>vscode-icons</strong></td>
+<td>Ícones por tipo de arquivo (a mesma da capacitação de front)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-insomnia-ou-postman">6. Insomnia (ou Postman)</h2>
+<p>Nossa API não tem tela — ela responde JSON. Para chamar as rotas, usaremos um cliente HTTP.
+Baixe o <a href="https://insomnia.rest/download">Insomnia</a> (mais simples) ou o
+<a href="https://www.postman.com/downloads/">Postman</a>, o que preferir.</p>
+<hr>
+<h2 id="7-contas">7. Contas</h2>
+<h3 id="github">GitHub</h3>
+<p>Crie em <a href="https://github.com">github.com</a> se ainda não tem. Depois <strong>ative o GitHub Student Pack</strong>
+em <a href="https://education.github.com/pack">education.github.com</a> com seu e-mail <code>@aluno.ufop.edu.br</code> —
+a aprovação pode levar alguns dias, e você ganha créditos e ferramentas de graça.</p>
+<h3 id="azure-for-students-faca-isso-com-antecedencia">Azure for Students — <strong>faça isso com antecedência</strong></h3>
+<p>Na Aula 4 cada um vai subir a própria máquina virtual na nuvem. Usaremos o
+<a href="https://azure.microsoft.com/free/students/">Azure for Students</a>: <strong>US$ 100 de crédito, sem cartão
+de crédito</strong>, mediante e-mail institucional.</p>
+<ol>
+<li>Acesse o link e clique em <strong>Comece gratuitamente</strong>.</li>
+<li>Entre com seu e-mail institucional (<code>@aluno.ufop.edu.br</code>).</li>
+<li>Confirme a verificação acadêmica.</li>
+<li>Entre no <a href="https://portal.azure.com">portal.azure.com</a> e confirme que o crédito aparece.</li>
+</ol>
+<blockquote>
+<p>A verificação <strong>pode demorar dias</strong>. Faça agora, não na véspera da Aula 4.</p>
+</blockquote>
+<hr>
+<h2 id="checagem-final">Checagem final</h2>
+<p>Cole os quatro comandos no terminal. Se todos responderem, você está pronto:</p>
+<pre><code class="language-bash">ruby -v      # ruby 3.4.9
+rails -v     # Rails 8.1.3
+docker -v    # Docker version 2x.x.x
+git --version
+</code></pre>
+<hr>
+<h2 id="se-algo-deu-errado">Se algo deu errado</h2>
+<table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Provável causa e saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mise: command not found</code></td>
+<td>A linha do <code>activate</code> não foi para o arquivo certo. Confira <code>~/.bashrc</code> (ou <code>~/.zshrc</code>) e rode <code>exec bash</code>.</td>
+</tr>
+<tr>
+<td>A instalação do Ruby falha com erro de compilação</td>
+<td>Faltou alguma dependência do passo 3. Rode o <code>apt install</code>/<code>brew install</code> de novo e tente <code>mise install ruby@3.4.9</code> outra vez.</td>
+</tr>
+<tr>
+<td><code>permission denied</code> no <code>docker</code></td>
+<td>Você não está no grupo <code>docker</code>. Rode <code>sudo usermod -aG docker $USER</code> e <strong>saia e entre de novo</strong> (só reabrir o terminal não basta).</td>
+</tr>
+<tr>
+<td>No Windows, o <code>docker</code> não aparece dentro do Ubuntu</td>
+<td>Docker Desktop → Settings → Resources → WSL Integration → habilite a distro <code>Ubuntu-24.04</code>.</td>
+</tr>
+<tr>
+<td><code>gem install rails</code> reclama de permissão</td>
+<td>Você está usando o Ruby do sistema, não o do <code>mise</code>. Confira com <code>which ruby</code> — deve apontar para dentro de <code>~/.local/share/mise</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Mais casos em <strong><code>troubleshooting.md</code></strong>.</p>
+<div class='quebra'></div>
+
+<h1 id="aula-1-o-que-e-back-end-ruby-e-o-primeiro-rails">Aula 1 — O que é back-end, Ruby e o primeiro Rails</h1>
+<p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: uma API respondendo <code>GET /api/v1/status</code>.
+<strong>Checkpoint</strong>: <code>git checkout aula-01</code></p>
+<p>Pré-requisitos instalados em <strong><code>00-preparacao.md</code></strong>.</p>
+<hr>
+<h2 id="1-os-dois-lados">1. Os dois lados</h2>
+<p>Na capacitação de front-end você aprendeu a fazer o que o usuário vê. Back-end é o outro lado.</p>
+<table>
+<thead>
+<tr>
+<th>Front-end</th>
+<th>Back-end</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A parte visível, que o usuário toca</td>
+<td>A parte lógica, nos bastidores</td>
+</tr>
+<tr>
+<td>HTML, CSS, JavaScript</td>
+<td>Ruby, Python, Java, Go, Node</td>
+</tr>
+<tr>
+<td>Roda no navegador ou no celular</td>
+<td>Roda num servidor, longe do usuário</td>
+</tr>
+<tr>
+<td>Se cair, a tela quebra</td>
+<td>Se cair, nada funciona</td>
+</tr>
+</tbody>
+</table>
+<p>O back-end guarda os dados, decide quem pode ver o quê, aplica as regras de negócio, autentica
+usuários e conversa com outros sistemas (e-mail, pagamento, mapas).</p>
+<p><strong>Por que isso não pode viver no front?</strong> Porque tudo que roda no navegador o usuário consegue ler
+e alterar. A validação de senha no front é conveniência; a que vale é a do back.</p>
+<blockquote>
+<p><strong>A analogia</strong>: o salão do restaurante é o front-end — mesa, cardápio, garçom. A cozinha é o
+back-end: ninguém entra, mas é lá que a comida sai. O pedido é a requisição, o prato é a
+resposta. Você não pede pra ver a receita; você pede o prato.</p>
+</blockquote>
+<hr>
+<h2 id="2-a-rede-o-minimo-necessario">2. A rede, o mínimo necessário</h2>
+<h3 id="o-que-e-um-servidor-afinal">O que é um servidor, afinal</h3>
+<p>Não é uma máquina especial. É um <strong>programa esperando</strong>: ele fica ligado, escutando numa porta, e
+responde ao que chegar ali. <code>bin/rails server</code> sobe esse programa na porta 3000 — na sua máquina ou
+numa VM na nuvem, é o mesmo programa.</p>
+<h3 id="ip-e-porta">IP e porta</h3>
+<p><strong>IP</strong> é o endereço da máquina (<code>57.156.65.151</code>). <strong>Porta</strong> é a sala dentro dela: um número de 1 a
+65535. Uma máquina tem milhares de portas, e um programa diferente pode escutar em cada uma.</p>
+<table>
+<thead>
+<tr>
+<th>Porta</th>
+<th>Quem mora ali</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>22</td>
+<td>SSH</td>
+</tr>
+<tr>
+<td>80</td>
+<td>HTTP</td>
+</tr>
+<tr>
+<td>443</td>
+<td>HTTPS</td>
+</tr>
+<tr>
+<td>5432</td>
+<td>Postgres</td>
+</tr>
+<tr>
+<td>3000</td>
+<td>Rails em desenvolvimento</td>
+</tr>
+</tbody>
+</table>
+<p><code>127.0.0.1</code> — o <code>localhost</code> — significa sempre "esta máquina aqui". Na Aula 4 vamos abrir e fechar
+portas na mão, no firewall da Azure.</p>
+<h3 id="dns">DNS</h3>
+<p>Ninguém decora <code>57.156.65.151</code>. O <strong>DNS</strong> é a agenda telefônica da internet: você digita
+<code>api.seemxxiii.tech</code> e alguém pergunta ao DNS qual é o IP.</p>
+<p>A resposta fica em cache por um tempo — o <strong>TTL</strong>. É por isso que apontar um domínio para outro
+servidor não vale na hora. Na Aula 4 você vai criar um desses registros.</p>
+<h3 id="anatomia-de-uma-url">Anatomia de uma URL</h3>
+<pre><code>https :// api.seemxxiii.tech : 443 /api/v1/lectures ?page=2 #topo
+  │             │              │          │           │      │
+esquema        host          porta     caminho      query  fragmento
+</code></pre>
+<ul>
+<li><strong>Esquema</strong> — o protocolo: <code>http</code>, <code>https</code>, <code>ssh</code>, <code>postgres</code>.</li>
+<li><strong>Porta</strong> — opcional. <code>http</code> assume 80, <code>https</code> assume 443.</li>
+<li><strong>Fragmento</strong> — nunca vai para o servidor; é só para o navegador.</li>
+</ul>
+<p>É por isso que <code>localhost:3000</code> tem os dois pontos: a porta não é a padrão.</p>
+<hr>
+<h2 id="3-http">3. HTTP</h2>
+<p>Cliente é quem pede (navegador, app, outro servidor). Servidor é quem responde. <strong>O cliente sempre
+começa a conversa</strong> — o servidor nunca liga primeiro.</p>
+<p>Uma <strong>requisição</strong> tem método, caminho, cabeçalhos e corpo. Uma <strong>resposta</strong> tem status, cabeçalhos
+e corpo.</p>
+<h3 id="como-ela-e-por-dentro">Como ela é, por dentro</h3>
+<pre><code class="language-http">POST /api/v1/sessions HTTP/1.1        ← método, caminho, versão
+Host: api.seemxxiii.tech              ┐
+Content-Type: application/json        │ cabeçalhos
+Accept: application/json              ┘
+                                      ← linha em branco separa
+{&quot;email&quot;:&quot;ana@ufop.br&quot;,&quot;password&quot;:&quot;...&quot;}   ← corpo
+</code></pre>
+<p><strong>É texto puro.</strong> HTTP é literalmente isso trafegando num cano.</p>
+<h3 id="cabecalhos">Cabeçalhos</h3>
+<p>São <strong>metadados</strong>: informação <em>sobre</em> a mensagem, não a mensagem. Um par <code>chave: valor</code> por linha.</p>
+<table>
+<thead>
+<tr>
+<th>Cabeçalho</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Content-Type</code></td>
+<td>Em que formato vai o corpo</td>
+</tr>
+<tr>
+<td><code>Accept</code></td>
+<td>Em que formato eu quero a resposta</td>
+</tr>
+<tr>
+<td><code>Authorization</code></td>
+<td>Quem sou eu — vai ser o nosso token, na Aula 3</td>
+</tr>
+<tr>
+<td><code>Set-Cookie</code> / <code>Cookie</code></td>
+<td>Como o navegador guarda estado</td>
+</tr>
+<tr>
+<td><code>User-Agent</code></td>
+<td>Que programa está chamando</td>
+</tr>
+</tbody>
+</table>
+<h3 id="content-type-importa"><code>Content-Type</code> importa</h3>
+<p>O mesmo dado, dois formatos:</p>
+<pre><code>application/json                    → {&quot;email&quot;:&quot;ana@ufop.br&quot;}
+application/x-www-form-urlencoded   → email=ana%40ufop.br
+</code></pre>
+<p>Sem o cabeçalho, o servidor não sabe como ler o corpo. Esquecer isso no <code>curl</code> é o erro nº 1 de
+quem começa: vem <code>400</code> e a mensagem não ajuda em nada. Por isso todo <code>curl</code> deste material tem
+<code>-H 'Content-Type: application/json'</code>.</p>
+<h3 id="os-metodos">Os métodos</h3>
+<table>
+<thead>
+<tr>
+<th>Método</th>
+<th>Significa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td>Me dá isso. Não muda nada.</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td>Cria isso.</td>
+</tr>
+<tr>
+<td><code>PUT</code> / <code>PATCH</code></td>
+<td>Altera isso.</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td>Apaga isso.</td>
+</tr>
+</tbody>
+</table>
+<p>O método é uma promessa. Um <code>GET</code> que apaga registro é bug, não criatividade.</p>
+<h3 id="os-status">Os status</h3>
+<table>
+<thead>
+<tr>
+<th>Faixa</th>
+<th>Significa</th>
+<th>Exemplos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2xx</code></td>
+<td>Deu certo</td>
+<td><code>200</code> ok, <code>201</code> criado</td>
+</tr>
+<tr>
+<td><code>3xx</code></td>
+<td>Foi pra outro lugar</td>
+<td><code>301</code>, <code>302</code></td>
+</tr>
+<tr>
+<td><code>4xx</code></td>
+<td><strong>Você</strong> errou</td>
+<td><code>400</code> pedido mal feito, <code>401</code> não autenticado, <code>403</code> sem permissão, <code>404</code> não existe, <code>422</code> dado inválido</td>
+</tr>
+<tr>
+<td><code>5xx</code></td>
+<td><strong>Nós</strong> erramos</td>
+<td><code>500</code> bug nosso</td>
+</tr>
+</tbody>
+</table>
+<p><code>401</code> é "quem é você?". <code>403</code> é "sei quem você é, e você não pode". Vamos usar os dois na Aula 3.</p>
+<h3 id="http-nao-tem-memoria">HTTP não tem memória</h3>
+<p>Cada requisição começa do zero. O servidor esquece tudo entre uma e outra.</p>
+<p><strong>Guarde essa frase.</strong> Ela é o problema inteiro da Aula 3: se o servidor esquece tudo, como ele
+sabe que você já fez login?</p>
+<h3 id="veja-funcionando">Veja funcionando</h3>
+<pre><code class="language-bash">curl -i https://api.seemxxiii.tech/api/v1/status
+</code></pre>
+<pre><code>HTTP/2 200
+content-type: application/json; charset=utf-8
+
+{&quot;status&quot;:&quot;ok&quot;,&quot;service&quot;:&quot;seem-backend&quot;}
+</code></pre>
+<p>Isso é uma API real, no ar. É exatamente o que você vai construir.</p>
+<hr>
+<h2 id="4-api-rest">4. API REST</h2>
+<p><strong>API</strong> é a porta de entrada do sistema para outros programas. <strong>REST</strong> é um estilo de organizar
+essa porta: cada coisa do sistema é um <strong>recurso</strong>, com um endereço.</p>
+<pre><code>/api/v1/lectures        → as palestras
+/api/v1/lectures/7      → a palestra 7
+</code></pre>
+<p>O que você faz com o recurso é o <strong>verbo</strong>, não o endereço:</p>
+<pre><code>GET    /api/v1/lectures       lista
+POST   /api/v1/lectures       cria
+GET    /api/v1/lectures/7     mostra uma
+DELETE /api/v1/lectures/7     apaga
+</code></pre>
+<p>❌ <code>/criarPalestra</code> · ✅ <code>POST /lectures</code></p>
+<p>O <code>v1</code> no caminho é a versão. Quando a API mudar de forma incompatível, nasce uma <code>/v2</code> e a <code>/v1</code>
+continua funcionando — porque o app na loja do celular demora dias para atualizar.</p>
+<hr>
+<h2 id="5-ruby-partindo-do-python">5. Ruby, partindo do Python</h2>
+<p>Ruby foi criado por <strong>Yukihiro Matsumoto (Matz)</strong> em 1995, no Japão, com um objetivo declarado:
+<em>fazer o programador feliz</em>. É interpretada, dinâmica e orientada a objetos — como Python.</p>
+<p>A tabela completa está em <strong><code>ruby-para-pythonistas.md</code></strong>. O essencial:</p>
+<pre><code class="language-ruby"># Python                          # Ruby
+def saudacao(nome, formal=False): def saudacao(nome, formal: false)
+    if formal:                      return &quot;Prezado #{nome}&quot; if formal
+        return f&quot;Prezado {nome}&quot;    &quot;Oi, #{nome}&quot;
+    return f&quot;Oi, {nome}&quot;          end
+</code></pre>
+<p>Três coisas para reparar:</p>
+<ol>
+<li><strong><code>end</code></strong> fecha o bloco, em vez da indentação.</li>
+<li><strong><code>if</code> no fim da linha</strong> — é o modificador, muito usado em Ruby.</li>
+<li><strong>A última linha é o retorno.</strong> Não precisa escrever <code>return</code>.</li>
+</ol>
+<h3 id="tudo-e-objeto">Tudo é objeto</h3>
+<p>Em Python você chama <code>len(x)</code>. Em Ruby, <code>x.length</code>. Não existe função solta: é sempre método de
+alguém. Até número é objeto — <code>3.times { puts "oi" }</code>.</p>
+<h3 id="simbolos">Símbolos</h3>
+<pre><code class="language-ruby">:aluno   :email   :admin
+</code></pre>
+<p>Um símbolo é um texto que serve de <strong>etiqueta</strong>, não de conteúdo. O mesmo símbolo é sempre o mesmo
+objeto na memória. Não existe em Python — lá você usaria uma string.</p>
+<p>Regra prática: <strong>conteúdo que o usuário lê → string. Nome de coisa no código → símbolo.</strong></p>
+<h3 id="blocos">Blocos</h3>
+<p>Um bloco é um pedaço de código que você entrega para um método executar. É o <code>lambda</code> do Python,
+mas usado o tempo todo.</p>
+<pre><code class="language-ruby">usuarios.each do |u|            # for u in usuarios
+  puts u.nome
+end
+
+usuarios.map { |u| u.nome }     # [u.nome for u in usuarios]
+usuarios.select { |u| u.ativo? }  # [u for u in usuarios if u.ativo]
+</code></pre>
+<p>Chaves quando cabe numa linha, <code>do ... end</code> quando não cabe.</p>
+<h3 id="e"><code>?</code> e <code>!</code></h3>
+<table>
+<thead>
+<tr>
+<th>Sufixo</th>
+<th>Significa</th>
+<th>Exemplo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>?</code></td>
+<td>Devolve verdadeiro ou falso</td>
+<td><code>user.admin?</code></td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>A versão perigosa: estoura erro em vez de devolver <code>false</code></td>
+<td><code>user.save!</code></td>
+</tr>
+</tbody>
+</table>
+<p>É convenção, não regra da linguagem. Mas todo mundo segue.</p>
+<h3 id="argumentos-nomeados-e-o-atalho-do-ruby-31">Argumentos nomeados, e o atalho do Ruby 3.1</h3>
+<pre><code class="language-ruby">def login(email:, password:, client: &quot;mobile&quot;)
+end
+
+login(email: &quot;a@b.c&quot;, password: &quot;x&quot;)
+</code></pre>
+<p>Os dois-pontos <strong>depois</strong> do nome tornam obrigatório nomear na chamada. E quando a variável tem o
+mesmo nome da chave, você omite o valor:</p>
+<pre><code class="language-ruby">Result.new(success?: true, user:)     # user: user
+</code></pre>
+<p>Isso aparece em todo service do projeto. <strong>Não é erro de digitação.</strong></p>
+<h3 id="struct"><code>Struct</code></h3>
+<p>Quando você só quer agrupar valores, sem comportamento:</p>
+<pre><code class="language-ruby">Result = Struct.new(:success?, :user, :errors, keyword_init: true)
+
+r = Result.new(success?: true, user: ana)
+r.success?   # true
+</code></pre>
+<p>É o <code>namedtuple</code> / <code>dataclass</code> do Python. Todo service deste projeto devolve um desses.</p>
+<h3 id="excecoes">Exceções</h3>
+<table>
+<thead>
+<tr>
+<th>Python</th>
+<th>Ruby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>try</code></td>
+<td><code>begin</code></td>
+</tr>
+<tr>
+<td><code>except</code></td>
+<td><code>rescue</code></td>
+</tr>
+<tr>
+<td><code>finally</code></td>
+<td><code>ensure</code></td>
+</tr>
+<tr>
+<td>base para capturar: <code>Exception</code></td>
+<td><code>StandardError</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-ruby">def call
+  arriscado
+rescue StandardError =&gt; e
+  Rails.error.report(e)
+  nil
+end
+</code></pre>
+<p>Dentro de um método o <code>begin</code> é implícito — dá para escrever só o <code>rescue</code> no fim. Criando o seu
+tipo de erro:</p>
+<pre><code class="language-ruby">class InvalidToken &lt; StandardError; end
+
+raise InvalidToken if token_ruim?
+</code></pre>
+<blockquote>
+<p>Herde sempre de <code>StandardError</code>, nunca de <code>Exception</code>: capturar <code>Exception</code> pega até <code>Ctrl+C</code>.</p>
+</blockquote>
+<h3 id="modulos-e-mixins">Módulos e mixins</h3>
+<p>Ruby não tem herança múltipla. Tem <strong>módulo</strong>: um saco de métodos que você inclui numa classe.</p>
+<pre><code class="language-ruby">class User &lt; ApplicationRecord
+  include EmailVerifiable
+  include PasswordResettable
+end
+</code></pre>
+<p>Vamos escrever esses dois módulos na Aula 2. O nome deles no mundo Rails é <strong>concern</strong>.</p>
+<h3 id="dependencias">Dependências</h3>
+<table>
+<thead>
+<tr>
+<th>Python</th>
+<th>Ruby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pip install</code></td>
+<td><code>gem install</code></td>
+</tr>
+<tr>
+<td><code>requirements.txt</code></td>
+<td><code>Gemfile</code></td>
+</tr>
+<tr>
+<td><code>venv</code> por projeto</td>
+<td><code>bundler</code> resolve tudo</td>
+</tr>
+<tr>
+<td><code>pip freeze</code> para travar</td>
+<td><code>Gemfile.lock</code>, gerado sozinho</td>
+</tr>
+</tbody>
+</table>
+<p>O <code>Gemfile.lock</code> é o <code>requirements.txt</code> travado — só que automático e <strong>sempre versionado</strong>. Ele é
+a garantia de que a sua máquina e o servidor rodam exatamente as mesmas versões.</p>
+<h3 id="pratica-rapida">Prática rápida</h3>
+<pre><code class="language-bash">irb
+</code></pre>
+<pre><code class="language-ruby">3.class            # Integer
+&quot;oi&quot;.class         # String
+:oi.class          # Symbol
+nil.class          # NilClass
+
+5.times { |i| puts i }
+
+usuario = { nome: &quot;Ana&quot;, role: :admin }
+usuario[:nome]
+
+[1, 2, 3].map { |n| n * n }
+</code></pre>
+<hr>
+<h2 id="6-rails">6. Rails</h2>
+<p>Framework web em Ruby, criado por <strong>David Heinemeier Hansson</strong> em 2004 — extraído do Basecamp, um
+produto real. Traz tudo junto: rotas, banco, e-mail, filas, testes, deploy. Estamos na versão 8.</p>
+<h3 id="as-duas-leis">As duas leis</h3>
+<p><strong>Convenção sobre configuração.</strong> Você não configura o óbvio, você segue o combinado. Classe
+<code>User</code>? Então a tabela é <code>users</code>, o arquivo é <code>user.rb</code>, a chave primária é <code>id</code>. Ninguém precisa
+dizer. Seguindo a convenção você escreve quase nada; brigando com ela, o dobro.</p>
+<p><strong>DRY</strong> — <em>Don't Repeat Yourself</em>. Cada regra existe num lugar só.</p>
+<p>E uma atitude: <strong>omakase</strong>, "deixa comigo, chef". O Rails já escolheu as ferramentas por você. Você
+pode trocar, mas só troque quando tiver um motivo real. Isso é liberdade: sobra tempo pro problema
+de verdade.</p>
+<h3 id="rails-django">Rails × Django</h3>
+<table>
+<thead>
+<tr>
+<th>Django</th>
+<th>Rails</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>models.py</code></td>
+<td><code>app/models/</code>, um arquivo por classe</td>
+</tr>
+<tr>
+<td><code>makemigrations</code> / <code>migrate</code></td>
+<td><code>rails g migration</code> / <code>db:migrate</code></td>
+</tr>
+<tr>
+<td><code>urls.py</code></td>
+<td><code>config/routes.rb</code></td>
+</tr>
+<tr>
+<td><code>views.py</code></td>
+<td><code>app/controllers/</code></td>
+</tr>
+<tr>
+<td>Django ORM</td>
+<td>ActiveRecord</td>
+</tr>
+<tr>
+<td><code>manage.py</code></td>
+<td><code>bin/rails</code></td>
+</tr>
+</tbody>
+</table>
+<p>Quem vem de Flask ou FastAPI vai sentir mais diferença: lá você monta cada peça, aqui elas já vêm
+encaixadas.</p>
+<h3 id="mvc">MVC</h3>
+<ul>
+<li><strong>Model</strong> — os dados e as regras. Conversa com o banco.</li>
+<li><strong>View</strong> — a tela. Na nossa API, é o JSON.</li>
+<li><strong>Controller</strong> — recebe a requisição e decide o que fazer.</li>
+<li><strong>Rota</strong> — o mapa: este endereço vai para aquele controller.</li>
+</ul>
+<p>O caminho é sempre: <strong>rota → controller → model → resposta</strong>.</p>
+<h3 id="zeitwerk-o-nome-diz-o-caminho">Zeitwerk: o nome diz o caminho</h3>
+<p>Você nunca escreve <code>require</code> no Rails. Por quê?</p>
+<p>O <strong>Zeitwerk</strong> carrega a classe no instante em que você a menciona, e descobre o arquivo pelo
+<strong>nome da classe</strong>:</p>
+<pre><code>Api::V1::StatusController  →  app/controllers/api/v1/status_controller.rb
+</code></pre>
+<p>Errou o caminho, a classe simplesmente não existe. Não é questão de estilo — é o mecanismo que faz
+"convenção sobre configuração" funcionar de verdade.</p>
+<h3 id="os-tres-ambientes">Os três ambientes</h3>
+<table>
+<thead>
+<tr>
+<th>Ambiente</th>
+<th>Onde</th>
+<th>Como se comporta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>development</code></td>
+<td>sua máquina</td>
+<td>recarrega o código a cada requisição, log verboso, erro na tela</td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td>os testes</td>
+<td>banco separado, limpo a cada teste</td>
+</tr>
+<tr>
+<td><code>production</code></td>
+<td>o servidor</td>
+<td>código congelado, log enxuto, erro genérico</td>
+</tr>
+</tbody>
+</table>
+<p>Cada um tem um arquivo em <code>config/environments/</code>. <code>Rails.env</code> diz onde você está.</p>
+<p>É assim que o e-mail abre no navegador em desenvolvimento e sai por SMTP em produção — mesmo
+código, ambientes diferentes.</p>
+<hr>
+<h2 id="7-mao-na-massa">7. Mão na massa</h2>
+<h3 id="criar-o-projeto">Criar o projeto</h3>
+<pre><code class="language-bash">rails new automic_auth_api --api -d postgresql \
+  --skip-action-mailbox --skip-action-text --skip-active-storage \
+  --skip-jbuilder --skip-action-cable
+cd automic_auth_api
+</code></pre>
+<ul>
+<li><code>--api</code> — sem HTML, sem CSS, sem sessão de navegador. Só JSON.</li>
+<li><code>-d postgresql</code> — o mesmo banco que usamos em produção.</li>
+<li>Os <code>--skip</code> tiram peças que não vamos usar. Cada peça a menos é uma peça a menos para dar
+  problema.</li>
+</ul>
+<h3 id="subir-o-banco">Subir o banco</h3>
+<p>Crie o <code>compose.yaml</code> (ou copie o deste repositório) e rode:</p>
+<pre><code class="language-bash">docker compose up -d
+docker compose ps          # tem que aparecer &quot;healthy&quot;
+</code></pre>
+<blockquote>
+<p>Se der <code>address already in use</code>, você já tem um Postgres na máquina ocupando a 5432. Rode
+<code>DB_PORT=5433 docker compose up -d</code> e exporte <code>DB_PORT=5433</code> no shell.</p>
+</blockquote>
+<h3 id="preparar-e-subir-a-aplicacao">Preparar e subir a aplicação</h3>
+<pre><code class="language-bash">bin/rails db:prepare
+bin/rails server
+</code></pre>
+<p>Abra <code>http://localhost:3000/up</code>. Verde é a aplicação de pé.</p>
+<h3 id="o-tour-das-pastas">O tour das pastas</h3>
+<table>
+<thead>
+<tr>
+<th>Pasta</th>
+<th>O que tem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/</code></td>
+<td>O seu código. É onde você passa 90% do tempo.</td>
+</tr>
+<tr>
+<td><code>config/</code></td>
+<td>Rotas, banco, ambientes, credenciais</td>
+</tr>
+<tr>
+<td><code>db/</code></td>
+<td>Migrations e o retrato atual do banco (<code>schema.rb</code>)</td>
+</tr>
+<tr>
+<td><code>test/</code></td>
+<td>Os testes</td>
+</tr>
+<tr>
+<td><code>bin/</code></td>
+<td>Os comandos: <code>rails</code>, <code>setup</code>, <code>dev</code></td>
+</tr>
+<tr>
+<td><code>Gemfile</code></td>
+<td>As dependências</td>
+</tr>
+</tbody>
+</table>
+<h3 id="os-comandos-do-dia-a-dia">Os comandos do dia a dia</h3>
+<pre><code class="language-bash">bin/rails server      # sobe a aplicação
+bin/rails console     # um irb com o seu projeto carregado dentro
+bin/rails routes      # todas as rotas que existem
+bin/rails generate    # cria arquivos seguindo a convenção
+bin/rails db:migrate  # aplica as mudanças de banco
+bin/rails test        # roda os testes
+</code></pre>
+<p>O <strong>console</strong> é a ferramenta mais subestimada do Rails: dá para criar usuário, rodar query e testar
+método sem escrever um arquivo.</p>
+<hr>
+<h2 id="8-a-primeira-rota">8. A primeira rota</h2>
+<p><code>config/routes.rb</code>:</p>
+<pre><code class="language-ruby">Rails.application.routes.draw do
+  get &quot;up&quot; =&gt; &quot;rails/health#show&quot;, as: :rails_health_check
+
+  namespace :api do
+    namespace :v1 do
+      get &quot;status&quot;, to: &quot;status#show&quot;
+    end
+  end
+end
+</code></pre>
+<p><code>app/controllers/api/v1/status_controller.rb</code>:</p>
+<pre><code class="language-ruby">module Api
+  module V1
+    class StatusController &lt; ApplicationController
+      def show
+        render json: {
+          status: &quot;ok&quot;,
+          service: &quot;automic-auth-api&quot;,
+          environment: Rails.env
+        }
+      end
+    end
+  end
+end
+</code></pre>
+<p>Repare na convenção: <code>namespace :api</code> + <code>namespace :v1</code> + <code>status#show</code> implica exatamente o
+arquivo <code>app/controllers/api/v1/status_controller.rb</code>, classe <code>Api::V1::StatusController</code>, método
+<code>show</code>. Ninguém configurou isso.</p>
+<h3 id="teste">Teste</h3>
+<p><code>test/controllers/api/v1/status_controller_test.rb</code>:</p>
+<pre><code class="language-ruby">require &quot;test_helper&quot;
+
+class Api::V1::StatusControllerTest &lt; ActionDispatch::IntegrationTest
+  test &quot;responde ok&quot; do
+    get &quot;/api/v1/status&quot;
+
+    assert_response :ok
+    assert_equal &quot;ok&quot;, response.parsed_body[&quot;status&quot;]
+  end
+end
+</code></pre>
+<pre><code class="language-bash">bin/rails test
+</code></pre>
+<hr>
+<h2 id="exercicio-da-aula">Exercício da aula</h2>
+<ol>
+<li>Crie o projeto com <code>rails new</code>.</li>
+<li>Suba o Postgres com <code>docker compose up -d</code>.</li>
+<li>Rode <code>bin/rails server</code> e abra <code>http://localhost:3000/up</code>.</li>
+<li>Crie a rota <code>GET /api/v1/status</code>.</li>
+<li>Chame ela no Insomnia e confira o status <code>200</code>.</li>
+<li>Rode <code>bin/rails routes</code> e ache a sua rota na lista.</li>
+<li>Escreva o teste e rode <code>bin/rails test</code>.</li>
+</ol>
+<p><strong>Bônus</strong>: faça a rota devolver também a versão do Ruby (<code>RUBY_VERSION</code>) e do Rails
+(<code>Rails.version</code>).</p>
+<p>Travou? <code>git checkout aula-01</code> e você continua de um estado que funciona.</p>
+<hr>
+<h2 id="recapitulando">Recapitulando</h2>
+<ul>
+<li>Back-end é a cozinha: regra, dado e permissão.</li>
+<li>HTTP é o idioma; verbo, status e JSON são o vocabulário.</li>
+<li>HTTP não tem memória — segure essa ponta até a Aula 3.</li>
+<li>Ruby é Python com outra sintaxe e mais açúcar.</li>
+<li>Rails decide o óbvio por você. Siga a convenção.</li>
+</ul>
+<p><strong>Na próxima</strong>: o banco de dados entra em cena, e a API ganha um <code>User</code> com senha de verdade.</p>
+<div class='quebra'></div>
+
+<h1 id="aula-2-banco-de-dados-activerecord-e-o-model-user">Aula 2 — Banco de dados, ActiveRecord e o model <code>User</code></h1>
+<p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: um <code>User</code> com validações e senha hasheada, testado.
+<strong>Checkpoint</strong>: <code>git checkout aula-02</code></p>
+<hr>
+<h2 id="1-por-que-postgres-e-nao-sqlite">1. Por que Postgres, e não SQLite</h2>
+<p>SQLite é um arquivo. Funciona muito bem para um app de celular ou um script. Para um servidor com
+várias requisições ao mesmo tempo, ele trava — só uma escrita por vez no banco inteiro.</p>
+<p>Postgres é um servidor: aguenta concorrência, tem tipos ricos (<code>jsonb</code>, arrays, intervalos de
+tempo), índices parciais e transações de verdade. É o que o <code>seem-backend</code> usa em produção, então é
+o que usamos aqui — <strong>desenvolver no mesmo banco da produção evita a categoria inteira de bug que
+só aparece no deploy.</strong></p>
+<hr>
+<h3 id="transacao">Transação</h3>
+<p>Um bloco de operações que acontece <strong>inteiro ou não acontece</strong>. Deu erro no meio, o banco desfaz
+tudo — isso se chama <em>rollback</em>.</p>
+<p>O exemplo clássico é transferir dinheiro: debitar de um e creditar no outro têm que ser a mesma
+operação. Debitar sozinho é dinheiro que sumiu.</p>
+<pre><code class="language-ruby">User.transaction do
+  user.save!
+  user.invalidate_sessions!
+  user.clear_password_reset_code!
+end
+</code></pre>
+<p>Repare no <code>!</code>: dentro de uma transação você <strong>quer</strong> que estoure. <code>save</code> devolve <code>false</code> em silêncio
+e a transação seguiria feliz, gravando metade.</p>
+<p>Na Aula 3, trocar a senha vai precisar exatamente disso.</p>
+<hr>
+<h2 id="2-activerecord">2. ActiveRecord</h2>
+<p>É o ORM do Rails: cada classe é uma tabela, cada objeto é uma linha.</p>
+<table>
+<thead>
+<tr>
+<th>Django ORM</th>
+<th>ActiveRecord</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>User.objects.filter(role="admin")</code></td>
+<td><code>User.where(role: "admin")</code></td>
+</tr>
+<tr>
+<td><code>User.objects.get(id=1)</code></td>
+<td><code>User.find(1)</code></td>
+</tr>
+<tr>
+<td><code>User.objects.all().order_by("-created_at")</code></td>
+<td><code>User.order(created_at: :desc)</code></td>
+</tr>
+<tr>
+<td><code>User.objects.count()</code></td>
+<td><code>User.count</code></td>
+</tr>
+<tr>
+<td><code>u.save()</code></td>
+<td><code>u.save</code></td>
+</tr>
+</tbody>
+</table>
+<p>A diferença de filosofia: no Django você declara os campos na classe. <strong>No Rails a classe não
+declara nada</strong> — ela lê as colunas do banco em tempo de execução. A fonte da verdade é a migration.</p>
+<pre><code class="language-ruby">class User &lt; ApplicationRecord
+end
+</code></pre>
+<p>Isso já tem <code>name</code>, <code>email</code>, <code>id</code>, <code>created_at</code> — tudo que existir na tabela <code>users</code>.</p>
+<hr>
+<h3 id="activesupport-os-metodos-que-o-rails-inventou">ActiveSupport: os métodos que o Rails inventou</h3>
+<p>O Rails adiciona métodos às classes do próprio Ruby. Isso é a gem <code>activesupport</code>, não Ruby puro —
+fora do Rails esses métodos somem.</p>
+<pre><code class="language-ruby">15.minutes
+1.day.ago
+2.weeks.from_now
+Time.current        # respeita o fuso configurado na app; Time.now não
+</code></pre>
+<p>E o par que você vai usar mais que qualquer outro:</p>
+<pre><code class="language-ruby">nil.blank?       # true
+&quot;&quot;.blank?        # true
+&quot;   &quot;.blank?     # true   ← só espaço também conta como vazio
+[].blank?        # true
+0.blank?         # false  ← zero NÃO é vazio
+
+&quot;oi&quot;.present?    # true — present? é o contrário de blank?
+</code></pre>
+<blockquote>
+<p><strong>Pegadinha para quem vem de Python</strong>: em Ruby puro, só <code>nil</code> e <code>false</code> são falsos. <code>if 0</code>
+executa. <code>if ""</code> executa. É justamente por isso que <code>blank?</code> existe.</p>
+</blockquote>
+<hr>
+<h2 id="3-migrations">3. Migrations</h2>
+<p>Uma migration é uma <strong>mudança no banco, versionada em código</strong>. Ela roda uma vez, em ordem, em
+todas as máquinas: a sua, a do colega e o servidor.</p>
+<pre><code class="language-bash">bin/rails generate migration CreateUsers
+</code></pre>
+<p>Isso cria <code>db/migrate/20260803142949_create_users.rb</code>. O número é a data e hora — é ele que define
+a ordem.</p>
+<pre><code class="language-ruby">class CreateUsers &lt; ActiveRecord::Migration[8.1]
+  def change
+    create_table :users do |t|
+      t.string :name, null: false
+      t.string :email, null: false
+      t.string :password_digest, null: false
+      t.string :course, null: false
+      t.string :matricula, null: false
+      t.datetime :terms_accepted_at, null: false
+
+      t.timestamps
+    end
+
+    add_index :users, :email, unique: true
+    add_index :users, :matricula, unique: true
+  end
+end
+</code></pre>
+<pre><code class="language-bash">bin/rails db:migrate
+</code></pre>
+<p>Repare em duas coisas:</p>
+<ul>
+<li><strong><code>t.timestamps</code></strong> cria <code>created_at</code> e <code>updated_at</code>, e o Rails mantém as duas sozinho.</li>
+<li><strong><code>add_index ... unique: true</code></strong> é uma restrição no banco, não só validação no model. Isso
+  importa: duas requisições simultâneas passam pela validação juntas (as duas consultam e as duas
+  não acham ninguém), mas só uma vence o índice único. <strong>Validação de model é para dar mensagem
+  bonita; índice é para garantir.</strong></li>
+</ul>
+<h3 id="schemarb"><code>schema.rb</code></h3>
+<p>Depois de migrar, o Rails reescreve <code>db/schema.rb</code> — o retrato atual do banco. É ele que <code>db:prepare</code>
+usa para criar o banco de teste, e por isso <strong>vai versionado</strong>. Você nunca edita esse arquivo à mão.</p>
+<h3 id="migrations-sao-incrementais">Migrations são incrementais</h3>
+<p>Neste projeto a tabela <code>users</code> nasceu em três migrations, porque as funcionalidades chegaram em
+momentos diferentes:</p>
+<pre><code>20260803142949_create_users.rb                    # o básico
+20260803142950_add_email_verification_to_users.rb # confirmação de e-mail
+20260803142951_add_password_reset_to_users.rb     # recuperação de senha
+</code></pre>
+<p>É assim que acontece na vida real. Nunca edite uma migration que já rodou em produção — crie outra.</p>
+<hr>
+<h2 id="4-senha-o-que-nunca-fazer">4. Senha: o que nunca fazer</h2>
+<p><strong>Nunca guarde senha em texto.</strong> Se o banco vazar — e bancos vazam — você entregou a senha de
+todos. E como as pessoas repetem senha, você entregou o e-mail e o banco delas junto.</p>
+<h3 id="hash-nao-e-criptografia">Hash não é criptografia</h3>
+<p>Criptografia tem volta (com a chave). <strong>Hash não tem volta</strong>: é um caminho só. Você não guarda a
+senha; guarda o resultado de passar a senha pela função. Na hora do login, passa de novo e compara
+os resultados.</p>
+<h3 id="por-que-bcrypt-e-nao-sha-256">Por que bcrypt e não SHA-256</h3>
+<p>SHA-256 é rápido — <strong>e isso é o problema</strong>. Uma GPU testa bilhões de SHA-256 por segundo. bcrypt foi
+feito para ser <strong>lento de propósito</strong> e tem um fator de custo ajustável: quando o hardware melhora,
+você aumenta o custo.</p>
+<p>bcrypt também gera um <strong>salt</strong> aleatório por senha. Sem salt, duas pessoas com a mesma senha teriam
+o mesmo hash, e uma tabela pronta (<em>rainbow table</em>) quebraria as duas de uma vez.</p>
+<pre><code>$2a$12$R9h/cIPz0gi.URNNX3kh2O...
+ │   │  └── salt + hash
+ │   └── fator de custo (12 = 2^12 iterações)
+ └── versão do algoritmo
+</code></pre>
+<h3 id="has_secure_password"><code>has_secure_password</code></h3>
+<pre><code class="language-ruby"># Gemfile
+gem &quot;bcrypt&quot;, &quot;~&gt; 3.1.7&quot;
+</code></pre>
+<pre><code class="language-ruby">class User &lt; ApplicationRecord
+  has_secure_password validations: false
+end
+</code></pre>
+<p>Isso dá ao model:</p>
+<ul>
+<li><code>user.password = "..."</code> — recebe a senha em texto e grava o digest em <code>password_digest</code></li>
+<li><code>user.authenticate("...")</code> — devolve o usuário se bater, <code>false</code> se não</li>
+<li><code>user.password_confirmation</code> — a confirmação, se você usar</li>
+</ul>
+<p>A senha em texto <strong>nunca toca o banco</strong>. Ela vive na memória durante a requisição e some.</p>
+<blockquote>
+<p><code>validations: false</code> desliga as validações padrão porque a nossa política de senha é mais
+exigente. Ela mora em <code>PasswordPolicyValidator</code>.</p>
+</blockquote>
+<hr>
+<h2 id="5-validacoes">5. Validações</h2>
+<pre><code class="language-ruby">validates :name, presence: true, length: { maximum: 120 }
+validates :email, presence: true,
+                  uniqueness: { case_sensitive: false },
+                  format: { with: URI::MailTo::EMAIL_REGEXP }
+validates :course, presence: true
+validates :matricula, presence: true, uniqueness: true, format: { with: /\A\d{7}\z/ }
+validates :terms_accepted_at, presence: true, on: :create
+validate  :password_meets_policy, if: -&gt; { password.present? }
+</code></pre>
+<ul>
+<li><code>validates</code> (plural) usa um validador pronto. <code>validate</code> (singular) chama um método seu.</li>
+<li><code>on: :create</code> só valida na criação — os termos são aceitos uma vez.</li>
+<li><code>if:</code> recebe um lambda. Só valida a senha quando ela foi informada (na edição de perfil ela não é).</li>
+</ul>
+<p>No console:</p>
+<pre><code class="language-ruby">u = User.new(name: &quot;Teste&quot;)
+u.valid?          # false
+u.errors.full_messages
+</code></pre>
+<h3 id="regra-de-ouro-normalize-antes-de-validar">Regra de ouro: normalize antes de validar</h3>
+<p><code>Ana@UFOP.br</code> e <code>ana@ufop.br</code> são o mesmo e-mail. <code>20.112-34</code> e <code>2011234</code> são a mesma matrícula.</p>
+<pre><code class="language-ruby">def self.normalize_email(email)
+  email.to_s.strip.downcase
+end
+
+def self.normalize_matricula(matricula)
+  matricula.to_s.gsub(/\D/, &quot;&quot;)
+end
+</code></pre>
+<p>Sem isso o índice único não serve para nada: o banco acha que são valores diferentes.</p>
+<hr>
+<h2 id="6-associacoes">6. Associações</h2>
+<p>Uma tabela nunca basta. Todo sistema real tem tabelas que se referem umas às outras: usuário tem
+muitos pedidos; palestra acontece numa sala; sala tem muitas palestras.</p>
+<p>Vamos criar a segunda tabela do projeto: <strong><code>login_events</code></strong>, o histórico de acessos da conta. É o
+que o seu banco usa para mandar "novo acesso detectado" por e-mail.</p>
+<h3 id="quem-guarda-a-chave">Quem guarda a chave</h3>
+<p>A relação um-para-muitos mora numa coluna só: a <strong>chave estrangeira</strong>. <code>login_events.user_id</code>
+aponta para <code>users.id</code>.</p>
+<ul>
+<li>quem <strong>carrega</strong> a coluna usa <code>belongs_to</code>;</li>
+<li>quem é <strong>apontado</strong> usa <code>has_many</code>.</li>
+</ul>
+<blockquote>
+<p>Regra prática: a chave fica sempre no lado "muitos".</p>
+</blockquote>
+<h3 id="a-migration">A migration</h3>
+<pre><code class="language-ruby">create_table :login_events do |t|
+  t.references :user, null: false, foreign_key: true
+  t.string   :client, null: false
+  t.string   :ip_address
+  t.datetime :occurred_at, null: false
+  t.timestamps
+end
+
+add_index :login_events, [ :user_id, :occurred_at ]
+</code></pre>
+<ul>
+<li><strong><code>t.references :user</code></strong> cria a coluna <code>user_id</code>, o índice <strong>e</strong> a chave estrangeira.</li>
+<li><strong><code>foreign_key: true</code></strong> faz o <strong>banco</strong> recusar uma linha órfã — não é só validação de model.</li>
+<li>O índice composto tem <code>user_id</code> primeiro porque a consulta é sempre "os últimos logins <strong>deste</strong>
+  usuário". Num índice composto, <strong>a ordem das colunas importa</strong>: primeiro o que filtra.</li>
+</ul>
+<h3 id="os-dois-lados">Os dois lados</h3>
+<pre><code class="language-ruby">class User &lt; ApplicationRecord
+  has_many :login_events, dependent: :delete_all
+end
+
+class LoginEvent &lt; ApplicationRecord
+  belongs_to :user
+
+  scope :recentes, -&gt; { order(occurred_at: :desc) }
+end
+</code></pre>
+<ul>
+<li><strong><code>dependent: :delete_all</code></strong> — apagar o usuário apaga o histórico junto. Sem isso sobram linhas
+  apontando para um <code>id</code> que não existe mais.</li>
+<li><strong><code>belongs_to</code> já exige presença</strong> desde o Rails 5: <code>LoginEvent</code> sem <code>user</code> é inválido.</li>
+<li><strong><code>scope</code></strong> é uma consulta com nome, e ela encadeia.</li>
+</ul>
+<h3 id="usando">Usando</h3>
+<pre><code class="language-ruby"># Criar PELA associação já preenche o user_id — não precisa passar:
+user.login_events.create!(client: &quot;mobile&quot;, occurred_at: Time.current)
+
+user.login_events.count
+user.login_events.recentes.limit(5)
+evento.user.name                      # navega para o outro lado
+</code></pre>
+<h3 id="a-armadilha-n1">A armadilha N+1</h3>
+<pre><code class="language-ruby">users.each { |u| puts u.login_events.count }
+</code></pre>
+<p>Com 100 usuários isso são <strong>101 consultas</strong>: uma para buscar os usuários e cem para buscar o
+histórico de cada um. É o problema de performance número 1 de aplicação Rails.</p>
+<p>A correção é uma palavra:</p>
+<pre><code class="language-ruby">User.includes(:login_events).each { |u| puts u.login_events.count }
+</code></pre>
+<p>Duas consultas, sempre. O <code>seem-backend</code> usa a gem <strong>Bullet</strong>, que estoura um erro em
+desenvolvimento quando você escreve um N+1 sem perceber.</p>
+<hr>
+<h2 id="7-concerns-o-mixin-da-aula-1-na-pratica">7. Concerns — o mixin da Aula 1, na prática</h2>
+<p>O <code>User</code> vai ganhar confirmação de e-mail e recuperação de senha. São dois assuntos que não
+conversam entre si. Jogar os dois no <code>user.rb</code> produz um arquivo de 800 linhas que ninguém abre com
+vontade.</p>
+<p>Cada assunto vira um módulo em <code>app/models/concerns/</code>:</p>
+<pre><code class="language-ruby"># app/models/concerns/email_verifiable.rb
+module EmailVerifiable
+  extend ActiveSupport::Concern
+
+  CODE_TTL = 15.minutes
+  RESEND_COOLDOWN = 1.minute
+
+  included do
+    scope :email_verified, -&gt; { where.not(email_verified_at: nil) }
+  end
+
+  def email_verified?
+    email_verified_at.present?
+  end
+
+  def issue_email_verification_code!
+    code = format(&quot;%06d&quot;, SecureRandom.random_number(1_000_000))
+
+    update!(
+      email_verification_code_digest: BCrypt::Password.create(code),
+      email_verification_expires_at: CODE_TTL.from_now,
+      email_verification_sent_at: Time.current
+    )
+
+    code
+  end
+end
+</code></pre>
+<pre><code class="language-ruby">class User &lt; ApplicationRecord
+  include EmailVerifiable
+  include PasswordResettable
+end
+</code></pre>
+<ul>
+<li><code>extend ActiveSupport::Concern</code> habilita o bloco <code>included do ... end</code>, onde vão coisas que só
+  fazem sentido na classe (scopes, validações, associações).</li>
+<li>O código completo dos dois concerns está em <code>app/models/concerns/</code>.</li>
+</ul>
+<h3 id="tres-decisoes-dentro-do-concern-e-o-porque-de-cada-uma">Três decisões dentro do concern, e o porquê de cada uma</h3>
+<p><strong>1. O código de 6 dígitos também vira digest bcrypt.</strong> Ele é uma senha temporária. Quem lê o banco
+não pode confirmar a conta de ninguém.</p>
+<p><strong>2. O código em texto só existe no retorno do método.</strong> <code>issue_email_verification_code!</code> devolve o
+código para o service mandar por e-mail, e depois ele some. Não fica em coluna, nem em log.</p>
+<p><strong>3. <code>email_verified_at</code> é data, não booleano.</strong> Um booleano responde "sim". Uma data responde "sim,
+em 12 de agosto às 14h" — e isso você vai querer saber quando alguém abrir um chamado.</p>
+<hr>
+<h2 id="8-o-console">8. O console</h2>
+<pre><code class="language-bash">bin/rails console
+</code></pre>
+<pre><code class="language-ruby">u = User.new(
+  name: &quot;Ana Souza&quot;,
+  email: &quot;ana@aluno.ufop.edu.br&quot;,
+  password: &quot;Automic@2026&quot;,
+  course: &quot;Engenharia de Controle e Automação&quot;,
+  matricula: &quot;2011234&quot;,
+  terms_accepted_at: Time.current
+)
+
+u.valid?
+u.save
+u.password_digest          # o hash, não a senha
+u.authenticate(&quot;Automic@2026&quot;)   # devolve o user
+u.authenticate(&quot;errada&quot;)         # false
+
+User.count
+User.where(&quot;email LIKE ?&quot;, &quot;%ufop%&quot;)
+User.find_by(email: &quot;ana@aluno.ufop.edu.br&quot;)
+
+codigo = u.issue_email_verification_code!
+u.verify_email_code!(codigo)
+u.email_verified?
+</code></pre>
+<blockquote>
+<p><code>bin/rails console --sandbox</code> desfaz tudo ao sair. Bom para experimentar sem sujar o banco.</p>
+</blockquote>
+<hr>
+<h2 id="9-seeds-e-fixtures">9. Seeds e fixtures</h2>
+<p><strong>Seeds</strong> povoam o banco de desenvolvimento:</p>
+<pre><code class="language-bash">bin/rails db:seed
+</code></pre>
+<p><strong>Fixtures</strong> são os dados dos testes, em <code>test/fixtures/users.yml</code>. O Rails carrega antes de cada
+teste e limpa depois — todo teste começa do mesmo estado.</p>
+<pre><code class="language-yaml">ana:
+  name: Ana Souza
+  email: ana@aluno.ufop.edu.br
+  password_digest: &lt;%= BCrypt::Password.create(&quot;Automic@2026&quot;) %&gt;
+  email_verified_at: &lt;%= 1.day.ago.to_fs(:db) %&gt;
+</code></pre>
+<p>No teste, <code>users(:ana)</code> devolve esse registro.</p>
+<hr>
+<h2 id="10-testando-o-model">10. Testando o model</h2>
+<pre><code class="language-ruby">test &quot;guarda o digest e nunca a senha em texto&quot; do
+  user = build_user
+  user.save!
+
+  assert_not_equal &quot;Automic@2026&quot;, user.password_digest
+  assert user.authenticate(&quot;Automic@2026&quot;)
+  assert_not user.authenticate(&quot;outra-senha&quot;)
+end
+</code></pre>
+<pre><code class="language-bash">bin/rails test
+bin/rails test test/models/user_test.rb          # só um arquivo
+bin/rails test test/models/user_test.rb:42       # só um teste
+</code></pre>
+<p>O Rails vem com <strong>Minitest</strong>. Se você conhece <code>pytest</code>, a ideia é a mesma; a sintaxe é <code>assert_*</code>.</p>
+<hr>
+<h2 id="11-uma-sutileza-de-seguranca-authenticate_by_email">11. Uma sutileza de segurança: <code>authenticate_by_email</code></h2>
+<pre><code class="language-ruby">DUMMY_PASSWORD_DIGEST = BCrypt::Password.create(&quot;automic-timing-safe-dummy&quot;).freeze
+
+def self.authenticate_by_email(email, password)
+  user = find_by(email: normalize_email(email))
+  digest = user&amp;.password_digest || DUMMY_PASSWORD_DIGEST
+  autenticado = BCrypt::Password.new(digest).is_password?(password.to_s)
+
+  user if autenticado
+end
+</code></pre>
+<p>Por que esse <code>DUMMY_PASSWORD_DIGEST</code>?</p>
+<p>O jeito ingênuo seria <code>return nil unless user</code>. Só que bcrypt é lento <strong>de propósito</strong>. Se o e-mail
+não existe, a resposta volta em 1ms; se existe e a senha está errada, volta em 100ms. Cronometrando
+as respostas, dá para descobrir quem tem conta no sistema — é um <strong>ataque de temporização</strong>.</p>
+<p>Rodando o bcrypt sempre, com um digest descartável quando não há usuário, as duas respostas custam
+o mesmo. Vamos usar esse método na Aula 3.</p>
+<hr>
+<h2 id="exercicio-da-aula_1">Exercício da aula</h2>
+<ol>
+<li>Crie as três migrations e rode <code>bin/rails db:migrate</code>.</li>
+<li>Abra <code>db/schema.rb</code> e confira que as colunas estão lá.</li>
+<li>Escreva o <code>User</code> com <code>has_secure_password</code> e as validações.</li>
+<li>Crie os dois concerns e inclua no <code>User</code>.</li>
+<li>No console: crie um usuário, veja o <code>password_digest</code>, teste <code>authenticate</code>.</li>
+<li>Emita um código de verificação e confirme com ele. Depois tente confirmar de novo — tem que
+   recusar.</li>
+<li>
+<p>Escreva os testes e rode <code>bin/rails test</code>.</p>
+</li>
+<li>
+<p>Crie a migration de <code>login_events</code>, o model com <code>belongs_to</code> e o <code>has_many</code> no <code>User</code>.</p>
+</li>
+<li>No console: <code>users(:ana).login_events.create!(...)</code>, depois <code>user.login_events.recentes</code>.</li>
+<li>Apague um usuário que tenha eventos e confira que o histórico foi junto.</li>
+</ol>
+<p><strong>Bônus</strong>: escreva o N+1 de propósito (<code>User.all.each { |u| puts u.login_events.count }</code>), olhe o
+log para contar as consultas, e conserte com <code>includes</code>.</p>
+<p>Travou? <code>git checkout aula-02</code>.</p>
+<hr>
+<h2 id="recapitulando_1">Recapitulando</h2>
+<ul>
+<li>Migration é a fonte da verdade do banco. O model não declara colunas.</li>
+<li>Índice único é garantia; validação é mensagem bonita. Você quer os dois.</li>
+<li>Senha vira hash bcrypt, com salt, e nunca volta.</li>
+<li>Concern é o mixin do Rails: um assunto por arquivo.</li>
+<li>Normalize antes de validar, ou o índice único não serve para nada.</li>
+<li>A chave estrangeira fica no lado "muitos": <code>belongs_to</code> carrega, <code>has_many</code> é apontado.</li>
+<li>Transação é tudo ou nada. Dentro dela, use os métodos com <code>!</code>.</li>
+<li><code>includes</code> resolve N+1, e N+1 é o problema de performance mais comum em Rails.</li>
+</ul>
+<p><strong>Na próxima</strong>: as rotas. O usuário vai conseguir se cadastrar, entrar, sair e recuperar a senha.</p>
+<div class='quebra'></div>
+
+<h1 id="aula-3-as-rotas-de-autenticacao">Aula 3 — As rotas de autenticação</h1>
+<p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: cadastro, ativação, login, logout e recuperação de senha.
+<strong>Checkpoint</strong>: <code>git checkout aula-03</code></p>
+<hr>
+<h2 id="1-o-caminho-de-uma-requisicao">1. O caminho de uma requisição</h2>
+<pre><code>requisição → rota → controller → service → model → banco
+                        ↓
+                   serializer → JSON
+</code></pre>
+<p>Nesta aula todas essas peças aparecem. A regra que organiza tudo:</p>
+<blockquote>
+<p><strong>Controller recebe requisição e devolve resposta. Regra de negócio não mora nele.</strong></p>
+</blockquote>
+<hr>
+<h2 id="2-a-arquitetura-de-pastas">2. A arquitetura de pastas</h2>
+<pre><code>app/controllers/
+├── application_controller.rb
+├── concerns/api/v1/
+│   ├── authentication.rb      # quem está chamando?
+│   └── error_rendering.rb     # um formato de erro só
+└── api/v1/
+    ├── base_controller.rb     # pai de todos: erros, auth, strong params
+    ├── registrations_controller.rb
+    ├── email_verifications_controller.rb
+    ├── sessions_controller.rb
+    ├── password_resets_controller.rb
+    └── me_controller.rb
+
+app/services/                  # os casos de uso
+├── auth/
+└── users/
+
+app/serializers/               # o que vai para o JSON
+</code></pre>
+<h3 id="por-que-service-object">Por que service object</h3>
+<p>O <code>Users::Register</code> faz seis coisas: valida campos obrigatórios, aplica a política de senha, confere
+a confirmação, normaliza os dados, cria o usuário e dispara o e-mail. Dentro do controller isso vira
+um método de 60 linhas que só dá para testar subindo uma requisição HTTP inteira.</p>
+<p>Fora dele:</p>
+<pre><code class="language-ruby">result = Users::Register.call(name: &quot;...&quot;, email: &quot;...&quot;, ...)
+result.success?   # true/false
+result.user
+result.errors     # [{ field: &quot;password&quot;, message: &quot;...&quot; }]
+</code></pre>
+<p>Testável direto, reaproveitável (uma task de importação chama o mesmo service) e o controller volta
+a ter cinco linhas. O padrão sempre igual: <strong>um <code>call</code> de classe, um <code>Result</code></strong>.</p>
+<h3 id="por-que-serializer">Por que serializer</h3>
+<pre><code class="language-ruby">render json: user
+</code></pre>
+<p>Isso manda o objeto inteiro: <code>password_digest</code>, <code>email_verification_code_digest</code>,
+<code>password_reset_code_digest</code>. Vazamento em uma linha.</p>
+<p>O serializer é a lista de convidados: só entra quem está escrito lá.</p>
+<pre><code class="language-ruby">class UserSerializer
+  def self.as_json(user)
+    { id: user.id, name: user.name, email: user.email, ... }
+  end
+end
+</code></pre>
+<h3 id="um-formato-de-erro-so">Um formato de erro só</h3>
+<pre><code class="language-json">{
+  &quot;error&quot;: {
+    &quot;code&quot;: &quot;validation_failed&quot;,
+    &quot;message&quot;: &quot;Falha na validação&quot;,
+    &quot;details&quot;: [{ &quot;field&quot;: &quot;password&quot;, &quot;message&quot;: &quot;deve incluir pelo menos um dígito&quot; }]
+  }
+}
+</code></pre>
+<ul>
+<li><strong><code>code</code></strong> é estável — o cliente decide o que fazer com base nele.</li>
+<li><strong><code>message</code></strong> é para o usuário ler. Pode mudar, pode ser traduzida.</li>
+<li><strong><code>details</code></strong> diz qual campo falhou, para o app pintar o input de vermelho.</li>
+</ul>
+<p>Uma API que devolve erro de três jeitos diferentes força o cliente a tratar os três.</p>
+<h3 id="before_action-o-filtro"><code>before_action</code>: o filtro</h3>
+<pre><code class="language-ruby">class MeController &lt; BaseController
+  before_action :authenticate_user!
+
+  def show
+    render_user(current_user)   # só roda se passou pelo filtro
+  end
+end
+</code></pre>
+<p>O filtro roda <strong>antes</strong> da action. Se ele renderizar alguma coisa — o <code>401</code> — a action nem chega a
+ser chamada. <code>only:</code> e <code>except:</code> limitam a quais actions ele se aplica:</p>
+<pre><code class="language-ruby">before_action :authenticate_user!, only: :destroy
+</code></pre>
+<h3 id="a-pilha-de-middleware">A pilha de middleware</h3>
+<p>A requisição não cai direto no controller. Ela atravessa uma pilha de camadas — o <strong>middleware</strong>.
+Cada camada pode ler, alterar, ou responder e cortar o caminho ali mesmo.</p>
+<pre><code>requisição
+   ↓
+[ Rack::Cors ]                 ← libera (ou não) a origem
+[ ActionDispatch::Cookies ]
+[ ... ]
+   ↓
+rota → before_action → controller → service → model
+   ↓
+serializer → JSON → resposta (voltando pela mesma pilha)
+</code></pre>
+<pre><code class="language-bash">bin/rails middleware      # lista a pilha inteira do seu app
+</code></pre>
+<p>O modo <code>--api</code> remove várias camadas. Trouxemos os cookies de volta na mão, em
+<code>config/application.rb</code>:</p>
+<pre><code class="language-ruby">config.middleware.use ActionDispatch::Cookies
+</code></pre>
+<h3 id="strong-parameters">Strong parameters</h3>
+<pre><code class="language-ruby">def registration_params
+  expect_root_params(:name, :email, :password, :confirm_password,
+                     :course, :matricula, :check_terms_use)
+end
+</code></pre>
+<p><code>params.expect</code> (Rails 8) <strong>exige</strong> essas chaves e <strong>recusa o resto</strong>. Sem isso alguém manda
+<code>"role": "admin"</code> no cadastro e vira admin. O nome disso é <strong>mass assignment</strong>, e já derrubou
+sistema grande.</p>
+<hr>
+<h2 id="3-rota-1-cadastro">3. Rota 1 — Cadastro</h2>
+<pre><code>POST /api/v1/registrations
+</code></pre>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Diego Reis&quot;,
+  &quot;email&quot;: &quot;diego@aluno.ufop.edu.br&quot;,
+  &quot;password&quot;: &quot;Automic@2026&quot;,
+  &quot;confirm_password&quot;: &quot;Automic@2026&quot;,
+  &quot;course&quot;: &quot;Engenharia de Minas&quot;,
+  &quot;matricula&quot;: &quot;2013333&quot;,
+  &quot;check_terms_use&quot;: true
+}
+</code></pre>
+<p>→ <code>201 Created</code> com o usuário e um e-mail de ativação a caminho.</p>
+<h3 id="a-decisao-que-nao-e-obvia">A decisão que não é óbvia</h3>
+<pre><code class="language-ruby">REGISTRATION_FAILED_MESSAGE =
+  &quot;Não foi possível concluir o cadastro. Verifique os dados e tente novamente.&quot;
+</code></pre>
+<p>Quando o e-mail já existe, a resposta <strong>não</strong> diz "este e-mail já está cadastrado". Se dissesse, o
+cadastro viraria um verificador: eu testo mil e-mails e descubro quem tem conta no sistema.
+Chama-se <strong>enumeração de usuários</strong>, e vai voltar duas vezes nesta aula.</p>
+<p>O custo é real: o usuário legítimo que esqueceu que já tem conta fica sem uma mensagem clara. A
+saída é o texto convidar a usar "esqueci minha senha".</p>
+<hr>
+<h2 id="4-e-mail-o-mailer">4. E-mail: o mailer</h2>
+<p>Um mailer é um controller cujas views são e-mails.</p>
+<pre><code class="language-ruby">class UserMailer &lt; ApplicationMailer
+  def email_verification(user, code)
+    @user = user
+    @code = code
+    mail(to: @user.email, subject: &quot;Ative sua conta&quot;)
+  end
+end
+</code></pre>
+<p>O template fica em <code>app/views/user_mailer/email_verification.text.erb</code>.</p>
+<p><strong>Em desenvolvimento não existe SMTP.</strong> O <code>letter_opener</code> abre o e-mail no navegador:</p>
+<pre><code class="language-ruby">config.action_mailer.delivery_method = :letter_opener
+</code></pre>
+<h3 id="deliver_now-e-nao-deliver_later"><code>deliver_now</code> e não <code>deliver_later</code></h3>
+<pre><code class="language-ruby">UserMailer.email_verification(user, code).deliver_now
+</code></pre>
+<p>O jeito "certo" de livro seria <code>deliver_later</code>, jogando numa fila. Aqui não, e o motivo é o código:
+numa fila, o código de 6 dígitos ficaria <strong>gravado em texto</strong> na tabela de jobs.</p>
+<p>O preço é a requisição esperar o SMTP. Por isso o service tem <code>rescue</code>: falha de envio não pode
+virar 500.</p>
+<pre><code class="language-ruby">rescue StandardError =&gt; e
+  Rails.error.report(e, handled: true, source: &quot;SendEmailVerification&quot;)
+  Result.new(success?: false, error_code: &quot;delivery_failed&quot;, ...)
+end
+</code></pre>
+<hr>
+<h2 id="5-ativacao-da-conta">5. Ativação da conta</h2>
+<pre><code>POST /api/v1/email_verifications/confirm   { email, code }
+POST /api/v1/email_verifications/resend    { email }
+</code></pre>
+<p>O <code>resend</code> <strong>sempre</strong> responde 200 com a mesma mensagem — conta inexistente, já verificada ou em
+cooldown são indistinguíveis. É a mesma regra do cadastro.</p>
+<hr>
+<h2 id="6-o-problema-http-nao-tem-memoria">6. O problema: HTTP não tem memória</h2>
+<p>Lembra da Aula 1? Cada requisição começa do zero. Então como o servidor sabe que você já entrou?</p>
+<p>Duas famílias de resposta:</p>
+<table>
+<thead>
+<tr>
+<th>Sessão no servidor</th>
+<th>Token</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O servidor guarda a sessão e manda um id no cookie</td>
+<td>O servidor manda um crachá assinado e não guarda nada</td>
+</tr>
+<tr>
+<td>Toda requisição consulta o armazenamento de sessão</td>
+<td>A assinatura basta: só validar</td>
+</tr>
+<tr>
+<td>Logout é apagar a sessão — imediato</td>
+<td>Logout é o problema difícil (já chegamos lá)</td>
+</tr>
+<tr>
+<td>Escalar exige sessão compartilhada entre servidores</td>
+<td>Qualquer servidor valida sozinho</td>
+</tr>
+</tbody>
+</table>
+<p>Escolhemos <strong>token</strong>, porque o cliente principal é um app nativo — que não tem cookie e roda em
+milhares de celulares.</p>
+<h3 id="jwt">JWT</h3>
+<pre><code>eyJhbGciOiJIUzI1NiJ9 . eyJzdWIiOjIsInZlciI6MH0 . 4pQ8L_5f...
+   cabeçalho              payload                  assinatura
+</code></pre>
+<p>Três partes em <strong>Base64</strong>, separadas por ponto.</p>
+<blockquote>
+<p><strong>Base64 não é segredo.</strong> É uma forma de escrever bytes usando só letras e números, para caber
+num cabeçalho HTTP — que é texto. Não tem chave, não tem criptografia, qualquer um desfaz:</p>
+<p><code>bash
+echo eyJzdWIiOjJ9 | base64 -d      # {"sub":2}</code></p>
+<p>Aquele monte de caractere embaralhado do JWT é isso: texto disfarçado.</p>
+<p><strong>O payload é público.</strong> Cole um token em <a href="https://jwt.io">jwt.io</a> e você lê tudo. A assinatura
+garante que ninguém <strong>alterou</strong> o conteúdo, não que ninguém <strong>leu</strong>. Nunca ponha no payload nada
+que não possa ser lido — nem CPF, nem e-mail, nem permissão sensível.</p>
+</blockquote>
+<p>O nosso payload:</p>
+<pre><code class="language-ruby">{
+  sub: user.id,                  # subject: de quem é o token
+  ver: user.token_version,       # versão das sessões
+  jti: SecureRandom.uuid,        # id único deste token
+  exp: 24.hours.from_now.to_i,   # expiração
+  iat: Time.current.to_i         # emitido em
+}
+</code></pre>
+<h3 id="o-detalhe-que-quebra-tudo">O detalhe que quebra tudo</h3>
+<pre><code class="language-ruby">JWT.decode(token, secret, true, { algorithm: &quot;HS256&quot; })
+#                        ^^^^
+</code></pre>
+<p>Esse <code>true</code> é a validação da assinatura. Com <code>false</code>, o <code>JWT.decode</code> aceita <strong>qualquer</strong> token — e
+qualquer pessoa forja o próprio acesso trocando o <code>sub</code>. Já foi CVE em várias bibliotecas.</p>
+<p>O teste que prova isso está em <code>me_controller_test.rb</code>:</p>
+<pre><code class="language-ruby">test &quot;recusa token assinado com outro segredo&quot; do
+  forjado = JWT.encode({ sub: users(:ana).id, ... }, &quot;segredo-do-atacante&quot;, &quot;HS256&quot;)
+  get &quot;/api/v1/me&quot;, headers: auth_headers(forjado)
+  assert_response :unauthorized
+end
+</code></pre>
+<hr>
+<h2 id="7-rota-2-login">7. Rota 2 — Login</h2>
+<pre><code>POST /api/v1/sessions   { email, password, client }
+</code></pre>
+<p><code>client</code> é <code>"mobile"</code> ou <code>"web"</code>, e decide <strong>como</strong> o token é entregue:</p>
+<table>
+<thead>
+<tr>
+<th>Cliente</th>
+<th>Transporte</th>
+<th>Por quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mobile</code></td>
+<td>cabeçalho <code>Authorization: Bearer &lt;token&gt;</code></td>
+<td>App nativo não tem cookie</td>
+</tr>
+<tr>
+<td><code>web</code></td>
+<td>cookie assinado e <code>httpOnly</code></td>
+<td>JavaScript não lê o cookie, então um XSS não rouba o token</td>
+</tr>
+</tbody>
+</table>
+<h3 id="o-que-e-um-cookie">O que é um cookie</h3>
+<p>Um par <code>nome=valor</code> que o servidor manda no cabeçalho <code>Set-Cookie</code>. O navegador guarda e
+<strong>reenvia sozinho</strong>, em toda requisição àquele site. É a memória que o HTTP não tem, colada por
+fora.</p>
+<p>Quem faz esse trabalho é o navegador — o app nativo não participa disso. Por isso o <code>client</code>.</p>
+<pre><code class="language-ruby">cookies.signed[AUTH_COOKIE] = {
+  value: token,
+  httponly: true,                  # JavaScript não enxerga
+  secure: Rails.env.production?,   # só trafega em HTTPS
+  same_site: :lax                  # mitiga CSRF
+}
+</code></pre>
+<p><code>signed</code> significa que o Rails carimba o valor: alterou na mão, o Rails recusa.</p>
+<h3 id="xss">XSS</h3>
+<p><em>Cross-Site Scripting</em>: o atacante consegue rodar <strong>JavaScript dentro da sua página</strong>. Como? Você
+exibiu texto de usuário sem escapar — alguém salvou <code>&lt;script&gt;...&lt;/script&gt;</code> como nome e a sua página
+imprimiu cru.</p>
+<p>Com JavaScript rodando ali, ele lê tudo que o JavaScript lê. É exatamente por isso que <code>httponly</code>
+existe: o token no cookie fica <strong>fora do alcance</strong> do JavaScript, e um XSS não o rouba.</p>
+<h3 id="csrf">CSRF</h3>
+<p><em>Cross-Site Request Forgery</em>. Lembra que o navegador reenvia o cookie sozinho?</p>
+<p>Um site malicioso monta um formulário apontando para a sua API. A vítima clica; o navegador anexa
+o cookie dela; a sua API obedece, achando que foi ela quem pediu.</p>
+<p><code>same_site: :lax</code> manda o navegador <strong>não enviar o cookie</strong> quando a requisição parte de outro site.</p>
+<blockquote>
+<p>API com token no cabeçalho não sofre de CSRF: ninguém anexa o <code>Authorization</code> por você. O
+problema é exclusivo de quem autentica por cookie — ou seja, do nosso <code>client: "web"</code>.</p>
+</blockquote>
+<h3 id="401-403">401 × 403</h3>
+<pre><code class="language-ruby">when &quot;email_unverified&quot;
+  status: :forbidden      # 403: sabemos quem é você, mas ainda não pode
+else
+  status: :unauthorized   # 401: não sabemos quem é você
+end
+</code></pre>
+<h3 id="a-mesma-mensagem-para-os-dois-erros">A mesma mensagem para os dois erros</h3>
+<p>E-mail inexistente e senha errada devolvem <strong><code>invalid_credentials</code></strong>, o mesmo código e a mesma
+mensagem. Terceira vez que a enumeração aparece.</p>
+<p>E lembra do <code>DUMMY_PASSWORD_DIGEST</code> da Aula 2? Ele fecha o buraco pelo lado do <strong>tempo</strong>: não
+adianta a mensagem ser igual se a resposta volta em 1ms quando o e-mail não existe e em 100ms
+quando existe.</p>
+<hr>
+<h2 id="8-rota-3-logout-o-problema-dificil">8. Rota 3 — Logout, o problema difícil</h2>
+<p>Um JWT é válido até expirar. O servidor não guarda sessão. <strong>Então "sair" não existe</strong> —
+o token continua funcionando por até 24h.</p>
+<p>Três respostas possíveis, e nós usamos duas:</p>
+<h3 id="a-apagar-no-cliente">a) Apagar no cliente</h3>
+<p>O app joga o token fora. Resolve o caso normal e <strong>não resolve nada</strong> se alguém copiou o token.</p>
+<h3 id="b-denylist-por-jti-revoga-aquele-token">b) Denylist por <code>jti</code> — revoga aquele token</h3>
+<pre><code class="language-ruby">module Auth::TokenDenylist
+  def revoke(payload)
+    jti = payload[:jti]
+    ttl = payload[:exp].to_i - Time.current.to_i
+    return false if jti.blank? || ttl &lt;= 0
+
+    Rails.cache.write(key(jti), true, expires_in: ttl.seconds)
+  end
+
+  def revoked?(jti)
+    Rails.cache.exist?(key(jti))
+  end
+end
+</code></pre>
+<p>A sacada está no <strong>TTL</strong>: cada entrada vive exatamente o tempo que faltava para o token expirar.
+Depois disso o token morre sozinho e a entrada não serve mais. <strong>A lista se limpa sem varredura e
+sem lixo acumulado.</strong></p>
+<p>Isso revoga <strong>um</strong> token. Logout no celular não derruba o notebook — que é o comportamento certo.</p>
+<h3 id="c-token_version-derruba-tudo-de-uma-vez">c) <code>token_version</code> — derruba tudo de uma vez</h3>
+<pre><code class="language-ruby">def token_version_matches?(submitted_version)
+  token_version == submitted_version.to_i
+end
+
+def invalidate_sessions!
+  update!(token_version: token_version + 1)
+end
+</code></pre>
+<p>O token carrega o <code>ver</code> de quando foi emitido. Incrementar a coluna no banco invalida <strong>todos</strong> os
+tokens do usuário, em todos os dispositivos. Usamos isso na troca de senha.</p>
+<h3 id="a-verificacao-completa">A verificação completa</h3>
+<pre><code class="language-ruby">def user_from_token(token)
+  payload = Auth::DecodeToken.call(token)          # 1. a assinatura confere?
+  return if Auth::TokenDenylist.revoked?(payload[:jti])  # 2. foi revogado?
+
+  user = User.find_by(id: payload[:sub])
+  user if user&amp;.token_version_matches?(payload[:ver])    # 3. a versão bate?
+rescue Auth::DecodeToken::InvalidToken
+  nil
+end
+</code></pre>
+<hr>
+<h2 id="9-rota-4-recuperacao-de-senha">9. Rota 4 — Recuperação de senha</h2>
+<p>Dois passos, e o mais interessante do dia.</p>
+<pre><code>POST /api/v1/password_resets/request   { email }
+POST /api/v1/password_resets/confirm   { email, code, password, confirm_password }
+</code></pre>
+<h3 id="request-sempre-responde-200"><code>request</code> sempre responde 200</h3>
+<pre><code class="language-ruby">GENERIC_MESSAGE = &quot;Se o e-mail estiver cadastrado, enviamos um código para redefinir sua senha.&quot;
+</code></pre>
+<p><strong>Sempre.</strong> E-mail inexistente, não verificado, em cooldown, SMTP fora do ar — mesma resposta,
+mesmo status. Se respondesse 404 para e-mail inexistente, esta rota pública viraria um verificador
+de cadastro. É a quarta vez que o assunto aparece: <strong>em fluxo de autenticação, respostas diferentes
+vazam informação.</strong></p>
+<p>Duas guardas dentro:</p>
+<ul>
+<li><strong>Só conta verificada</strong> recebe código. Senão dá para sequestrar um cadastro feito com o e-mail de
+  outra pessoa antes de ela confirmar.</li>
+<li><strong>Cooldown de 1 minuto</strong>, senão qualquer um usa o seu servidor de e-mail para incomodar terceiros.</li>
+</ul>
+<h3 id="confirm-e-a-transacao"><code>confirm</code> e a transação</h3>
+<pre><code class="language-ruby">User.transaction do
+  user.save!                  # troca a senha
+  user.invalidate_sessions!   # derruba todas as sessões ativas
+  user.clear_password_reset_code!  # consome o código
+end
+</code></pre>
+<p>As três juntas ou nenhuma. Sem a transação, uma falha no meio deixa a senha trocada com o código
+ainda valendo.</p>
+<p>E a ordem das validações importa: a política de senha é conferida <strong>antes</strong> de consumir o código.
+Senão o usuário que digita a senha nova errada perde o código e precisa pedir outro.</p>
+<blockquote>
+<p><strong><code>invalidate_sessions!</code> é o ponto do fluxo inteiro.</strong> Se alguém invadiu a conta, trocar a senha
+tem que expulsar o invasor. Sem essa linha, ele continua logado com o token antigo.</p>
+</blockquote>
+<hr>
+<h2 id="10-testando">10. Testando</h2>
+<pre><code class="language-bash">bin/rails test
+</code></pre>
+<p>O teste que resume a aula:</p>
+<pre><code class="language-ruby">test &quot;logout revoga o token apresentado&quot; do
+  token = login_as(users(:ana))
+
+  get &quot;/api/v1/me&quot;, headers: auth_headers(token)
+  assert_response :ok
+
+  delete &quot;/api/v1/sessions&quot;, headers: auth_headers(token)
+
+  get &quot;/api/v1/me&quot;, headers: auth_headers(token)
+  assert_response :unauthorized       # sem a denylist, isto daria 200
+end
+</code></pre>
+<blockquote>
+<p><strong>Pegadinha</strong>: em teste o <code>Rails.cache</code> padrão é o <code>null_store</code> — não guarda nada. O teste acima
+passaria "de graça", provando nada. Por isso o <code>test_helper.rb</code> troca por um <code>MemoryStore</code>.</p>
+</blockquote>
+<h3 id="as-ferramentas-de-qualidade">As ferramentas de qualidade</h3>
+<pre><code class="language-bash">bin/rubocop     # estilo — o black/ruff do Ruby
+bin/brakeman    # análise estática de segurança
+bundle exec bundler-audit check --update   # gems com CVE conhecido
+</code></pre>
+<p>As três rodam no CI (Aula 4). O <code>brakeman</code> procura SQL injection, mass assignment, redirect aberto
+e mais uma dúzia de padrões.</p>
+<hr>
+<h2 id="11-cors">11. CORS</h2>
+<pre><code class="language-ruby">origins(ENV.fetch(&quot;CORS_ORIGINS&quot;, &quot;http://localhost:5173&quot;).split(&quot;,&quot;))
+</code></pre>
+<p>O navegador bloqueia, por padrão, uma página em <code>painel.exemplo.com</code> chamar <code>api.exemplo.com</code>. Esta
+config é a API dizendo quais origens aceita.</p>
+<p><strong>O app nativo não passa por CORS</strong> — isso é regra de navegador. Na prática, essa configuração
+existe por causa do painel web.</p>
+<hr>
+<h2 id="12-o-fluxo-inteiro-no-terminal">12. O fluxo inteiro, no terminal</h2>
+<pre><code class="language-bash">API=localhost:3000/api/v1
+
+# cadastro
+curl -X POST $API/registrations -H 'Content-Type: application/json' -d '{
+  &quot;name&quot;:&quot;Diego Reis&quot;,&quot;email&quot;:&quot;diego@aluno.ufop.edu.br&quot;,
+  &quot;password&quot;:&quot;Automic@2026&quot;,&quot;confirm_password&quot;:&quot;Automic@2026&quot;,
+  &quot;course&quot;:&quot;Engenharia de Minas&quot;,&quot;matricula&quot;:&quot;2013333&quot;,&quot;check_terms_use&quot;:true}'
+
+# login antes de confirmar → 403 email_unverified
+curl -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d '{&quot;email&quot;:&quot;diego@aluno.ufop.edu.br&quot;,&quot;password&quot;:&quot;Automic@2026&quot;,&quot;client&quot;:&quot;mobile&quot;}'
+
+# pegue o código no e-mail que abriu no navegador, e confirme
+curl -X POST $API/email_verifications/confirm -H 'Content-Type: application/json' \
+  -d '{&quot;email&quot;:&quot;diego@aluno.ufop.edu.br&quot;,&quot;code&quot;:&quot;123456&quot;}'
+
+# login (o token vem no cabeçalho Authorization da resposta)
+curl -i -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d '{&quot;email&quot;:&quot;diego@aluno.ufop.edu.br&quot;,&quot;password&quot;:&quot;Automic@2026&quot;,&quot;client&quot;:&quot;mobile&quot;}'
+
+TOKEN=cole-o-token-aqui
+curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;          # 200
+curl -X DELETE $API/sessions -H &quot;Authorization: Bearer $TOKEN&quot;
+curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;          # 401
+</code></pre>
+<hr>
+<h2 id="exercicio-da-aula_2">Exercício da aula</h2>
+<ol>
+<li>Monte as cinco rotas.</li>
+<li>No Insomnia, crie uma coleção com uma requisição para cada uma.</li>
+<li>Percorra o fluxo inteiro: cadastro → e-mail → confirmação → login → <code>/me</code> → logout → <code>/me</code> (401).</li>
+<li>Peça recuperação de senha, troque a senha e confira que <strong>o token antigo parou de funcionar</strong>.</li>
+<li>Cole o seu token em <a href="https://jwt.io">jwt.io</a> e leia o payload. Ache o <code>sub</code>, o <code>jti</code> e o <code>exp</code>.</li>
+<li>Rode <code>bin/rails test</code>, <code>bin/rubocop</code> e <code>bin/brakeman</code>.</li>
+</ol>
+<p><strong>Bônus 1</strong>: crie <code>PATCH /api/v1/me</code> para o usuário editar o próprio <code>name</code> — e só o <code>name</code>.</p>
+<p><strong>Bônus 2</strong>: descubra o que acontece se você trocar o <code>true</code> do <code>JWT.decode</code> por <code>false</code> e chamar
+<code>/me</code> com um token forjado. Depois desfaça.</p>
+<p>Travou? <code>git checkout aula-03</code>.</p>
+<hr>
+<h2 id="recapitulando_2">Recapitulando</h2>
+<ul>
+<li>Controller recebe e responde; a regra mora no service.</li>
+<li>Serializer é a lista de convidados do JSON — sem ele o digest vaza.</li>
+<li>O payload do JWT é público. Assinado ≠ criptografado.</li>
+<li>Logout de verdade precisa de denylist por <code>jti</code>; o TTL faz a limpeza sozinho.</li>
+<li><code>token_version</code> derruba tudo de uma vez, e é o que a troca de senha usa.</li>
+<li>Em autenticação, respostas diferentes vazam informação. Uma resposta só, sempre.</li>
+</ul>
+<p><strong>Na próxima</strong>: nada disso serve se está só na sua máquina. Vamos colocar no ar.</p>
+<div class='quebra'></div>
+
+<h1 id="aula-4-vps-docker-kamal-e-deploy">Aula 4 — VPS, Docker, Kamal e deploy</h1>
+<p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: a sua API no ar, em <code>https://seunome.capacita.&lt;domínio&gt;</code>,
+com deploy automático a cada push na <code>main</code>.
+<strong>Checkpoint</strong>: <code>git checkout aula-04</code></p>
+<blockquote>
+<p>Este roteiro é a versão para a turma do guia de infraestrutura do <code>seem-backend</code>. As decisões são
+as mesmas; a máquina é menor.</p>
+</blockquote>
+<hr>
+<h2 id="1-o-que-e-uma-vps">1. O que é uma VPS</h2>
+<p><strong>VPS</strong> = <em>Virtual Private Server</em>. Um computador virtual, dentro de um servidor físico de um
+provedor, que é seu: você tem acesso root, escolhe o sistema, instala o que quiser.</p>
+<table>
+<thead>
+<tr>
+<th>Opção</th>
+<th>O que você controla</th>
+<th>O que você opera</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hospedagem compartilhada</td>
+<td>quase nada</td>
+<td>nada</td>
+</tr>
+<tr>
+<td><strong>PaaS</strong> (Heroku, Render, Fly)</td>
+<td>o app</td>
+<td>nada — mas paga mais e obedece as regras deles</td>
+</tr>
+<tr>
+<td><strong>VPS</strong></td>
+<td>tudo</td>
+<td>tudo: SO, atualizações, firewall, banco</td>
+</tr>
+<tr>
+<td>Kubernetes</td>
+<td>tudo, em escala</td>
+<td>muito mais</td>
+</tr>
+</tbody>
+</table>
+<h3 id="por-que-vm-com-containers-e-nao-kubernetes">Por que VM com containers, e não Kubernetes</h3>
+<p>O <code>seem-backend</code> atende ~500 usuários num evento de uma semana. Kubernetes adicionaria custo e
+operação sem resolver um problema que existe. A escolha foi:</p>
+<ul>
+<li>menos peças para monitorar;</li>
+<li>deploy reproduzível com Docker e Kamal;</li>
+<li>banco e aplicação perto um do outro;</li>
+<li>recuperação simples numa VM substituta;</li>
+<li><strong>evoluir só quando uma métrica real pedir.</strong></li>
+</ul>
+<blockquote>
+<p>Escolher a ferramenta grande antes do problema grande é a forma mais cara de errar.</p>
+</blockquote>
+<p><strong>O que isso custa, e é honesto admitir</strong>: uma VM é ponto único de falha. Volume Docker não é
+backup. O Postgres não é gerenciado — quem cuida dele é você.</p>
+<hr>
+<h2 id="2-criar-a-vm-na-azure">2. Criar a VM na Azure</h2>
+<h3 id="cotas-antes-de-tudo">Cotas antes de tudo</h3>
+<p>A assinatura Azure for Students não oferece todos os tamanhos em todas as regiões. O portal
+responde:</p>
+<pre><code>NotAvailableForSubscription
+</code></pre>
+<p>O caminho certo:</p>
+<ol>
+<li><strong>Assinaturas → Azure for Students → Uso + cotas</strong></li>
+<li>filtre por <code>Compute</code></li>
+<li>veja as cotas regionais</li>
+<li>escolha uma região onde o tamanho aparece</li>
+</ol>
+<blockquote>
+<p>Não insista num tamanho marcado como indisponível. Pedir aumento de cota não resolve quando a
+oferta não está habilitada para a assinatura.</p>
+</blockquote>
+<h3 id="o-assistente">O assistente</h3>
+<p><strong>Máquinas virtuais → Criar → Máquina virtual do Azure</strong></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grupo de recursos</td>
+<td>Novo: <code>rg-capacita-&lt;seunome&gt;</code></td>
+</tr>
+<tr>
+<td>Nome</td>
+<td><code>vm-capacita-&lt;seunome&gt;</code></td>
+</tr>
+<tr>
+<td>Região</td>
+<td>uma com cota disponível</td>
+</tr>
+<tr>
+<td>Imagem</td>
+<td>Ubuntu Server 24.04 LTS — x64 Gen2</td>
+</tr>
+<tr>
+<td>Tamanho</td>
+<td><code>Standard_B1s</code> (1 vCPU, 1 GiB) ou maior, se houver crédito</td>
+</tr>
+<tr>
+<td>Autenticação</td>
+<td>Chave pública SSH</td>
+</tr>
+<tr>
+<td>Usuário</td>
+<td><code>azureuser</code></td>
+</tr>
+<tr>
+<td>Tipo de chave</td>
+<td>Ed25519</td>
+</tr>
+<tr>
+<td><strong>Portas públicas</strong></td>
+<td><strong>Nenhuma</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>"Nenhuma" é a escolha mais importante da tela.</strong> O assistente, se deixado, cria uma regra
+liberando SSH para a internet inteira. Bots varrem a porta 22 do IPv4 todo, o dia todo. Vamos abrir
+a 22 só para o seu IP.</p>
+<p>Rede:</p>
+<ul>
+<li>VNet e sub-rede: aceite os padrões</li>
+<li>IP público: Standard</li>
+<li>NSG: avançado (é o firewall — vamos mexer nele)</li>
+</ul>
+<p>Marque tudo com tags (<code>ambiente=capacitacao</code>, <code>dono=&lt;seunome&gt;</code>): é assim que você acha recurso
+órfão consumindo crédito depois.</p>
+<h3 id="antes-duas-chaves-um-par">Antes: duas chaves, um par</h3>
+<p><strong>Criptografia assimétrica</strong> usa duas chaves que se completam. A <strong>pública</strong> você espalha; a
+<strong>privada</strong> nunca sai da sua máquina. O que uma fecha, só a outra abre.</p>
+<p>Daí saem duas coisas diferentes:</p>
+<ul>
+<li><strong>sigilo</strong> — eu fecho com a <em>sua</em> pública, e só você abre;</li>
+<li><strong>assinatura</strong> — eu fecho com a <em>minha</em> privada, e todo mundo confere que fui eu.</li>
+</ul>
+<p><strong>É assim que o SSH funciona.</strong> Você põe a sua chave pública no servidor (<code>~/.ssh/authorized_keys</code>).
+Ao conectar, o servidor manda um desafio; você responde assinando com a privada; o servidor confere
+com a pública que já tinha. <strong>A senha nunca trafega — nem existe.</strong></p>
+<p>E é por isso que perder a chave privada é perder o acesso à máquina.</p>
+<blockquote>
+<p>Compare com o JWT da Aula 3: lá a assinatura usa uma chave <strong>simétrica</strong> (HS256) — a mesma chave
+assina e confere, porque quem assina e quem confere são o mesmo servidor.</p>
+</blockquote>
+<h3 id="a-chave-privada">A chave privada</h3>
+<p>O portal oferece o download <strong>uma vez</strong>.</p>
+<pre><code class="language-bash">mkdir -p ~/.ssh
+mv ~/Downloads/vm-capacita-seunome_key.pem ~/.ssh/azure-capacita
+chmod 600 ~/.ssh/azure-capacita
+</code></pre>
+<p><code>chmod 600</code> = só você lê. O SSH <strong>recusa</strong> usar uma chave com permissão frouxa.</p>
+<blockquote>
+<p>Chave privada não vai por e-mail, não vai por WhatsApp, não vai para o Git. Nunca.</p>
+</blockquote>
+<h3 id="abrir-o-ssh-so-para-voce">Abrir o SSH só para você</h3>
+<p>No NSG da VM, <strong>Regras de segurança de entrada → Adicionar</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Origem</td>
+<td>Endereços IP</td>
+</tr>
+<tr>
+<td>IPs de origem</td>
+<td><code>SEU_IP/32</code></td>
+</tr>
+<tr>
+<td>Portas de destino</td>
+<td><code>22</code></td>
+</tr>
+<tr>
+<td>Protocolo</td>
+<td>TCP</td>
+</tr>
+<tr>
+<td>Prioridade</td>
+<td><code>100</code></td>
+</tr>
+<tr>
+<td>Nome</td>
+<td><code>allow-ssh-meu-ip</code></td>
+</tr>
+</tbody>
+</table>
+<p>Descubra o seu IP:</p>
+<pre><code class="language-bash">curl -4 ifconfig.me
+</code></pre>
+<p>O <code>/32</code> significa "exatamente este endereço". Precisa também de:</p>
+<table>
+<thead>
+<tr>
+<th>Porta</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>80</code></td>
+<td>HTTP (o Cloudflare precisa alcançar)</td>
+</tr>
+<tr>
+<td><code>443</code></td>
+<td>HTTPS</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Internet de casa troca de IP. Quando o SSH parar de conectar do nada, é isso: atualize a regra.</p>
+</blockquote>
+<h3 id="primeiro-acesso">Primeiro acesso</h3>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP_PUBLICO
+</code></pre>
+<hr>
+<h2 id="3-preparar-o-ubuntu">3. Preparar o Ubuntu</h2>
+<h3 id="atualizar">Atualizar</h3>
+<pre><code class="language-bash">sudo apt update &amp;&amp; sudo apt upgrade -y
+test -f /var/run/reboot-required &amp;&amp; sudo reboot
+</code></pre>
+<h3 id="docker-do-repositorio-oficial">Docker, do repositório oficial</h3>
+<p>O <code>apt install docker.io</code> do Ubuntu instala uma versão velha. Use o repositório da Docker:</p>
+<pre><code class="language-bash">sudo apt install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+sudo tee /etc/apt/sources.list.d/docker.sources &gt;/dev/null &lt;&lt;EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release &amp;&amp; echo &quot;${UBUNTU_CODENAME:-$VERSION_CODENAME}&quot;)
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+</code></pre>
+<p>Libere o Docker para o <code>azureuser</code>:</p>
+<pre><code class="language-bash">sudo usermod -aG docker azureuser
+exit
+</code></pre>
+<p><strong>Saia e entre de novo</strong> — grupo só vale em sessão nova.</p>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP
+docker run --rm hello-world
+</code></pre>
+<h3 id="root-e-permissoes">Root e permissões</h3>
+<p><code>root</code> é o usuário que pode tudo — sem "tem certeza?". Você trabalha como <code>azureuser</code> e chama
+<code>sudo</code> quando precisa.</p>
+<p>Todo arquivo tem dono, grupo e três permissões: ler, escrever, executar.</p>
+<pre><code class="language-bash">chmod 600 arquivo    # dono lê e escreve; mais ninguém vê nada
+chmod 700 pasta      # dono entra; mais ninguém
+</code></pre>
+<p>O SSH <strong>exige</strong> <code>600</code> numa chave privada — com permissão mais frouxa ele recusa usar o arquivo.</p>
+<p>E nunca rode a aplicação como root: o Dockerfile já cria um usuário <code>rails</code> justamente para isso.</p>
+<h3 id="swap">Swap</h3>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'sudo bash -s' &lt; scripts/server-swap.sh
+</code></pre>
+<p>Numa VM de 1 GiB, Rails + Postgres + build estouram a RAM e o kernel mata o processo que estiver na
+frente (<em>OOM killer</em>), com uma mensagem que não explica nada. 2 GiB de swap resolvem.</p>
+<h3 id="endurecer-o-ssh">Endurecer o SSH</h3>
+<p><strong>Mantenha a sessão atual aberta</strong> enquanto testa em outro terminal.</p>
+<pre><code class="language-bash">sudo tee /etc/ssh/sshd_config.d/99-hardening.conf &gt;/dev/null &lt;&lt;'EOF'
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+EOF
+
+sudo sshd -t          # valida a sintaxe ANTES de recarregar
+sudo systemctl reload ssh
+</code></pre>
+<p>Em outro terminal:</p>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'echo OK'
+</code></pre>
+<p>Só feche a primeira sessão depois que isso responder. Errar a config do SSH com uma sessão só
+aberta é o jeito clássico de perder acesso à máquina.</p>
+<hr>
+<h2 id="4-docker_1">4. Docker</h2>
+<h3 id="imagem-container">Imagem × container</h3>
+<p><strong>Imagem</strong> é a receita: o sistema, o Ruby, as gems, o seu código, congelados. <strong>Container</strong> é o
+bolo: uma instância rodando. Uma imagem, muitos containers.</p>
+<h3 id="o-dockerfile-do-rails">O Dockerfile do Rails</h3>
+<p>O Rails 8 gera um Dockerfile de produção pronto. Vale ler:</p>
+<pre><code class="language-dockerfile">FROM ruby:3.4.9-slim AS base
+# ...
+
+FROM base AS build
+RUN apt-get install -y build-essential libpq-dev ...
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+COPY . .
+
+FROM base
+RUN groupadd --system --gid 1000 rails &amp;&amp; useradd rails --uid 1000 --gid 1000
+USER 1000:1000
+COPY --from=build &quot;${BUNDLE_PATH}&quot; &quot;${BUNDLE_PATH}&quot;
+COPY --from=build /rails /rails
+</code></pre>
+<p>Duas decisões importantes:</p>
+<p><strong>Multi-stage.</strong> O estágio <code>build</code> instala compilador e headers para compilar as gems nativas. A
+imagem final copia só o resultado. Compilador não vai para produção: menos peso e menos ferramenta
+à mão de quem invadir.</p>
+<p><strong>Usuário não-root.</strong> Se alguém escapar da aplicação, cai num usuário sem privilégio. É uma linha
+que muda o tamanho do estrago.</p>
+<h3 id="dockerignore"><code>.dockerignore</code></h3>
+<p>Diz o que <strong>não</strong> entra na imagem: <code>.git</code>, <code>log/</code>, <code>tmp/</code>, <code>node_modules</code>. Sem ele a imagem fica
+gorda e — pior — o histórico do Git vai junto.</p>
+<h3 id="registry">Registry</h3>
+<p>O registry é o "GitHub das imagens". Usamos o <strong>ghcr.io</strong> (GitHub Container Registry): já vem com a
+conta e o Actions autentica sozinho com o <code>GITHUB_TOKEN</code>.</p>
+<p>O fluxo: <strong>Actions faz o build → empurra a imagem para o ghcr.io → a VM puxa e roda.</strong></p>
+<p>A sua máquina nunca faz o build de produção.</p>
+<hr>
+<h2 id="5-kamal">5. Kamal</h2>
+<p>O Kamal (feito pela mesma turma do Rails) faz <em>zero-downtime deploy</em> com Docker, via SSH. Sem
+agente, sem painel: ele conecta na sua máquina e roda <code>docker</code>.</p>
+<p>O que ele faz num <code>kamal deploy</code>:</p>
+<ol>
+<li>builda a imagem e empurra para o registry</li>
+<li>conecta na VM por SSH</li>
+<li>puxa a imagem</li>
+<li>sobe o container novo <strong>ao lado</strong> do antigo</li>
+<li>espera o health check do novo passar</li>
+<li>manda o tráfego para o novo e derruba o antigo</li>
+</ol>
+<p>Falhou o health check? Ele não troca. O antigo continua servindo.</p>
+<h3 id="configdeployyml-por-partes"><code>config/deploy.yml</code>, por partes</h3>
+<pre><code class="language-yaml">service: automic-auth-api
+image: &lt;%= ENV.fetch(&quot;GHCR_USER&quot;) %&gt;/automic-auth-api
+</code></pre>
+<p>O arquivo é ERB: dá para usar <code>ENV</code>. É por isso que este <code>deploy.yml</code> é <strong>igual para todo mundo da
+turma</strong> — o que muda vem das variables do Actions.</p>
+<pre><code class="language-yaml">ssh:
+  user: azureuser
+run_directory: /home/azureuser/.kamal
+</code></pre>
+<p>Sem login root, então o Kamal precisa de um lugar para gravar lock e auditoria.</p>
+<pre><code class="language-yaml">env:
+  clear:
+    SOLID_QUEUE_IN_PUMA: &quot;true&quot;
+    WEB_CONCURRENCY: &quot;1&quot;
+    DB_HOST: automic-auth-api-db
+  secret:
+    - RAILS_MASTER_KEY
+    - JWT_SECRET
+</code></pre>
+<ul>
+<li><strong><code>clear</code></strong> vai como texto no comando <code>docker run</code>. Configuração, não segredo.</li>
+<li><strong><code>secret</code></strong> vai por um arquivo de ambiente, com permissão restrita no servidor.</li>
+</ul>
+<p>Colocar <code>JWT_SECRET</code> no <code>clear</code> seria o mesmo que publicá-lo: ele apareceria em <code>docker inspect</code> e
+no histórico do shell.</p>
+<p><code>DB_HOST: automic-auth-api-db</code> é o <strong>nome do container</strong> do banco. Containers na mesma rede Docker
+se enxergam por nome — não precisa de IP.</p>
+<pre><code class="language-yaml">accessories:
+  db:
+    image: postgres:16
+    directories:
+      - data:/var/lib/postgresql/data
+</code></pre>
+<p><strong>Accessory</strong> é um container que o Kamal gerencia mas não faz deploy junto com o app. O
+<code>directories</code> cria o volume: é ele que faz os dados sobreviverem a deploy e a rebuild.</p>
+<blockquote>
+<p>⚠️ <code>kamal deploy</code> <strong>não</strong> sobe accessories. Depois de mudar env de accessory:
+<code>kamal accessory reboot db</code>.</p>
+</blockquote>
+<h3 id="as-tres-camadas-de-segredo">As três camadas de segredo</h3>
+<pre><code>GitHub Actions Secrets
+        ↓  (viram variáveis de ambiente no runner)
+.kamal/secrets
+        ↓  (referencia as variáveis — nenhum valor aqui, por isso vai para o Git)
+config/deploy.yml (env.secret)
+        ↓  (o Kamal injeta no container)
+ENV[&quot;JWT_SECRET&quot;] no Rails
+</code></pre>
+<p>Nenhum valor real toca o repositório em nenhum ponto.</p>
+<hr>
+<h2 id="6-segredos-do-rails">6. Segredos do Rails</h2>
+<h3 id="credentials-e-masterkey"><code>credentials</code> e <code>master.key</code></h3>
+<pre><code class="language-bash">bin/rails credentials:edit
+</code></pre>
+<p>O Rails abre um YAML no editor, e ao salvar grava <code>config/credentials.yml.enc</code> — criptografado,
+seguro no Git. A chave que decripta é <code>config/master.key</code>, que <strong>nunca</strong> vai para o Git (já está no
+<code>.gitignore</code>).</p>
+<p>Em produção, <code>master.key</code> vira o secret <code>RAILS_MASTER_KEY</code>.</p>
+<h3 id="antes-o-que-e-uma-variavel-de-ambiente">Antes: o que é uma variável de ambiente</h3>
+<p>Um par <code>nome=valor</code> que o sistema operacional entrega ao processo quando ele sobe.</p>
+<pre><code class="language-bash">export JWT_SECRET=abc123
+</code></pre>
+<p>E o programa lê com <code>ENV["JWT_SECRET"]</code>.</p>
+<p><strong>Por que não deixar o valor no código?</strong> Porque o código vai para o Git. A ideia é: mesmo código,
+ambientes diferentes, valores diferentes. É um dos <a href="https://12factor.net/config">12 fatores</a>, e é
+como o Kamal injeta segredo no container.</p>
+<h3 id="credentials-env">Credentials × ENV</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Quando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Credentials</strong></td>
+<td>segredo estável, que é do app: chave de API de terceiro</td>
+</tr>
+<tr>
+<td><strong>ENV</strong></td>
+<td>o que muda por ambiente ou por máquina: senha do banco, host de SMTP</td>
+</tr>
+</tbody>
+</table>
+<p>Este projeto usa ENV para quase tudo, porque quem provisiona (Kamal) já sabe injetar.</p>
+<p>Gere o <code>JWT_SECRET</code>:</p>
+<pre><code class="language-bash">bin/rails secret
+</code></pre>
+<hr>
+<h2 id="7-github-actions">7. GitHub Actions</h2>
+<h3 id="ci-o-portao">CI: o portão</h3>
+<p><code>.github/workflows/ci.yml</code> roda em todo push e PR:</p>
+<ul>
+<li><strong><code>scan_ruby</code></strong> — Brakeman (segurança estática) e bundler-audit (CVE em gems)</li>
+<li><strong><code>lint</code></strong> — RuboCop</li>
+<li><strong><code>test</code></strong> — <code>bin/rails test</code> contra um Postgres descartável</li>
+</ul>
+<p>Se qualquer um falhar, o código não entra na <code>main</code>. Isso é o que faz "deploy automático" não ser
+"publicar bug automático".</p>
+<h3 id="deploy-o-interessante">Deploy: o interessante</h3>
+<p>O ponto delicado é o SSH. A porta 22 está fechada para a internet. O runner do GitHub tem IP
+diferente a cada execução — não dá para liberar antes.</p>
+<p>A sequência:</p>
+<pre><code>1. autentica na Azure (OIDC)
+2. descobre o próprio IP público
+3. cria uma regra no NSG liberando a 22 só para esse IP/32
+4. faz o deploy
+5. APAGA a regra — mesmo se o deploy falhar
+</code></pre>
+<p>O passo 5 tem <code>if: always()</code>. <strong>Deixar a 22 aberta é o erro que transforma um deploy ruim num
+incidente de segurança.</strong></p>
+<hr>
+<h2 id="8-oidc-por-que-nao-usar-senha">8. OIDC — por que não usar senha</h2>
+<p>O jeito comum seria criar um <em>client secret</em> na Azure e guardar como secret do GitHub. Problemas:
+ele é longo, vale por meses, e quem tiver acesso ao repositório tem acesso à sua Azure.</p>
+<p><strong>OIDC</strong> (OpenID Connect) inverte: o GitHub emite, a cada execução, um token de curta duração que
+diz "sou o workflow do repositório X, na branch Y". A Azure verifica e devolve um acesso temporário.</p>
+<p><strong>Não existe segredo de longa duração em lugar nenhum.</strong></p>
+<h3 id="criando">Criando</h3>
+<p><strong>1. Registro de aplicativo</strong> — Microsoft Entra ID → Registros de aplicativo → Novo registro:</p>
+<ul>
+<li>nome: <code>github-capacita-&lt;seunome&gt;</code></li>
+<li>contas: somente este diretório</li>
+<li>URI de redirecionamento: vazia</li>
+<li><strong>não crie segredo do cliente</strong></li>
+</ul>
+<p>Anote: Application (client) ID, Directory (tenant) ID, Subscription ID.</p>
+<p><strong>2. Credencial federada</strong> — no app criado, Certificados e segredos → Credenciais federadas →
+Adicionar → cenário <strong>GitHub Actions</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Organização</td>
+<td>seu usuário do GitHub</td>
+</tr>
+<tr>
+<td>Repositório</td>
+<td>nome do repositório</td>
+</tr>
+<tr>
+<td>Tipo de entidade</td>
+<td>Branch</td>
+</tr>
+<tr>
+<td>Branch</td>
+<td><code>main</code></td>
+</tr>
+</tbody>
+</table>
+<p>O subject resultante:</p>
+<pre><code>repo:SEU-USUARIO/SEU-REPO:ref:refs/heads/main
+</code></pre>
+<blockquote>
+<p>Precisa bater <strong>caractere por caractere</strong> com o que o GitHub emite. Erro de maiúscula, de nome ou
+de branch dá <code>AADSTS700213</code> — e a mensagem não ajuda.</p>
+</blockquote>
+<p><strong>3. Permissão mínima</strong> — no <strong>NSG</strong> (não na assinatura), IAM → Adicionar atribuição de função →
+<strong>Colaborador de Rede</strong> → o app criado.</p>
+<p>Escopo no NSG e não na assinatura: se a credencial vazar, o estrago se limita a regras de firewall
+daquela máquina.</p>
+<p><strong>4. Chave SSH de deploy</strong> — separada da sua chave pessoal:</p>
+<pre><code class="language-bash">ssh-keygen -t ed25519 -f ~/.ssh/capacita-github -C &quot;github-actions&quot; -N &quot;&quot;
+
+ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP \
+  'umask 077; mkdir -p ~/.ssh; cat &gt;&gt; ~/.ssh/authorized_keys' &lt; ~/.ssh/capacita-github.pub
+</code></pre>
+<p>Chave separada dá para revogar o acesso do CI sem trocar o seu.</p>
+<h3 id="cadastrando-no-github">Cadastrando no GitHub</h3>
+<p><strong>Settings → Secrets and variables → Actions</strong></p>
+<p><strong>Secrets:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AZURE_CLIENT_ID</code></td>
+<td>Application (client) ID</td>
+</tr>
+<tr>
+<td><code>AZURE_TENANT_ID</code></td>
+<td>Directory (tenant) ID</td>
+</tr>
+<tr>
+<td><code>AZURE_SUBSCRIPTION_ID</code></td>
+<td>Subscription ID</td>
+</tr>
+<tr>
+<td><code>AZURE_SSH_PRIVATE_KEY</code></td>
+<td>conteúdo de <code>~/.ssh/capacita-github</code> (a privada)</td>
+</tr>
+<tr>
+<td><code>RAILS_MASTER_KEY</code></td>
+<td>conteúdo de <code>config/master.key</code></td>
+</tr>
+<tr>
+<td><code>AUTOMIC_AUTH_API_DATABASE_PASSWORD</code></td>
+<td>invente uma senha longa</td>
+</tr>
+<tr>
+<td><code>JWT_SECRET</code></td>
+<td>saída de <code>bin/rails secret</code></td>
+</tr>
+<tr>
+<td><code>SMTP_ADDRESS</code> / <code>SMTP_USERNAME</code> / <code>SMTP_PASSWORD</code></td>
+<td>do provedor de e-mail</td>
+</tr>
+<tr>
+<td><code>KAMAL_PROXY_SSL_CERTIFICATE</code></td>
+<td>certificado Origin CA</td>
+</tr>
+<tr>
+<td><code>KAMAL_PROXY_SSL_PRIVATE_KEY</code></td>
+<td>chave do Origin CA</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variables</strong> (não são segredo):</p>
+<table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Exemplo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GHCR_USER</code></td>
+<td>seu usuário do GitHub</td>
+</tr>
+<tr>
+<td><code>AZURE_VM_IP</code></td>
+<td><code>57.156.65.151</code></td>
+</tr>
+<tr>
+<td><code>APP_HOST</code></td>
+<td><code>seunome.capacita.exemplo.tech</code></td>
+</tr>
+<tr>
+<td><code>AZURE_RESOURCE_GROUP</code></td>
+<td><code>rg-capacita-seunome</code></td>
+</tr>
+<tr>
+<td><code>AZURE_NSG_NAME</code></td>
+<td>nome do NSG</td>
+</tr>
+<tr>
+<td><code>CORS_ORIGINS</code></td>
+<td><code>http://localhost:5173</code></td>
+</tr>
+<tr>
+<td><code>MAILER_FROM</code></td>
+<td><code>Capacitação &lt;noreply@exemplo.tech&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p>Pelo CLI (não deixa o valor no histórico do shell):</p>
+<pre><code class="language-bash">gh secret set JWT_SECRET
+gh secret set KAMAL_PROXY_SSL_CERTIFICATE &lt; origin-ca.pem
+gh variable set APP_HOST
+</code></pre>
+<hr>
+<h2 id="9-cloudflare-e-tls">9. Cloudflare e TLS</h2>
+<h3 id="https-e-http-dentro-de-um-tunel">HTTPS é HTTP dentro de um túnel</h3>
+<p>O HTTP da Aula 1 é <strong>texto puro</strong>: quem estiver no caminho — o roteador do café, o provedor — lê
+tudo, inclusive a senha. O <strong>TLS</strong> embrulha esse texto num túnel criptografado.</p>
+<p>Mesmo protocolo, mesmos verbos, mesmos cabeçalhos, só que fechado. O "S" de HTTPS é isso, e nada
+além disso.</p>
+<h3 id="o-handshake-em-tres-passos">O handshake, em três passos</h3>
+<ol>
+<li>O servidor apresenta o <strong>certificado</strong> dele.</li>
+<li>O cliente confere se confia em <strong>quem assinou</strong> aquele certificado.</li>
+<li>Os dois combinam uma chave temporária e conversam com ela.</li>
+</ol>
+<p>O par de chaves assimétricas só serve para o passo 3. Depois disso a conversa usa criptografia
+<strong>simétrica</strong>, que é muito mais rápida.</p>
+<h3 id="certificado-e-autoridade">Certificado e autoridade</h3>
+<p>Um certificado diz: <em>"esta chave pública pertence a este domínio"</em> — e vem <strong>assinado por uma
+Autoridade Certificadora (CA)</strong>.</p>
+<p>O seu navegador já nasce com uma lista de CAs em que confia. Confia na CA → confia em quem ela
+assinou. É uma cadeia.</p>
+<ul>
+<li><strong>Autoassinado</strong> é você jurando que é você. O navegador não aceita.</li>
+<li><strong>Let's Encrypt</strong> é uma CA pública e gratuita, em que os navegadores confiam.</li>
+<li><strong>Cloudflare Origin CA</strong> <em>não</em> é pública — e é exatamente por isso que ela funciona aqui, como
+  você vai ver.</li>
+</ul>
+<h3 id="proxy-reverso">Proxy reverso</h3>
+<p>Um proxy comum fica na frente do <strong>cliente</strong>. Um proxy <strong>reverso</strong> fica na frente do <strong>servidor</strong>:
+recebe tudo na 443, termina o TLS, e repassa para a aplicação em HTTP interno.</p>
+<p>Assim o Rails não precisa saber nada de certificado. Na nossa arquitetura há dois:</p>
+<pre><code>navegador → Cloudflare → kamal-proxy (na sua VM) → Rails
+             (proxy 1)      (proxy 2)
+</code></pre>
+<p>É por isso que <code>config.assume_ssl = true</code>: ele avisa o Rails de que o "http" que chegou já veio de
+um "https" lá fora, e o Rails para de montar URLs erradas.</p>
+<h3 id="dns_1">DNS</h3>
+<p>No Cloudflare, no domínio da capacitação:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tipo</td>
+<td><code>A</code></td>
+</tr>
+<tr>
+<td>Nome</td>
+<td><code>seunome.capacita</code></td>
+</tr>
+<tr>
+<td>Conteúdo</td>
+<td>o IP público da sua VM</td>
+</tr>
+<tr>
+<td>Proxy</td>
+<td><strong>Proxied</strong> (nuvem laranja)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Proxied</strong> significa que o tráfego passa pelo Cloudflare antes de chegar na sua VM. Você ganha
+cache, proteção contra DDoS e — o principal aqui — o IP real da sua máquina não aparece no DNS.</p>
+<h3 id="certificado-origin-ca">Certificado Origin CA</h3>
+<p>SSL/TLS → <strong>Origin Server</strong> → Create Certificate. O Cloudflare gera o par e mostra <strong>uma vez</strong>.
+Copie os dois para os secrets <code>KAMAL_PROXY_SSL_CERTIFICATE</code> e <code>KAMAL_PROXY_SSL_PRIVATE_KEY</code>.</p>
+<h3 id="full-strict">Full (strict)</h3>
+<p>SSL/TLS → Overview → <strong>Full (strict)</strong>.</p>
+<p>Os três modos:</p>
+<table>
+<thead>
+<tr>
+<th>Modo</th>
+<th>Cloudflare → sua VM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flexible</td>
+<td><strong>em texto puro</strong> — não use</td>
+</tr>
+<tr>
+<td>Full</td>
+<td>criptografado, mas aceita certificado inválido</td>
+</tr>
+<tr>
+<td><strong>Full (strict)</strong></td>
+<td>criptografado e o certificado é validado</td>
+</tr>
+</tbody>
+</table>
+<p>Com <code>Flexible</code>, o cadeado aparece para o usuário e a senha dele trafega em claro no último trecho.
+É pior que não ter HTTPS, porque mente.</p>
+<h3 id="por-que-nao-lets-encrypt">Por que não Let's Encrypt</h3>
+<p>O Kamal sabe emitir Let's Encrypt sozinho. Aqui não dá:</p>
+<ul>
+<li>com o DNS <strong>proxied</strong>, o desafio HTTP-01 não chega ao seu servidor como o Let's Encrypt espera;</li>
+<li>daria para tirar o proxy durante a emissão, mas isso expõe o IP e vira ritual manual a cada
+  renovação.</li>
+</ul>
+<p>O Origin CA resolve: protege o trecho Cloudflare → Azure, dispensa desafio, funciona com Full
+(strict) e vale anos. O certificado que o <strong>usuário</strong> vê é o público do Cloudflare — o Origin CA
+nunca aparece para o navegador (e por isso não precisa ser confiável por ele).</p>
+<hr>
+<h2 id="10-o-primeiro-deploy">10. O primeiro deploy</h2>
+<pre><code class="language-bash">GHCR_USER=seu-usuario AZURE_VM_IP=1.2.3.4 APP_HOST=seunome.capacita.exemplo.tech \
+  bundle exec kamal config
+</code></pre>
+<p>Isso valida o <code>deploy.yml</code> sem tocar em nada. Depois:</p>
+<p><strong>Actions → Deploy (Kamal) → Run workflow → command: <code>setup</code></strong></p>
+<p><code>setup</code> instala o Docker se faltar, sobe os accessories e faz o primeiro deploy. Só na primeira vez
+— depois é <code>deploy</code>.</p>
+<p>Deu certo:</p>
+<pre><code class="language-bash">curl https://seunome.capacita.exemplo.tech/api/v1/status
+</code></pre>
+<pre><code class="language-json">{&quot;status&quot;:&quot;ok&quot;,&quot;service&quot;:&quot;automic-auth-api&quot;,&quot;environment&quot;:&quot;production&quot;}
+</code></pre>
+<p><strong>A partir daqui, <code>git push</code> na <code>main</code> faz deploy sozinho.</strong></p>
+<hr>
+<h2 id="11-operar">11. Operar</h2>
+<pre><code class="language-bash">export GHCR_USER=... AZURE_VM_IP=... APP_HOST=...
+
+kamal app logs -f              # logs ao vivo
+kamal app exec --interactive --reuse &quot;bin/rails console&quot;
+kamal app exec &quot;bin/rails db:migrate&quot;
+kamal app details              # o que está rodando
+kamal accessory reboot db      # depois de mudar env do banco
+kamal rollback                 # volta para a versão anterior
+</code></pre>
+<p>Na VM:</p>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP
+docker ps
+free -h
+df -h
+</code></pre>
+<h3 id="backup">Backup</h3>
+<p><strong>Volume Docker não é backup.</strong> Se a VM sumir, o volume some junto.</p>
+<pre><code class="language-bash">ssh azureuser@SEU_IP \
+  'docker exec automic-auth-api-db pg_dump -U automic_auth_api automic_auth_api_production' \
+  | gzip &gt; backup-$(date +%F).sql.gz
+</code></pre>
+<p>E, o que quase ninguém faz: <strong>restaure num banco de teste</strong>. Backup que nunca foi restaurado não é
+backup, é esperança.</p>
+<hr>
+<h2 id="exercicio-da-aula_3">Exercício da aula</h2>
+<ol>
+<li>Crie a VM na Azure, sem porta pública nenhuma.</li>
+<li>Abra a 22 só para o seu IP, mais a 80 e a 443.</li>
+<li>Instale o Docker e rode o <code>hello-world</code>.</li>
+<li>Rode o <code>server-swap.sh</code> e endureça o SSH.</li>
+<li>Configure o OIDC e cadastre todos os secrets e variables.</li>
+<li>Crie o registro DNS e o certificado Origin CA. Ligue o Full (strict).</li>
+<li>Rode o workflow com <code>command: setup</code>.</li>
+<li><code>curl https://seunome.capacita.&lt;domínio&gt;/api/v1/status</code></li>
+<li>Faça o fluxo completo da Aula 3 <strong>contra a sua API em produção</strong>: cadastro, e-mail de verdade na
+   sua caixa de entrada, login, logout, recuperação de senha.</li>
+<li>Mude a mensagem da rota de status, dê push na <code>main</code> e veja o deploy acontecer sozinho.</li>
+</ol>
+<hr>
+<h2 id="recapitulando_3">Recapitulando</h2>
+<ul>
+<li>VPS: você controla tudo, e opera tudo.</li>
+<li>Escolha a ferramenta do tamanho do problema. Kubernetes não era o tamanho.</li>
+<li>Imagem é receita, container é bolo. Multi-stage e usuário não-root.</li>
+<li><code>clear</code> é configuração, <code>secret</code> é segredo — e a diferença aparece no <code>docker inspect</code>.</li>
+<li>Volume é o que faz o dado sobreviver ao deploy. E ainda assim não é backup.</li>
+<li>OIDC troca segredo de longa duração por token de curta. Prefira sempre.</li>
+<li>A porta 22 abre por um minuto e fecha — inclusive quando dá errado.</li>
+<li>Full (strict), sempre. <code>Flexible</code> mente para o usuário.</li>
+</ul>
+<hr>
+<h2 id="o-que-o-seem-backend-tem-a-mais">O que o <code>seem-backend</code> tem a mais</h2>
+<p>O que ficou de fora daqui, e por quê:</p>
+<table>
+<thead>
+<tr>
+<th>Recurso</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Datadog</strong> (logs)</td>
+<td>logs centralizados e Error Tracking, com o app logando JSON estruturado</td>
+</tr>
+<tr>
+<td><strong>rack-attack</strong></td>
+<td>bloqueia scanner e rajada de erro por IP — a internet bate na sua porta o dia todo</td>
+</tr>
+<tr>
+<td><strong>Active Storage</strong></td>
+<td>foto de perfil, em volume Docker persistente</td>
+</tr>
+<tr>
+<td><strong>Solid Queue</strong> dedicado</td>
+<td>processamento em background</td>
+</tr>
+<tr>
+<td><strong>Audit log</strong></td>
+<td>histórico de toda mutação feita por admin</td>
+</tr>
+<tr>
+<td><strong>Export .xlsx</strong></td>
+<td>relatório de presença</td>
+</tr>
+<tr>
+<td><strong>OpenAPI/Swagger</strong></td>
+<td>contrato da API documentado</td>
+</tr>
+</tbody>
+</table>
+<p>Nenhum deles é difícil depois do que você viu aqui. Todos estão no
+<a href="https://github.com/fabriciosiqueira08/seem-backend"><code>seem-backend</code></a> — agora dá para ler.</p>
+<div class='quebra'></div>
+
+<h1 id="ruby-para-quem-sabe-python">Ruby para quem sabe Python</h1>
+<p>Você já sabe programar. Isto aqui é tradução, não curso de lógica.</p>
+<hr>
+<h2 id="sintaxe">Sintaxe</h2>
+<table>
+<thead>
+<tr>
+<th>Python</th>
+<th>Ruby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Indentação delimita bloco</td>
+<td><code>def</code> … <code>end</code></td>
+</tr>
+<tr>
+<td><code>None</code> / <code>True</code> / <code>False</code></td>
+<td><code>nil</code> / <code>true</code> / <code>false</code></td>
+</tr>
+<tr>
+<td><code>snake_case</code> para funções</td>
+<td><code>snake_case</code> (igual)</td>
+</tr>
+<tr>
+<td><code>PascalCase</code> para classes</td>
+<td><code>PascalCase</code> (igual)</td>
+</tr>
+<tr>
+<td><code>CONSTANTE</code> por convenção</td>
+<td>Constante é qualquer nome com inicial maiúscula</td>
+</tr>
+<tr>
+<td><code>f"Olá {nome}"</code></td>
+<td><code>"Olá #{nome}"</code></td>
+</tr>
+<tr>
+<td><code># comentário</code></td>
+<td><code># comentário</code></td>
+</tr>
+<tr>
+<td><code>return</code> explícito</td>
+<td>A última expressão é o retorno</td>
+</tr>
+<tr>
+<td><code>and</code> / <code>or</code> / <code>not</code></td>
+<td><code>&amp;&amp;</code> / <code>\|\|</code> / <code>!</code></td>
+</tr>
+<tr>
+<td><code>elif</code></td>
+<td><code>elsif</code></td>
+</tr>
+<tr>
+<td><code>len(x)</code></td>
+<td><code>x.length</code></td>
+</tr>
+<tr>
+<td><code>str(x)</code></td>
+<td><code>x.to_s</code></td>
+</tr>
+<tr>
+<td><code>int("3")</code></td>
+<td><code>"3".to_i</code></td>
+</tr>
+<tr>
+<td><code>print(x)</code></td>
+<td><code>puts x</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="so-em-ruby">Só em Ruby</h3>
+<pre><code class="language-ruby">faca_algo if condicao          # modificador: if no fim da linha
+faca_algo unless condicao      # unless = if not
+5.times { |i| puts i }         # número é objeto
+nome = usuario&amp;.nome           # safe navigation (o ?. de outras linguagens)
+valor ||= &quot;padrao&quot;             # atribui só se estiver nil/false
+</code></pre>
+<hr>
+<h2 id="estruturas-de-dados">Estruturas de dados</h2>
+<table>
+<thead>
+<tr>
+<th>Python</th>
+<th>Ruby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[1, 2, 3]</code></td>
+<td><code>[1, 2, 3]</code> — <code>Array</code></td>
+</tr>
+<tr>
+<td><code>{"a": 1}</code></td>
+<td><code>{ a: 1 }</code> — <code>Hash</code>, chave símbolo</td>
+</tr>
+<tr>
+<td><code>{"a": 1}["a"]</code></td>
+<td><code>{ a: 1 }[:a]</code></td>
+</tr>
+<tr>
+<td><code>(1, 2)</code> tupla</td>
+<td>não existe (use array congelado)</td>
+</tr>
+<tr>
+<td><code>{1, 2}</code> set</td>
+<td><code>Set.new([1, 2])</code></td>
+</tr>
+<tr>
+<td>não tem</td>
+<td><code>:simbolo</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-ruby">usuario = { nome: &quot;Ana&quot;, role: :admin }
+usuario[:nome]        # &quot;Ana&quot;
+usuario.fetch(:idade, 0)   # 0 — como dict.get com padrão
+</code></pre>
+<h3 id="simbolos_1">Símbolos</h3>
+<p>Um símbolo é uma <strong>etiqueta</strong>: um texto usado como nome, não como conteúdo. O mesmo símbolo é
+sempre o mesmo objeto na memória, o que o torna barato de comparar.</p>
+<pre><code class="language-ruby">&quot;admin&quot; == &quot;admin&quot;   # true, mas são dois objetos diferentes
+:admin  == :admin    # true, e é o mesmo objeto
+</code></pre>
+<p><strong>Regra prática</strong>: conteúdo que o usuário lê → string. Nome de coisa no código → símbolo.</p>
+<hr>
+<h2 id="blocos-o-coracao-do-ruby">Blocos, o coração do Ruby</h2>
+<p>Um bloco é código que você entrega para um método executar. Em Python isso é o <code>lambda</code>, usado de
+vez em quando. Em Ruby é o caminho normal.</p>
+<pre><code class="language-python"># Python
+for u in usuarios:
+    print(u.nome)
+
+nomes  = [u.nome for u in usuarios]
+ativos = [u for u in usuarios if u.ativo]
+total  = sum(u.pontos for u in usuarios)
+</code></pre>
+<pre><code class="language-ruby"># Ruby
+usuarios.each do |u|
+  puts u.nome
+end
+
+nomes  = usuarios.map { |u| u.nome }
+ativos = usuarios.select { |u| u.ativo? }
+total  = usuarios.sum { |u| u.pontos }
+</code></pre>
+<p>Chaves quando cabe numa linha, <code>do ... end</code> quando não cabe.</p>
+<table>
+<thead>
+<tr>
+<th>Python</th>
+<th>Ruby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>list comprehension</td>
+<td><code>.map</code></td>
+</tr>
+<tr>
+<td><code>filter</code> / comprehension com <code>if</code></td>
+<td><code>.select</code> (e <code>.reject</code> para o inverso)</td>
+</tr>
+<tr>
+<td><code>functools.reduce</code></td>
+<td><code>.reduce</code> / <code>.inject</code></td>
+</tr>
+<tr>
+<td><code>any()</code> / <code>all()</code></td>
+<td><code>.any?</code> / <code>.all?</code></td>
+</tr>
+<tr>
+<td><code>sorted(x, key=...)</code></td>
+<td><code>x.sort_by { ... }</code></td>
+</tr>
+<tr>
+<td><code>enumerate</code></td>
+<td><code>.each_with_index</code></td>
+</tr>
+<tr>
+<td><code>zip</code></td>
+<td><code>.zip</code></td>
+</tr>
+<tr>
+<td><code>next(x for x in l if ...)</code></td>
+<td><code>.find { ... }</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="argumentos-nomeados">Argumentos nomeados</h2>
+<pre><code class="language-python"># Python
+def login(email, password, client=&quot;mobile&quot;): ...
+login(email=&quot;a@b.c&quot;, password=&quot;x&quot;)
+</code></pre>
+<pre><code class="language-ruby"># Ruby — os dois-pontos DEPOIS do nome tornam obrigatório nomear na chamada
+def login(email:, password:, client: &quot;mobile&quot;)
+end
+
+login(email: &quot;a@b.c&quot;, password: &quot;x&quot;)
+</code></pre>
+<p>Sem os dois-pontos, é argumento posicional como em Python. Com eles, quem chama <strong>tem</strong> que nomear —
+e a ordem deixa de importar.</p>
+<h3 id="o-atalho-do-ruby-31">O atalho do Ruby 3.1</h3>
+<p>Quando a variável tem o mesmo nome da chave, você omite o valor:</p>
+<pre><code class="language-ruby">email = &quot;a@b.c&quot;
+password = &quot;x&quot;
+
+login(email:, password:)        # em vez de login(email: email, password: password)
+</code></pre>
+<p>Isso aparece em <strong>todo service do projeto</strong>:</p>
+<pre><code class="language-ruby">Result.new(success?: true, user:)     # user: user
+</code></pre>
+<p>Não é erro de digitação.</p>
+<hr>
+<h2 id="struct_1">Struct</h2>
+<p>Quando você só quer agrupar valores, sem comportamento:</p>
+<pre><code class="language-ruby">Result = Struct.new(:success?, :user, :errors, keyword_init: true)
+
+r = Result.new(success?: true, user: ana)
+r.success?   # true
+r.user       # ana
+</code></pre>
+<p><code>keyword_init: true</code> obriga a nomear na criação. É o <code>namedtuple</code> / <code>dataclass</code> do Python. Todo
+service deste projeto devolve um <code>Struct</code> desses.</p>
+<hr>
+<h2 id="excecoes_1">Exceções</h2>
+<table>
+<thead>
+<tr>
+<th>Python</th>
+<th>Ruby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>try</code></td>
+<td><code>begin</code></td>
+</tr>
+<tr>
+<td><code>except</code></td>
+<td><code>rescue</code></td>
+</tr>
+<tr>
+<td><code>finally</code></td>
+<td><code>ensure</code></td>
+</tr>
+<tr>
+<td><code>raise</code></td>
+<td><code>raise</code></td>
+</tr>
+<tr>
+<td><code>Exception</code> (base para capturar)</td>
+<td><code>StandardError</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">try:
+    arriscado()
+except ValueError as e:
+    print(e)
+finally:
+    limpar()
+</code></pre>
+<pre><code class="language-ruby">begin
+  arriscado
+rescue ArgumentError =&gt; e
+  puts e.message
+ensure
+  limpar
+end
+</code></pre>
+<p>Dentro de um método, o <code>begin</code> é implícito — dá para escrever só o <code>rescue</code> no fim:</p>
+<pre><code class="language-ruby">def call
+  arriscado
+rescue StandardError =&gt; e
+  Rails.error.report(e)
+  nil
+end
+</code></pre>
+<p>Criando o seu tipo de erro:</p>
+<pre><code class="language-ruby">class InvalidToken &lt; StandardError; end
+
+raise InvalidToken if token_ruim?
+</code></pre>
+<blockquote>
+<p>Herde sempre de <code>StandardError</code>, nunca de <code>Exception</code>. <code>rescue</code> sem classe captura
+<code>StandardError</code>; capturar <code>Exception</code> pega até <code>Ctrl+C</code> e erro de falta de memória.</p>
+</blockquote>
+<p><code>raise</code> sem argumento, dentro de um <code>rescue</code>, relança a exceção atual.</p>
+<hr>
+<h2 id="atalhos-de-literal">Atalhos de literal</h2>
+<pre><code class="language-ruby">%w[mobile web]      # =&gt; [&quot;mobile&quot;, &quot;web&quot;]   — array de strings
+%i[name email]      # =&gt; [:name, :email]     — array de símbolos
+</code></pre>
+<p>Só economizam aspas e vírgulas. Aparecem em constantes por todo o projeto:</p>
+<pre><code class="language-ruby">CLIENTS = %w[mobile web].freeze
+REQUIRED_FIELDS = %i[name email password].freeze
+</code></pre>
+<p><code>.freeze</code> congela o objeto: tentar alterar depois levanta erro. Em Ruby strings e arrays são
+mutáveis (diferente de Python), então constante sem <code>freeze</code> é constante só no nome.</p>
+<hr>
+<h2 id="classes">Classes</h2>
+<pre><code class="language-python">class Usuario:
+    def __init__(self, nome):
+        self.nome = nome
+
+    def saudacao(self):
+        return f&quot;Oi, {self.nome}&quot;
+
+    @property
+    def admin(self):
+        return self.role == &quot;admin&quot;
+</code></pre>
+<pre><code class="language-ruby">class Usuario
+  attr_accessor :nome        # gera o getter e o setter
+
+  def initialize(nome)
+    @nome = nome             # @ marca variável de instância
+  end
+
+  def saudacao
+    &quot;Oi, #{@nome}&quot;
+  end
+
+  def admin?
+    role == &quot;admin&quot;
+  end
+end
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Python</th>
+<th>Ruby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__init__</code></td>
+<td><code>initialize</code></td>
+</tr>
+<tr>
+<td><code>self.x</code></td>
+<td><code>@x</code></td>
+</tr>
+<tr>
+<td><code>self</code> como primeiro parâmetro</td>
+<td><code>self</code> implícito</td>
+</tr>
+<tr>
+<td><code>@property</code></td>
+<td>método normal (não precisa de parênteses)</td>
+</tr>
+<tr>
+<td><code>@staticmethod</code></td>
+<td><code>def self.metodo</code></td>
+</tr>
+<tr>
+<td><code>_privado</code> por convenção</td>
+<td><code>private</code> de verdade</td>
+</tr>
+<tr>
+<td>herança múltipla</td>
+<td>módulos (<code>include</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="e_1"><code>?</code> e <code>!</code></h3>
+<pre><code class="language-ruby">user.admin?    # devolve true/false
+user.save      # devolve false se falhar
+user.save!     # estoura ActiveRecord::RecordInvalid se falhar
+</code></pre>
+<p>Convenção, não regra da linguagem. Mas todo mundo segue — e o Rails inteiro depende dela.</p>
+<hr>
+<h2 id="modulos-e-mixins_1">Módulos e mixins</h2>
+<p>Ruby não tem herança múltipla. Tem módulo: um saco de métodos que você inclui.</p>
+<pre><code class="language-python"># Python: mixin por herança múltipla
+class Usuario(Base, VerificavelPorEmail, RecuperaSenha):
+    pass
+</code></pre>
+<pre><code class="language-ruby"># Ruby: include
+class Usuario &lt; ApplicationRecord
+  include EmailVerifiable
+  include PasswordResettable
+end
+</code></pre>
+<pre><code class="language-ruby">module EmailVerifiable
+  extend ActiveSupport::Concern
+
+  def email_verificado?
+    email_verified_at.present?
+  end
+end
+</code></pre>
+<p>No Rails, um módulo desses vive em <code>app/models/concerns/</code> e se chama <strong>concern</strong>. É o que impede o
+<code>User</code> de virar um arquivo de 800 linhas.</p>
+<hr>
+<h2 id="dependencias-e-ferramentas">Dependências e ferramentas</h2>
+<table>
+<thead>
+<tr>
+<th>Python</th>
+<th>Ruby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pip install x</code></td>
+<td><code>gem install x</code></td>
+</tr>
+<tr>
+<td><code>requirements.txt</code></td>
+<td><code>Gemfile</code></td>
+</tr>
+<tr>
+<td><code>pip freeze &gt; requirements.txt</code></td>
+<td><code>Gemfile.lock</code> (gerado sozinho, sempre versionado)</td>
+</tr>
+<tr>
+<td><code>venv</code> / <code>virtualenv</code></td>
+<td><code>bundler</code> isola por projeto</td>
+</tr>
+<tr>
+<td><code>pyenv</code></td>
+<td><code>mise</code> / <code>rbenv</code></td>
+</tr>
+<tr>
+<td><code>python -m x</code></td>
+<td><code>bundle exec x</code></td>
+</tr>
+<tr>
+<td><code>pytest</code></td>
+<td><code>minitest</code> (padrão do Rails) ou <code>rspec</code></td>
+</tr>
+<tr>
+<td><code>black</code> / <code>ruff</code></td>
+<td><code>rubocop</code></td>
+</tr>
+<tr>
+<td><code>mypy</code></td>
+<td>não há equivalente padrão — Ruby é dinâmica de ponta a ponta</td>
+</tr>
+<tr>
+<td><code>python</code> (REPL)</td>
+<td><code>irb</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="rails-django_1">Rails × Django</h2>
+<table>
+<thead>
+<tr>
+<th>Django</th>
+<th>Rails</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>models.py</code> com classes <code>Model</code></td>
+<td><code>app/models/</code>, um arquivo por classe</td>
+</tr>
+<tr>
+<td><code>makemigrations</code> / <code>migrate</code></td>
+<td><code>rails g migration</code> / <code>rails db:migrate</code></td>
+</tr>
+<tr>
+<td><code>urls.py</code>, escrito à mão</td>
+<td><code>config/routes.rb</code></td>
+</tr>
+<tr>
+<td><code>views.py</code></td>
+<td><code>app/controllers/</code></td>
+</tr>
+<tr>
+<td><code>serializers.py</code> (DRF)</td>
+<td><code>app/serializers/</code> (feito à mão neste projeto)</td>
+</tr>
+<tr>
+<td>Django ORM: <code>User.objects.filter(...)</code></td>
+<td>ActiveRecord: <code>User.where(...)</code></td>
+</tr>
+<tr>
+<td><code>manage.py</code></td>
+<td><code>bin/rails</code></td>
+</tr>
+<tr>
+<td><code>settings.py</code></td>
+<td><code>config/application.rb</code> + <code>config/environments/</code></td>
+</tr>
+<tr>
+<td><code>.env</code> + <code>django-environ</code></td>
+<td><code>Rails.application.credentials</code> + ENV</td>
+</tr>
+<tr>
+<td><code>python manage.py shell</code></td>
+<td><code>bin/rails console</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="consultas-lado-a-lado">Consultas lado a lado</h3>
+<pre><code class="language-python">User.objects.filter(role=&quot;admin&quot;)
+User.objects.get(id=1)
+User.objects.filter(email__icontains=&quot;ufop&quot;).order_by(&quot;-created_at&quot;)[:10]
+User.objects.count()
+</code></pre>
+<pre><code class="language-ruby">User.where(role: &quot;admin&quot;)
+User.find(1)
+User.where(&quot;email ILIKE ?&quot;, &quot;%ufop%&quot;).order(created_at: :desc).limit(10)
+User.count
+</code></pre>
+<hr>
+<h2 id="pegadinhas-de-quem-vem-do-python">Pegadinhas de quem vem do Python</h2>
+<table>
+<thead>
+<tr>
+<th>Pegadinha</th>
+<th>O que acontece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code> e <code>""</code> são <strong>verdadeiros</strong> em Ruby</td>
+<td>Só <code>nil</code> e <code>false</code> são falsos. <code>if 0</code> executa.</td>
+</tr>
+<tr>
+<td><code>puts</code> devolve <code>nil</code></td>
+<td>Não use o retorno de <code>puts</code></td>
+</tr>
+<tr>
+<td>Parênteses são opcionais</td>
+<td><code>user.save</code> e <code>user.save()</code> são a mesma coisa</td>
+</tr>
+<tr>
+<td><code>=</code> no fim do nome define setter</td>
+<td><code>def nome=(valor)</code> habilita <code>obj.nome = "x"</code></td>
+</tr>
+<tr>
+<td>Strings são mutáveis</td>
+<td>Diferente de Python. Use <code>.freeze</code> em constantes.</td>
+</tr>
+<tr>
+<td><code>and</code>/<code>or</code> existem, mas têm precedência diferente de <code>&amp;&amp;</code>/<code>\|\|</code></td>
+<td>Use <code>&amp;&amp;</code> e <code>\|\|</code> sempre</td>
+</tr>
+<tr>
+<td>Não existe <code>elif</code></td>
+<td>É <code>elsif</code></td>
+</tr>
+<tr>
+<td>Range com <code>..</code> inclui o fim, com <code>...</code> não</td>
+<td><code>(1..3).to_a</code> → <code>[1,2,3]</code>; <code>(1...3).to_a</code> → <code>[1,2]</code></td>
+</tr>
+</tbody>
+</table>
+<div class='quebra'></div>
+
+<h1 id="glossario">Glossário</h1>
+<p>Termos que aparecem nas quatro aulas, em ordem alfabética.</p>
+<hr>
+<p><strong>Accessory</strong> — Container que o Kamal gerencia mas não faz deploy junto com a aplicação. O Postgres
+é um. <code>kamal deploy</code> não sobe accessory; use <code>kamal accessory boot|reboot</code>.</p>
+<p><strong>ActiveRecord</strong> — O ORM do Rails. Cada classe é uma tabela, cada objeto é uma linha. Equivalente
+ao Django ORM.</p>
+<p><strong>API</strong> — <em>Application Programming Interface</em>. A porta de entrada do sistema para outros programas.
+Aqui, uma API REST que responde JSON.</p>
+<p><strong>Associação</strong> — Ligação entre dois models. <code>has_many</code> no lado "um", <code>belongs_to</code> no lado "muitos" —
+que é quem carrega a chave estrangeira.</p>
+<p><strong>Base64</strong> — Forma de escrever bytes usando só letras e números, para caber em texto. <strong>Não é
+criptografia</strong>: não tem chave e qualquer um desfaz. O JWT é Base64.</p>
+<p><strong>Bcrypt</strong> — Função de hash feita para senha. Lenta de propósito, com fator de custo ajustável e
+salt aleatório por senha. Ver <strong><code>02-activerecord.md</code></strong>.</p>
+<p><strong>Bearer</strong> — O esquema do cabeçalho <code>Authorization: Bearer &lt;token&gt;</code>. "Portador": quem apresenta o
+token é tratado como o dono dele.</p>
+<p><strong><code>before_action</code></strong> — Filtro que roda antes da action do controller. Se ele renderizar algo, a
+action não é chamada.</p>
+<p><strong>Brakeman</strong> — Análise estática de segurança para Rails. Procura SQL injection, mass assignment,
+redirect aberto e afins.</p>
+<p><strong>Bundler</strong> — O gerenciador de dependências do Ruby. Lê o <code>Gemfile</code>, resolve versões e escreve o
+<code>Gemfile.lock</code>.</p>
+<p><strong>CA (Autoridade Certificadora)</strong> — Quem assina certificados. O navegador nasce com uma lista de CAs
+em que confia; confiar na CA é confiar em quem ela assinou.</p>
+<p><strong>Certificado</strong> — Documento que afirma "esta chave pública pertence a este domínio", assinado por
+uma CA.</p>
+<p><strong>Chave estrangeira</strong> — Coluna que aponta para o <code>id</code> de outra tabela (<code>login_events.user_id</code>). Com
+<code>foreign_key: true</code>, o banco recusa linha órfã.</p>
+<p><strong>CI/CD</strong> — <em>Continuous Integration / Continuous Deployment</em>. CI roda testes e verificações a cada
+push; CD publica automaticamente o que passou.</p>
+<p><strong>Concern</strong> — Módulo Ruby que uma classe inclui para ganhar um conjunto de métodos. É o mixin do
+Rails. Vive em <code>app/models/concerns/</code> ou <code>app/controllers/concerns/</code>.</p>
+<p><strong>Container</strong> — Uma instância rodando de uma imagem Docker. Descartável.</p>
+<p><strong>Cookie</strong> — Par nome=valor que o servidor manda no <code>Set-Cookie</code> e o navegador reenvia sozinho em
+toda requisição àquele site. É a memória que o HTTP não tem, colada por fora.</p>
+<p><strong>CORS</strong> — <em>Cross-Origin Resource Sharing</em>. A regra do navegador que impede uma página de um domínio
+chamar uma API de outro sem permissão explícita. Não se aplica a app nativo.</p>
+<p><strong>Credentials</strong> — Arquivo YAML criptografado do Rails (<code>config/credentials.yml.enc</code>), decriptado
+pela <code>master.key</code>.</p>
+<p><strong>Criptografia assimétrica</strong> — Duas chaves que se completam: a pública se espalha, a privada nunca
+sai da máquina. Base do SSH e do TLS.</p>
+<p><strong>CSRF</strong> — <em>Cross-Site Request Forgery</em>. Site malicioso dispara requisição para a sua API, e o
+navegador anexa o cookie da vítima. Mitigado com <code>same_site</code>.</p>
+<p><strong>CVE</strong> — <em>Common Vulnerabilities and Exposures</em>. O identificador público de uma vulnerabilidade
+conhecida. <code>bundler-audit</code> procura CVE nas suas gems.</p>
+<p><strong>Denylist</strong> — Lista de tokens revogados. No nosso logout, indexada pelo <code>jti</code> do JWT.</p>
+<p><strong>Digest</strong> — O resultado de passar um valor por uma função de hash. <code>password_digest</code> guarda o
+digest, nunca a senha.</p>
+<p><strong>DNS</strong> — A agenda telefônica da internet: traduz um nome (<code>api.exemplo.com</code>) no IP da máquina. A
+resposta fica em cache pelo TTL.</p>
+<p><strong>Docker</strong> — Empacota aplicação e dependências numa imagem que roda igual em qualquer lugar.</p>
+<p><strong>Dockerfile</strong> — A receita da imagem. O nosso é multi-stage: um estágio compila, o final só copia o
+resultado.</p>
+<p><strong>Enumeração de usuários</strong> — Ataque em que respostas diferentes (mensagem, status ou tempo) revelam
+quem tem conta no sistema. Combatido com respostas idênticas e tempo constante.</p>
+<p><strong>Fixture</strong> — Dados de teste em YAML, carregados antes de cada teste e limpos depois.</p>
+<p><strong>Gem</strong> — Biblioteca Ruby. O equivalente do pacote do pip.</p>
+<p><strong>ghcr.io</strong> — GitHub Container Registry. Onde a imagem Docker fica hospedada.</p>
+<p><strong>Handshake (TLS)</strong> — A negociação inicial: o servidor apresenta o certificado, o cliente valida a
+cadeia, e os dois combinam uma chave temporária.</p>
+<p><strong>Health check</strong> — Rota que responde 200 se a aplicação está de pé. A nossa é <code>/up</code>. O Kamal só
+troca o tráfego para o container novo depois que ela passa.</p>
+<p><strong>Imagem</strong> — A receita congelada: sistema, runtime, dependências e código. Imutável.</p>
+<p><strong>IP</strong> — O endereço da máquina na rede (<code>57.156.65.151</code>). <code>127.0.0.1</code> é sempre "esta máquina aqui".</p>
+<p><strong>jti</strong> — <em>JWT ID</em>. Identificador único de um token, usado para revogá-lo individualmente.</p>
+<p><strong>JWT</strong> — <em>JSON Web Token</em>. Cabeçalho, payload e assinatura, em Base64, separados por ponto. O
+payload é <strong>público</strong>; a assinatura só garante que ninguém o alterou.</p>
+<p><strong>Kamal</strong> — Ferramenta de deploy com Docker via SSH, feita pela equipe do Rails. Zero-downtime, sem
+agente na máquina.</p>
+<p><strong>Mass assignment</strong> — Vulnerabilidade em que o cliente manda um campo que não devia poder mandar
+(ex.: <code>role: admin</code>). Evitada com strong parameters.</p>
+<p><strong>Middleware</strong> — Camadas que a requisição atravessa antes de chegar ao controller. CORS, cookies e
+rate limit moram aí. <code>bin/rails middleware</code> lista a pilha.</p>
+<p><strong>Migration</strong> — Mudança no banco, versionada em código, que roda uma vez em cada máquina.</p>
+<p><strong>Minitest</strong> — O framework de teste que vem com o Rails.</p>
+<p><strong>mise</strong> — Gerenciador de versões de runtime. O <code>pyenv</code> do mundo Ruby.</p>
+<p><strong>MVC</strong> — <em>Model-View-Controller</em>. Model = dados e regras; View = a saída (aqui, JSON); Controller =
+recebe a requisição e decide.</p>
+<p><strong>N+1</strong> — Carregar uma lista e depois consultar o banco item a item. 100 registros viram 101
+consultas. Resolve-se com <code>includes</code>.</p>
+<p><strong>NSG</strong> — <em>Network Security Group</em>. O firewall da Azure, com regras de entrada e saída por porta e
+origem.</p>
+<p><strong>OIDC</strong> — <em>OpenID Connect</em>. Permite o GitHub Actions autenticar na Azure com um token de curta
+duração, sem guardar segredo de longa duração.</p>
+<p><strong>OOM killer</strong> — O mecanismo do kernel Linux que mata processos quando a RAM acaba. É por isso que
+a VM tem swap.</p>
+<p><strong>Origin CA</strong> — Certificado emitido pelo Cloudflare para o trecho Cloudflare → seu servidor.
+Navegador não confia nele diretamente, e não precisa: o usuário vê o certificado público do
+Cloudflare.</p>
+<p><strong>ORM</strong> — <em>Object-Relational Mapping</em>. Traduz objetos em linhas de tabela.</p>
+<p><strong>OTP</strong> — <em>One-Time Password</em>. O código de 6 dígitos, válido por 15 minutos e uma vez só.</p>
+<p><strong>Payload</strong> — O miolo do JWT, onde ficam <code>sub</code>, <code>exp</code>, <code>jti</code>. Público.</p>
+<p><strong>Porta</strong> — Número de 1 a 65535 que identifica um programa dentro da máquina. 22 SSH, 80 HTTP, 443
+HTTPS, 5432 Postgres, 3000 Rails em dev.</p>
+<p><strong>Postgres</strong> — O banco relacional que usamos em desenvolvimento e em produção.</p>
+<p><strong>Proxied (Cloudflare)</strong> — Nuvem laranja no DNS: o tráfego passa pelo Cloudflare antes de chegar à
+sua máquina, e o IP real não aparece no DNS.</p>
+<p><strong>Proxy reverso</strong> — Fica na frente do servidor: recebe na 443, termina o TLS e repassa para a
+aplicação em HTTP interno. O <code>kamal-proxy</code> é um.</p>
+<p><strong>Puma</strong> — O servidor web do Rails.</p>
+<p><strong>rack-attack</strong> — Middleware que bloqueia abuso por IP. Está no <code>seem-backend</code>, não no app do curso.</p>
+<p><strong>Registry</strong> — Repositório de imagens Docker. O "GitHub das imagens".</p>
+<p><strong>REST</strong> — Estilo de organizar a API: cada coisa é um recurso com um endereço, e o verbo HTTP diz o
+que fazer com ele.</p>
+<p><strong>Rollback</strong> — O banco desfazendo uma transação que falhou no meio. Também: <code>kamal rollback</code>, que
+volta para a versão anterior da imagem.</p>
+<p><strong>root</strong> — O usuário do Linux que pode tudo, sem confirmação. Você trabalha como usuário comum e
+chama <code>sudo</code> quando precisa.</p>
+<p><strong>RuboCop</strong> — O linter de Ruby. O <code>black</code>/<code>ruff</code> do mundo Python.</p>
+<p><strong>Salt</strong> — Valor aleatório misturado à senha antes do hash, para que senhas iguais gerem digests
+diferentes. O bcrypt gera um por senha, automaticamente.</p>
+<p><strong>Scope</strong> — Consulta com nome, definida no model e encadeável:
+<code>user.login_events.recentes.limit(5)</code>.</p>
+<p><strong>Serializer</strong> — Decide o que de um objeto vai para o JSON — e, principalmente, o que não vai.</p>
+<p><strong>Service object</strong> — Classe que representa um caso de uso (<code>Users::Register</code>). Tira a regra de
+negócio do controller.</p>
+<p><strong>Solid Cache / Solid Queue</strong> — Cache e fila do Rails 8, guardados no próprio Postgres. A denylist
+do logout usa o cache.</p>
+<p><strong>Strong parameters</strong> — Filtro que declara quais campos a requisição pode mandar. No Rails 8,
+<code>params.expect</code>.</p>
+<p><strong><code>Struct</code></strong> — Classe de uma linha para agrupar valores sem comportamento. O
+<code>namedtuple</code>/<code>dataclass</code> do Ruby. Todo service do projeto devolve um.</p>
+<p><strong>sub</strong> — <em>Subject</em>. O claim do JWT que diz de quem é o token — no nosso caso, o <code>user.id</code>.</p>
+<p><strong>Swap</strong> — Área em disco usada como extensão da RAM. Lenta, mas evita que o OOM killer mate a
+aplicação.</p>
+<p><strong>TLS</strong> — O túnel criptografado que embrulha o HTTP e o transforma em HTTPS. Mesmo protocolo, só que
+fechado.</p>
+<p><strong>Token version</strong> — Contador no <code>User</code> que vai dentro do JWT. Incrementar invalida todos os tokens
+daquele usuário de uma vez.</p>
+<p><strong>Transação</strong> — Bloco em que ou tudo acontece, ou nada acontece. <code>User.transaction do ... end</code>.</p>
+<p><strong>TTL</strong> — <em>Time To Live</em>. Por quanto tempo algo vale. Nosso código OTP tem TTL de 15 minutos; as
+entradas da denylist têm o TTL do que restava do token.</p>
+<p><strong>Variável de ambiente</strong> — Par nome=valor que o sistema entrega ao processo. Lida com <code>ENV["NOME"]</code>.
+É como configuração e segredo entram sem passar pelo código.</p>
+<p><strong>Volume (Docker)</strong> — Área de disco que sobrevive ao container. É o que faz o banco não sumir a cada
+deploy. <strong>Não é backup.</strong></p>
+<p><strong>VPS</strong> — <em>Virtual Private Server</em>. Um computador virtual que é seu, com acesso root.</p>
+<p><strong>WSL2</strong> — <em>Windows Subsystem for Linux</em>. Um Linux de verdade dentro do Windows. Obrigatório para
+quem desenvolve Rails no Windows.</p>
+<p><strong>XSS</strong> — <em>Cross-Site Scripting</em>. O atacante roda JavaScript dentro da sua página, geralmente porque
+você exibiu texto de usuário sem escapar. É contra isso que <code>httponly</code> protege o token.</p>
+<p><strong>Zeitwerk</strong> — O autoloader do Rails. Descobre o arquivo pelo nome da classe:
+<code>Api::V1::StatusController</code> → <code>app/controllers/api/v1/status_controller.rb</code>. É o que dispensa o
+<code>require</code>.</p>
+<p><strong>Índice</strong> — Estrutura no banco que acelera busca. Com <code>unique: true</code>, vira restrição: o banco
+recusa duplicata mesmo com duas requisições simultâneas.</p>
+<div class='quebra'></div>
+
+<h1 id="troubleshooting">Troubleshooting</h1>
+<p>Erros que acontecem de verdade, e a saída de cada um. Os da parte de infraestrutura vieram do
+histórico real de deploy do <code>seem-backend</code>.</p>
+<hr>
+<h2 id="ambiente">Ambiente</h2>
+<h3 id="mise-command-not-found"><code>mise: command not found</code></h3>
+<p>A linha de <code>activate</code> não foi para o arquivo certo. Confira o fim do <code>~/.bashrc</code> (ou <code>~/.zshrc</code>) e
+rode <code>exec bash</code>.</p>
+<h3 id="a-instalacao-do-ruby-falha-compilando">A instalação do Ruby falha compilando</h3>
+<p>Faltou dependência de build. Rode o bloco de <code>apt install</code> / <code>brew install</code> de
+<strong><code>00-preparacao.md</code></strong> e tente <code>mise install ruby@3.4.9</code> de novo.</p>
+<h3 id="gem-install-rails-reclama-de-permissao"><code>gem install rails</code> reclama de permissão</h3>
+<p>Você está usando o Ruby do sistema, não o do mise. Confira:</p>
+<pre><code class="language-bash">which ruby   # tem que apontar para dentro de ~/.local/share/mise
+</code></pre>
+<h3 id="permission-denied-ao-rodar-docker"><code>permission denied</code> ao rodar <code>docker</code></h3>
+<p>Você não está no grupo <code>docker</code>:</p>
+<pre><code class="language-bash">sudo usermod -aG docker $USER
+</code></pre>
+<p>E <strong>saia e entre de novo na sessão</strong>. Reabrir o terminal não basta.</p>
+<h3 id="no-windows-docker-nao-aparece-dentro-do-ubuntu">No Windows, <code>docker</code> não aparece dentro do Ubuntu</h3>
+<p>Docker Desktop → Settings → Resources → WSL Integration → habilite a distro <code>Ubuntu-24.04</code>.</p>
+<hr>
+<h2 id="banco">Banco</h2>
+<h3 id="address-already-in-use-ao-subir-o-compose"><code>address already in use</code> ao subir o compose</h3>
+<p>Já existe um Postgres na sua máquina ocupando a 5432.</p>
+<pre><code class="language-bash">DB_PORT=5433 docker compose up -d
+export DB_PORT=5433          # e exporte no shell onde roda o Rails
+</code></pre>
+<p>Para achar quem ocupa: <code>ss -ltnp | grep 5432</code>.</p>
+<h3 id="pgconnectionbad-could-not-connect-to-server"><code>PG::ConnectionBad: could not connect to server</code></h3>
+<p>Nesta ordem:</p>
+<pre><code class="language-bash">docker compose ps            # o container está &quot;healthy&quot;?
+docker compose logs db       # o que ele diz?
+echo $DB_PORT                # bate com a porta publicada?
+</code></pre>
+<h3 id="pgundefinedtable-ou-pendingmigrationerror"><code>PG::UndefinedTable</code> ou <code>PendingMigrationError</code></h3>
+<p>Faltou migrar:</p>
+<pre><code class="language-bash">bin/rails db:migrate
+</code></pre>
+<h3 id="quero-comecar-do-zero">Quero começar do zero</h3>
+<pre><code class="language-bash">bin/rails db:reset      # apaga, recria, carrega o schema e roda os seeds
+</code></pre>
+<hr>
+<h2 id="testes">Testes</h2>
+<h3 id="um-teste-passa-sozinho-e-falha-junto-com-os-outros">Um teste passa sozinho e falha junto com os outros</h3>
+<p>Vazamento de estado entre testes. Suspeitos, em ordem:</p>
+<ol>
+<li>um <code>Rails.cache</code> compartilhado (o <code>test_helper</code> troca por <code>MemoryStore</code> a cada teste);</li>
+<li><code>ActionMailer::Base.deliveries</code> não limpo;</li>
+<li>dependência de ordem — o Minitest embaralha de propósito, e isso é uma qualidade.</li>
+</ol>
+<p>Rode com a mesma semente para reproduzir: <code>bin/rails test --seed 1234</code>.</p>
+<h3 id="o-teste-de-logout-passa-mas-a-revogacao-nao-funciona">O teste de logout passa mas a revogação não funciona</h3>
+<p>Em teste, o <code>Rails.cache</code> padrão é o <code>null_store</code>: não guarda nada, e <code>revoked?</code> sempre devolve
+<code>false</code>. O <code>test_helper.rb</code> troca por <code>MemoryStore</code> justamente por isso. Se você recriou o arquivo,
+recoloque o <code>setup</code>.</p>
+<h3 id="bulletnotificationunoptimizedqueryerror"><code>Bullet::Notification::UnoptimizedQueryError</code></h3>
+<p>Consulta N+1: você carregou uma coleção e acessou uma associação item a item. Adicione <code>includes</code>.
+(O <code>seem-backend</code> usa o Bullet; o app do curso não.)</p>
+<hr>
+<h2 id="autenticacao">Autenticação</h2>
+<h3 id="sempre-401-mesmo-com-o-token-certo">Sempre 401, mesmo com o token certo</h3>
+<p>Cheque, nesta ordem:</p>
+<ol>
+<li>o cabeçalho é exatamente <code>Authorization: Bearer &lt;token&gt;</code>, com o espaço;</li>
+<li>o token não foi revogado (você fez logout com ele?);</li>
+<li>o <code>token_version</code> do banco bate com o <code>ver</code> do token — trocar a senha incrementa a versão;</li>
+<li>o <code>JWT_SECRET</code> é o mesmo que emitiu o token. Reiniciar o app em dev sem <code>JWT_SECRET</code> definido
+   usa o <code>secret_key_base</code>, que é estável — mas em produção um segredo diferente invalida tudo.</li>
+</ol>
+<p>Decodifique o token em <a href="https://jwt.io">jwt.io</a> e olhe o <code>exp</code> e o <code>ver</code>.</p>
+<h3 id="o-e-mail-nao-chega-em-desenvolvimento">O e-mail não chega em desenvolvimento</h3>
+<p>Ele não é enviado: o <code>letter_opener</code> abre no navegador. Se você está rodando <code>curl</code> e não vendo
+nada, o arquivo está em <code>tmp/letter_opener/</code>.</p>
+<h3 id="actioncontrollerparametermissing-400"><code>ActionController::ParameterMissing</code> (400)</h3>
+<p>Faltou um campo obrigatório no corpo. O <code>params.expect</code> exige todas as chaves declaradas. Confira o
+JSON e o <code>Content-Type: application/json</code>.</p>
+<h3 id="422-no-cadastro-sem-dizer-o-motivo-direito">422 no cadastro sem dizer o motivo direito</h3>
+<p>Olhe <code>error.details</code> na resposta: cada item tem <code>field</code> e <code>message</code>.</p>
+<hr>
+<h2 id="azure-e-vm">Azure e VM</h2>
+<h3 id="notavailableforsubscription-ao-criar-a-vm"><code>NotAvailableForSubscription</code> ao criar a VM</h3>
+<p>O tamanho escolhido não está habilitado para a sua assinatura naquela região.</p>
+<p><strong>Assinaturas → Uso + cotas → filtre por Compute</strong> e escolha outra região ou outro tamanho.
+Pedir aumento de cota <strong>não</strong> resolve quando a oferta não está habilitada.</p>
+<h3 id="ssh-da-timeout">SSH dá timeout</h3>
+<p>Quase sempre é o NSG:</p>
+<ol>
+<li>o seu IP mudou? <code>curl -4 ifconfig.me</code> e compare com a regra;</li>
+<li>a regra libera a porta 22, protocolo TCP, direção Entrada?</li>
+<li>a prioridade da regra de permissão é <strong>menor</strong> que a de alguma negação?</li>
+</ol>
+<h3 id="permission-denied-publickey"><code>Permission denied (publickey)</code></h3>
+<pre><code class="language-bash">chmod 600 ~/.ssh/azure-capacita
+ssh -i ~/.ssh/azure-capacita -o IdentitiesOnly=yes azureuser@SEU_IP
+</code></pre>
+<p>O <code>IdentitiesOnly=yes</code> importa: sem ele o SSH tenta todas as chaves do agente, o servidor recusa
+depois de algumas e você leva <code>Too many authentication failures</code> com a chave certa na mão.</p>
+<h3 id="perdi-o-acesso-depois-de-mexer-no-sshd">Perdi o acesso depois de mexer no sshd</h3>
+<p>Se você seguiu o guia, tinha uma sessão aberta — desfaça por ela. Se não, sobrou o <strong>Serial
+Console</strong> do portal da Azure (menu da VM → Suporte + solução de problemas → Console Serial), que
+não passa pelo SSH.</p>
+<p>Da próxima vez: <code>sudo sshd -t</code> antes de <code>reload</code>, e teste em outro terminal antes de fechar o
+primeiro.</p>
+<hr>
+<h2 id="deploy">Deploy</h2>
+<h3 id="oidc-aadsts700213">OIDC: <code>AADSTS700213</code></h3>
+<p>O <em>subject</em> da credencial federada não bate com o que o GitHub emite. Ele precisa ser, caractere por
+caractere:</p>
+<pre><code>repo:SEU-USUARIO/SEU-REPO:ref:refs/heads/main
+</code></pre>
+<p>Confira maiúsculas, o nome do repositório e a branch.</p>
+<h3 id="az-command-not-found-ou-falha-transitoria-do-azure-cli"><code>az: command not found</code> ou falha transitória do Azure CLI</h3>
+<p>O <code>azure/login</code> às vezes falha por instabilidade. Rode o workflow de novo antes de investigar.</p>
+<h3 id="a-regra-temporaria-ficou-no-nsg">A regra temporária ficou no NSG</h3>
+<p>O passo de remoção tem <code>if: always()</code>, mas se o job for cancelado à força a regra pode sobrar.
+Apague na mão:</p>
+<pre><code class="language-bash">az network nsg rule delete \
+  --resource-group SEU_RG --nsg-name SEU_NSG \
+  --name allow-github-actions-deploy-ssh
+</code></pre>
+<p>E confira depois de todo deploy que falhou de forma estranha.</p>
+<h3 id="kamal-docker-is-not-installed">Kamal: <code>Docker is not installed</code></h3>
+<p>O primeiro deploy precisa ser <code>setup</code>, não <code>deploy</code>. Rode o workflow por
+<strong>Actions → Run workflow → command: setup</strong>.</p>
+<h3 id="a-aplicacao-sobe-mas-nao-acha-o-banco">A aplicação sobe mas não acha o banco</h3>
+<p><code>kamal deploy</code> <strong>não</strong> sobe accessories. O workflow tem um passo <code>kamal accessory boot db</code>, mas se
+você rodou o Kamal à mão:</p>
+<pre><code class="language-bash">kamal accessory boot db
+</code></pre>
+<p>Depois de mudar env de accessory, <code>boot</code> não basta — é <code>kamal accessory reboot db</code>.</p>
+<h3 id="cloudflare-521-522">Cloudflare 521 / 522</h3>
+<p>O Cloudflare não conseguiu falar com o seu servidor.</p>
+<ul>
+<li>a porta 443 está aberta no NSG?</li>
+<li><code>docker ps</code> na VM mostra o <code>kamal-proxy</code> rodando?</li>
+<li>o registro A aponta para o IP certo?</li>
+</ul>
+<h3 id="cloudflare-525-526">Cloudflare 525 / 526</h3>
+<p>Falha no handshake TLS entre Cloudflare e a sua VM.</p>
+<ul>
+<li><strong>525</strong>: o proxy não apresentou certificado. Os secrets <code>KAMAL_PROXY_SSL_*</code> estão cadastrados?</li>
+<li><strong>526</strong>: o certificado é inválido para o modo Full (strict). Ele cobre o hostname exato? Um
+  wildcard <code>*.capacita.exemplo.tech</code> cobre <code>seunome.capacita.exemplo.tech</code>, mas <strong>não</strong> cobre
+  <code>x.y.capacita.exemplo.tech</code>.</li>
+</ul>
+<h3 id="lets-encrypt-falha-atras-do-cloudflare">Let's Encrypt falha atrás do Cloudflare</h3>
+<p>Esperado. Com o DNS proxied, o desafio HTTP-01 não chega como o Let's Encrypt espera. Use o
+certificado Origin CA — é a razão de ele existir.</p>
+<h3 id="smtp-da-timeout-na-vm">SMTP dá timeout na VM</h3>
+<p>Vários provedores de nuvem bloqueiam a saída na porta 25, e alguns na 587. Teste a alternativa do
+seu provedor de e-mail (o Resend aceita 2587) e ajuste <code>SMTP_PORT</code> no <code>env.clear</code>.</p>
+<h3 id="o-deploy-passa-mas-o-site-responde-500">O deploy passa mas o site responde 500</h3>
+<pre><code class="language-bash">kamal app logs -f
+</code></pre>
+<p>Suspeitos comuns: migration pendente (<code>kamal app exec "bin/rails db:migrate"</code>), <code>RAILS_MASTER_KEY</code>
+errada, ou um <code>ENV.fetch</code> sem default para uma variável que ninguém cadastrou.</p>
+<h3 id="preciso-voltar-atras-agora">Preciso voltar atrás agora</h3>
+<pre><code class="language-bash">kamal rollback
+</code></pre>
+<p>Volta para a versão anterior da imagem, que ainda está na VM.</p>
+</main></body>
+</html>

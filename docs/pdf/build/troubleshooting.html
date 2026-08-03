@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Troubleshooting</title>
+<link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
+<style>@page { @bottom-left { content: "Capacitação Back-end · Automic Jr."; } }</style>
+</head>
+<body><main>
+<h1 id="troubleshooting">Troubleshooting</h1>
+<p>Erros que acontecem de verdade, e a saída de cada um. Os da parte de infraestrutura vieram do
+histórico real de deploy do <code>seem-backend</code>.</p>
+<hr>
+<h2 id="ambiente">Ambiente</h2>
+<h3 id="mise-command-not-found"><code>mise: command not found</code></h3>
+<p>A linha de <code>activate</code> não foi para o arquivo certo. Confira o fim do <code>~/.bashrc</code> (ou <code>~/.zshrc</code>) e
+rode <code>exec bash</code>.</p>
+<h3 id="a-instalacao-do-ruby-falha-compilando">A instalação do Ruby falha compilando</h3>
+<p>Faltou dependência de build. Rode o bloco de <code>apt install</code> / <code>brew install</code> de
+<strong><code>00-preparacao.md</code></strong> e tente <code>mise install ruby@3.4.9</code> de novo.</p>
+<h3 id="gem-install-rails-reclama-de-permissao"><code>gem install rails</code> reclama de permissão</h3>
+<p>Você está usando o Ruby do sistema, não o do mise. Confira:</p>
+<pre><code class="language-bash">which ruby   # tem que apontar para dentro de ~/.local/share/mise
+</code></pre>
+<h3 id="permission-denied-ao-rodar-docker"><code>permission denied</code> ao rodar <code>docker</code></h3>
+<p>Você não está no grupo <code>docker</code>:</p>
+<pre><code class="language-bash">sudo usermod -aG docker $USER
+</code></pre>
+<p>E <strong>saia e entre de novo na sessão</strong>. Reabrir o terminal não basta.</p>
+<h3 id="no-windows-docker-nao-aparece-dentro-do-ubuntu">No Windows, <code>docker</code> não aparece dentro do Ubuntu</h3>
+<p>Docker Desktop → Settings → Resources → WSL Integration → habilite a distro <code>Ubuntu-24.04</code>.</p>
+<hr>
+<h2 id="banco">Banco</h2>
+<h3 id="address-already-in-use-ao-subir-o-compose"><code>address already in use</code> ao subir o compose</h3>
+<p>Já existe um Postgres na sua máquina ocupando a 5432.</p>
+<pre><code class="language-bash">DB_PORT=5433 docker compose up -d
+export DB_PORT=5433          # e exporte no shell onde roda o Rails
+</code></pre>
+<p>Para achar quem ocupa: <code>ss -ltnp | grep 5432</code>.</p>
+<h3 id="pgconnectionbad-could-not-connect-to-server"><code>PG::ConnectionBad: could not connect to server</code></h3>
+<p>Nesta ordem:</p>
+<pre><code class="language-bash">docker compose ps            # o container está &quot;healthy&quot;?
+docker compose logs db       # o que ele diz?
+echo $DB_PORT                # bate com a porta publicada?
+</code></pre>
+<h3 id="pgundefinedtable-ou-pendingmigrationerror"><code>PG::UndefinedTable</code> ou <code>PendingMigrationError</code></h3>
+<p>Faltou migrar:</p>
+<pre><code class="language-bash">bin/rails db:migrate
+</code></pre>
+<h3 id="quero-comecar-do-zero">Quero começar do zero</h3>
+<pre><code class="language-bash">bin/rails db:reset      # apaga, recria, carrega o schema e roda os seeds
+</code></pre>
+<hr>
+<h2 id="testes">Testes</h2>
+<h3 id="um-teste-passa-sozinho-e-falha-junto-com-os-outros">Um teste passa sozinho e falha junto com os outros</h3>
+<p>Vazamento de estado entre testes. Suspeitos, em ordem:</p>
+<ol>
+<li>um <code>Rails.cache</code> compartilhado (o <code>test_helper</code> troca por <code>MemoryStore</code> a cada teste);</li>
+<li><code>ActionMailer::Base.deliveries</code> não limpo;</li>
+<li>dependência de ordem — o Minitest embaralha de propósito, e isso é uma qualidade.</li>
+</ol>
+<p>Rode com a mesma semente para reproduzir: <code>bin/rails test --seed 1234</code>.</p>
+<h3 id="o-teste-de-logout-passa-mas-a-revogacao-nao-funciona">O teste de logout passa mas a revogação não funciona</h3>
+<p>Em teste, o <code>Rails.cache</code> padrão é o <code>null_store</code>: não guarda nada, e <code>revoked?</code> sempre devolve
+<code>false</code>. O <code>test_helper.rb</code> troca por <code>MemoryStore</code> justamente por isso. Se você recriou o arquivo,
+recoloque o <code>setup</code>.</p>
+<h3 id="bulletnotificationunoptimizedqueryerror"><code>Bullet::Notification::UnoptimizedQueryError</code></h3>
+<p>Consulta N+1: você carregou uma coleção e acessou uma associação item a item. Adicione <code>includes</code>.
+(O <code>seem-backend</code> usa o Bullet; o app do curso não.)</p>
+<hr>
+<h2 id="autenticacao">Autenticação</h2>
+<h3 id="sempre-401-mesmo-com-o-token-certo">Sempre 401, mesmo com o token certo</h3>
+<p>Cheque, nesta ordem:</p>
+<ol>
+<li>o cabeçalho é exatamente <code>Authorization: Bearer &lt;token&gt;</code>, com o espaço;</li>
+<li>o token não foi revogado (você fez logout com ele?);</li>
+<li>o <code>token_version</code> do banco bate com o <code>ver</code> do token — trocar a senha incrementa a versão;</li>
+<li>o <code>JWT_SECRET</code> é o mesmo que emitiu o token. Reiniciar o app em dev sem <code>JWT_SECRET</code> definido
+   usa o <code>secret_key_base</code>, que é estável — mas em produção um segredo diferente invalida tudo.</li>
+</ol>
+<p>Decodifique o token em <a href="https://jwt.io">jwt.io</a> e olhe o <code>exp</code> e o <code>ver</code>.</p>
+<h3 id="o-e-mail-nao-chega-em-desenvolvimento">O e-mail não chega em desenvolvimento</h3>
+<p>Ele não é enviado: o <code>letter_opener</code> abre no navegador. Se você está rodando <code>curl</code> e não vendo
+nada, o arquivo está em <code>tmp/letter_opener/</code>.</p>
+<h3 id="actioncontrollerparametermissing-400"><code>ActionController::ParameterMissing</code> (400)</h3>
+<p>Faltou um campo obrigatório no corpo. O <code>params.expect</code> exige todas as chaves declaradas. Confira o
+JSON e o <code>Content-Type: application/json</code>.</p>
+<h3 id="422-no-cadastro-sem-dizer-o-motivo-direito">422 no cadastro sem dizer o motivo direito</h3>
+<p>Olhe <code>error.details</code> na resposta: cada item tem <code>field</code> e <code>message</code>.</p>
+<hr>
+<h2 id="azure-e-vm">Azure e VM</h2>
+<h3 id="notavailableforsubscription-ao-criar-a-vm"><code>NotAvailableForSubscription</code> ao criar a VM</h3>
+<p>O tamanho escolhido não está habilitado para a sua assinatura naquela região.</p>
+<p><strong>Assinaturas → Uso + cotas → filtre por Compute</strong> e escolha outra região ou outro tamanho.
+Pedir aumento de cota <strong>não</strong> resolve quando a oferta não está habilitada.</p>
+<h3 id="ssh-da-timeout">SSH dá timeout</h3>
+<p>Quase sempre é o NSG:</p>
+<ol>
+<li>o seu IP mudou? <code>curl -4 ifconfig.me</code> e compare com a regra;</li>
+<li>a regra libera a porta 22, protocolo TCP, direção Entrada?</li>
+<li>a prioridade da regra de permissão é <strong>menor</strong> que a de alguma negação?</li>
+</ol>
+<h3 id="permission-denied-publickey"><code>Permission denied (publickey)</code></h3>
+<pre><code class="language-bash">chmod 600 ~/.ssh/azure-capacita
+ssh -i ~/.ssh/azure-capacita -o IdentitiesOnly=yes azureuser@SEU_IP
+</code></pre>
+<p>O <code>IdentitiesOnly=yes</code> importa: sem ele o SSH tenta todas as chaves do agente, o servidor recusa
+depois de algumas e você leva <code>Too many authentication failures</code> com a chave certa na mão.</p>
+<h3 id="perdi-o-acesso-depois-de-mexer-no-sshd">Perdi o acesso depois de mexer no sshd</h3>
+<p>Se você seguiu o guia, tinha uma sessão aberta — desfaça por ela. Se não, sobrou o <strong>Serial
+Console</strong> do portal da Azure (menu da VM → Suporte + solução de problemas → Console Serial), que
+não passa pelo SSH.</p>
+<p>Da próxima vez: <code>sudo sshd -t</code> antes de <code>reload</code>, e teste em outro terminal antes de fechar o
+primeiro.</p>
+<hr>
+<h2 id="deploy">Deploy</h2>
+<h3 id="oidc-aadsts700213">OIDC: <code>AADSTS700213</code></h3>
+<p>O <em>subject</em> da credencial federada não bate com o que o GitHub emite. Ele precisa ser, caractere por
+caractere:</p>
+<pre><code>repo:SEU-USUARIO/SEU-REPO:ref:refs/heads/main
+</code></pre>
+<p>Confira maiúsculas, o nome do repositório e a branch.</p>
+<h3 id="az-command-not-found-ou-falha-transitoria-do-azure-cli"><code>az: command not found</code> ou falha transitória do Azure CLI</h3>
+<p>O <code>azure/login</code> às vezes falha por instabilidade. Rode o workflow de novo antes de investigar.</p>
+<h3 id="a-regra-temporaria-ficou-no-nsg">A regra temporária ficou no NSG</h3>
+<p>O passo de remoção tem <code>if: always()</code>, mas se o job for cancelado à força a regra pode sobrar.
+Apague na mão:</p>
+<pre><code class="language-bash">az network nsg rule delete \
+  --resource-group SEU_RG --nsg-name SEU_NSG \
+  --name allow-github-actions-deploy-ssh
+</code></pre>
+<p>E confira depois de todo deploy que falhou de forma estranha.</p>
+<h3 id="kamal-docker-is-not-installed">Kamal: <code>Docker is not installed</code></h3>
+<p>O primeiro deploy precisa ser <code>setup</code>, não <code>deploy</code>. Rode o workflow por
+<strong>Actions → Run workflow → command: setup</strong>.</p>
+<h3 id="a-aplicacao-sobe-mas-nao-acha-o-banco">A aplicação sobe mas não acha o banco</h3>
+<p><code>kamal deploy</code> <strong>não</strong> sobe accessories. O workflow tem um passo <code>kamal accessory boot db</code>, mas se
+você rodou o Kamal à mão:</p>
+<pre><code class="language-bash">kamal accessory boot db
+</code></pre>
+<p>Depois de mudar env de accessory, <code>boot</code> não basta — é <code>kamal accessory reboot db</code>.</p>
+<h3 id="cloudflare-521-522">Cloudflare 521 / 522</h3>
+<p>O Cloudflare não conseguiu falar com o seu servidor.</p>
+<ul>
+<li>a porta 443 está aberta no NSG?</li>
+<li><code>docker ps</code> na VM mostra o <code>kamal-proxy</code> rodando?</li>
+<li>o registro A aponta para o IP certo?</li>
+</ul>
+<h3 id="cloudflare-525-526">Cloudflare 525 / 526</h3>
+<p>Falha no handshake TLS entre Cloudflare e a sua VM.</p>
+<ul>
+<li><strong>525</strong>: o proxy não apresentou certificado. Os secrets <code>KAMAL_PROXY_SSL_*</code> estão cadastrados?</li>
+<li><strong>526</strong>: o certificado é inválido para o modo Full (strict). Ele cobre o hostname exato? Um
+  wildcard <code>*.capacita.exemplo.tech</code> cobre <code>seunome.capacita.exemplo.tech</code>, mas <strong>não</strong> cobre
+  <code>x.y.capacita.exemplo.tech</code>.</li>
+</ul>
+<h3 id="lets-encrypt-falha-atras-do-cloudflare">Let's Encrypt falha atrás do Cloudflare</h3>
+<p>Esperado. Com o DNS proxied, o desafio HTTP-01 não chega como o Let's Encrypt espera. Use o
+certificado Origin CA — é a razão de ele existir.</p>
+<h3 id="smtp-da-timeout-na-vm">SMTP dá timeout na VM</h3>
+<p>Vários provedores de nuvem bloqueiam a saída na porta 25, e alguns na 587. Teste a alternativa do
+seu provedor de e-mail (o Resend aceita 2587) e ajuste <code>SMTP_PORT</code> no <code>env.clear</code>.</p>
+<h3 id="o-deploy-passa-mas-o-site-responde-500">O deploy passa mas o site responde 500</h3>
+<pre><code class="language-bash">kamal app logs -f
+</code></pre>
+<p>Suspeitos comuns: migration pendente (<code>kamal app exec "bin/rails db:migrate"</code>), <code>RAILS_MASTER_KEY</code>
+errada, ou um <code>ENV.fetch</code> sem default para uma variável que ninguém cadastrou.</p>
+<h3 id="preciso-voltar-atras-agora">Preciso voltar atrás agora</h3>
+<pre><code class="language-bash">kamal rollback
+</code></pre>
+<p>Volta para a versão anterior da imagem, que ainda está na VM.</p>
+</main></body>
+</html>

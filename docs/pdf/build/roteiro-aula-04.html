@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Roteiro — Aula 4</title>
+<link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
+<style>@page { @bottom-left { content: "Capacitação Back-end · roteiro do instrutor"; } }</style>
+</head>
+<body><main>
+<h1 id="roteiro-aula-4-vps-docker-kamal-e-deploy">Roteiro — Aula 4: VPS, Docker, Kamal e deploy</h1>
+<p><strong>Deck</strong>: <code>slides/build/aula-04-vps-docker-kamal-e-deploy.pptx</code> (61 slides)
+<strong>Apostila da turma</strong>: <strong><code>04-deploy.md</code></strong> · <strong>Checkpoint</strong>: <code>aula-04</code></p>
+<blockquote>
+<p>⚠️ <strong>A aula mais arriscada das quatro.</strong> O gargalo não é digitar, é clicar em portal — e portal
+falha. Leia a seção seguinte antes de qualquer coisa.</p>
+</blockquote>
+<hr>
+<h2 id="o-que-preparar-com-antecedencia">O que preparar com antecedência</h2>
+<p>Estas quatro coisas <strong>não ensinam nada ao serem feitas doze vezes</strong>, e devolvem ~40 minutos:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>O que</th>
+<th>Quando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Registros DNS <code>aluno1.capacita</code>…<code>alunoN.capacita</code> já criados no seu Cloudflare, apontando para IP <code>0.0.0.0</code> (eles trocam pelo IP da VM deles)</td>
+<td>véspera</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Um</strong> certificado Origin CA wildcard <code>*.capacita.&lt;seu-domínio&gt;</code>, com o <code>.pem</code> e a chave prontos para distribuir</td>
+<td>véspera</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verificar que todo mundo já tem crédito Azure aparecendo no portal</td>
+<td><strong>uma semana antes</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Uma conta Resend com o domínio verificado, e uma API key para a turma</td>
+<td>véspera</td>
+</tr>
+</tbody>
+</table>
+<p>E o mais importante:</p>
+<blockquote>
+<p><strong>Faça o percurso inteiro sozinho uma vez, com uma VM descartável, antes do encontro.</strong> É a única
+forma de descobrir onde a sua assinatura vai reclamar de cota. Se você não fizer isso, a aula vai
+parar num erro que você está vendo pela primeira vez, na frente de todo mundo.</p>
+</blockquote>
+<hr>
+<h2 id="antes-de-comecar">Antes de começar</h2>
+<ul>
+<li>[ ] Portal Azure aberto e logado, numa aba anônima (para não vazar recursos do SEEM na projeção).</li>
+<li>[ ] Cloudflare aberto no domínio da capacitação.</li>
+<li>[ ] GitHub do repositório da capacitação aberto em Settings → Secrets and variables.</li>
+<li>[ ] Sua VM de teste <strong>destruída</strong>, para você fazer o percurso junto com eles do zero.</li>
+<li>[ ] <code>docs/troubleshooting.md</code> aberto numa aba — você vai usar.</li>
+<li>[ ] Certificado Origin CA e a lista de subdomínios prontos para colar no chat.</li>
+</ul>
+<hr>
+<h2 id="cronograma">Cronograma</h2>
+<table>
+<thead>
+<tr>
+<th>Relógio</th>
+<th>Slides</th>
+<th>Bloco</th>
+<th>Min</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00:00</td>
+<td>1–7</td>
+<td>VPS, comparação, por que não Kubernetes</td>
+<td>16</td>
+</tr>
+<tr>
+<td>00:16</td>
+<td>8–14</td>
+<td><strong>Criar a VM</strong> (mão na massa)</td>
+<td>35</td>
+</tr>
+<tr>
+<td>00:51</td>
+<td>15–21</td>
+<td><strong>Ubuntu: Docker, permissões, swap, SSH</strong></td>
+<td>32</td>
+</tr>
+<tr>
+<td><strong>01:23</strong></td>
+<td>—</td>
+<td><strong>Intervalo</strong></td>
+<td>10</td>
+</tr>
+<tr>
+<td>01:33</td>
+<td>22–26</td>
+<td>Docker: imagem, Dockerfile, registry</td>
+<td>16</td>
+</tr>
+<tr>
+<td>01:49</td>
+<td>27–35</td>
+<td>Kamal: deploy.yml, accessory, segredos</td>
+<td>26</td>
+</tr>
+<tr>
+<td>02:15</td>
+<td>36–44</td>
+<td>CI/CD e OIDC — <strong>e configurar o OIDC</strong></td>
+<td>45</td>
+</tr>
+<tr>
+<td>03:00</td>
+<td>45–52</td>
+<td>TLS, certificado, CA, Cloudflare</td>
+<td>22</td>
+</tr>
+<tr>
+<td>03:22</td>
+<td>53–56</td>
+<td><strong>Primeiro deploy</strong> e operação</td>
+<td>30</td>
+</tr>
+<tr>
+<td>03:52</td>
+<td>57–61</td>
+<td>Prática, recapitulação, fim</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Dá 4h02, e é otimista</strong> — assume que ninguém pega <code>NotAvailableForSubscription</code> e que o <em>subject</em>
+do OIDC acerta de primeira. Nenhuma das duas costuma acontecer.</p>
+<h3 id="plano-b-decidido-de-vespera">Plano B, decidido de véspera</h3>
+<p>Escolha <strong>agora</strong> qual você vai usar:</p>
+<p><strong>B1 — Cortar o OIDC.</strong> Em vez do pipeline pelo Actions, cada aluno roda o Kamal da própria máquina:</p>
+<pre><code class="language-bash">GHCR_USER=... AZURE_VM_IP=... APP_HOST=... bundle exec kamal setup
+</code></pre>
+<p>Você explica o OIDC pelos slides (40–44, ~12 min) e mostra o workflow rodando <strong>no seu</strong> repositório.
+<strong>Devolve 45 min</strong> e a aula fecha em 3h15. Eles fazem o pipeline em casa, com a apostila.</p>
+<p><strong>B2 — Virar demo a partir do intervalo.</strong> Se às 01:23 não houver pelo menos metade da turma com VM
+respondendo ao SSH, pare de esperar. Projete o seu deploy do começo ao fim e distribua o roteiro.
+<strong>Melhor todo mundo ver funcionando do que metade travar no NSG.</strong></p>
+<hr>
+<h2 id="bloco-a-bloco">Bloco a bloco</h2>
+<h3 id="0000-vps-17">00:00 — VPS (1–7)</h3>
+<p>Comece pela comparação (5) e vá para a decisão (6). A frase que resume a aula:</p>
+<blockquote>
+<p><strong>Escolher a ferramenta grande antes do problema grande é a forma mais cara de errar.</strong></p>
+</blockquote>
+<p>E o slide 7 é o que dá credibilidade: admita o custo. Uma VM é ponto único de falha, volume não é
+backup, o Postgres não é gerenciado.</p>
+<h3 id="0016-a-vm-814">00:16 — A VM (8–14)</h3>
+<p>Faça junto, passo a passo, projetado.</p>
+<ul>
+<li><strong>9</strong> — cotas. Mostre a tela de Uso + quotas antes de tentar criar. Se alguém pegar
+  <code>NotAvailableForSubscription</code>, é aqui que se resolve, não depois.</li>
+<li><strong>11</strong> — <strong>pare neste slide.</strong> "Portas públicas: Nenhuma" é a escolha mais importante da tela.
+  Diga por quê: o assistente, se deixado, libera SSH para a internet inteira, e bots varrem a porta
+  22 do IPv4 todo, o dia todo.</li>
+<li><strong>12–13</strong> — chave pública e privada. É o conceito que também explica o JWT da Aula 3 e o TLS que
+  vem daqui a pouco. Não pule.</li>
+<li><strong>14</strong> — o <code>chmod 600</code>. Diga que o SSH <strong>recusa</strong> usar chave com permissão frouxa, e que é a
+  primeira coisa a conferir quando der <code>Permission denied (publickey)</code>.</li>
+</ul>
+<blockquote>
+<p>⚠️ <strong>Ponto de decisão às 00:51</strong>: se menos da metade conectou por SSH, aplique o plano B2.</p>
+</blockquote>
+<h3 id="0051-ubuntu-1521">00:51 — Ubuntu (15–21)</h3>
+<ul>
+<li><strong>17</strong> — root e permissões. Rápido, mas não pule: a Aula 4 inteira depende disso.</li>
+<li><strong>18</strong> — variável de ambiente. É o conceito que sustenta o <code>env.clear</code>/<code>env.secret</code> do Kamal.</li>
+<li><strong>20</strong> — swap. Explique o OOM killer: numa VM de 1 GiB, Rails + Postgres + build estouram a RAM e
+  o kernel mata o processo que estiver na frente, com uma mensagem que não explica nada.</li>
+<li><strong>21</strong> — endurecer o SSH. <strong>Fale isto em voz alta</strong>: <em>"mantenham a sessão atual aberta e testem em
+  outro terminal. Errar a config do SSH com uma sessão só é o jeito clássico de perder a máquina."</em></li>
+</ul>
+<h3 id="0133-docker-2226">01:33 — Docker (22–26)</h3>
+<p>Conceitual e rápido. Imagem é receita, container é bolo.</p>
+<p>No <strong>25</strong>, as duas decisões: multi-stage (compilador não vai para produção) e usuário não-root (<em>"é
+uma linha que muda o tamanho do estrago"</em>).</p>
+<h3 id="0149-kamal-2735">01:49 — Kamal (27–35)</h3>
+<p>Abra o <code>config/deploy.yml</code> projetado e percorra junto com os slides.</p>
+<p>O slide 31 (<code>clear</code> × <code>secret</code>) tem o argumento concreto: <code>JWT_SECRET</code> no <code>clear</code> apareceria em
+<code>docker inspect</code> e no histórico do shell. Se der, mostre um <code>docker inspect</code> de verdade.</p>
+<p>O <strong>34</strong> (três camadas de segredo) é o slide que amarra tudo. Deixe na tela enquanto explica.</p>
+<h3 id="0215-cicd-e-oidc-3644">02:15 — CI/CD e OIDC (36–44)</h3>
+<p>O bloco mais perigoso do dia.</p>
+<p>Explique a sequência (39) <strong>antes</strong> de mexer no portal, para eles saberem o que estão construindo:
+abre a 22 só para o IP do runner, faz o deploy, e fecha — inclusive se falhar.</p>
+<p>Depois configurem juntos. <strong>Avise antes</strong>: o <em>subject</em> da credencial federada erra na primeira
+tentativa quase sempre.</p>
+<pre><code>repo:SEU-USUARIO/SEU-REPO:ref:refs/heads/main
+</code></pre>
+<p>Se aparecer <code>AADSTS700213</code>, é isso: confira maiúsculas, nome do repositório e branch, caractere por
+caractere.</p>
+<p>E a atribuição de função vai <strong>no NSG</strong>, não na assinatura (44). Insista: se a credencial vazar, o
+estrago se limita a regras de firewall daquela máquina.</p>
+<h3 id="0300-tls-4552">03:00 — TLS (45–52)</h3>
+<ul>
+<li><strong>46–48</strong> — HTTPS é HTTP num túnel; handshake em três passos; certificado e cadeia de confiança.</li>
+<li><strong>51</strong> — os três modos. A frase que fixa: <em>"com <code>Flexible</code>, o cadeado aparece e a senha do usuário
+  trafega em claro no último trecho. É pior que não ter HTTPS, porque mente."</em></li>
+<li><strong>52</strong> — por que não Let's Encrypt: com o DNS proxied, o desafio HTTP-01 não chega.</li>
+</ul>
+<p>Aqui você distribui o certificado Origin CA wildcard que preparou.</p>
+<h3 id="0322-o-primeiro-deploy-5356">03:22 — O primeiro deploy (53–56)</h3>
+<pre><code class="language-bash">GHCR_USER=... AZURE_VM_IP=... APP_HOST=... bundle exec kamal config
+</code></pre>
+<p>Valida sem tocar em nada. <strong>Faça isso antes</strong> — pega variável faltando de graça.</p>
+<p>Depois: <strong>Actions → Deploy (Kamal) → Run workflow → command: <code>setup</code></strong>.</p>
+<p>O <code>setup</code> demora. Use os ~8 minutos para o bloco de backup (56) e para responder pergunta.</p>
+<p>E então, o momento da aula:</p>
+<pre><code class="language-bash">curl https://seunome.capacita.&lt;domínio&gt;/api/v1/status
+</code></pre>
+<h3 id="0352-fecho-5761">03:52 — Fecho (57–61)</h3>
+<p>O slide 60 (<code>O QUE O SEEM-BACKEND TEM A MAIS</code>) é o convite: <em>"nada disso é difícil depois do que
+vocês viram hoje. O código está lá, e agora vocês conseguem ler."</em></p>
+<hr>
+<h2 id="perguntas-que-vao-aparecer">Perguntas que vão aparecer</h2>
+<table>
+<thead>
+<tr>
+<th>Pergunta</th>
+<th>Resposta curta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Por que não Heroku/Render/Vercel? É mais fácil."</td>
+<td>É mesmo, e para muita coisa é a escolha certa. Aqui o objetivo é vocês entenderem o que essas plataformas fazem por vocês — e o custo delas cresce rápido.</td>
+</tr>
+<tr>
+<td>"E se a VM cair?"</td>
+<td>Cai o sistema. É o custo declarado desta arquitetura. Com backup, você sobe outra em 20 min.</td>
+</tr>
+<tr>
+<td>"Por que o banco não é gerenciado?"</td>
+<td>Custo. Um Postgres gerenciado na Azure custa mais que a VM inteira. Para 500 usuários numa semana, não se paga.</td>
+</tr>
+<tr>
+<td>"Preciso pagar pelo domínio?"</td>
+<td>Nesta capacitação não — vocês usam um subdomínio meu. Fora daqui, ~R$15/ano, ou grátis pelo GitHub Student Pack.</td>
+</tr>
+<tr>
+<td>"O crédito da Azure vai acabar?"</td>
+<td>São US$100. Uma B1s ligada 24h custa ~US$8/mês. Dá quase um ano. <strong>Desligue a VM quando não estiver usando.</strong></td>
+</tr>
+<tr>
+<td>"Por que abrir e fechar a porta 22 a cada deploy?"</td>
+<td>Porque o IP do runner muda a cada execução, e deixar a 22 aberta para a internet é o que os bots procuram.</td>
+</tr>
+<tr>
+<td>"Docker Compose não resolveria?"</td>
+<td>Resolve subir os containers, sim. Não resolve build remoto, zero-downtime, rollback nem gestão de segredo. É o que o Kamal adiciona.</td>
+</tr>
+<tr>
+<td>"Posso usar isso num projeto meu?"</td>
+<td>Pode, e é a intenção. Troque o nome do serviço, o domínio e os secrets. O resto é igual.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="depois-da-capacitacao">Depois da capacitação</h2>
+<p>Mande no grupo:</p>
+<ol>
+<li><strong>Desliguem a VM</strong> quando não estiverem usando (<code>Parar</code> no portal — parada, ela não consome
+   crédito de computação).</li>
+<li>O link do <a href="https://github.com/fabriciosiqueira08/seem-backend"><code>seem-backend</code></a>, com o convite do
+   slide 60.</li>
+<li><code>docs/troubleshooting.md</code> — é o que eles vão abrir quando algo quebrar sem você por perto.</li>
+</ol>
+</main></body>
+</html>

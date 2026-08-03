@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Roteiros — índice</title>
+<link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
+<style>@page { @bottom-left { content: "Capacitação Back-end · roteiro do instrutor"; } }</style>
+</head>
+<body><main>
+<h1 id="roteiros-indice-para-quem-apresenta">Roteiros — índice para quem apresenta</h1>
+<p>Um runbook por encontro, com cronograma, o que falar em cada bloco, as demos ao vivo, as perguntas
+que a turma faz e o plano B:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Roteiro</th>
+<th>Slides</th>
+<th>Estimado</th>
+<th>Disponível</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Back-end, Ruby e o primeiro Rails</strong></td>
+<td>62</td>
+<td>3h27</td>
+<td>3h</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Banco, ActiveRecord e o model <code>User</code></strong></td>
+<td>48</td>
+<td>3h20</td>
+<td>3h</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>As rotas de autenticação</strong></td>
+<td>57</td>
+<td>3h30 *</td>
+<td>3h</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>VPS, Docker, Kamal e deploy</strong></td>
+<td>61</td>
+<td>4h02 *</td>
+<td>3h</td>
+</tr>
+</tbody>
+</table>
+<p>* já contando o plano recomendado. Digitando todo o código da Aula 3 seriam ~6h30; fazendo o
+pipeline OIDC completo na Aula 4, ~4h45.</p>
+<hr>
+<h2 id="o-numero-honesto">O número honesto</h2>
+<p><strong>São ~14h de conteúdo em 12h de encontro.</strong> Cada roteiro traz os cortes específicos, em ordem de
+prioridade, e um <strong>ponto de decisão</strong> com relógio: se às tantas horas a turma não estiver em tal
+lugar, faça tal coisa.</p>
+<p>As duas decisões que resolvem a maior parte do problema:</p>
+<ol>
+<li><strong>Aula 3 — não digitem o código.</strong> <code>git checkout aula-03</code> no começo e leitura guiada dos
+   arquivos projetados. A prática vira modificar o que existe. <strong>Economiza ~3h30.</strong></li>
+<li><strong>Aula 4 — prepare o que não ensina.</strong> Registros DNS e um certificado Origin CA wildcard, feitos
+   na véspera. <strong>Economiza ~40 min.</strong> Se ainda assim não couber, o roteiro traz dois planos B.</li>
+</ol>
+<p>Base do cálculo: slide a ~2 min, digitação guiada a ~5 linhas/min, cliques em portal cronometrados
+no percurso real.</p>
+<hr>
+<h2 id="as-marcacoes-nos-slides">As marcações nos slides</h2>
+<table>
+<thead>
+<tr>
+<th>Marca</th>
+<th>Significa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code># CORTÁVEL</code></td>
+<td>Pré-requisito. Corte se a turma já sabe Git, terminal, SQL ou Linux.</td>
+</tr>
+<tr>
+<td><code># EXTRA</code></td>
+<td>Conceito de fundo (rede, TLS, XSS…). O exercício funciona sem ele — mas é o que separa "copiei" de "entendi".</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">grep -n &quot;CORTÁVEL\|EXTRA&quot; slides/conteudo/aula-0*.yml
+</code></pre>
+<p>Cortar todos os <code># EXTRA</code> devolve ~45 slides, uns 90 minutos no total das quatro aulas.
+<strong>A recomendação é o contrário</strong>: mantenha os <code># EXTRA</code> e economize no código, com a decisão 1 acima.</p>
+<hr>
+<h2 id="regra-geral-para-o-dia">Regra geral para o dia</h2>
+<blockquote>
+<p>Quando atrasar, corte <strong>conteúdo</strong>, nunca <strong>prática</strong>. Uma turma que viu 40 slides e fez a coisa
+funcionar aprendeu mais que uma que viu 60 e foi embora com o erro na tela.</p>
+</blockquote>
+</main></body>
+</html>

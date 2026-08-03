@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Aula 3 — As rotas de autenticação</title>
+<link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
+<style>@page { @bottom-left { content: "Capacitação Back-end · Automic Jr."; } }</style>
+</head>
+<body><main>
+<h1 id="aula-3-as-rotas-de-autenticacao">Aula 3 — As rotas de autenticação</h1>
+<p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: cadastro, ativação, login, logout e recuperação de senha.
+<strong>Checkpoint</strong>: <code>git checkout aula-03</code></p>
+<hr>
+<h2 id="1-o-caminho-de-uma-requisicao">1. O caminho de uma requisição</h2>
+<pre><code>requisição → rota → controller → service → model → banco
+                        ↓
+                   serializer → JSON
+</code></pre>
+<p>Nesta aula todas essas peças aparecem. A regra que organiza tudo:</p>
+<blockquote>
+<p><strong>Controller recebe requisição e devolve resposta. Regra de negócio não mora nele.</strong></p>
+</blockquote>
+<hr>
+<h2 id="2-a-arquitetura-de-pastas">2. A arquitetura de pastas</h2>
+<pre><code>app/controllers/
+├── application_controller.rb
+├── concerns/api/v1/
+│   ├── authentication.rb      # quem está chamando?
+│   └── error_rendering.rb     # um formato de erro só
+└── api/v1/
+    ├── base_controller.rb     # pai de todos: erros, auth, strong params
+    ├── registrations_controller.rb
+    ├── email_verifications_controller.rb
+    ├── sessions_controller.rb
+    ├── password_resets_controller.rb
+    └── me_controller.rb
+
+app/services/                  # os casos de uso
+├── auth/
+└── users/
+
+app/serializers/               # o que vai para o JSON
+</code></pre>
+<h3 id="por-que-service-object">Por que service object</h3>
+<p>O <code>Users::Register</code> faz seis coisas: valida campos obrigatórios, aplica a política de senha, confere
+a confirmação, normaliza os dados, cria o usuário e dispara o e-mail. Dentro do controller isso vira
+um método de 60 linhas que só dá para testar subindo uma requisição HTTP inteira.</p>
+<p>Fora dele:</p>
+<pre><code class="language-ruby">result = Users::Register.call(name: &quot;...&quot;, email: &quot;...&quot;, ...)
+result.success?   # true/false
+result.user
+result.errors     # [{ field: &quot;password&quot;, message: &quot;...&quot; }]
+</code></pre>
+<p>Testável direto, reaproveitável (uma task de importação chama o mesmo service) e o controller volta
+a ter cinco linhas. O padrão sempre igual: <strong>um <code>call</code> de classe, um <code>Result</code></strong>.</p>
+<h3 id="por-que-serializer">Por que serializer</h3>
+<pre><code class="language-ruby">render json: user
+</code></pre>
+<p>Isso manda o objeto inteiro: <code>password_digest</code>, <code>email_verification_code_digest</code>,
+<code>password_reset_code_digest</code>. Vazamento em uma linha.</p>
+<p>O serializer é a lista de convidados: só entra quem está escrito lá.</p>
+<pre><code class="language-ruby">class UserSerializer
+  def self.as_json(user)
+    { id: user.id, name: user.name, email: user.email, ... }
+  end
+end
+</code></pre>
+<h3 id="um-formato-de-erro-so">Um formato de erro só</h3>
+<pre><code class="language-json">{
+  &quot;error&quot;: {
+    &quot;code&quot;: &quot;validation_failed&quot;,
+    &quot;message&quot;: &quot;Falha na validação&quot;,
+    &quot;details&quot;: [{ &quot;field&quot;: &quot;password&quot;, &quot;message&quot;: &quot;deve incluir pelo menos um dígito&quot; }]
+  }
+}
+</code></pre>
+<ul>
+<li><strong><code>code</code></strong> é estável — o cliente decide o que fazer com base nele.</li>
+<li><strong><code>message</code></strong> é para o usuário ler. Pode mudar, pode ser traduzida.</li>
+<li><strong><code>details</code></strong> diz qual campo falhou, para o app pintar o input de vermelho.</li>
+</ul>
+<p>Uma API que devolve erro de três jeitos diferentes força o cliente a tratar os três.</p>
+<h3 id="before_action-o-filtro"><code>before_action</code>: o filtro</h3>
+<pre><code class="language-ruby">class MeController &lt; BaseController
+  before_action :authenticate_user!
+
+  def show
+    render_user(current_user)   # só roda se passou pelo filtro
+  end
+end
+</code></pre>
+<p>O filtro roda <strong>antes</strong> da action. Se ele renderizar alguma coisa — o <code>401</code> — a action nem chega a
+ser chamada. <code>only:</code> e <code>except:</code> limitam a quais actions ele se aplica:</p>
+<pre><code class="language-ruby">before_action :authenticate_user!, only: :destroy
+</code></pre>
+<h3 id="a-pilha-de-middleware">A pilha de middleware</h3>
+<p>A requisição não cai direto no controller. Ela atravessa uma pilha de camadas — o <strong>middleware</strong>.
+Cada camada pode ler, alterar, ou responder e cortar o caminho ali mesmo.</p>
+<pre><code>requisição
+   ↓
+[ Rack::Cors ]                 ← libera (ou não) a origem
+[ ActionDispatch::Cookies ]
+[ ... ]
+   ↓
+rota → before_action → controller → service → model
+   ↓
+serializer → JSON → resposta (voltando pela mesma pilha)
+</code></pre>
+<pre><code class="language-bash">bin/rails middleware      # lista a pilha inteira do seu app
+</code></pre>
+<p>O modo <code>--api</code> remove várias camadas. Trouxemos os cookies de volta na mão, em
+<code>config/application.rb</code>:</p>
+<pre><code class="language-ruby">config.middleware.use ActionDispatch::Cookies
+</code></pre>
+<h3 id="strong-parameters">Strong parameters</h3>
+<pre><code class="language-ruby">def registration_params
+  expect_root_params(:name, :email, :password, :confirm_password,
+                     :course, :matricula, :check_terms_use)
+end
+</code></pre>
+<p><code>params.expect</code> (Rails 8) <strong>exige</strong> essas chaves e <strong>recusa o resto</strong>. Sem isso alguém manda
+<code>"role": "admin"</code> no cadastro e vira admin. O nome disso é <strong>mass assignment</strong>, e já derrubou
+sistema grande.</p>
+<hr>
+<h2 id="3-rota-1-cadastro">3. Rota 1 — Cadastro</h2>
+<pre><code>POST /api/v1/registrations
+</code></pre>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Diego Reis&quot;,
+  &quot;email&quot;: &quot;diego@aluno.ufop.edu.br&quot;,
+  &quot;password&quot;: &quot;Automic@2026&quot;,
+  &quot;confirm_password&quot;: &quot;Automic@2026&quot;,
+  &quot;course&quot;: &quot;Engenharia de Minas&quot;,
+  &quot;matricula&quot;: &quot;2013333&quot;,
+  &quot;check_terms_use&quot;: true
+}
+</code></pre>
+<p>→ <code>201 Created</code> com o usuário e um e-mail de ativação a caminho.</p>
+<h3 id="a-decisao-que-nao-e-obvia">A decisão que não é óbvia</h3>
+<pre><code class="language-ruby">REGISTRATION_FAILED_MESSAGE =
+  &quot;Não foi possível concluir o cadastro. Verifique os dados e tente novamente.&quot;
+</code></pre>
+<p>Quando o e-mail já existe, a resposta <strong>não</strong> diz "este e-mail já está cadastrado". Se dissesse, o
+cadastro viraria um verificador: eu testo mil e-mails e descubro quem tem conta no sistema.
+Chama-se <strong>enumeração de usuários</strong>, e vai voltar duas vezes nesta aula.</p>
+<p>O custo é real: o usuário legítimo que esqueceu que já tem conta fica sem uma mensagem clara. A
+saída é o texto convidar a usar "esqueci minha senha".</p>
+<hr>
+<h2 id="4-e-mail-o-mailer">4. E-mail: o mailer</h2>
+<p>Um mailer é um controller cujas views são e-mails.</p>
+<pre><code class="language-ruby">class UserMailer &lt; ApplicationMailer
+  def email_verification(user, code)
+    @user = user
+    @code = code
+    mail(to: @user.email, subject: &quot;Ative sua conta&quot;)
+  end
+end
+</code></pre>
+<p>O template fica em <code>app/views/user_mailer/email_verification.text.erb</code>.</p>
+<p><strong>Em desenvolvimento não existe SMTP.</strong> O <code>letter_opener</code> abre o e-mail no navegador:</p>
+<pre><code class="language-ruby">config.action_mailer.delivery_method = :letter_opener
+</code></pre>
+<h3 id="deliver_now-e-nao-deliver_later"><code>deliver_now</code> e não <code>deliver_later</code></h3>
+<pre><code class="language-ruby">UserMailer.email_verification(user, code).deliver_now
+</code></pre>
+<p>O jeito "certo" de livro seria <code>deliver_later</code>, jogando numa fila. Aqui não, e o motivo é o código:
+numa fila, o código de 6 dígitos ficaria <strong>gravado em texto</strong> na tabela de jobs.</p>
+<p>O preço é a requisição esperar o SMTP. Por isso o service tem <code>rescue</code>: falha de envio não pode
+virar 500.</p>
+<pre><code class="language-ruby">rescue StandardError =&gt; e
+  Rails.error.report(e, handled: true, source: &quot;SendEmailVerification&quot;)
+  Result.new(success?: false, error_code: &quot;delivery_failed&quot;, ...)
+end
+</code></pre>
+<hr>
+<h2 id="5-ativacao-da-conta">5. Ativação da conta</h2>
+<pre><code>POST /api/v1/email_verifications/confirm   { email, code }
+POST /api/v1/email_verifications/resend    { email }
+</code></pre>
+<p>O <code>resend</code> <strong>sempre</strong> responde 200 com a mesma mensagem — conta inexistente, já verificada ou em
+cooldown são indistinguíveis. É a mesma regra do cadastro.</p>
+<hr>
+<h2 id="6-o-problema-http-nao-tem-memoria">6. O problema: HTTP não tem memória</h2>
+<p>Lembra da Aula 1? Cada requisição começa do zero. Então como o servidor sabe que você já entrou?</p>
+<p>Duas famílias de resposta:</p>
+<table>
+<thead>
+<tr>
+<th>Sessão no servidor</th>
+<th>Token</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O servidor guarda a sessão e manda um id no cookie</td>
+<td>O servidor manda um crachá assinado e não guarda nada</td>
+</tr>
+<tr>
+<td>Toda requisição consulta o armazenamento de sessão</td>
+<td>A assinatura basta: só validar</td>
+</tr>
+<tr>
+<td>Logout é apagar a sessão — imediato</td>
+<td>Logout é o problema difícil (já chegamos lá)</td>
+</tr>
+<tr>
+<td>Escalar exige sessão compartilhada entre servidores</td>
+<td>Qualquer servidor valida sozinho</td>
+</tr>
+</tbody>
+</table>
+<p>Escolhemos <strong>token</strong>, porque o cliente principal é um app nativo — que não tem cookie e roda em
+milhares de celulares.</p>
+<h3 id="jwt">JWT</h3>
+<pre><code>eyJhbGciOiJIUzI1NiJ9 . eyJzdWIiOjIsInZlciI6MH0 . 4pQ8L_5f...
+   cabeçalho              payload                  assinatura
+</code></pre>
+<p>Três partes em <strong>Base64</strong>, separadas por ponto.</p>
+<blockquote>
+<p><strong>Base64 não é segredo.</strong> É uma forma de escrever bytes usando só letras e números, para caber
+num cabeçalho HTTP — que é texto. Não tem chave, não tem criptografia, qualquer um desfaz:</p>
+<p><code>bash
+echo eyJzdWIiOjJ9 | base64 -d      # {"sub":2}</code></p>
+<p>Aquele monte de caractere embaralhado do JWT é isso: texto disfarçado.</p>
+<p><strong>O payload é público.</strong> Cole um token em <a href="https://jwt.io">jwt.io</a> e você lê tudo. A assinatura
+garante que ninguém <strong>alterou</strong> o conteúdo, não que ninguém <strong>leu</strong>. Nunca ponha no payload nada
+que não possa ser lido — nem CPF, nem e-mail, nem permissão sensível.</p>
+</blockquote>
+<p>O nosso payload:</p>
+<pre><code class="language-ruby">{
+  sub: user.id,                  # subject: de quem é o token
+  ver: user.token_version,       # versão das sessões
+  jti: SecureRandom.uuid,        # id único deste token
+  exp: 24.hours.from_now.to_i,   # expiração
+  iat: Time.current.to_i         # emitido em
+}
+</code></pre>
+<h3 id="o-detalhe-que-quebra-tudo">O detalhe que quebra tudo</h3>
+<pre><code class="language-ruby">JWT.decode(token, secret, true, { algorithm: &quot;HS256&quot; })
+#                        ^^^^
+</code></pre>
+<p>Esse <code>true</code> é a validação da assinatura. Com <code>false</code>, o <code>JWT.decode</code> aceita <strong>qualquer</strong> token — e
+qualquer pessoa forja o próprio acesso trocando o <code>sub</code>. Já foi CVE em várias bibliotecas.</p>
+<p>O teste que prova isso está em <code>me_controller_test.rb</code>:</p>
+<pre><code class="language-ruby">test &quot;recusa token assinado com outro segredo&quot; do
+  forjado = JWT.encode({ sub: users(:ana).id, ... }, &quot;segredo-do-atacante&quot;, &quot;HS256&quot;)
+  get &quot;/api/v1/me&quot;, headers: auth_headers(forjado)
+  assert_response :unauthorized
+end
+</code></pre>
+<hr>
+<h2 id="7-rota-2-login">7. Rota 2 — Login</h2>
+<pre><code>POST /api/v1/sessions   { email, password, client }
+</code></pre>
+<p><code>client</code> é <code>"mobile"</code> ou <code>"web"</code>, e decide <strong>como</strong> o token é entregue:</p>
+<table>
+<thead>
+<tr>
+<th>Cliente</th>
+<th>Transporte</th>
+<th>Por quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mobile</code></td>
+<td>cabeçalho <code>Authorization: Bearer &lt;token&gt;</code></td>
+<td>App nativo não tem cookie</td>
+</tr>
+<tr>
+<td><code>web</code></td>
+<td>cookie assinado e <code>httpOnly</code></td>
+<td>JavaScript não lê o cookie, então um XSS não rouba o token</td>
+</tr>
+</tbody>
+</table>
+<h3 id="o-que-e-um-cookie">O que é um cookie</h3>
+<p>Um par <code>nome=valor</code> que o servidor manda no cabeçalho <code>Set-Cookie</code>. O navegador guarda e
+<strong>reenvia sozinho</strong>, em toda requisição àquele site. É a memória que o HTTP não tem, colada por
+fora.</p>
+<p>Quem faz esse trabalho é o navegador — o app nativo não participa disso. Por isso o <code>client</code>.</p>
+<pre><code class="language-ruby">cookies.signed[AUTH_COOKIE] = {
+  value: token,
+  httponly: true,                  # JavaScript não enxerga
+  secure: Rails.env.production?,   # só trafega em HTTPS
+  same_site: :lax                  # mitiga CSRF
+}
+</code></pre>
+<p><code>signed</code> significa que o Rails carimba o valor: alterou na mão, o Rails recusa.</p>
+<h3 id="xss">XSS</h3>
+<p><em>Cross-Site Scripting</em>: o atacante consegue rodar <strong>JavaScript dentro da sua página</strong>. Como? Você
+exibiu texto de usuário sem escapar — alguém salvou <code>&lt;script&gt;...&lt;/script&gt;</code> como nome e a sua página
+imprimiu cru.</p>
+<p>Com JavaScript rodando ali, ele lê tudo que o JavaScript lê. É exatamente por isso que <code>httponly</code>
+existe: o token no cookie fica <strong>fora do alcance</strong> do JavaScript, e um XSS não o rouba.</p>
+<h3 id="csrf">CSRF</h3>
+<p><em>Cross-Site Request Forgery</em>. Lembra que o navegador reenvia o cookie sozinho?</p>
+<p>Um site malicioso monta um formulário apontando para a sua API. A vítima clica; o navegador anexa
+o cookie dela; a sua API obedece, achando que foi ela quem pediu.</p>
+<p><code>same_site: :lax</code> manda o navegador <strong>não enviar o cookie</strong> quando a requisição parte de outro site.</p>
+<blockquote>
+<p>API com token no cabeçalho não sofre de CSRF: ninguém anexa o <code>Authorization</code> por você. O
+problema é exclusivo de quem autentica por cookie — ou seja, do nosso <code>client: "web"</code>.</p>
+</blockquote>
+<h3 id="401-403">401 × 403</h3>
+<pre><code class="language-ruby">when &quot;email_unverified&quot;
+  status: :forbidden      # 403: sabemos quem é você, mas ainda não pode
+else
+  status: :unauthorized   # 401: não sabemos quem é você
+end
+</code></pre>
+<h3 id="a-mesma-mensagem-para-os-dois-erros">A mesma mensagem para os dois erros</h3>
+<p>E-mail inexistente e senha errada devolvem <strong><code>invalid_credentials</code></strong>, o mesmo código e a mesma
+mensagem. Terceira vez que a enumeração aparece.</p>
+<p>E lembra do <code>DUMMY_PASSWORD_DIGEST</code> da Aula 2? Ele fecha o buraco pelo lado do <strong>tempo</strong>: não
+adianta a mensagem ser igual se a resposta volta em 1ms quando o e-mail não existe e em 100ms
+quando existe.</p>
+<hr>
+<h2 id="8-rota-3-logout-o-problema-dificil">8. Rota 3 — Logout, o problema difícil</h2>
+<p>Um JWT é válido até expirar. O servidor não guarda sessão. <strong>Então "sair" não existe</strong> —
+o token continua funcionando por até 24h.</p>
+<p>Três respostas possíveis, e nós usamos duas:</p>
+<h3 id="a-apagar-no-cliente">a) Apagar no cliente</h3>
+<p>O app joga o token fora. Resolve o caso normal e <strong>não resolve nada</strong> se alguém copiou o token.</p>
+<h3 id="b-denylist-por-jti-revoga-aquele-token">b) Denylist por <code>jti</code> — revoga aquele token</h3>
+<pre><code class="language-ruby">module Auth::TokenDenylist
+  def revoke(payload)
+    jti = payload[:jti]
+    ttl = payload[:exp].to_i - Time.current.to_i
+    return false if jti.blank? || ttl &lt;= 0
+
+    Rails.cache.write(key(jti), true, expires_in: ttl.seconds)
+  end
+
+  def revoked?(jti)
+    Rails.cache.exist?(key(jti))
+  end
+end
+</code></pre>
+<p>A sacada está no <strong>TTL</strong>: cada entrada vive exatamente o tempo que faltava para o token expirar.
+Depois disso o token morre sozinho e a entrada não serve mais. <strong>A lista se limpa sem varredura e
+sem lixo acumulado.</strong></p>
+<p>Isso revoga <strong>um</strong> token. Logout no celular não derruba o notebook — que é o comportamento certo.</p>
+<h3 id="c-token_version-derruba-tudo-de-uma-vez">c) <code>token_version</code> — derruba tudo de uma vez</h3>
+<pre><code class="language-ruby">def token_version_matches?(submitted_version)
+  token_version == submitted_version.to_i
+end
+
+def invalidate_sessions!
+  update!(token_version: token_version + 1)
+end
+</code></pre>
+<p>O token carrega o <code>ver</code> de quando foi emitido. Incrementar a coluna no banco invalida <strong>todos</strong> os
+tokens do usuário, em todos os dispositivos. Usamos isso na troca de senha.</p>
+<h3 id="a-verificacao-completa">A verificação completa</h3>
+<pre><code class="language-ruby">def user_from_token(token)
+  payload = Auth::DecodeToken.call(token)          # 1. a assinatura confere?
+  return if Auth::TokenDenylist.revoked?(payload[:jti])  # 2. foi revogado?
+
+  user = User.find_by(id: payload[:sub])
+  user if user&amp;.token_version_matches?(payload[:ver])    # 3. a versão bate?
+rescue Auth::DecodeToken::InvalidToken
+  nil
+end
+</code></pre>
+<hr>
+<h2 id="9-rota-4-recuperacao-de-senha">9. Rota 4 — Recuperação de senha</h2>
+<p>Dois passos, e o mais interessante do dia.</p>
+<pre><code>POST /api/v1/password_resets/request   { email }
+POST /api/v1/password_resets/confirm   { email, code, password, confirm_password }
+</code></pre>
+<h3 id="request-sempre-responde-200"><code>request</code> sempre responde 200</h3>
+<pre><code class="language-ruby">GENERIC_MESSAGE = &quot;Se o e-mail estiver cadastrado, enviamos um código para redefinir sua senha.&quot;
+</code></pre>
+<p><strong>Sempre.</strong> E-mail inexistente, não verificado, em cooldown, SMTP fora do ar — mesma resposta,
+mesmo status. Se respondesse 404 para e-mail inexistente, esta rota pública viraria um verificador
+de cadastro. É a quarta vez que o assunto aparece: <strong>em fluxo de autenticação, respostas diferentes
+vazam informação.</strong></p>
+<p>Duas guardas dentro:</p>
+<ul>
+<li><strong>Só conta verificada</strong> recebe código. Senão dá para sequestrar um cadastro feito com o e-mail de
+  outra pessoa antes de ela confirmar.</li>
+<li><strong>Cooldown de 1 minuto</strong>, senão qualquer um usa o seu servidor de e-mail para incomodar terceiros.</li>
+</ul>
+<h3 id="confirm-e-a-transacao"><code>confirm</code> e a transação</h3>
+<pre><code class="language-ruby">User.transaction do
+  user.save!                  # troca a senha
+  user.invalidate_sessions!   # derruba todas as sessões ativas
+  user.clear_password_reset_code!  # consome o código
+end
+</code></pre>
+<p>As três juntas ou nenhuma. Sem a transação, uma falha no meio deixa a senha trocada com o código
+ainda valendo.</p>
+<p>E a ordem das validações importa: a política de senha é conferida <strong>antes</strong> de consumir o código.
+Senão o usuário que digita a senha nova errada perde o código e precisa pedir outro.</p>
+<blockquote>
+<p><strong><code>invalidate_sessions!</code> é o ponto do fluxo inteiro.</strong> Se alguém invadiu a conta, trocar a senha
+tem que expulsar o invasor. Sem essa linha, ele continua logado com o token antigo.</p>
+</blockquote>
+<hr>
+<h2 id="10-testando">10. Testando</h2>
+<pre><code class="language-bash">bin/rails test
+</code></pre>
+<p>O teste que resume a aula:</p>
+<pre><code class="language-ruby">test &quot;logout revoga o token apresentado&quot; do
+  token = login_as(users(:ana))
+
+  get &quot;/api/v1/me&quot;, headers: auth_headers(token)
+  assert_response :ok
+
+  delete &quot;/api/v1/sessions&quot;, headers: auth_headers(token)
+
+  get &quot;/api/v1/me&quot;, headers: auth_headers(token)
+  assert_response :unauthorized       # sem a denylist, isto daria 200
+end
+</code></pre>
+<blockquote>
+<p><strong>Pegadinha</strong>: em teste o <code>Rails.cache</code> padrão é o <code>null_store</code> — não guarda nada. O teste acima
+passaria "de graça", provando nada. Por isso o <code>test_helper.rb</code> troca por um <code>MemoryStore</code>.</p>
+</blockquote>
+<h3 id="as-ferramentas-de-qualidade">As ferramentas de qualidade</h3>
+<pre><code class="language-bash">bin/rubocop     # estilo — o black/ruff do Ruby
+bin/brakeman    # análise estática de segurança
+bundle exec bundler-audit check --update   # gems com CVE conhecido
+</code></pre>
+<p>As três rodam no CI (Aula 4). O <code>brakeman</code> procura SQL injection, mass assignment, redirect aberto
+e mais uma dúzia de padrões.</p>
+<hr>
+<h2 id="11-cors">11. CORS</h2>
+<pre><code class="language-ruby">origins(ENV.fetch(&quot;CORS_ORIGINS&quot;, &quot;http://localhost:5173&quot;).split(&quot;,&quot;))
+</code></pre>
+<p>O navegador bloqueia, por padrão, uma página em <code>painel.exemplo.com</code> chamar <code>api.exemplo.com</code>. Esta
+config é a API dizendo quais origens aceita.</p>
+<p><strong>O app nativo não passa por CORS</strong> — isso é regra de navegador. Na prática, essa configuração
+existe por causa do painel web.</p>
+<hr>
+<h2 id="12-o-fluxo-inteiro-no-terminal">12. O fluxo inteiro, no terminal</h2>
+<pre><code class="language-bash">API=localhost:3000/api/v1
+
+# cadastro
+curl -X POST $API/registrations -H 'Content-Type: application/json' -d '{
+  &quot;name&quot;:&quot;Diego Reis&quot;,&quot;email&quot;:&quot;diego@aluno.ufop.edu.br&quot;,
+  &quot;password&quot;:&quot;Automic@2026&quot;,&quot;confirm_password&quot;:&quot;Automic@2026&quot;,
+  &quot;course&quot;:&quot;Engenharia de Minas&quot;,&quot;matricula&quot;:&quot;2013333&quot;,&quot;check_terms_use&quot;:true}'
+
+# login antes de confirmar → 403 email_unverified
+curl -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d '{&quot;email&quot;:&quot;diego@aluno.ufop.edu.br&quot;,&quot;password&quot;:&quot;Automic@2026&quot;,&quot;client&quot;:&quot;mobile&quot;}'
+
+# pegue o código no e-mail que abriu no navegador, e confirme
+curl -X POST $API/email_verifications/confirm -H 'Content-Type: application/json' \
+  -d '{&quot;email&quot;:&quot;diego@aluno.ufop.edu.br&quot;,&quot;code&quot;:&quot;123456&quot;}'
+
+# login (o token vem no cabeçalho Authorization da resposta)
+curl -i -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d '{&quot;email&quot;:&quot;diego@aluno.ufop.edu.br&quot;,&quot;password&quot;:&quot;Automic@2026&quot;,&quot;client&quot;:&quot;mobile&quot;}'
+
+TOKEN=cole-o-token-aqui
+curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;          # 200
+curl -X DELETE $API/sessions -H &quot;Authorization: Bearer $TOKEN&quot;
+curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;          # 401
+</code></pre>
+<hr>
+<h2 id="exercicio-da-aula">Exercício da aula</h2>
+<ol>
+<li>Monte as cinco rotas.</li>
+<li>No Insomnia, crie uma coleção com uma requisição para cada uma.</li>
+<li>Percorra o fluxo inteiro: cadastro → e-mail → confirmação → login → <code>/me</code> → logout → <code>/me</code> (401).</li>
+<li>Peça recuperação de senha, troque a senha e confira que <strong>o token antigo parou de funcionar</strong>.</li>
+<li>Cole o seu token em <a href="https://jwt.io">jwt.io</a> e leia o payload. Ache o <code>sub</code>, o <code>jti</code> e o <code>exp</code>.</li>
+<li>Rode <code>bin/rails test</code>, <code>bin/rubocop</code> e <code>bin/brakeman</code>.</li>
+</ol>
+<p><strong>Bônus 1</strong>: crie <code>PATCH /api/v1/me</code> para o usuário editar o próprio <code>name</code> — e só o <code>name</code>.</p>
+<p><strong>Bônus 2</strong>: descubra o que acontece se você trocar o <code>true</code> do <code>JWT.decode</code> por <code>false</code> e chamar
+<code>/me</code> com um token forjado. Depois desfaça.</p>
+<p>Travou? <code>git checkout aula-03</code>.</p>
+<hr>
+<h2 id="recapitulando">Recapitulando</h2>
+<ul>
+<li>Controller recebe e responde; a regra mora no service.</li>
+<li>Serializer é a lista de convidados do JSON — sem ele o digest vaza.</li>
+<li>O payload do JWT é público. Assinado ≠ criptografado.</li>
+<li>Logout de verdade precisa de denylist por <code>jti</code>; o TTL faz a limpeza sozinho.</li>
+<li><code>token_version</code> derruba tudo de uma vez, e é o que a troca de senha usa.</li>
+<li>Em autenticação, respostas diferentes vazam informação. Uma resposta só, sempre.</li>
+</ul>
+<p><strong>Na próxima</strong>: nada disso serve se está só na sua máquina. Vamos colocar no ar.</p>
+</main></body>
+</html>
