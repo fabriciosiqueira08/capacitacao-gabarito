@@ -1,7 +1,7 @@
 # Aula 1 — O que é back-end, Ruby e o primeiro Rails
 
 **Duração**: ~3h · **Você sai daqui com**: uma API respondendo `GET /api/v1/status`.
-**Checkpoint**: `git checkout aula-01`
+**Gabarito**: `cd ~/capacitacao-gabarito && git checkout aula-01`
 
 Pré-requisitos instalados em [`00-preparacao.md`](00-preparacao.md).
 
@@ -561,18 +561,163 @@ bin/rails test
 
 ## Exercício da aula
 
-1. Crie o projeto com `rails new`.
-2. Suba o Postgres com `docker compose up -d`.
-3. Rode `bin/rails server` e abra `http://localhost:3000/up`.
-4. Crie a rota `GET /api/v1/status`.
-5. Chame ela no Insomnia e confira o status `200`.
-6. Rode `bin/rails routes` e ache a sua rota na lista.
-7. Escreva o teste e rode `bin/rails test`.
+> **Onde você trabalha**: no **seu** projeto, que você cria no passo 1. O repositório da
+> capacitação é o **gabarito** — abra para consultar, não para escrever.
 
-**Bônus**: faça a rota devolver também a versão do Ruby (`RUBY_VERSION`) e do Rails
-(`Rails.version`).
+### 1. Crie o seu projeto
 
-Travou? `git checkout aula-01` e você continua de um estado que funciona.
+```bash
+cd ~
+rails new automic_auth_api --api -d postgresql \
+  --skip-action-mailbox --skip-action-text --skip-active-storage \
+  --skip-jbuilder --skip-action-cable
+cd automic_auth_api
+```
+
+### 2. Publique no seu GitHub
+
+Não é opcional: na Aula 4, o deploy automático precisa de um repositório **seu**.
+
+```bash
+git add -A && git commit -m "Projeto inicial"
+gh repo create automic_auth_api --private --source=. --push
+```
+
+Sem o `gh` instalado, crie o repositório pelo site e depois:
+
+```bash
+git remote add origin git@github.com:SEU-USUARIO/automic_auth_api.git
+git push -u origin main
+```
+
+### 3. Suba o banco
+
+Crie um arquivo `compose.yaml` na raiz do projeto:
+
+```yaml
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: automic
+      POSTGRES_PASSWORD: automic
+      POSTGRES_DB: automic_auth_api_development
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U automic"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:
+```
+
+E em `config/database.yml`, dentro do bloco `default: &default`, acrescente:
+
+```yaml
+  host: <%= ENV.fetch("DB_HOST", "localhost") %>
+  port: <%= ENV.fetch("DB_PORT", 5432) %>
+  username: <%= ENV.fetch("DB_USER", "automic") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "automic") %>
+```
+
+```bash
+docker compose up -d
+docker compose ps          # tem que aparecer "healthy"
+```
+
+> `address already in use`? Você já tem um Postgres na 5432. Rode
+> `DB_PORT=5433 docker compose up -d` e `export DB_PORT=5433` no shell.
+
+### 4. Suba a aplicação
+
+```bash
+bin/rails db:prepare
+bin/rails server
+```
+
+Abra `http://localhost:3000/up`. Verde é a aplicação de pé.
+
+### 5. Escreva a rota
+
+Em `config/routes.rb`, dentro do `Rails.application.routes.draw do`:
+
+```ruby
+namespace :api do
+  namespace :v1 do
+    get "status", to: "status#show"
+  end
+end
+```
+
+Crie o arquivo `app/controllers/api/v1/status_controller.rb` — **o caminho tem que ser exatamente
+esse**, é o Zeitwerk:
+
+```ruby
+module Api
+  module V1
+    class StatusController < ApplicationController
+      def show
+        render json: {
+          status: "ok",
+          service: "automic-auth-api",
+          environment: Rails.env
+        }
+      end
+    end
+  end
+end
+```
+
+### 6. Confira
+
+```bash
+bin/rails routes -g api        # a sua rota tem que aparecer
+curl localhost:3000/api/v1/status
+```
+
+Depois monte a mesma requisição no Insomnia e confira o `200`.
+
+### 7. Escreva o teste
+
+Crie `test/controllers/api/v1/status_controller_test.rb`:
+
+```ruby
+require "test_helper"
+
+class Api::V1::StatusControllerTest < ActionDispatch::IntegrationTest
+  test "responde ok" do
+    get "/api/v1/status"
+
+    assert_response :ok
+    assert_equal "ok", response.parsed_body["status"]
+  end
+end
+```
+
+```bash
+bin/rails test
+```
+
+### 8. Commit
+
+```bash
+git add -A && git commit -m "Rota de status" && git push
+```
+
+---
+
+**Bônus**: faça a rota devolver também `RUBY_VERSION` e `Rails.version`.
+
+**Travou?** Abra o mesmo arquivo no gabarito, entenda o que está diferente, e conserte o seu:
+
+```bash
+cd ~/capacitacao-gabarito && git checkout aula-01
+cat app/controllers/api/v1/status_controller.rb
+```
 
 ---
 

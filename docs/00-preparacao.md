@@ -153,6 +153,27 @@ Crie em [github.com](https://github.com) se ainda não tem. Depois **ative o Git
 em [education.github.com](https://education.github.com/pack) com seu e-mail `@aluno.ufop.edu.br` —
 a aprovação pode levar alguns dias, e você ganha créditos e ferramentas de graça.
 
+Instale o **GitHub CLI**, que na Aula 1 publica o seu projeto num comando e na Aula 4 cadastra os
+segredos do deploy:
+
+```bash
+# Ubuntu / WSL2
+sudo apt install -y gh
+# macOS
+brew install gh
+
+gh auth login          # escolha GitHub.com → HTTPS → login pelo navegador
+gh auth status         # tem que dizer "Logged in to github.com"
+```
+
+Configure também o acesso por SSH ao GitHub, se ainda não tem:
+
+```bash
+ssh-keygen -t ed25519 -C "seu@email.com"     # Enter em tudo
+gh ssh-key add ~/.ssh/id_ed25519.pub --title "meu-notebook"
+ssh -T git@github.com                        # tem que cumprimentar você pelo nome
+```
+
 ### Azure for Students — **faça isso com antecedência**
 
 Na Aula 4 cada um vai subir a própria máquina virtual na nuvem. Usaremos o
@@ -173,11 +194,31 @@ de crédito**, mediante e-mail institucional.
 Cole os quatro comandos no terminal. Se todos responderem, você está pronto:
 
 ```bash
-ruby -v      # ruby 3.4.9
-rails -v     # Rails 8.1.3
-docker -v    # Docker version 2x.x.x
+ruby -v          # ruby 3.4.9
+rails -v         # Rails 8.1.3
+docker -v        # Docker version 2x.x.x
 git --version
+gh auth status   # Logged in to github.com
 ```
+
+## Como a capacitação funciona
+
+Você vai trabalhar em **dois diretórios**:
+
+```
+~/capacitacao-gabarito/    ← o repositório da capacitação. Só leitura.
+~/automic_auth_api/        ← o SEU projeto. Criado na Aula 1, é onde você escreve.
+```
+
+Clone o gabarito já:
+
+```bash
+git clone <url-do-repositório> ~/capacitacao-gabarito
+```
+
+O seu projeto você cria no primeiro encontro, com o passo a passo de
+[`01-fundamentos.md`](01-fundamentos.md). Ele precisa ficar no **seu** GitHub: na Aula 4, a
+credencial que autoriza o deploy é emitida para `repo:SEU-USUARIO/SEU-REPO`.
 
 ---
 
