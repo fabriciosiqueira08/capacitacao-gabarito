@@ -1,0 +1,38 @@
+# Em desenvolvimento e teste o banco é o container do compose.yaml.
+# Em produção, o Postgres roda como accessory do Kamal, na VM (ver config/deploy.yml).
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("DB_HOST", "localhost") %>
+  # Já tem um Postgres instalado ocupando a 5432? Suba o container em outra
+  # porta (DB_PORT no .env do compose) e exporte a mesma aqui.
+  port: <%= ENV.fetch("DB_PORT", 5432) %>
+  username: <%= ENV.fetch("DB_USER", "automic") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "automic") %>
+
+development:
+  <<: *default
+  database: automic_auth_api_development
+
+test:
+  <<: *default
+  database: automic_auth_api_test
+
+production:
+  primary: &primary_production
+    <<: *default
+    database: automic_auth_api_production
+    username: automic_auth_api
+    password: <%= ENV["AUTOMIC_AUTH_API_DATABASE_PASSWORD"] %>
+  # O Solid Cache guarda a denylist de tokens revogados no logout (Aula 3).
+  cache:
+    <<: *primary_production
+    database: automic_auth_api_production_cache
+    migrations_paths: db/cache_migrate
+  # O Solid Queue processa os e-mails fora do ciclo da requisição.
+  queue:
+    <<: *primary_production
+    database: automic_auth_api_production_queue
+    migrations_paths: db/queue_migrate

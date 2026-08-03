@@ -1,0 +1,30 @@
+# Postgres para desenvolvimento, em container.
+#
+# Nada de instalar banco na máquina: todo mundo roda a mesma versão, e
+# desinstalar é `docker compose down -v`.
+#
+#   docker compose up -d     # sobe
+#   docker compose logs -f   # acompanha
+#   docker compose down      # para (os dados ficam)
+#   docker compose down -v   # para e APAGA os dados
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: automic
+      POSTGRES_PASSWORD: automic
+      POSTGRES_DB: automic_auth_api_development
+    ports:
+      # Já tem Postgres na sua máquina ocupando a 5432? Rode com
+      # DB_PORT=5433 docker compose up -d  (e exporte DB_PORT=5433 no shell).
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U automic"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:
