@@ -18,12 +18,16 @@ Leia a seção seguinte antes de qualquer outra coisa.</p>
 <h2 id="a-decisao-que-voce-precisa-tomar-antes">A decisão que você precisa tomar antes</h2>
 <p>Você tem duas formas de conduzir esta aula:</p>
 <h3 id="opcao-a-codigo-pronto-leitura-guiada-recomendada">Opção A — código pronto, leitura guiada (recomendada)</h3>
-<p>No começo da aula, todo mundo roda:</p>
-<pre><code class="language-bash">git checkout aula-03
-bin/rails db:prepare
+<p>No começo da aula, todo mundo copia o código do gabarito para <strong>o próprio projeto</strong>:</p>
+<pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03
+rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
+cd ~/automic_auth_api &amp;&amp; bundle install &amp;&amp; bin/rails db:migrate &amp;&amp; bin/rails test
 </code></pre>
-<p>Você percorre os arquivos <strong>projetados</strong>, explicando decisão por decisão. Eles acompanham no editor.
-A prática vira <strong>modificar</strong> o que já existe — que é o que se faz num emprego de verdade.</p>
+<p>O <code>Gemfile</code> vai junto porque a Aula 3 acrescenta <code>jwt</code>, <code>rack-cors</code> e <code>letter_opener</code> — sem
+ele a aplicação nem sobe. Os 71 testes verdes são a prova de que a cópia deu certo. <strong>Só depois disso</strong> você percorre os
+arquivos projetados, explicando decisão por decisão, com eles acompanhando no editor.</p>
+<p>A prática vira <strong>modificar</strong> o que já existe, que é o que se faz num emprego de verdade. E o código
+fica no repositório deles, que é de onde a Aula 4 vai fazer o deploy.</p>
 <p>Cabe em ~2h50. É o que este roteiro assume.</p>
 <h3 id="opcao-b-digitar-junto">Opção B — digitar junto</h3>
 <p>Só funciona se você tiver 6h ou dividir em dois encontros. Se for por aqui, corte para <strong>três
@@ -31,7 +35,7 @@ rotas</strong>: cadastro, login e logout. Recuperação de senha vira leitura da
 <hr>
 <h2 id="antes-de-comecar">Antes de começar</h2>
 <ul>
-<li>[ ] <code>git checkout aula-03</code> testado na sua máquina, com <code>bin/rails test</code> verde.</li>
+<li>[ ] O <code>rsync</code> do gabarito testado num projeto limpo, com <code>bin/rails test</code> verde depois.</li>
 <li>[ ] Servidor rodando e o Insomnia com as cinco requisições já montadas — você vai fazer o fluxo
       completo ao vivo duas vezes.</li>
 <li>[ ] <a href="https://jwt.io">jwt.io</a> aberto numa aba.</li>

@@ -9,7 +9,7 @@
 <body><main>
 <h1 id="aula-3-as-rotas-de-autenticacao">Aula 3 — As rotas de autenticação</h1>
 <p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: cadastro, ativação, login, logout e recuperação de senha.
-<strong>Checkpoint</strong>: <code>git checkout aula-03</code></p>
+<strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03</code></p>
 <hr>
 <h2 id="1-o-caminho-de-uma-requisicao">1. O caminho de uma requisição</h2>
 <pre><code>requisição → rota → controller → service → model → banco
@@ -473,7 +473,7 @@ curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;          # 401
 <p><strong>Bônus 1</strong>: crie <code>PATCH /api/v1/me</code> para o usuário editar o próprio <code>name</code> — e só o <code>name</code>.</p>
 <p><strong>Bônus 2</strong>: descubra o que acontece se você trocar o <code>true</code> do <code>JWT.decode</code> por <code>false</code> e chamar
 <code>/me</code> com um token forjado. Depois desfaça.</p>
-<p>Travou? <code>git checkout aula-03</code>.</p>
+<p>Travou? Compare com o gabarito: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03</code>.</p>
 <hr>
 <h2 id="recapitulando">Recapitulando</h2>
 <ul>

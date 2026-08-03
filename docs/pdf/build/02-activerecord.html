@@ -9,7 +9,7 @@
 <body><main>
 <h1 id="aula-2-banco-de-dados-activerecord-e-o-model-user">Aula 2 — Banco de dados, ActiveRecord e o model <code>User</code></h1>
 <p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: um <code>User</code> com validações e senha hasheada, testado.
-<strong>Checkpoint</strong>: <code>git checkout aula-02</code></p>
+<strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-02</code></p>
 <hr>
 <h2 id="1-por-que-postgres-e-nao-sqlite">1. Por que Postgres, e não SQLite</h2>
 <p>SQLite é um arquivo. Funciona muito bem para um app de celular ou um script. Para um servidor com
@@ -429,7 +429,7 @@ o mesmo. Vamos usar esse método na Aula 3.</p>
 </ol>
 <p><strong>Bônus</strong>: escreva o N+1 de propósito (<code>User.all.each { |u| puts u.login_events.count }</code>), olhe o
 log para contar as consultas, e conserte com <code>includes</code>.</p>
-<p>Travou? <code>git checkout aula-02</code>.</p>
+<p>Travou? Compare com o gabarito: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-02</code>.</p>
 <hr>
 <h2 id="recapitulando">Recapitulando</h2>
 <ul>

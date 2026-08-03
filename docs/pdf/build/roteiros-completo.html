@@ -31,9 +31,9 @@
 <li><a href="#0115-api-rest-2829">01:15 — API REST (28–29)</a></li>
 <li><a href="#0135-ruby-3047">01:35 — Ruby (30–47)</a></li>
 <li><a href="#0221-pratica-1-48">02:21 — Prática 1 (48)</a></li>
-<li><a href="#0231-rails-4960">02:31 — Rails (49–60)</a></li>
-<li><a href="#0256-pratica-2-61">02:56 — Prática 2 (61)</a></li>
-<li><a href="#0326-fecho-6264">03:26 — Fecho (62–64)</a></li>
+<li><a href="#0231-rails-4961">02:31 — Rails (49–61)</a></li>
+<li><a href="#0257-pratica-2-62">02:57 — Prática 2 (62)</a></li>
+<li><a href="#0327-fecho-6365">03:27 — Fecho (63–65)</a></li>
 </ul>
 </li>
 <li><a href="#perguntas-que-vao-aparecer">Perguntas que vão aparecer</a></li>
@@ -126,8 +126,8 @@ que a turma faz e o plano B:</p>
 <tr>
 <td>1</td>
 <td><strong>Back-end, Ruby e o primeiro Rails</strong></td>
-<td>64</td>
-<td>3h31</td>
+<td>65</td>
+<td>3h32</td>
 <td>3h</td>
 </tr>
 <tr>
@@ -162,8 +162,9 @@ prioridade, e um <strong>ponto de decisão</strong> com relógio: se às tantas 
 lugar, faça tal coisa.</p>
 <p>As duas decisões que resolvem a maior parte do problema:</p>
 <ol>
-<li><strong>Aula 3 — não digitem o código.</strong> <code>git checkout aula-03</code> no começo e leitura guiada dos
-   arquivos projetados. A prática vira modificar o que existe. <strong>Economiza ~3h30.</strong></li>
+<li><strong>Aula 3 — não digitem o código.</strong> Eles copiam o gabarito para o próprio projeto com um
+   <code>rsync</code>, conferem com <code>bin/rails test</code>, e você faz a leitura guiada dos arquivos projetados.
+   A prática vira modificar o que existe. <strong>Economiza ~3h30.</strong></li>
 <li><strong>Aula 4 — prepare o que não ensina.</strong> Registros DNS e um certificado Origin CA wildcard, feitos
    na véspera. <strong>Economiza ~40 min.</strong> Se ainda assim não couber, o roteiro traz dois planos B.</li>
 </ol>
@@ -202,7 +203,7 @@ funcionar aprendeu mais que uma que viu 60 e foi embora com o erro na tela.</p>
 <div class='quebra'></div>
 
 <h1 id="roteiro-aula-1-back-end-ruby-e-o-primeiro-rails">Roteiro — Aula 1: back-end, Ruby e o primeiro Rails</h1>
-<p><strong>Deck</strong>: <code>slides/build/aula-01-fundamentos-de-back-end.pptx</code> (64 slides)
+<p><strong>Deck</strong>: <code>slides/build/aula-01-fundamentos-de-back-end.pptx</code> (65 slides)
 <strong>Apostila da turma</strong>: <strong><code>01-fundamentos.md</code></strong> · <strong>Checkpoint</strong>: <code>aula-01</code></p>
 <hr>
 <h2 id="antes-de-comecar">Antes de começar</h2>
@@ -219,7 +220,8 @@ funcionar aprendeu mais que uma que viu 60 e foi embora com o erro na tela.</p>
 <li>[ ] Fonte do terminal em pelo menos 18pt.</li>
 <li>[ ] Insomnia aberto.</li>
 <li>[ ] <code>curl -i https://api.seemxxiii.tech/api/v1/status</code> testado — é a sua demo do slide 26.</li>
-<li>[ ] <code>git checkout aula-01</code> num diretório separado, pronto para socorrer quem travar.</li>
+<li>[ ] Gabarito em <code>~/capacitacao-gabarito</code> na branch <code>aula-01</code>, pronto para projetar quem travar.</li>
+<li>[ ] <code>gh auth status</code> funcionando no seu terminal — você vai demonstrar o <code>gh repo create</code>.</li>
 </ul>
 <hr>
 <h2 id="cronograma">Cronograma</h2>
@@ -289,32 +291,32 @@ funcionar aprendeu mais que uma que viu 60 e foi embora com o erro na tela.</p>
 </tr>
 <tr>
 <td>02:31</td>
-<td>49–60</td>
+<td>49–61</td>
 <td>Rails e a primeira rota</td>
-<td>25</td>
+<td>26</td>
 </tr>
 <tr>
-<td>02:56</td>
-<td>61</td>
+<td>02:57</td>
+<td>62</td>
 <td>Prática 2 — <code>GET /api/v1/status</code></td>
 <td>30</td>
 </tr>
 <tr>
-<td>03:26</td>
-<td>62–64</td>
+<td>03:27</td>
+<td>63–65</td>
 <td>Git, recapitulação, fim</td>
 <td>5</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Isso dá 3h31.</strong> Ou você corta, ou aceita passar. Onde cortar, em ordem:</p>
+<p><strong>Isso dá 3h32.</strong> Ou você corta, ou aceita passar. Onde cortar, em ordem:</p>
 <ol>
-<li>Slide 6 (<code>O TERMINAL</code>) e 62 (<code>GIT</code>) — os dois marcados <code># CORTÁVEL</code>. <strong>−7 min</strong></li>
+<li>Slide 6 (<code>O TERMINAL</code>) e 63 (<code>GIT</code>) — os dois marcados <code># CORTÁVEL</code>. <strong>−7 min</strong></li>
 <li>Slides 40–43 (argumentos nomeados, <code>Struct</code>, exceções) — explique quando aparecerem na Aula 3. <strong>−12 min</strong>
    O slide 44 (<code>case</code> e a seta) <strong>não corte</strong>: a seta aparece no model da Aula 2.</li>
 <li>Slide 18 (<code>DNS</code>) — volta na Aula 4 de qualquer jeito. <strong>−3 min</strong></li>
 </ol>
-<p>Cortando os três, fecha em 03:09.</p>
+<p>Cortando os três, fecha em 03:10.</p>
 <hr>
 <h2 id="bloco-a-bloco">Bloco a bloco</h2>
 <h3 id="0000-abertura-slides-12">00:00 — Abertura (slides 1–2)</h3>
@@ -396,14 +398,16 @@ usuario[:nome]
 <h3 id="0221-pratica-1-48">02:21 — Prática 1 (48)</h3>
 <p>Dez minutos no <code>irb</code>. Circule pela sala. Quem terminar rápido, mande fazer o bônus (<code>map</code> para
 elevar ao quadrado).</p>
-<h3 id="0231-rails-4960">02:31 — Rails (49–60)</h3>
+<h3 id="0231-rails-4961">02:31 — Rails (49–61)</h3>
 <ul>
 <li><strong>51</strong> é a ideia central: você não configura o óbvio, você segue o combinado.</li>
 <li><strong>53</strong> (Django × Rails) — pergunte quem já usou Django ou Flask e ancore neles.</li>
 <li><strong>56</strong> (Zeitwerk) — a frase: <em>"não é estilo, é mecanismo. Errou o caminho, a classe não existe."</em></li>
 <li><strong>60</strong> — mostre a rota e o controller lado a lado, e aponte a convenção ligando os dois.</li>
+<li><strong>61</strong> (<code>DOIS DIRETÓRIOS</code>) — <strong>não corte</strong>. É onde fica claro que o repositório da capacitação é
+  gabarito e que o projeto é deles. Sem isso, metade da turma vai editar o repo errado.</li>
 </ul>
-<h3 id="0256-pratica-2-61">02:56 — Prática 2 (61)</h3>
+<h3 id="0257-pratica-2-62">02:57 — Prática 2 (62)</h3>
 <p>A entrega da aula. <strong>Ninguém sai sem os 200 na tela.</strong></p>
 <pre><code class="language-bash">rails new automic_auth_api --api -d postgresql \
   --skip-action-mailbox --skip-action-text --skip-active-storage \
@@ -414,9 +418,10 @@ bin/rails db:prepare
 bin/rails server
 </code></pre>
 <p>Depois a rota, e o teste no Insomnia.</p>
-<p>Quem travar: <code>git checkout aula-01</code>.</p>
-<h3 id="0326-fecho-6264">03:26 — Fecho (62–64)</h3>
-<p>Recapitule em cinco frases (slide 63) e feche com o que vem: <em>"na próxima, a API ganha memória."</em></p>
+<p>Quem travar: projete o arquivo do gabarito (<code>~/capacitacao-gabarito</code>, branch <code>aula-01</code>) e deixe
+a pessoa digitar. <strong>Não mande copiar e colar</strong> — o exercício inteiro são 20 linhas.</p>
+<h3 id="0327-fecho-6365">03:27 — Fecho (63–65)</h3>
+<p>Recapitule em cinco frases (slide 64) e feche com o que vem: <em>"na próxima, a API ganha memória."</em></p>
 <hr>
 <h2 id="perguntas-que-vao-aparecer">Perguntas que vão aparecer</h2>
 <table>
@@ -457,7 +462,7 @@ bin/rails server
 <ol>
 <li>Terminar a prática, se não deu tempo.</li>
 <li>Ler <strong><code>ruby-para-pythonistas.md</code></strong> inteiro.</li>
-<li>Bônus do slide 61: fazer a rota devolver <code>RUBY_VERSION</code> e <code>Rails.version</code>.</li>
+<li>Bônus do slide 62: fazer a rota devolver <code>RUBY_VERSION</code> e <code>Rails.version</code>.</li>
 </ol>
 <div class='quebra'></div>
 
@@ -471,7 +476,7 @@ que mais fixa.</p>
 <hr>
 <h2 id="antes-de-comecar_1">Antes de começar</h2>
 <ul>
-<li>[ ] <code>git checkout aula-01</code> num diretório de socorro, com o banco já preparado.</li>
+<li>[ ] Gabarito em <code>~/capacitacao-gabarito</code>, branch <code>aula-02</code>, com o banco já preparado.</li>
 <li>[ ] <code>docker compose up -d</code> rodando no seu, para o console não travar na hora.</li>
 <li>[ ] Terminal grande, com o <code>bin/rails console</code> já aberto e testado.</li>
 <li>[ ] Ter em mãos um exemplo real de vazamento de senha para citar (LinkedIn 2012, 6,5 milhões de
@@ -712,12 +717,16 @@ Leia a seção seguinte antes de qualquer outra coisa.</p>
 <h2 id="a-decisao-que-voce-precisa-tomar-antes">A decisão que você precisa tomar antes</h2>
 <p>Você tem duas formas de conduzir esta aula:</p>
 <h3 id="opcao-a-codigo-pronto-leitura-guiada-recomendada">Opção A — código pronto, leitura guiada (recomendada)</h3>
-<p>No começo da aula, todo mundo roda:</p>
-<pre><code class="language-bash">git checkout aula-03
-bin/rails db:prepare
+<p>No começo da aula, todo mundo copia o código do gabarito para <strong>o próprio projeto</strong>:</p>
+<pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03
+rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
+cd ~/automic_auth_api &amp;&amp; bundle install &amp;&amp; bin/rails db:migrate &amp;&amp; bin/rails test
 </code></pre>
-<p>Você percorre os arquivos <strong>projetados</strong>, explicando decisão por decisão. Eles acompanham no editor.
-A prática vira <strong>modificar</strong> o que já existe — que é o que se faz num emprego de verdade.</p>
+<p>O <code>Gemfile</code> vai junto porque a Aula 3 acrescenta <code>jwt</code>, <code>rack-cors</code> e <code>letter_opener</code> — sem
+ele a aplicação nem sobe. Os 71 testes verdes são a prova de que a cópia deu certo. <strong>Só depois disso</strong> você percorre os
+arquivos projetados, explicando decisão por decisão, com eles acompanhando no editor.</p>
+<p>A prática vira <strong>modificar</strong> o que já existe, que é o que se faz num emprego de verdade. E o código
+fica no repositório deles, que é de onde a Aula 4 vai fazer o deploy.</p>
 <p>Cabe em ~2h50. É o que este roteiro assume.</p>
 <h3 id="opcao-b-digitar-junto">Opção B — digitar junto</h3>
 <p>Só funciona se você tiver 6h ou dividir em dois encontros. Se for por aqui, corte para <strong>três
@@ -725,7 +734,7 @@ rotas</strong>: cadastro, login e logout. Recuperação de senha vira leitura da
 <hr>
 <h2 id="antes-de-comecar_2">Antes de começar</h2>
 <ul>
-<li>[ ] <code>git checkout aula-03</code> testado na sua máquina, com <code>bin/rails test</code> verde.</li>
+<li>[ ] O <code>rsync</code> do gabarito testado num projeto limpo, com <code>bin/rails test</code> verde depois.</li>
 <li>[ ] Servidor rodando e o Insomnia com as cinco requisições já montadas — você vai fazer o fluxo
       completo ao vivo duas vezes.</li>
 <li>[ ] <a href="https://jwt.io">jwt.io</a> aberto numa aba.</li>

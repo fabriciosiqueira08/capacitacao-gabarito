@@ -5,7 +5,7 @@ que a turma faz e o plano B:
 
 | | Roteiro | Slides | Estimado | Disponível |
 |---|---|---|---|---|
-| 1 | [Back-end, Ruby e o primeiro Rails](roteiro-aula-01.md) | 64 | 3h31 | 3h |
+| 1 | [Back-end, Ruby e o primeiro Rails](roteiro-aula-01.md) | 65 | 3h32 | 3h |
 | 2 | [Banco, ActiveRecord e o model `User`](roteiro-aula-02.md) | 48 | 3h20 | 3h |
 | 3 | [As rotas de autenticação](roteiro-aula-03.md) | 57 | 3h30 * | 3h |
 | 4 | [VPS, Docker, Kamal e deploy](roteiro-aula-04.md) | 61 | 4h02 * | 3h |
@@ -23,8 +23,9 @@ lugar, faça tal coisa.
 
 As duas decisões que resolvem a maior parte do problema:
 
-1. **Aula 3 — não digitem o código.** `git checkout aula-03` no começo e leitura guiada dos
-   arquivos projetados. A prática vira modificar o que existe. **Economiza ~3h30.**
+1. **Aula 3 — não digitem o código.** Eles copiam o gabarito para o próprio projeto com um
+   `rsync`, conferem com `bin/rails test`, e você faz a leitura guiada dos arquivos projetados.
+   A prática vira modificar o que existe. **Economiza ~3h30.**
 2. **Aula 4 — prepare o que não ensina.** Registros DNS e um certificado Origin CA wildcard, feitos
    na véspera. **Economiza ~40 min.** Se ainda assim não couber, o roteiro traz dois planos B.
 

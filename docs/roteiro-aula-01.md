@@ -1,6 +1,6 @@
 # Roteiro — Aula 1: back-end, Ruby e o primeiro Rails
 
-**Deck**: `slides/build/aula-01-fundamentos-de-back-end.pptx` (64 slides)
+**Deck**: `slides/build/aula-01-fundamentos-de-back-end.pptx` (65 slides)
 **Apostila da turma**: [`01-fundamentos.md`](01-fundamentos.md) · **Checkpoint**: `aula-01`
 
 ---
@@ -20,7 +20,8 @@
 - [ ] Fonte do terminal em pelo menos 18pt.
 - [ ] Insomnia aberto.
 - [ ] `curl -i https://api.seemxxiii.tech/api/v1/status` testado — é a sua demo do slide 26.
-- [ ] `git checkout aula-01` num diretório separado, pronto para socorrer quem travar.
+- [ ] Gabarito em `~/capacitacao-gabarito` na branch `aula-01`, pronto para projetar quem travar.
+- [ ] `gh auth status` funcionando no seu terminal — você vai demonstrar o `gh repo create`.
 
 ---
 
@@ -37,18 +38,18 @@
 | **01:25** | — | **Intervalo** | 10 |
 | 01:35 | 30–47 | Ruby para quem sabe Python | 46 |
 | 02:21 | 48 | Prática 1 — `irb` | 10 |
-| 02:31 | 49–60 | Rails e a primeira rota | 25 |
-| 02:56 | 61 | Prática 2 — `GET /api/v1/status` | 30 |
-| 03:26 | 62–64 | Git, recapitulação, fim | 5 |
+| 02:31 | 49–61 | Rails e a primeira rota | 26 |
+| 02:57 | 62 | Prática 2 — `GET /api/v1/status` | 30 |
+| 03:27 | 63–65 | Git, recapitulação, fim | 5 |
 
-**Isso dá 3h31.** Ou você corta, ou aceita passar. Onde cortar, em ordem:
+**Isso dá 3h32.** Ou você corta, ou aceita passar. Onde cortar, em ordem:
 
-1. Slide 6 (`O TERMINAL`) e 62 (`GIT`) — os dois marcados `# CORTÁVEL`. **−7 min**
+1. Slide 6 (`O TERMINAL`) e 63 (`GIT`) — os dois marcados `# CORTÁVEL`. **−7 min**
 2. Slides 40–43 (argumentos nomeados, `Struct`, exceções) — explique quando aparecerem na Aula 3. **−12 min**
    O slide 44 (`case` e a seta) **não corte**: a seta aparece no model da Aula 2.
 3. Slide 18 (`DNS`) — volta na Aula 4 de qualquer jeito. **−3 min**
 
-Cortando os três, fecha em 03:09.
+Cortando os três, fecha em 03:10.
 
 ---
 
@@ -161,14 +162,16 @@ Pontos onde vale parar:
 Dez minutos no `irb`. Circule pela sala. Quem terminar rápido, mande fazer o bônus (`map` para
 elevar ao quadrado).
 
-### 02:31 — Rails (49–60)
+### 02:31 — Rails (49–61)
 
 - **51** é a ideia central: você não configura o óbvio, você segue o combinado.
 - **53** (Django × Rails) — pergunte quem já usou Django ou Flask e ancore neles.
 - **56** (Zeitwerk) — a frase: *"não é estilo, é mecanismo. Errou o caminho, a classe não existe."*
 - **60** — mostre a rota e o controller lado a lado, e aponte a convenção ligando os dois.
+- **61** (`DOIS DIRETÓRIOS`) — **não corte**. É onde fica claro que o repositório da capacitação é
+  gabarito e que o projeto é deles. Sem isso, metade da turma vai editar o repo errado.
 
-### 02:56 — Prática 2 (61)
+### 02:57 — Prática 2 (62)
 
 A entrega da aula. **Ninguém sai sem os 200 na tela.**
 
@@ -184,11 +187,12 @@ bin/rails server
 
 Depois a rota, e o teste no Insomnia.
 
-Quem travar: `git checkout aula-01`.
+Quem travar: projete o arquivo do gabarito (`~/capacitacao-gabarito`, branch `aula-01`) e deixe
+a pessoa digitar. **Não mande copiar e colar** — o exercício inteiro são 20 linhas.
 
-### 03:26 — Fecho (62–64)
+### 03:27 — Fecho (63–65)
 
-Recapitule em cinco frases (slide 63) e feche com o que vem: *"na próxima, a API ganha memória."*
+Recapitule em cinco frases (slide 64) e feche com o que vem: *"na próxima, a API ganha memória."*
 
 ---
 
@@ -207,4 +211,4 @@ Recapitule em cinco frases (slide 63) e feche com o que vem: *"na próxima, a AP
 
 1. Terminar a prática, se não deu tempo.
 2. Ler [`ruby-para-pythonistas.md`](ruby-para-pythonistas.md) inteiro.
-3. Bônus do slide 61: fazer a rota devolver `RUBY_VERSION` e `Rails.version`.
+3. Bônus do slide 62: fazer a rota devolver `RUBY_VERSION` e `Rails.version`.

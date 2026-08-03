@@ -712,18 +712,31 @@ slides:
         end
       end
 
+  - tipo: bullets  # EXTRA
+    titulo: "DOIS DIRETÓRIOS"
+    bullets:
+      - "~/capacitacao-gabarito é o repositório da capacitação. Só leitura."
+      - "~/automic_auth_api é o SEU projeto. É nele que você escreve."
+      - "Travou? Abra o mesmo arquivo no gabarito, entenda, e digite no seu."
+      - "O seu projeto vai para o SEU GitHub, hoje ainda."
+      - "Na Aula 4 o deploy é autorizado para repo:SEU-USUARIO/SEU-REPO."
+      - "Não dá para apontar para o meu repositório."
+
   - tipo: pratica
     titulo: "PRÁTICA"
     bullets:
-      - "Crie o projeto com rails new."
-      - "Suba o Postgres com docker compose up -d."
-      - "Rode bin/rails server e abra http://localhost:3000/up."
-      - "Crie a rota GET /api/v1/status."
-      - "Chame ela no Insomnia e confira o status 200."
-      - "Rode bin/rails routes e ache a sua rota na lista."
+      - "Crie o projeto: rails new --api -d postgresql"
+      - "Publique no seu GitHub: gh repo create --source=. --push"
+      - "Suba o banco e a aplicação. Abra /up."
+      - "Escreva a rota GET /api/v1/status e o teste dela."
+      - "Confira no Insomnia: 200."
+      - "Todos os comandos estão na apostila, em Exercício da aula."
     notas: |
-      Esta é a entrega da aula. Ninguém sai daqui sem os 200 na tela.
-      Quem travar: git checkout aula-01.
+      Esta é a entrega da aula. Ninguém sai daqui sem os 200 na tela E sem o
+      projeto no GitHub deles — a Aula 4 depende disso.
+
+      Os passos 1 a 7 estão com todo o código na apostila, seção "Exercício da
+      aula". Mande abrir. Quem travar, projete o gabarito e deixe digitar.
 
   - tipo: bullets
     titulo: "GIT"  # CORTÁVEL

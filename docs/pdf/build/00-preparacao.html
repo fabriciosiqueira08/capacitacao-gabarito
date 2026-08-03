@@ -137,6 +137,21 @@ Baixe o <a href="https://insomnia.rest/download">Insomnia</a> (mais simples) ou 
 <p>Crie em <a href="https://github.com">github.com</a> se ainda não tem. Depois <strong>ative o GitHub Student Pack</strong>
 em <a href="https://education.github.com/pack">education.github.com</a> com seu e-mail <code>@aluno.ufop.edu.br</code> —
 a aprovação pode levar alguns dias, e você ganha créditos e ferramentas de graça.</p>
+<p>Instale o <strong>GitHub CLI</strong>, que na Aula 1 publica o seu projeto num comando e na Aula 4 cadastra os
+segredos do deploy:</p>
+<pre><code class="language-bash"># Ubuntu / WSL2
+sudo apt install -y gh
+# macOS
+brew install gh
+
+gh auth login          # escolha GitHub.com → HTTPS → login pelo navegador
+gh auth status         # tem que dizer &quot;Logged in to github.com&quot;
+</code></pre>
+<p>Configure também o acesso por SSH ao GitHub, se ainda não tem:</p>
+<pre><code class="language-bash">ssh-keygen -t ed25519 -C &quot;seu@email.com&quot;     # Enter em tudo
+gh ssh-key add ~/.ssh/id_ed25519.pub --title &quot;meu-notebook&quot;
+ssh -T git@github.com                        # tem que cumprimentar você pelo nome
+</code></pre>
 <h3 id="azure-for-students-faca-isso-com-antecedencia">Azure for Students — <strong>faça isso com antecedência</strong></h3>
 <p>Na Aula 4 cada um vai subir a própria máquina virtual na nuvem. Usaremos o
 <a href="https://azure.microsoft.com/free/students/">Azure for Students</a>: <strong>US$ 100 de crédito, sem cartão
@@ -153,11 +168,23 @@ de crédito</strong>, mediante e-mail institucional.</p>
 <hr>
 <h2 id="checagem-final">Checagem final</h2>
 <p>Cole os quatro comandos no terminal. Se todos responderem, você está pronto:</p>
-<pre><code class="language-bash">ruby -v      # ruby 3.4.9
-rails -v     # Rails 8.1.3
-docker -v    # Docker version 2x.x.x
+<pre><code class="language-bash">ruby -v          # ruby 3.4.9
+rails -v         # Rails 8.1.3
+docker -v        # Docker version 2x.x.x
 git --version
+gh auth status   # Logged in to github.com
 </code></pre>
+<h2 id="como-a-capacitacao-funciona">Como a capacitação funciona</h2>
+<p>Você vai trabalhar em <strong>dois diretórios</strong>:</p>
+<pre><code>~/capacitacao-gabarito/    ← o repositório da capacitação. Só leitura.
+~/automic_auth_api/        ← o SEU projeto. Criado na Aula 1, é onde você escreve.
+</code></pre>
+<p>Clone o gabarito já:</p>
+<pre><code class="language-bash">git clone &lt;url-do-repositório&gt; ~/capacitacao-gabarito
+</code></pre>
+<p>O seu projeto você cria no primeiro encontro, com o passo a passo de
+<strong><code>01-fundamentos.md</code></strong>. Ele precisa ficar no <strong>seu</strong> GitHub: na Aula 4, a
+credencial que autoriza o deploy é emitida para <code>repo:SEU-USUARIO/SEU-REPO</code>.</p>
 <hr>
 <h2 id="se-algo-deu-errado">Se algo deu errado</h2>
 <table>

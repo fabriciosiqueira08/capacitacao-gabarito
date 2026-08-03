@@ -10,7 +10,7 @@
 
 ## Antes de começar
 
-- [ ] `git checkout aula-01` num diretório de socorro, com o banco já preparado.
+- [ ] Gabarito em `~/capacitacao-gabarito`, branch `aula-02`, com o banco já preparado.
 - [ ] `docker compose up -d` rodando no seu, para o console não travar na hora.
 - [ ] Terminal grande, com o `bin/rails console` já aberto e testado.
 - [ ] Ter em mãos um exemplo real de vazamento de senha para citar (LinkedIn 2012, 6,5 milhões de

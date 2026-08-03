@@ -32,6 +32,7 @@
 </ul>
 </li>
 <li><a href="#checagem-final">Checagem final</a></li>
+<li><a href="#como-a-capacitacao-funciona">Como a capacitação funciona</a></li>
 <li><a href="#se-algo-deu-errado">Se algo deu errado</a></li>
 </ul>
 </li>
@@ -88,7 +89,17 @@
 <li><a href="#teste">Teste</a></li>
 </ul>
 </li>
-<li><a href="#exercicio-da-aula">Exercício da aula</a></li>
+<li><a href="#exercicio-da-aula">Exercício da aula</a><ul>
+<li><a href="#1-crie-o-seu-projeto">1. Crie o seu projeto</a></li>
+<li><a href="#2-publique-no-seu-github">2. Publique no seu GitHub</a></li>
+<li><a href="#3-suba-o-banco">3. Suba o banco</a></li>
+<li><a href="#4-suba-a-aplicacao">4. Suba a aplicação</a></li>
+<li><a href="#5-escreva-a-rota">5. Escreva a rota</a></li>
+<li><a href="#6-confira">6. Confira</a></li>
+<li><a href="#7-escreva-o-teste">7. Escreva o teste</a></li>
+<li><a href="#8-commit">8. Commit</a></li>
+</ul>
+</li>
 <li><a href="#recapitulando">Recapitulando</a></li>
 </ul>
 </li>
@@ -488,6 +499,21 @@ Baixe o <a href="https://insomnia.rest/download">Insomnia</a> (mais simples) ou 
 <p>Crie em <a href="https://github.com">github.com</a> se ainda não tem. Depois <strong>ative o GitHub Student Pack</strong>
 em <a href="https://education.github.com/pack">education.github.com</a> com seu e-mail <code>@aluno.ufop.edu.br</code> —
 a aprovação pode levar alguns dias, e você ganha créditos e ferramentas de graça.</p>
+<p>Instale o <strong>GitHub CLI</strong>, que na Aula 1 publica o seu projeto num comando e na Aula 4 cadastra os
+segredos do deploy:</p>
+<pre><code class="language-bash"># Ubuntu / WSL2
+sudo apt install -y gh
+# macOS
+brew install gh
+
+gh auth login          # escolha GitHub.com → HTTPS → login pelo navegador
+gh auth status         # tem que dizer &quot;Logged in to github.com&quot;
+</code></pre>
+<p>Configure também o acesso por SSH ao GitHub, se ainda não tem:</p>
+<pre><code class="language-bash">ssh-keygen -t ed25519 -C &quot;seu@email.com&quot;     # Enter em tudo
+gh ssh-key add ~/.ssh/id_ed25519.pub --title &quot;meu-notebook&quot;
+ssh -T git@github.com                        # tem que cumprimentar você pelo nome
+</code></pre>
 <h3 id="azure-for-students-faca-isso-com-antecedencia">Azure for Students — <strong>faça isso com antecedência</strong></h3>
 <p>Na Aula 4 cada um vai subir a própria máquina virtual na nuvem. Usaremos o
 <a href="https://azure.microsoft.com/free/students/">Azure for Students</a>: <strong>US$ 100 de crédito, sem cartão
@@ -504,11 +530,23 @@ de crédito</strong>, mediante e-mail institucional.</p>
 <hr>
 <h2 id="checagem-final">Checagem final</h2>
 <p>Cole os quatro comandos no terminal. Se todos responderem, você está pronto:</p>
-<pre><code class="language-bash">ruby -v      # ruby 3.4.9
-rails -v     # Rails 8.1.3
-docker -v    # Docker version 2x.x.x
+<pre><code class="language-bash">ruby -v          # ruby 3.4.9
+rails -v         # Rails 8.1.3
+docker -v        # Docker version 2x.x.x
 git --version
+gh auth status   # Logged in to github.com
 </code></pre>
+<h2 id="como-a-capacitacao-funciona">Como a capacitação funciona</h2>
+<p>Você vai trabalhar em <strong>dois diretórios</strong>:</p>
+<pre><code>~/capacitacao-gabarito/    ← o repositório da capacitação. Só leitura.
+~/automic_auth_api/        ← o SEU projeto. Criado na Aula 1, é onde você escreve.
+</code></pre>
+<p>Clone o gabarito já:</p>
+<pre><code class="language-bash">git clone &lt;url-do-repositório&gt; ~/capacitacao-gabarito
+</code></pre>
+<p>O seu projeto você cria no primeiro encontro, com o passo a passo de
+<strong><code>01-fundamentos.md</code></strong>. Ele precisa ficar no <strong>seu</strong> GitHub: na Aula 4, a
+credencial que autoriza o deploy é emitida para <code>repo:SEU-USUARIO/SEU-REPO</code>.</p>
 <hr>
 <h2 id="se-algo-deu-errado">Se algo deu errado</h2>
 <table>
@@ -546,7 +584,7 @@ git --version
 
 <h1 id="aula-1-o-que-e-back-end-ruby-e-o-primeiro-rails">Aula 1 — O que é back-end, Ruby e o primeiro Rails</h1>
 <p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: uma API respondendo <code>GET /api/v1/status</code>.
-<strong>Checkpoint</strong>: <code>git checkout aula-01</code></p>
+<strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-01</code></p>
 <p>Pré-requisitos instalados em <strong><code>00-preparacao.md</code></strong>.</p>
 <hr>
 <h2 id="1-os-dois-lados">1. Os dois lados</h2>
@@ -1178,18 +1216,118 @@ end
 </code></pre>
 <hr>
 <h2 id="exercicio-da-aula">Exercício da aula</h2>
-<ol>
-<li>Crie o projeto com <code>rails new</code>.</li>
-<li>Suba o Postgres com <code>docker compose up -d</code>.</li>
-<li>Rode <code>bin/rails server</code> e abra <code>http://localhost:3000/up</code>.</li>
-<li>Crie a rota <code>GET /api/v1/status</code>.</li>
-<li>Chame ela no Insomnia e confira o status <code>200</code>.</li>
-<li>Rode <code>bin/rails routes</code> e ache a sua rota na lista.</li>
-<li>Escreva o teste e rode <code>bin/rails test</code>.</li>
-</ol>
-<p><strong>Bônus</strong>: faça a rota devolver também a versão do Ruby (<code>RUBY_VERSION</code>) e do Rails
-(<code>Rails.version</code>).</p>
-<p>Travou? <code>git checkout aula-01</code> e você continua de um estado que funciona.</p>
+<blockquote>
+<p><strong>Onde você trabalha</strong>: no <strong>seu</strong> projeto, que você cria no passo 1. O repositório da
+capacitação é o <strong>gabarito</strong> — abra para consultar, não para escrever.</p>
+</blockquote>
+<h3 id="1-crie-o-seu-projeto">1. Crie o seu projeto</h3>
+<pre><code class="language-bash">cd ~
+rails new automic_auth_api --api -d postgresql \
+  --skip-action-mailbox --skip-action-text --skip-active-storage \
+  --skip-jbuilder --skip-action-cable
+cd automic_auth_api
+</code></pre>
+<h3 id="2-publique-no-seu-github">2. Publique no seu GitHub</h3>
+<p>Não é opcional: na Aula 4, o deploy automático precisa de um repositório <strong>seu</strong>.</p>
+<pre><code class="language-bash">git add -A &amp;&amp; git commit -m &quot;Projeto inicial&quot;
+gh repo create automic_auth_api --private --source=. --push
+</code></pre>
+<p>Sem o <code>gh</code> instalado, crie o repositório pelo site e depois:</p>
+<pre><code class="language-bash">git remote add origin git@github.com:SEU-USUARIO/automic_auth_api.git
+git push -u origin main
+</code></pre>
+<h3 id="3-suba-o-banco">3. Suba o banco</h3>
+<p>Crie um arquivo <code>compose.yaml</code> na raiz do projeto:</p>
+<pre><code class="language-yaml">services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: automic
+      POSTGRES_PASSWORD: automic
+      POSTGRES_DB: automic_auth_api_development
+    ports:
+      - &quot;${DB_PORT:-5432}:5432&quot;
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [&quot;CMD-SHELL&quot;, &quot;pg_isready -U automic&quot;]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:
+</code></pre>
+<p>E em <code>config/database.yml</code>, dentro do bloco <code>default: &amp;default</code>, acrescente:</p>
+<pre><code class="language-yaml">  host: &lt;%= ENV.fetch(&quot;DB_HOST&quot;, &quot;localhost&quot;) %&gt;
+  port: &lt;%= ENV.fetch(&quot;DB_PORT&quot;, 5432) %&gt;
+  username: &lt;%= ENV.fetch(&quot;DB_USER&quot;, &quot;automic&quot;) %&gt;
+  password: &lt;%= ENV.fetch(&quot;DB_PASSWORD&quot;, &quot;automic&quot;) %&gt;
+</code></pre>
+<pre><code class="language-bash">docker compose up -d
+docker compose ps          # tem que aparecer &quot;healthy&quot;
+</code></pre>
+<blockquote>
+<p><code>address already in use</code>? Você já tem um Postgres na 5432. Rode
+<code>DB_PORT=5433 docker compose up -d</code> e <code>export DB_PORT=5433</code> no shell.</p>
+</blockquote>
+<h3 id="4-suba-a-aplicacao">4. Suba a aplicação</h3>
+<pre><code class="language-bash">bin/rails db:prepare
+bin/rails server
+</code></pre>
+<p>Abra <code>http://localhost:3000/up</code>. Verde é a aplicação de pé.</p>
+<h3 id="5-escreva-a-rota">5. Escreva a rota</h3>
+<p>Em <code>config/routes.rb</code>, dentro do <code>Rails.application.routes.draw do</code>:</p>
+<pre><code class="language-ruby">namespace :api do
+  namespace :v1 do
+    get &quot;status&quot;, to: &quot;status#show&quot;
+  end
+end
+</code></pre>
+<p>Crie o arquivo <code>app/controllers/api/v1/status_controller.rb</code> — <strong>o caminho tem que ser exatamente
+esse</strong>, é o Zeitwerk:</p>
+<pre><code class="language-ruby">module Api
+  module V1
+    class StatusController &lt; ApplicationController
+      def show
+        render json: {
+          status: &quot;ok&quot;,
+          service: &quot;automic-auth-api&quot;,
+          environment: Rails.env
+        }
+      end
+    end
+  end
+end
+</code></pre>
+<h3 id="6-confira">6. Confira</h3>
+<pre><code class="language-bash">bin/rails routes -g api        # a sua rota tem que aparecer
+curl localhost:3000/api/v1/status
+</code></pre>
+<p>Depois monte a mesma requisição no Insomnia e confira o <code>200</code>.</p>
+<h3 id="7-escreva-o-teste">7. Escreva o teste</h3>
+<p>Crie <code>test/controllers/api/v1/status_controller_test.rb</code>:</p>
+<pre><code class="language-ruby">require &quot;test_helper&quot;
+
+class Api::V1::StatusControllerTest &lt; ActionDispatch::IntegrationTest
+  test &quot;responde ok&quot; do
+    get &quot;/api/v1/status&quot;
+
+    assert_response :ok
+    assert_equal &quot;ok&quot;, response.parsed_body[&quot;status&quot;]
+  end
+end
+</code></pre>
+<pre><code class="language-bash">bin/rails test
+</code></pre>
+<h3 id="8-commit">8. Commit</h3>
+<pre><code class="language-bash">git add -A &amp;&amp; git commit -m &quot;Rota de status&quot; &amp;&amp; git push
+</code></pre>
+<hr>
+<p><strong>Bônus</strong>: faça a rota devolver também <code>RUBY_VERSION</code> e <code>Rails.version</code>.</p>
+<p><strong>Travou?</strong> Abra o mesmo arquivo no gabarito, entenda o que está diferente, e conserte o seu:</p>
+<pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-01
+cat app/controllers/api/v1/status_controller.rb
+</code></pre>
 <hr>
 <h2 id="recapitulando">Recapitulando</h2>
 <ul>
@@ -1204,7 +1342,7 @@ end
 
 <h1 id="aula-2-banco-de-dados-activerecord-e-o-model-user">Aula 2 — Banco de dados, ActiveRecord e o model <code>User</code></h1>
 <p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: um <code>User</code> com validações e senha hasheada, testado.
-<strong>Checkpoint</strong>: <code>git checkout aula-02</code></p>
+<strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-02</code></p>
 <hr>
 <h2 id="1-por-que-postgres-e-nao-sqlite">1. Por que Postgres, e não SQLite</h2>
 <p>SQLite é um arquivo. Funciona muito bem para um app de celular ou um script. Para um servidor com
@@ -1624,7 +1762,7 @@ o mesmo. Vamos usar esse método na Aula 3.</p>
 </ol>
 <p><strong>Bônus</strong>: escreva o N+1 de propósito (<code>User.all.each { |u| puts u.login_events.count }</code>), olhe o
 log para contar as consultas, e conserte com <code>includes</code>.</p>
-<p>Travou? <code>git checkout aula-02</code>.</p>
+<p>Travou? Compare com o gabarito: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-02</code>.</p>
 <hr>
 <h2 id="recapitulando_1">Recapitulando</h2>
 <ul>
@@ -1642,7 +1780,7 @@ log para contar as consultas, e conserte com <code>includes</code>.</p>
 
 <h1 id="aula-3-as-rotas-de-autenticacao">Aula 3 — As rotas de autenticação</h1>
 <p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: cadastro, ativação, login, logout e recuperação de senha.
-<strong>Checkpoint</strong>: <code>git checkout aula-03</code></p>
+<strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03</code></p>
 <hr>
 <h2 id="1-o-caminho-de-uma-requisicao">1. O caminho de uma requisição</h2>
 <pre><code>requisição → rota → controller → service → model → banco
@@ -2106,7 +2244,7 @@ curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;          # 401
 <p><strong>Bônus 1</strong>: crie <code>PATCH /api/v1/me</code> para o usuário editar o próprio <code>name</code> — e só o <code>name</code>.</p>
 <p><strong>Bônus 2</strong>: descubra o que acontece se você trocar o <code>true</code> do <code>JWT.decode</code> por <code>false</code> e chamar
 <code>/me</code> com um token forjado. Depois desfaça.</p>
-<p>Travou? <code>git checkout aula-03</code>.</p>
+<p>Travou? Compare com o gabarito: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03</code>.</p>
 <hr>
 <h2 id="recapitulando_2">Recapitulando</h2>
 <ul>
@@ -2123,7 +2261,7 @@ curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;          # 401
 <h1 id="aula-4-vps-docker-kamal-e-deploy">Aula 4 — VPS, Docker, Kamal e deploy</h1>
 <p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: a sua API no ar, em <code>https://seunome.capacita.&lt;domínio&gt;</code>,
 com deploy automático a cada push na <code>main</code>.
-<strong>Checkpoint</strong>: <code>git checkout aula-04</code></p>
+<strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-04</code></p>
 <blockquote>
 <p>Este roteiro é a versão para a turma do guia de infraestrutura do <code>seem-backend</code>. As decisões são
 as mesmas; a máquina é menor.</p>

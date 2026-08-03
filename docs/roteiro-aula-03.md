@@ -14,15 +14,20 @@ Você tem duas formas de conduzir esta aula:
 
 ### Opção A — código pronto, leitura guiada (recomendada)
 
-No começo da aula, todo mundo roda:
+No começo da aula, todo mundo copia o código do gabarito para **o próprio projeto**:
 
 ```bash
-git checkout aula-03
-bin/rails db:prepare
+cd ~/capacitacao-gabarito && git checkout aula-03
+rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
+cd ~/automic_auth_api && bundle install && bin/rails db:migrate && bin/rails test
 ```
 
-Você percorre os arquivos **projetados**, explicando decisão por decisão. Eles acompanham no editor.
-A prática vira **modificar** o que já existe — que é o que se faz num emprego de verdade.
+O `Gemfile` vai junto porque a Aula 3 acrescenta `jwt`, `rack-cors` e `letter_opener` — sem
+ele a aplicação nem sobe. Os 71 testes verdes são a prova de que a cópia deu certo. **Só depois disso** você percorre os
+arquivos projetados, explicando decisão por decisão, com eles acompanhando no editor.
+
+A prática vira **modificar** o que já existe, que é o que se faz num emprego de verdade. E o código
+fica no repositório deles, que é de onde a Aula 4 vai fazer o deploy.
 
 Cabe em ~2h50. É o que este roteiro assume.
 
@@ -35,7 +40,7 @@ rotas**: cadastro, login e logout. Recuperação de senha vira leitura da aposti
 
 ## Antes de começar
 
-- [ ] `git checkout aula-03` testado na sua máquina, com `bin/rails test` verde.
+- [ ] O `rsync` do gabarito testado num projeto limpo, com `bin/rails test` verde depois.
 - [ ] Servidor rodando e o Insomnia com as cinco requisições já montadas — você vai fazer o fluxo
       completo ao vivo duas vezes.
 - [ ] [jwt.io](https://jwt.io) aberto numa aba.
