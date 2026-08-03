@@ -120,6 +120,7 @@ desatualizados em quatro lugares a cada regeração.
 | [`docs/03-autenticacao.md`](docs/03-autenticacao.md) | Apostila da Aula 3 |
 | [`docs/04-deploy.md`](docs/04-deploy.md) | Apostila da Aula 4 |
 | [`docs/ruby-para-pythonistas.md`](docs/ruby-para-pythonistas.md) | Cheat sheet Python ↔ Ruby, lado a lado |
+| [`docs/PREENCHER.md`](docs/PREENCHER.md) | **Leia primeiro**: o que ainda falta preencher antes de usar o material |
 | [`docs/roteiro-de-tempo.md`](docs/roteiro-de-tempo.md) | **Para quem apresenta**: índice dos quatro roteiros de aula |
 | `docs/roteiro-aula-0N.md` | Runbook de cada encontro: cronograma, falas, demos, perguntas e plano B |
 | [`docs/glossario.md`](docs/glossario.md) | VPS, NSG, OIDC, JWT, OTP, ORM, CI/CD… |
