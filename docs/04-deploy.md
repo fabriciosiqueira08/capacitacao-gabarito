@@ -2,7 +2,7 @@
 
 **Duração**: ~3h · **Você sai daqui com**: a sua API no ar, em `https://seunome.capacita.<domínio>`,
 com deploy automático a cada push na `main`.
-**Checkpoint**: `git checkout aula-04`
+**Gabarito**: `cd ~/capacitacao-gabarito && git checkout aula-04`
 
 > Este roteiro é a versão para a turma do guia de infraestrutura do `seem-backend`. As decisões são
 > as mesmas; a máquina é menor.

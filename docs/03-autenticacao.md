@@ -1,7 +1,7 @@
 # Aula 3 — As rotas de autenticação
 
 **Duração**: ~3h · **Você sai daqui com**: cadastro, ativação, login, logout e recuperação de senha.
-**Checkpoint**: `git checkout aula-03`
+**Gabarito**: `cd ~/capacitacao-gabarito && git checkout aula-03`
 
 ---
 
@@ -606,7 +606,7 @@ curl $API/me -H "Authorization: Bearer $TOKEN"          # 401
 **Bônus 2**: descubra o que acontece se você trocar o `true` do `JWT.decode` por `false` e chamar
 `/me` com um token forjado. Depois desfaça.
 
-Travou? `git checkout aula-03`.
+Travou? Compare com o gabarito: `cd ~/capacitacao-gabarito && git checkout aula-03`.
 
 ---
 
