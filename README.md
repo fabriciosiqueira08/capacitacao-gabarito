@@ -25,7 +25,8 @@ Uma API rodando em `https://<seu-nome>.capacita.<dominio>` com quatro rotas de a
 | `POST` | `/api/v1/password_resets/confirm` | Troca a senha e derruba as sessões ativas |
 
 Mais a confirmação de e-mail (`/api/v1/email_verifications/confirm` e `/resend`), que é o que faz o
-login só liberar depois que a conta é ativada.
+login só liberar depois que a conta é ativada, e duas rotas autenticadas: `GET /api/v1/me` e
+`GET /api/v1/me/login_events` (o histórico de acessos, que existe para exercitar associações).
 
 ---
 
@@ -71,6 +72,7 @@ git checkout main      # tudo pronto (o que aparece projetado na aula)
 | [`docs/03-autenticacao.md`](docs/03-autenticacao.md) | Apostila da Aula 3 |
 | [`docs/04-deploy.md`](docs/04-deploy.md) | Apostila da Aula 4 |
 | [`docs/ruby-para-pythonistas.md`](docs/ruby-para-pythonistas.md) | Cheat sheet Python ↔ Ruby, lado a lado |
+| [`docs/roteiro-de-tempo.md`](docs/roteiro-de-tempo.md) | **Para quem apresenta**: tempo por bloco e o que cortar se atrasar |
 | [`docs/glossario.md`](docs/glossario.md) | VPS, NSG, OIDC, JWT, OTP, ORM, CI/CD… |
 | [`docs/troubleshooting.md`](docs/troubleshooting.md) | Erros que realmente acontecem, e a saída de cada um |
 

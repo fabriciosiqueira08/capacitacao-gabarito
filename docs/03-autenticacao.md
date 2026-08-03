@@ -97,6 +97,53 @@ end
 
 Uma API que devolve erro de três jeitos diferentes força o cliente a tratar os três.
 
+### `before_action`: o filtro
+
+```ruby
+class MeController < BaseController
+  before_action :authenticate_user!
+
+  def show
+    render_user(current_user)   # só roda se passou pelo filtro
+  end
+end
+```
+
+O filtro roda **antes** da action. Se ele renderizar alguma coisa — o `401` — a action nem chega a
+ser chamada. `only:` e `except:` limitam a quais actions ele se aplica:
+
+```ruby
+before_action :authenticate_user!, only: :destroy
+```
+
+### A pilha de middleware
+
+A requisição não cai direto no controller. Ela atravessa uma pilha de camadas — o **middleware**.
+Cada camada pode ler, alterar, ou responder e cortar o caminho ali mesmo.
+
+```
+requisição
+   ↓
+[ Rack::Cors ]                 ← libera (ou não) a origem
+[ ActionDispatch::Cookies ]
+[ ... ]
+   ↓
+rota → before_action → controller → service → model
+   ↓
+serializer → JSON → resposta (voltando pela mesma pilha)
+```
+
+```bash
+bin/rails middleware      # lista a pilha inteira do seu app
+```
+
+O modo `--api` remove várias camadas. Trouxemos os cookies de volta na mão, em
+`config/application.rb`:
+
+```ruby
+config.middleware.use ActionDispatch::Cookies
+```
+
 ### Strong parameters
 
 ```ruby
@@ -226,7 +273,16 @@ eyJhbGciOiJIUzI1NiJ9 . eyJzdWIiOjIsInZlciI6MH0 . 4pQ8L_5f...
    cabeçalho              payload                  assinatura
 ```
 
-Três partes em Base64, separadas por ponto.
+Três partes em **Base64**, separadas por ponto.
+
+> **Base64 não é segredo.** É uma forma de escrever bytes usando só letras e números, para caber
+> num cabeçalho HTTP — que é texto. Não tem chave, não tem criptografia, qualquer um desfaz:
+>
+> ```bash
+> echo eyJzdWIiOjJ9 | base64 -d      # {"sub":2}
+> ```
+>
+> Aquele monte de caractere embaralhado do JWT é isso: texto disfarçado.
 
 > **O payload é público.** Cole um token em [jwt.io](https://jwt.io) e você lê tudo. A assinatura
 > garante que ninguém **alterou** o conteúdo, não que ninguém **leu**. Nunca ponha no payload nada
@@ -279,6 +335,14 @@ POST /api/v1/sessions   { email, password, client }
 | `mobile` | cabeçalho `Authorization: Bearer <token>` | App nativo não tem cookie |
 | `web` | cookie assinado e `httpOnly` | JavaScript não lê o cookie, então um XSS não rouba o token |
 
+### O que é um cookie
+
+Um par `nome=valor` que o servidor manda no cabeçalho `Set-Cookie`. O navegador guarda e
+**reenvia sozinho**, em toda requisição àquele site. É a memória que o HTTP não tem, colada por
+fora.
+
+Quem faz esse trabalho é o navegador — o app nativo não participa disso. Por isso o `client`.
+
 ```ruby
 cookies.signed[AUTH_COOKIE] = {
   value: token,
@@ -287,6 +351,29 @@ cookies.signed[AUTH_COOKIE] = {
   same_site: :lax                  # mitiga CSRF
 }
 ```
+
+`signed` significa que o Rails carimba o valor: alterou na mão, o Rails recusa.
+
+### XSS
+
+*Cross-Site Scripting*: o atacante consegue rodar **JavaScript dentro da sua página**. Como? Você
+exibiu texto de usuário sem escapar — alguém salvou `<script>...</script>` como nome e a sua página
+imprimiu cru.
+
+Com JavaScript rodando ali, ele lê tudo que o JavaScript lê. É exatamente por isso que `httponly`
+existe: o token no cookie fica **fora do alcance** do JavaScript, e um XSS não o rouba.
+
+### CSRF
+
+*Cross-Site Request Forgery*. Lembra que o navegador reenvia o cookie sozinho?
+
+Um site malicioso monta um formulário apontando para a sua API. A vítima clica; o navegador anexa
+o cookie dela; a sua API obedece, achando que foi ela quem pediu.
+
+`same_site: :lax` manda o navegador **não enviar o cookie** quando a requisição parte de outro site.
+
+> API com token no cabeçalho não sofre de CSRF: ninguém anexa o `Authorization` por você. O
+> problema é exclusivo de quem autentica por cookie — ou seja, do nosso `client: "web"`.
 
 ### 401 × 403
 
