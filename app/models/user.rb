@@ -44,6 +44,18 @@ class User < ApplicationRecord
     user if autenticado
   end
 
+  # O JWT carrega a token_version de quando foi emitido. Se o número no token
+  # não bate com o do banco, o token não vale mais.
+  def token_version_matches?(submitted_version)
+    token_version == submitted_version.to_i
+  end
+
+  # Derruba TODAS as sessões do usuário, em todos os dispositivos. Usado ao
+  # redefinir a senha: quem invadiu a conta perde o acesso na hora.
+  def invalidate_sessions!
+    update!(token_version: token_version + 1)
+  end
+
   private
 
   def password_meets_policy

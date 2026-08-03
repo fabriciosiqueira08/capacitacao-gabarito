@@ -8,6 +8,20 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       get "status", to: "status#show"
+
+      # --- Rotas públicas (sem token) ---
+      post "registrations", to: "registrations#create"
+      post "email_verifications/confirm", to: "email_verifications#confirm"
+      post "email_verifications/resend",  to: "email_verifications#resend"
+      post "password_resets/request", to: "password_resets#request_reset"
+      post "password_resets/confirm", to: "password_resets#confirm"
+      post "sessions", to: "sessions#create"
+
+      # --- Rotas autenticadas ---
+      # DELETE e POST no mesmo caminho: o recurso é a sessão. Criar é entrar,
+      # apagar é sair. `as: nil` porque o helper de rota já nasceu no POST.
+      delete "sessions", to: "sessions#destroy", as: nil
+      get "me", to: "me#show"
     end
   end
 end

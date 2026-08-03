@@ -1,0 +1,9 @@
+Olá, <%= @user.name %>!
+
+Seu código de ativação é:
+
+    <%= @code %>
+
+Ele vale por <%= EmailVerifiable::CODE_TTL.inspect %>.
+
+Se não foi você que criou esta conta, ignore este e-mail.

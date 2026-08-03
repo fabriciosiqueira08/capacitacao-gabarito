@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: "from@example.com"
+  # O remetente real vem de MAILER_FROM (ver config/initializers/mailer.rb).
   layout "mailer"
 end

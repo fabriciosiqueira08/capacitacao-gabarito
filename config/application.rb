@@ -40,5 +40,10 @@ module AutomicAuthApi
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # O modo --api remove os cookies do middleware. Trazemos de volta só eles
+    # (sem sessão, sem flash) porque o painel web recebe o token num cookie
+    # httpOnly — ver Api::V1::Authentication.
+    config.middleware.use ActionDispatch::Cookies
   end
 end
