@@ -1,0 +1,25 @@
+# Fixtures são os dados de teste. O Rails carrega este arquivo antes de cada
+# teste e limpa depois — cada teste começa do mesmo estado.
+#
+# password_digest é gerado no test_helper (não dá para escrever bcrypt à mão
+# num YAML). A senha de todos é a de UserTestHelper::PASSWORD.
+
+ana:
+  name: Ana Souza
+  email: ana@aluno.ufop.edu.br
+  password_digest: <%= BCrypt::Password.create("Automic@2026") %>
+  course: Engenharia de Controle e Automação
+  matricula: "2011234"
+  terms_accepted_at: <%= 1.day.ago.to_fs(:db) %>
+  email_verified_at: <%= 1.day.ago.to_fs(:db) %>
+
+# Cadastrado, mas ainda não confirmou o e-mail. Serve para testar que o login
+# recusa quem não ativou a conta.
+bruno:
+  name: Bruno Lima
+  email: bruno@aluno.ufop.edu.br
+  password_digest: <%= BCrypt::Password.create("Automic@2026") %>
+  course: Engenharia de Minas
+  matricula: "2019876"
+  terms_accepted_at: <%= 1.day.ago.to_fs(:db) %>
+  email_verified_at:

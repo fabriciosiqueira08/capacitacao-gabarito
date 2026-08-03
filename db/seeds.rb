@@ -1,9 +1,18 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
+# Dados de desenvolvimento. Rode com: bin/rails db:seed
 #
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# find_or_initialize_by deixa o arquivo idempotente: rodar duas vezes não
+# duplica ninguém nem estoura no índice único.
+
+usuario = User.find_or_initialize_by(email: "ana@aluno.ufop.edu.br")
+usuario.assign_attributes(
+  name: "Ana Souza",
+  password: "Automic@2026",
+  course: "Engenharia de Controle e Automação",
+  matricula: "2011234",
+  terms_accepted_at: Time.current,
+  # Já verificada: sem isso o login recusa (ver Auth::Login, na Aula 3).
+  email_verified_at: Time.current
+)
+usuario.save!
+
+puts "Seed pronto. Login: ana@aluno.ufop.edu.br / Automic@2026"
