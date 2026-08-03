@@ -84,6 +84,118 @@ faca_algo unless condicao      # unless = if not
 nome = usuario&amp;.nome           # safe navigation (o ?. de outras linguagens)
 valor ||= &quot;padrao&quot;             # atribui só se estiver nil/false
 </code></pre>
+<h3 id="aspas-a-diferenca-que-python-nao-tem">Aspas: a diferença que Python não tem</h3>
+<p>Em Python, <code>'a'</code> e <code>"a"</code> são a mesma coisa. <strong>Em Ruby, não:</strong></p>
+<pre><code class="language-ruby">&quot;Olá, #{nome}&quot;     # interpola
+'Olá, #{nome}'     # imprime literalmente #{nome}
+</code></pre>
+<p>Aspas simples são texto cru. Use aspas duplas por padrão; simples quando o texto tiver <code>#{</code> ou
+muitas barras invertidas.</p>
+<h3 id="numeros-a-pegadinha-da-divisao">Números: a pegadinha da divisão</h3>
+<pre><code class="language-python">7 / 2      # 3.5   em Python 3
+7 // 2     # 3
+</code></pre>
+<pre><code class="language-ruby">7 / 2      # 3     ← inteiro dividido por inteiro dá inteiro
+7.0 / 2    # 3.5
+7.fdiv(2)  # 3.5
+</code></pre>
+<p><strong>Python 3 mudou esse comportamento; Ruby não.</strong> É a origem de um bug silencioso quando se calcula
+média ou porcentagem.</p>
+<h3 id="condicionais-e-case">Condicionais e <code>case</code></h3>
+<pre><code class="language-python"># Python
+if x == 1:
+    ...
+elif x == 2:
+    ...
+else:
+    ...
+
+match x:                       # Python 3.10+
+    case 1: ...
+    case 2: ...
+</code></pre>
+<pre><code class="language-ruby"># Ruby
+if x == 1
+  ...
+elsif x == 2
+  ...
+else
+  ...
+end
+
+case x
+when 1 then ...
+when 2 then ...
+else ...
+end
+</code></pre>
+<p>O <code>then</code> permite a linha única. O <code>case</code> de Ruby também aceita faixa, classe e regex:</p>
+<pre><code class="language-ruby">case idade
+when 0..12  then &quot;criança&quot;
+when 13..17 then &quot;adolescente&quot;
+else             &quot;adulto&quot;
+end
+</code></pre>
+<p>E, ao contrário de <code>switch</code> em C ou Java, <strong>não existe <code>break</code></strong>: cada <code>when</code> já para sozinho.</p>
+<p>Isso aparece no <code>SessionsController</code>:</p>
+<pre><code class="language-ruby">case session_params[:client]
+when &quot;mobile&quot; then response.headers[&quot;Authorization&quot;] = &quot;Bearer #{token}&quot;
+when &quot;web&quot;    then set_auth_cookie(token)
+end
+</code></pre>
+<h3 id="ternario-e-loops">Ternário e loops</h3>
+<pre><code class="language-ruby">mensagem = ativo ? &quot;sim&quot; : &quot;não&quot;     # em Python: &quot;sim&quot; if ativo else &quot;não&quot;
+
+while restam &gt; 0 ... end
+until pronto ... end                 # o contrário do while — não existe em Python
+loop do ... break if pronto ... end
+</code></pre>
+<h3 id="puts-print-e-p"><code>puts</code>, <code>print</code> e <code>p</code></h3>
+<table>
+<thead>
+<tr>
+<th>Ruby</th>
+<th>Faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>puts x</code></td>
+<td>imprime com quebra de linha. É o <code>print()</code> do dia a dia.</td>
+</tr>
+<tr>
+<td><code>print x</code></td>
+<td>imprime sem quebra de linha</td>
+</tr>
+<tr>
+<td><code>p x</code></td>
+<td>imprime a <strong>representação</strong> (com aspas, colchetes) e <strong>devolve o objeto</strong></td>
+</tr>
+</tbody>
+</table>
+<p><code>p</code> é o que você usa para depurar: <code>p usuario</code> mostra o objeto inteiro, e como ele devolve o valor,
+dá para enfiar no meio de uma expressão sem quebrar nada.</p>
+<h3 id="require-import"><code>require</code> × <code>import</code></h3>
+<pre><code class="language-python">import json                  # Python
+from pathlib import Path
+</code></pre>
+<pre><code class="language-ruby">require &quot;json&quot;               # Ruby: biblioteca ou gem
+require_relative &quot;helper&quot;    # arquivo ao lado, caminho relativo
+</code></pre>
+<p><code>require</code> carrega uma vez só e devolve <code>false</code> se já estava carregado. <strong>Não</strong> traz nomes para o
+escopo como o <code>from x import y</code> — depois do <code>require</code>, você usa <code>JSON.parse</code> com o nome completo.</p>
+<blockquote>
+<p><strong>Dentro do Rails você nunca escreve <code>require</code>.</strong> O Zeitwerk carrega a classe pelo nome do
+arquivo. Fora do Rails — num script solto — o <code>require</code> volta a ser necessário.</p>
+</blockquote>
+<h3 id="splat">Splat</h3>
+<pre><code class="language-python">def f(*args, **kwargs): ...
+</code></pre>
+<pre><code class="language-ruby">def f(*args, **opts); end
+
+valores = [1, 2, 3]
+f(*valores)                  # espalha o array nos argumentos
+</code></pre>
 <hr>
 <h2 id="estruturas-de-dados">Estruturas de dados</h2>
 <table>
@@ -153,6 +265,28 @@ ativos = usuarios.select { |u| u.ativo? }
 total  = usuarios.sum { |u| u.pontos }
 </code></pre>
 <p>Chaves quando cabe numa linha, <code>do ... end</code> quando não cabe.</p>
+<h3 id="bloco-proc-e-lambda">Bloco, proc e lambda</h3>
+<p>Bloco não é objeto: ele existe só na chamada do método. Quando você quer <strong>guardar</strong> o código numa
+variável ou passar adiante, ele vira <code>Proc</code> ou <code>lambda</code>.</p>
+<pre><code class="language-python">dobro = lambda x: x * 2      # Python
+dobro(3)
+</code></pre>
+<pre><code class="language-ruby">dobro = -&gt;(x) { x * 2 }      # Ruby: a &quot;seta&quot; é um lambda
+dobro.call(3)
+dobro.(3)                    # açúcar
+</code></pre>
+<p>A seta <code>-&gt;</code> é o que você vai ver no código deste projeto:</p>
+<pre><code class="language-ruby">scope :recentes, -&gt; { order(occurred_at: :desc) }
+validate :password_meets_policy, if: -&gt; { password.present? }
+</code></pre>
+<p>Nos dois casos o Rails guarda aquele pedaço de código para executar <strong>depois</strong> — na hora da consulta
+ou na hora da validação. Por isso precisa ser um objeto, e não um bloco.</p>
+<blockquote>
+<p><code>-&gt;</code> e <code>Proc.new</code> são quase a mesma coisa. A diferença que importa: o lambda confere o número de
+argumentos e o <code>return</code> dele volta só do lambda. O <code>Proc</code> é relaxado nos dois pontos. Na dúvida,
+use <code>-&gt;</code>.</p>
+</blockquote>
+<h3 id="equivalencias">Equivalências</h3>
 <table>
 <thead>
 <tr>
@@ -547,6 +681,18 @@ User.count
 <tr>
 <td>Strings são mutáveis</td>
 <td>Diferente de Python. Use <code>.freeze</code> em constantes.</td>
+</tr>
+<tr>
+<td><code>7 / 2</code> dá <code>3</code>, não <code>3.5</code></td>
+<td>Python 3 mudou isso; Ruby não. Use <code>7.0 / 2</code> ou <code>7.fdiv(2)</code>.</td>
+</tr>
+<tr>
+<td><code>'texto #{x}'</code> não interpola</td>
+<td>Só aspas duplas interpolam.</td>
+</tr>
+<tr>
+<td><code>case</code> não precisa de <code>break</code></td>
+<td>Cada <code>when</code> já para sozinho.</td>
 </tr>
 <tr>
 <td><code>and</code>/<code>or</code> existem, mas têm precedência diferente de <code>&amp;&amp;</code>/<code>\|\|</code></td>

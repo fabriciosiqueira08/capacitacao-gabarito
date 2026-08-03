@@ -502,6 +502,37 @@ slides:
       `class InvalidToken < StandardError; end` aparece em Auth::DecodeToken na
       Aula 3. Sempre herde de StandardError, nunca de Exception.
 
+  - tipo: codigo  # EXTRA
+    titulo: "CASE, E A SETA"
+    codigo: |
+      # case: o if/elif encadeado. Não precisa de break.
+      case client
+      when "mobile" then header["Authorization"] = "Bearer #{token}"
+      when "web"    then set_auth_cookie(token)
+      end
+
+      # -> é um lambda: código guardado para rodar DEPOIS
+      dobro = ->(x) { x * 2 }
+      dobro.call(3)
+
+      # É o que vocês vão ver no model, na Aula 2:
+      scope :recentes, -> { order(occurred_at: :desc) }
+      validate :password_meets_policy, if: -> { password.present? }
+    notas: |
+      A seta aparece pela primeira vez na Aula 2 (scope e validate condicional).
+      Sem este slide, ela lê como símbolo mágico. A ideia: o Rails guarda aquele
+      pedaço de código para executar na hora da consulta ou da validação.
+
+  - tipo: bullets  # EXTRA
+    titulo: "TRÊS PEGADINHAS DE QUEM VEM DO PYTHON"
+    bullets:
+      - "7 / 2 dá 3, e não 3.5."
+      - "- inteiro com inteiro dá inteiro. Use 7.0 / 2 ou 7.fdiv(2)."
+      - "Aspas simples NÃO interpolam."
+      - "- \"Olá #{nome}\" funciona; 'Olá #{nome}' imprime o #{nome} cru."
+      - "0 e \"\" são VERDADEIROS."
+      - "- só nil e false são falsos. if 0 executa."
+
   - tipo: bullets
     titulo: "MÓDULOS E MIXINS"
     bullets:

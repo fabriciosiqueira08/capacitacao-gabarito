@@ -29,11 +29,11 @@
 <li><a href="#0040-rede-1619">00:40 — Rede (16–19)</a></li>
 <li><a href="#0053-http-2027">00:53 — HTTP (20–27)</a></li>
 <li><a href="#0115-api-rest-2829">01:15 — API REST (28–29)</a></li>
-<li><a href="#0135-ruby-3045">01:35 — Ruby (30–45)</a></li>
-<li><a href="#0217-pratica-1-46">02:17 — Prática 1 (46)</a></li>
-<li><a href="#0227-rails-4758">02:27 — Rails (47–58)</a></li>
-<li><a href="#0252-pratica-2-59">02:52 — Prática 2 (59)</a></li>
-<li><a href="#0322-fecho-6062">03:22 — Fecho (60–62)</a></li>
+<li><a href="#0135-ruby-3047">01:35 — Ruby (30–47)</a></li>
+<li><a href="#0221-pratica-1-48">02:21 — Prática 1 (48)</a></li>
+<li><a href="#0231-rails-4960">02:31 — Rails (49–60)</a></li>
+<li><a href="#0256-pratica-2-61">02:56 — Prática 2 (61)</a></li>
+<li><a href="#0326-fecho-6264">03:26 — Fecho (62–64)</a></li>
 </ul>
 </li>
 <li><a href="#perguntas-que-vao-aparecer">Perguntas que vão aparecer</a></li>
@@ -126,8 +126,8 @@ que a turma faz e o plano B:</p>
 <tr>
 <td>1</td>
 <td><strong>Back-end, Ruby e o primeiro Rails</strong></td>
-<td>62</td>
-<td>3h27</td>
+<td>64</td>
+<td>3h31</td>
 <td>3h</td>
 </tr>
 <tr>
@@ -202,7 +202,7 @@ funcionar aprendeu mais que uma que viu 60 e foi embora com o erro na tela.</p>
 <div class='quebra'></div>
 
 <h1 id="roteiro-aula-1-back-end-ruby-e-o-primeiro-rails">Roteiro — Aula 1: back-end, Ruby e o primeiro Rails</h1>
-<p><strong>Deck</strong>: <code>slides/build/aula-01-fundamentos-de-back-end.pptx</code> (62 slides)
+<p><strong>Deck</strong>: <code>slides/build/aula-01-fundamentos-de-back-end.pptx</code> (64 slides)
 <strong>Apostila da turma</strong>: <strong><code>01-fundamentos.md</code></strong> · <strong>Checkpoint</strong>: <code>aula-01</code></p>
 <hr>
 <h2 id="antes-de-comecar">Antes de começar</h2>
@@ -277,43 +277,44 @@ funcionar aprendeu mais que uma que viu 60 e foi embora com o erro na tela.</p>
 </tr>
 <tr>
 <td>01:35</td>
-<td>30–45</td>
+<td>30–47</td>
 <td>Ruby para quem sabe Python</td>
-<td>42</td>
+<td>46</td>
 </tr>
 <tr>
-<td>02:17</td>
-<td>46</td>
+<td>02:21</td>
+<td>48</td>
 <td>Prática 1 — <code>irb</code></td>
 <td>10</td>
 </tr>
 <tr>
-<td>02:27</td>
-<td>47–58</td>
+<td>02:31</td>
+<td>49–60</td>
 <td>Rails e a primeira rota</td>
 <td>25</td>
 </tr>
 <tr>
-<td>02:52</td>
-<td>59</td>
+<td>02:56</td>
+<td>61</td>
 <td>Prática 2 — <code>GET /api/v1/status</code></td>
 <td>30</td>
 </tr>
 <tr>
-<td>03:22</td>
-<td>60–62</td>
+<td>03:26</td>
+<td>62–64</td>
 <td>Git, recapitulação, fim</td>
 <td>5</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Isso dá 3h27.</strong> Ou você corta, ou aceita passar. Onde cortar, em ordem:</p>
+<p><strong>Isso dá 3h31.</strong> Ou você corta, ou aceita passar. Onde cortar, em ordem:</p>
 <ol>
-<li>Slide 6 (<code>O TERMINAL</code>) e 60 (<code>GIT</code>) — os dois marcados <code># CORTÁVEL</code>. <strong>−7 min</strong></li>
-<li>Slides 40–43 (argumentos nomeados, <code>Struct</code>, exceções) — explique quando aparecerem na Aula 3. <strong>−12 min</strong></li>
+<li>Slide 6 (<code>O TERMINAL</code>) e 62 (<code>GIT</code>) — os dois marcados <code># CORTÁVEL</code>. <strong>−7 min</strong></li>
+<li>Slides 40–43 (argumentos nomeados, <code>Struct</code>, exceções) — explique quando aparecerem na Aula 3. <strong>−12 min</strong>
+   O slide 44 (<code>case</code> e a seta) <strong>não corte</strong>: a seta aparece no model da Aula 2.</li>
 <li>Slide 18 (<code>DNS</code>) — volta na Aula 4 de qualquer jeito. <strong>−3 min</strong></li>
 </ol>
-<p>Cortando os três, fecha em 03:05.</p>
+<p>Cortando os três, fecha em 03:09.</p>
 <hr>
 <h2 id="bloco-a-bloco">Bloco a bloco</h2>
 <h3 id="0000-abertura-slides-12">00:00 — Abertura (slides 1–2)</h3>
@@ -363,7 +364,7 @@ problema inteiro da Aula 3.</p>
 <p>Curto. O que fica: o verbo é a ação, o endereço é a coisa. <code>/criarPalestra</code> está errado;
 <code>POST /lectures</code> está certo.</p>
 <p>O 29 explica por que o SEEM é uma API: um back-end servindo o app e o painel.</p>
-<h3 id="0135-ruby-3045">01:35 — Ruby (30–45)</h3>
+<h3 id="0135-ruby-3047">01:35 — Ruby (30–47)</h3>
 <p>O bloco mais longo. <strong>Não leia os slides — rode no <code>irb</code> ao vivo.</strong></p>
 <pre><code class="language-ruby">3.class            # Integer
 &quot;oi&quot;.class         # String
@@ -387,18 +388,22 @@ usuario[:nome]
 <li><strong>39</strong> — o <code>?</code> e o <code>!</code>. Diga que o Rails inteiro depende dessa convenção.</li>
 <li><strong>40–41</strong> — argumentos nomeados e <code>Struct</code>. Fale a frase: <em>"o <code>user:</code> sozinho não é erro de
   digitação"</em>, porque eles vão ver isso em todo service da Aula 3.</li>
+<li><strong>44</strong> — <code>case</code> e a seta <code>-&gt;</code>. A seta aparece no model da Aula 2; sem este slide ela lê como
+  símbolo mágico.</li>
+<li><strong>45</strong> — as três pegadinhas. Rode no <code>irb</code>: <code>7 / 2</code>, depois <code>7.0 / 2</code>. E <code>puts 'Olá #{1+1}'</code> com
+  aspas simples. São 30 segundos e economizam um bug cada.</li>
 </ul>
-<h3 id="0217-pratica-1-46">02:17 — Prática 1 (46)</h3>
+<h3 id="0221-pratica-1-48">02:21 — Prática 1 (48)</h3>
 <p>Dez minutos no <code>irb</code>. Circule pela sala. Quem terminar rápido, mande fazer o bônus (<code>map</code> para
 elevar ao quadrado).</p>
-<h3 id="0227-rails-4758">02:27 — Rails (47–58)</h3>
+<h3 id="0231-rails-4960">02:31 — Rails (49–60)</h3>
 <ul>
-<li><strong>49</strong> é a ideia central: você não configura o óbvio, você segue o combinado.</li>
-<li><strong>51</strong> (Django × Rails) — pergunte quem já usou Django ou Flask e ancore neles.</li>
-<li><strong>54</strong> (Zeitwerk) — a frase: <em>"não é estilo, é mecanismo. Errou o caminho, a classe não existe."</em></li>
-<li><strong>58</strong> — mostre a rota e o controller lado a lado, e aponte a convenção ligando os dois.</li>
+<li><strong>51</strong> é a ideia central: você não configura o óbvio, você segue o combinado.</li>
+<li><strong>53</strong> (Django × Rails) — pergunte quem já usou Django ou Flask e ancore neles.</li>
+<li><strong>56</strong> (Zeitwerk) — a frase: <em>"não é estilo, é mecanismo. Errou o caminho, a classe não existe."</em></li>
+<li><strong>60</strong> — mostre a rota e o controller lado a lado, e aponte a convenção ligando os dois.</li>
 </ul>
-<h3 id="0252-pratica-2-59">02:52 — Prática 2 (59)</h3>
+<h3 id="0256-pratica-2-61">02:56 — Prática 2 (61)</h3>
 <p>A entrega da aula. <strong>Ninguém sai sem os 200 na tela.</strong></p>
 <pre><code class="language-bash">rails new automic_auth_api --api -d postgresql \
   --skip-action-mailbox --skip-action-text --skip-active-storage \
@@ -410,8 +415,8 @@ bin/rails server
 </code></pre>
 <p>Depois a rota, e o teste no Insomnia.</p>
 <p>Quem travar: <code>git checkout aula-01</code>.</p>
-<h3 id="0322-fecho-6062">03:22 — Fecho (60–62)</h3>
-<p>Recapitule em cinco frases (slide 61) e feche com o que vem: <em>"na próxima, a API ganha memória."</em></p>
+<h3 id="0326-fecho-6264">03:26 — Fecho (62–64)</h3>
+<p>Recapitule em cinco frases (slide 63) e feche com o que vem: <em>"na próxima, a API ganha memória."</em></p>
 <hr>
 <h2 id="perguntas-que-vao-aparecer">Perguntas que vão aparecer</h2>
 <table>
@@ -452,7 +457,7 @@ bin/rails server
 <ol>
 <li>Terminar a prática, se não deu tempo.</li>
 <li>Ler <strong><code>ruby-para-pythonistas.md</code></strong> inteiro.</li>
-<li>Bônus do slide 59: fazer a rota devolver <code>RUBY_VERSION</code> e <code>Rails.version</code>.</li>
+<li>Bônus do slide 61: fazer a rota devolver <code>RUBY_VERSION</code> e <code>Rails.version</code>.</li>
 </ol>
 <div class='quebra'></div>
 

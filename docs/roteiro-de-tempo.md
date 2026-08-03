@@ -5,7 +5,7 @@ que a turma faz e o plano B:
 
 | | Roteiro | Slides | Estimado | Disponível |
 |---|---|---|---|---|
-| 1 | [Back-end, Ruby e o primeiro Rails](roteiro-aula-01.md) | 62 | 3h27 | 3h |
+| 1 | [Back-end, Ruby e o primeiro Rails](roteiro-aula-01.md) | 64 | 3h31 | 3h |
 | 2 | [Banco, ActiveRecord e o model `User`](roteiro-aula-02.md) | 48 | 3h20 | 3h |
 | 3 | [As rotas de autenticação](roteiro-aula-03.md) | 57 | 3h30 * | 3h |
 | 4 | [VPS, Docker, Kamal e deploy](roteiro-aula-04.md) | 61 | 4h02 * | 3h |

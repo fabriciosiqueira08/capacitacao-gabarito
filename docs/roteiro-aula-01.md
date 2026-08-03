@@ -1,6 +1,6 @@
 # Roteiro — Aula 1: back-end, Ruby e o primeiro Rails
 
-**Deck**: `slides/build/aula-01-fundamentos-de-back-end.pptx` (62 slides)
+**Deck**: `slides/build/aula-01-fundamentos-de-back-end.pptx` (64 slides)
 **Apostila da turma**: [`01-fundamentos.md`](01-fundamentos.md) · **Checkpoint**: `aula-01`
 
 ---
@@ -35,19 +35,20 @@
 | 00:53 | 20–27 | HTTP e JSON | 22 |
 | 01:15 | 28–29 | API REST | 10 |
 | **01:25** | — | **Intervalo** | 10 |
-| 01:35 | 30–45 | Ruby para quem sabe Python | 42 |
-| 02:17 | 46 | Prática 1 — `irb` | 10 |
-| 02:27 | 47–58 | Rails e a primeira rota | 25 |
-| 02:52 | 59 | Prática 2 — `GET /api/v1/status` | 30 |
-| 03:22 | 60–62 | Git, recapitulação, fim | 5 |
+| 01:35 | 30–47 | Ruby para quem sabe Python | 46 |
+| 02:21 | 48 | Prática 1 — `irb` | 10 |
+| 02:31 | 49–60 | Rails e a primeira rota | 25 |
+| 02:56 | 61 | Prática 2 — `GET /api/v1/status` | 30 |
+| 03:26 | 62–64 | Git, recapitulação, fim | 5 |
 
-**Isso dá 3h27.** Ou você corta, ou aceita passar. Onde cortar, em ordem:
+**Isso dá 3h31.** Ou você corta, ou aceita passar. Onde cortar, em ordem:
 
-1. Slide 6 (`O TERMINAL`) e 60 (`GIT`) — os dois marcados `# CORTÁVEL`. **−7 min**
+1. Slide 6 (`O TERMINAL`) e 62 (`GIT`) — os dois marcados `# CORTÁVEL`. **−7 min**
 2. Slides 40–43 (argumentos nomeados, `Struct`, exceções) — explique quando aparecerem na Aula 3. **−12 min**
+   O slide 44 (`case` e a seta) **não corte**: a seta aparece no model da Aula 2.
 3. Slide 18 (`DNS`) — volta na Aula 4 de qualquer jeito. **−3 min**
 
-Cortando os três, fecha em 03:05.
+Cortando os três, fecha em 03:09.
 
 ---
 
@@ -122,7 +123,7 @@ Curto. O que fica: o verbo é a ação, o endereço é a coisa. `/criarPalestra`
 
 O 29 explica por que o SEEM é uma API: um back-end servindo o app e o painel.
 
-### 01:35 — Ruby (30–45)
+### 01:35 — Ruby (30–47)
 
 O bloco mais longo. **Não leia os slides — rode no `irb` ao vivo.**
 
@@ -150,20 +151,24 @@ Pontos onde vale parar:
 - **39** — o `?` e o `!`. Diga que o Rails inteiro depende dessa convenção.
 - **40–41** — argumentos nomeados e `Struct`. Fale a frase: *"o `user:` sozinho não é erro de
   digitação"*, porque eles vão ver isso em todo service da Aula 3.
+- **44** — `case` e a seta `->`. A seta aparece no model da Aula 2; sem este slide ela lê como
+  símbolo mágico.
+- **45** — as três pegadinhas. Rode no `irb`: `7 / 2`, depois `7.0 / 2`. E `puts 'Olá #{1+1}'` com
+  aspas simples. São 30 segundos e economizam um bug cada.
 
-### 02:17 — Prática 1 (46)
+### 02:21 — Prática 1 (48)
 
 Dez minutos no `irb`. Circule pela sala. Quem terminar rápido, mande fazer o bônus (`map` para
 elevar ao quadrado).
 
-### 02:27 — Rails (47–58)
+### 02:31 — Rails (49–60)
 
-- **49** é a ideia central: você não configura o óbvio, você segue o combinado.
-- **51** (Django × Rails) — pergunte quem já usou Django ou Flask e ancore neles.
-- **54** (Zeitwerk) — a frase: *"não é estilo, é mecanismo. Errou o caminho, a classe não existe."*
-- **58** — mostre a rota e o controller lado a lado, e aponte a convenção ligando os dois.
+- **51** é a ideia central: você não configura o óbvio, você segue o combinado.
+- **53** (Django × Rails) — pergunte quem já usou Django ou Flask e ancore neles.
+- **56** (Zeitwerk) — a frase: *"não é estilo, é mecanismo. Errou o caminho, a classe não existe."*
+- **60** — mostre a rota e o controller lado a lado, e aponte a convenção ligando os dois.
 
-### 02:52 — Prática 2 (59)
+### 02:56 — Prática 2 (61)
 
 A entrega da aula. **Ninguém sai sem os 200 na tela.**
 
@@ -181,9 +186,9 @@ Depois a rota, e o teste no Insomnia.
 
 Quem travar: `git checkout aula-01`.
 
-### 03:22 — Fecho (60–62)
+### 03:26 — Fecho (62–64)
 
-Recapitule em cinco frases (slide 61) e feche com o que vem: *"na próxima, a API ganha memória."*
+Recapitule em cinco frases (slide 63) e feche com o que vem: *"na próxima, a API ganha memória."*
 
 ---
 
@@ -202,4 +207,4 @@ Recapitule em cinco frases (slide 61) e feche com o que vem: *"na próxima, a AP
 
 1. Terminar a prática, se não deu tempo.
 2. Ler [`ruby-para-pythonistas.md`](ruby-para-pythonistas.md) inteiro.
-3. Bônus do slide 59: fazer a rota devolver `RUBY_VERSION` e `Rails.version`.
+3. Bônus do slide 61: fazer a rota devolver `RUBY_VERSION` e `Rails.version`.
