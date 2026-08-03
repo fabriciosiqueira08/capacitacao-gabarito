@@ -30,13 +30,99 @@ e alterar. A validação de senha no front é conveniência; a que vale é a do 
 
 ---
 
-## 2. HTTP em cinco minutos
+## 2. A rede, o mínimo necessário
+
+### O que é um servidor, afinal
+
+Não é uma máquina especial. É um **programa esperando**: ele fica ligado, escutando numa porta, e
+responde ao que chegar ali. `bin/rails server` sobe esse programa na porta 3000 — na sua máquina ou
+numa VM na nuvem, é o mesmo programa.
+
+### IP e porta
+
+**IP** é o endereço da máquina (`57.156.65.151`). **Porta** é a sala dentro dela: um número de 1 a
+65535. Uma máquina tem milhares de portas, e um programa diferente pode escutar em cada uma.
+
+| Porta | Quem mora ali |
+|---|---|
+| 22 | SSH |
+| 80 | HTTP |
+| 443 | HTTPS |
+| 5432 | Postgres |
+| 3000 | Rails em desenvolvimento |
+
+`127.0.0.1` — o `localhost` — significa sempre "esta máquina aqui". Na Aula 4 vamos abrir e fechar
+portas na mão, no firewall da Azure.
+
+### DNS
+
+Ninguém decora `57.156.65.151`. O **DNS** é a agenda telefônica da internet: você digita
+`api.seemxxiii.tech` e alguém pergunta ao DNS qual é o IP.
+
+A resposta fica em cache por um tempo — o **TTL**. É por isso que apontar um domínio para outro
+servidor não vale na hora. Na Aula 4 você vai criar um desses registros.
+
+### Anatomia de uma URL
+
+```
+https :// api.seemxxiii.tech : 443 /api/v1/lectures ?page=2 #topo
+  │             │              │          │           │      │
+esquema        host          porta     caminho      query  fragmento
+```
+
+- **Esquema** — o protocolo: `http`, `https`, `ssh`, `postgres`.
+- **Porta** — opcional. `http` assume 80, `https` assume 443.
+- **Fragmento** — nunca vai para o servidor; é só para o navegador.
+
+É por isso que `localhost:3000` tem os dois pontos: a porta não é a padrão.
+
+---
+
+## 3. HTTP
 
 Cliente é quem pede (navegador, app, outro servidor). Servidor é quem responde. **O cliente sempre
 começa a conversa** — o servidor nunca liga primeiro.
 
 Uma **requisição** tem método, caminho, cabeçalhos e corpo. Uma **resposta** tem status, cabeçalhos
 e corpo.
+
+### Como ela é, por dentro
+
+```http
+POST /api/v1/sessions HTTP/1.1        ← método, caminho, versão
+Host: api.seemxxiii.tech              ┐
+Content-Type: application/json        │ cabeçalhos
+Accept: application/json              ┘
+                                      ← linha em branco separa
+{"email":"ana@ufop.br","password":"..."}   ← corpo
+```
+
+**É texto puro.** HTTP é literalmente isso trafegando num cano.
+
+### Cabeçalhos
+
+São **metadados**: informação *sobre* a mensagem, não a mensagem. Um par `chave: valor` por linha.
+
+| Cabeçalho | Para quê |
+|---|---|
+| `Content-Type` | Em que formato vai o corpo |
+| `Accept` | Em que formato eu quero a resposta |
+| `Authorization` | Quem sou eu — vai ser o nosso token, na Aula 3 |
+| `Set-Cookie` / `Cookie` | Como o navegador guarda estado |
+| `User-Agent` | Que programa está chamando |
+
+### `Content-Type` importa
+
+O mesmo dado, dois formatos:
+
+```
+application/json                    → {"email":"ana@ufop.br"}
+application/x-www-form-urlencoded   → email=ana%40ufop.br
+```
+
+Sem o cabeçalho, o servidor não sabe como ler o corpo. Esquecer isso no `curl` é o erro nº 1 de
+quem começa: vem `400` e a mensagem não ajuda em nada. Por isso todo `curl` deste material tem
+`-H 'Content-Type: application/json'`.
 
 ### Os métodos
 
@@ -84,7 +170,7 @@ Isso é uma API real, no ar. É exatamente o que você vai construir.
 
 ---
 
-## 3. API REST
+## 4. API REST
 
 **API** é a porta de entrada do sistema para outros programas. **REST** é um estilo de organizar
 essa porta: cada coisa do sistema é um **recurso**, com um endereço.
@@ -110,7 +196,7 @@ continua funcionando — porque o app na loja do celular demora dias para atuali
 
 ---
 
-## 4. Ruby, partindo do Python
+## 5. Ruby, partindo do Python
 
 Ruby foi criado por **Yukihiro Matsumoto (Matz)** em 1995, no Japão, com um objetivo declarado:
 *fazer o programador feliz*. É interpretada, dinâmica e orientada a objetos — como Python.
@@ -172,6 +258,66 @@ Chaves quando cabe numa linha, `do ... end` quando não cabe.
 
 É convenção, não regra da linguagem. Mas todo mundo segue.
 
+### Argumentos nomeados, e o atalho do Ruby 3.1
+
+```ruby
+def login(email:, password:, client: "mobile")
+end
+
+login(email: "a@b.c", password: "x")
+```
+
+Os dois-pontos **depois** do nome tornam obrigatório nomear na chamada. E quando a variável tem o
+mesmo nome da chave, você omite o valor:
+
+```ruby
+Result.new(success?: true, user:)     # user: user
+```
+
+Isso aparece em todo service do projeto. **Não é erro de digitação.**
+
+### `Struct`
+
+Quando você só quer agrupar valores, sem comportamento:
+
+```ruby
+Result = Struct.new(:success?, :user, :errors, keyword_init: true)
+
+r = Result.new(success?: true, user: ana)
+r.success?   # true
+```
+
+É o `namedtuple` / `dataclass` do Python. Todo service deste projeto devolve um desses.
+
+### Exceções
+
+| Python | Ruby |
+|---|---|
+| `try` | `begin` |
+| `except` | `rescue` |
+| `finally` | `ensure` |
+| base para capturar: `Exception` | `StandardError` |
+
+```ruby
+def call
+  arriscado
+rescue StandardError => e
+  Rails.error.report(e)
+  nil
+end
+```
+
+Dentro de um método o `begin` é implícito — dá para escrever só o `rescue` no fim. Criando o seu
+tipo de erro:
+
+```ruby
+class InvalidToken < StandardError; end
+
+raise InvalidToken if token_ruim?
+```
+
+> Herde sempre de `StandardError`, nunca de `Exception`: capturar `Exception` pega até `Ctrl+C`.
+
 ### Módulos e mixins
 
 Ruby não tem herança múltipla. Tem **módulo**: um saco de métodos que você inclui numa classe.
@@ -219,7 +365,7 @@ usuario[:nome]
 
 ---
 
-## 5. Rails
+## 6. Rails
 
 Framework web em Ruby, criado por **David Heinemeier Hansson** em 2004 — extraído do Basecamp, um
 produto real. Traz tudo junto: rotas, banco, e-mail, filas, testes, deploy. Estamos na versão 8.
@@ -259,9 +405,36 @@ encaixadas.
 
 O caminho é sempre: **rota → controller → model → resposta**.
 
+### Zeitwerk: o nome diz o caminho
+
+Você nunca escreve `require` no Rails. Por quê?
+
+O **Zeitwerk** carrega a classe no instante em que você a menciona, e descobre o arquivo pelo
+**nome da classe**:
+
+```
+Api::V1::StatusController  →  app/controllers/api/v1/status_controller.rb
+```
+
+Errou o caminho, a classe simplesmente não existe. Não é questão de estilo — é o mecanismo que faz
+"convenção sobre configuração" funcionar de verdade.
+
+### Os três ambientes
+
+| Ambiente | Onde | Como se comporta |
+|---|---|---|
+| `development` | sua máquina | recarrega o código a cada requisição, log verboso, erro na tela |
+| `test` | os testes | banco separado, limpo a cada teste |
+| `production` | o servidor | código congelado, log enxuto, erro genérico |
+
+Cada um tem um arquivo em `config/environments/`. `Rails.env` diz onde você está.
+
+É assim que o e-mail abre no navegador em desenvolvimento e sai por SMTP em produção — mesmo
+código, ambientes diferentes.
+
 ---
 
-## 6. Mão na massa
+## 7. Mão na massa
 
 ### Criar o projeto
 
@@ -325,7 +498,7 @@ método sem escrever um arquivo.
 
 ---
 
-## 7. A primeira rota
+## 8. A primeira rota
 
 `config/routes.rb`:
 

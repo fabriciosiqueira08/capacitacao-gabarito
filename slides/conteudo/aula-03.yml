@@ -1,0 +1,546 @@
+aula: 3
+titulo: "Autenticação"
+
+slides:
+  - tipo: capa
+    titulo: "As Rotas de\nAutenticação"
+    corpo: |
+      Capacitação Back-end
+      Aula 3 de 4
+
+      Fabrício Siqueira
+
+  - tipo: objetivos
+    titulo: "OBJETIVOS"
+    bullets:
+      - "Cadastro, ativação, login, logout e recuperação de senha."
+      - "Entender JWT de verdade — e o que ele não é."
+      - "Descobrir por que logout é o problema difícil."
+      - "Aprender a não vazar informação nas respostas."
+
+  - tipo: codigo
+    titulo: "O CAMINHO DE UMA REQUISIÇÃO"
+    codigo: |
+      requisição → rota → controller → service → model → banco
+                             ↓
+                        serializer → JSON
+
+      # A regra que organiza tudo:
+      # Controller recebe requisição e devolve resposta.
+      # Regra de negócio NÃO mora nele.
+
+  - tipo: secao
+    titulo: "ARQUITETURA"
+
+  - tipo: bullets
+    titulo: "POR QUE SERVICE OBJECT"
+    bullets:
+      - "Users::Register faz seis coisas."
+      - "Dentro do controller vira um método de 60 linhas."
+      - "E só dá para testar subindo uma requisição HTTP inteira."
+      - "Fora dele: testável direto e reaproveitável."
+      - "O padrão é sempre igual: um call de classe, um Result."
+
+  - tipo: codigo
+    titulo: "O FORMATO DE UM SERVICE"
+    codigo: |
+      result = Users::Register.call(name: "...", email: "...")
+
+      result.success?   # true / false
+      result.user
+      result.errors     # [{ field: "password", message: "..." }]
+
+  - tipo: bullets
+    titulo: "POR QUE SERIALIZER"
+    bullets:
+      - "render json: user manda o objeto INTEIRO."
+      - "Incluindo password_digest e os digests dos códigos."
+      - "Vazamento em uma linha."
+      - "O serializer é a lista de convidados: só entra quem está escrito lá."
+
+  - tipo: codigo
+    titulo: "UM FORMATO DE ERRO SÓ"
+    codigo: |
+      {
+        "error": {
+          "code": "validation_failed",
+          "message": "Falha na validação",
+          "details": [
+            { "field": "password", "message": "deve incluir um dígito" }
+          ]
+        }
+      }
+
+  - tipo: bullets
+    titulo: "LENDO O FORMATO DE ERRO"
+    bullets:
+      - "code é estável — o cliente decide o que fazer com base nele."
+      - "message é para o usuário ler. Pode mudar, pode ser traduzida."
+      - "details diz qual campo falhou, para o app pintar o input de vermelho."
+      - "API que erra de três jeitos força o cliente a tratar os três."
+
+  - tipo: codigo  # EXTRA
+    titulo: "BEFORE_ACTION: O FILTRO"
+    codigo: |
+      class MeController < BaseController
+        before_action :authenticate_user!
+
+        def show
+          render_user(current_user)   # só roda se passou pelo filtro
+        end
+      end
+
+      # O filtro roda ANTES da action.
+      # Se ele renderizar alguma coisa (o 401), a action nem é chamada.
+      #
+      # only: e except: limitam a quais actions ele se aplica:
+      #   before_action :authenticate_user!, only: :destroy
+
+  - tipo: bullets  # EXTRA
+    titulo: "A PILHA DE MIDDLEWARE"
+    bullets:
+      - "A requisição não cai direto no controller."
+      - "Ela atravessa uma pilha de camadas — o middleware."
+      - "Cada camada pode ler, alterar, ou responder e cortar o caminho."
+      - "É onde moram CORS, cookies e rate limit."
+      - "bin/rails middleware lista a pilha inteira do seu app."
+      - "O modo --api remove várias. Trouxemos os cookies de volta na mão."
+
+  - tipo: codigo  # EXTRA
+    titulo: "O CAMINHO COMPLETO"
+    codigo: |
+      requisição
+         ↓
+      [ Rack::Cors ]          ← libera (ou não) a origem
+      [ ActionDispatch::Cookies ]
+      [ ... ]
+         ↓
+      rota → before_action → controller → service → model
+         ↓
+      serializer → JSON → resposta (voltando pela mesma pilha)
+
+  - tipo: codigo
+    titulo: "STRONG PARAMETERS"
+    codigo: |
+      def registration_params
+        expect_root_params(:name, :email, :password, :confirm_password,
+                           :course, :matricula, :check_terms_use)
+      end
+
+      # params.expect EXIGE essas chaves e RECUSA o resto.
+      #
+      # Sem isso alguém manda "role": "admin" no cadastro e vira admin.
+      # O nome disso é mass assignment.
+
+  - tipo: secao
+    titulo: "CADASTRO"
+
+  - tipo: codigo
+    titulo: "POST /API/V1/REGISTRATIONS"
+    codigo: |
+      {
+        "name": "Diego Reis",
+        "email": "diego@aluno.ufop.edu.br",
+        "password": "Automic@2026",
+        "confirm_password": "Automic@2026",
+        "course": "Engenharia de Minas",
+        "matricula": "2013333",
+        "check_terms_use": true
+      }
+
+      → 201 Created + e-mail de ativação a caminho
+
+  - tipo: bullets
+    titulo: "A DECISÃO QUE NÃO É ÓBVIA"
+    bullets:
+      - "E-mail já cadastrado NÃO devolve 'este e-mail já existe'."
+      - "Se devolvesse, o cadastro viraria um verificador."
+      - "Testo mil e-mails e descubro quem tem conta no sistema."
+      - "Chama-se enumeração de usuários."
+      - "O custo é real: quem esqueceu que já tem conta fica sem mensagem clara."
+      - "A saída é o texto convidar a usar 'esqueci minha senha'."
+    notas: |
+      Este assunto volta mais três vezes hoje. Vale marcar.
+
+  - tipo: secao
+    titulo: "E-MAIL"
+
+  - tipo: codigo
+    titulo: "O MAILER"
+    codigo: |
+      class UserMailer < ApplicationMailer
+        def email_verification(user, code)
+          @user = user
+          @code = code
+          mail(to: @user.email, subject: "Ative sua conta")
+        end
+      end
+
+      # O template fica em:
+      # app/views/user_mailer/email_verification.text.erb
+      #
+      # Um mailer é um controller cujas views são e-mails.
+
+  - tipo: bullets
+    titulo: "EM DESENVOLVIMENTO NÃO HÁ SMTP"
+    bullets:
+      - "letter_opener abre o e-mail no navegador."
+      - "config.action_mailer.delivery_method = :letter_opener"
+      - "Em produção, SMTP_ADDRESS e companhia vêm dos secrets do Kamal."
+      - "O mesmo código, dois comportamentos, decididos por ENV."
+
+  - tipo: bullets
+    titulo: "DELIVER_NOW, E NÃO DELIVER_LATER"
+    bullets:
+      - "O jeito de livro seria jogar numa fila."
+      - "Aqui não. O motivo é o código de 6 dígitos."
+      - "Numa fila, ele ficaria gravado EM TEXTO na tabela de jobs."
+      - "O preço é a requisição esperar o SMTP."
+      - "Por isso o service tem rescue: falha de envio não pode virar 500."
+
+  - tipo: secao
+    titulo: "SESSÃO"
+
+  - tipo: bullets
+    titulo: "O PROBLEMA"
+    bullets:
+      - "Lembra da Aula 1? HTTP não tem memória."
+      - "Cada requisição começa do zero."
+      - "Então como o servidor sabe que você já entrou?"
+
+  - tipo: duas_colunas
+    titulo: "DUAS FAMÍLIAS DE RESPOSTA"
+    esquerda_titulo: "SESSÃO NO SERVIDOR"
+    esquerda:
+      - "O servidor guarda a sessão"
+      - "Manda um id no cookie"
+      - "Toda requisição consulta"
+      - "Logout é apagar — imediato"
+      - "Escalar exige sessão compartilhada"
+    direita_titulo: "TOKEN"
+    direita:
+      - "O servidor não guarda nada"
+      - "Manda um crachá assinado"
+      - "Só validar a assinatura"
+      - "Logout é o problema difícil"
+      - "Qualquer servidor valida sozinho"
+    notas: |
+      Escolhemos token porque o cliente principal é um app nativo — que não
+      tem cookie e roda em milhares de celulares.
+
+  - tipo: codigo
+    titulo: "ANATOMIA DE UM JWT"
+    codigo: |
+      eyJhbGciOiJIUzI1NiJ9 . eyJzdWIiOjIsInZlciI6MH0 . 4pQ8L_5fT...
+          cabeçalho                  payload            assinatura
+
+      # Três partes em Base64, separadas por ponto.
+
+  - tipo: bullets  # EXTRA
+    titulo: "BASE64 NÃO É SEGREDO"
+    bullets:
+      - "Base64 é uma forma de escrever bytes usando só letras e números."
+      - "Serve para caber num cabeçalho HTTP, que é texto."
+      - "Não é criptografia. Não tem chave. Qualquer um desfaz."
+      - "echo eyJzdWIiOjJ9 | base64 -d  →  {\"sub\":2}"
+      - "Aquele monte de caractere no JWT é isso: texto disfarçado."
+
+  - tipo: bullets
+    titulo: "O PAYLOAD É PÚBLICO"
+    bullets:
+      - "Cole um token em jwt.io e você lê tudo."
+      - "A assinatura garante que ninguém ALTEROU o conteúdo."
+      - "Não que ninguém LEU."
+      - "Assinado não é criptografado."
+      - "Nunca ponha no payload nada que não possa ser lido."
+      - "- nem CPF, nem e-mail, nem permissão sensível."
+
+  - tipo: codigo
+    titulo: "O NOSSO PAYLOAD"
+    codigo: |
+      {
+        sub: user.id,                  # de quem é o token
+        ver: user.token_version,       # versão das sessões
+        jti: SecureRandom.uuid,        # id único deste token
+        exp: 24.hours.from_now.to_i,   # expiração
+        iat: Time.current.to_i         # emitido em
+      }
+
+  - tipo: codigo
+    titulo: "O DETALHE QUE QUEBRA TUDO"
+    codigo: |
+      JWT.decode(token, secret, true, { algorithm: "HS256" })
+      #                         ^^^^
+
+      # Esse `true` é a validação da assinatura.
+      #
+      # Com `false`, o decode aceita QUALQUER token — e qualquer
+      # pessoa forja o próprio acesso trocando o `sub`.
+      #
+      # Já foi CVE em várias bibliotecas.
+
+  - tipo: secao
+    titulo: "LOGIN"
+
+  - tipo: duas_colunas
+    titulo: "DOIS CLIENTES, DOIS TRANSPORTES"
+    esquerda_titulo: "MOBILE"
+    esquerda:
+      - "Authorization: Bearer <token>"
+      - "App nativo não tem cookie"
+      - "O app guarda no keychain"
+    direita_titulo: "WEB"
+    direita:
+      - "Cookie assinado e httpOnly"
+      - "JavaScript não lê o cookie"
+      - "Um XSS não rouba o token"
+
+  - tipo: bullets  # EXTRA
+    titulo: "O QUE É UM COOKIE"
+    bullets:
+      - "Um par nome=valor que o servidor manda no cabeçalho Set-Cookie."
+      - "O navegador guarda e reenvia SOZINHO, em toda requisição àquele site."
+      - "É a memória que o HTTP não tem, colada por fora."
+      - "Quem manda é o navegador — o app nativo não participa disso."
+      - "assinado (signed): o Rails carimba o valor;"
+      - "- alterou na mão, o Rails recusa."
+
+  - tipo: codigo
+    titulo: "O COOKIE DO CLIENTE WEB"
+    codigo: |
+      cookies.signed[AUTH_COOKIE] = {
+        value: token,
+        httponly: true,                   # JavaScript não enxerga
+        secure: Rails.env.production?,    # só trafega em HTTPS
+        same_site: :lax                   # mitiga CSRF
+      }
+
+  - tipo: bullets  # EXTRA
+    titulo: "XSS"
+    bullets:
+      - "Cross-Site Scripting."
+      - "O atacante consegue rodar JavaScript DENTRO da sua página."
+      - "Como? Você exibiu texto de usuário sem escapar."
+      - "- alguém salva <script>...</script> como nome e você imprime cru"
+      - "Com JS rodando na página, ele lê tudo que o JS lê."
+      - "É por isso que httponly existe: o token no cookie fica fora do alcance."
+
+  - tipo: bullets  # EXTRA
+    titulo: "CSRF"
+    bullets:
+      - "Cross-Site Request Forgery."
+      - "Lembra que o navegador reenvia o cookie SOZINHO?"
+      - "Um site malicioso monta um formulário que aponta para a sua API."
+      - "A vítima clica; o navegador anexa o cookie dela; a API obedece."
+      - "same_site: :lax manda o navegador não enviar o cookie"
+      - "- quando a requisição vem de outro site."
+      - "API com token no cabeçalho não sofre disso: ninguém anexa por você."
+
+  - tipo: bullets
+    titulo: "401  ×  403"
+    bullets:
+      - "401 Unauthorized — não sabemos quem é você."
+      - "- senha errada, token ausente, token inválido"
+      - "403 Forbidden — sabemos quem é você, e você não pode."
+      - "- conta sem e-mail confirmado"
+      - "Trocar os dois é o erro mais comum em API."
+
+  - tipo: bullets
+    titulo: "A MESMA MENSAGEM PARA OS DOIS ERROS"
+    bullets:
+      - "E-mail inexistente e senha errada: mesmo código, mesma mensagem."
+      - "invalid_credentials para os dois. Terceira vez que isso aparece."
+      - "E lembra do DUMMY_PASSWORD_DIGEST da Aula 2?"
+      - "Ele fecha o buraco pelo lado do TEMPO."
+      - "Não adianta a mensagem ser igual se a resposta volta em 1ms num caso"
+      - "- e em 100ms no outro."
+
+  - tipo: secao
+    titulo: "LOGOUT"
+
+  - tipo: bullets
+    titulo: "O PROBLEMA DIFÍCIL"
+    bullets:
+      - "Um JWT é válido até expirar."
+      - "O servidor não guarda sessão."
+      - "Então 'sair' não existe."
+      - "O token continua funcionando por até 24 horas."
+
+  - tipo: bullets
+    titulo: "TRÊS RESPOSTAS POSSÍVEIS"
+    bullets:
+      - "a) Apagar no cliente."
+      - "- resolve o caso normal, não resolve nada se copiaram o token"
+      - "b) Denylist por jti — revoga aquele token."
+      - "c) token_version — derruba todos os tokens do usuário."
+      - "Usamos b e c."
+
+  - tipo: codigo
+    titulo: "DENYLIST POR JTI"
+    codigo: |
+      def revoke(payload)
+        jti = payload[:jti]
+        ttl = payload[:exp].to_i - Time.current.to_i
+        return false if jti.blank? || ttl <= 0
+
+        Rails.cache.write(key(jti), true, expires_in: ttl.seconds)
+      end
+
+      def revoked?(jti)
+        Rails.cache.exist?(key(jti))
+      end
+
+  - tipo: bullets
+    titulo: "A SACADA ESTÁ NO TTL"
+    bullets:
+      - "Cada entrada vive o tempo que faltava para o token expirar."
+      - "Depois disso o token morre sozinho e a entrada não serve mais."
+      - "A lista se limpa sem varredura e sem lixo acumulado."
+      - "Isso revoga UM token."
+      - "Logout no celular não derruba o notebook — e é o certo."
+
+  - tipo: codigo
+    titulo: "TOKEN_VERSION: DERRUBA TUDO"
+    codigo: |
+      def token_version_matches?(submitted_version)
+        token_version == submitted_version.to_i
+      end
+
+      def invalidate_sessions!
+        update!(token_version: token_version + 1)
+      end
+
+      # O token carrega o `ver` de quando foi emitido.
+      # Incrementar a coluna invalida TODOS os tokens do usuário,
+      # em todos os dispositivos.
+
+  - tipo: codigo
+    titulo: "A VERIFICAÇÃO COMPLETA"
+    codigo: |
+      def user_from_token(token)
+        payload = Auth::DecodeToken.call(token)              # 1. assinatura?
+        return if Auth::TokenDenylist.revoked?(payload[:jti]) # 2. revogado?
+
+        user = User.find_by(id: payload[:sub])
+        user if user&.token_version_matches?(payload[:ver])   # 3. versão bate?
+      rescue Auth::DecodeToken::InvalidToken
+        nil
+      end
+
+  - tipo: secao
+    titulo: "SENHA"
+
+  - tipo: bullets
+    titulo: "RECUPERAÇÃO EM DOIS PASSOS"
+    bullets:
+      - "POST /password_resets/request  { email }"
+      - "POST /password_resets/confirm  { email, code, password, confirm_password }"
+      - "Público: quem esqueceu a senha não consegue se autenticar para pedir."
+
+  - tipo: bullets
+    titulo: "REQUEST SEMPRE RESPONDE 200"
+    bullets:
+      - "E-mail inexistente, não verificado, em cooldown, SMTP fora do ar."
+      - "Mesma resposta, mesmo status, sempre."
+      - "Se respondesse 404, esta rota pública viraria verificador de cadastro."
+      - "Quarta vez que o assunto aparece hoje:"
+      - "- em autenticação, resposta diferente vaza informação."
+
+  - tipo: bullets
+    titulo: "DUAS GUARDAS DENTRO"
+    bullets:
+      - "Só conta verificada recebe código."
+      - "- senão dá para sequestrar cadastro feito com o e-mail de outra pessoa"
+      - "Cooldown de 1 minuto."
+      - "- senão usam o seu servidor de e-mail para incomodar terceiros"
+
+  - tipo: codigo
+    titulo: "CONFIRM: A TRANSAÇÃO"
+    codigo: |
+      User.transaction do
+        user.save!                       # troca a senha
+        user.invalidate_sessions!        # derruba todas as sessões
+        user.clear_password_reset_code!  # consome o código
+      end
+
+      # As três juntas ou nenhuma.
+      #
+      # Sem a transação, uma falha no meio deixa a senha trocada
+      # com o código ainda valendo.
+
+  - tipo: bullets
+    titulo: "DUAS SUTILEZAS DE ORDEM"
+    bullets:
+      - "A política de senha é conferida ANTES de consumir o código."
+      - "- senão quem digita a senha nova errada perde o código"
+      - "invalidate_sessions! é o ponto do fluxo inteiro."
+      - "- se alguém invadiu a conta, trocar a senha tem que expulsar o invasor"
+      - "- sem essa linha, ele continua logado com o token antigo"
+
+  - tipo: secao
+    titulo: "TESTES"
+
+  - tipo: codigo
+    titulo: "O TESTE QUE RESUME A AULA"
+    codigo: |
+      test "logout revoga o token apresentado" do
+        token = login_as(users(:ana))
+
+        get "/api/v1/me", headers: auth_headers(token)
+        assert_response :ok
+
+        delete "/api/v1/sessions", headers: auth_headers(token)
+
+        get "/api/v1/me", headers: auth_headers(token)
+        assert_response :unauthorized   # sem a denylist, daria 200
+      end
+
+  - tipo: bullets
+    titulo: "UMA PEGADINHA DE TESTE"
+    bullets:
+      - "Em teste, o Rails.cache padrão é o null_store."
+      - "Ele não guarda nada."
+      - "O teste acima passaria de graça, provando nada."
+      - "Por isso o test_helper troca por um MemoryStore."
+      - "Teste que passa sem exercitar a lógica é pior que teste nenhum."
+
+  - tipo: bullets
+    titulo: "AS FERRAMENTAS DE QUALIDADE"
+    bullets:
+      - "bin/rubocop — estilo. O black/ruff do Ruby."
+      - "bin/brakeman — análise estática de segurança."
+      - "bundler-audit — gems com CVE conhecido."
+      - "As três rodam no CI, na Aula 4."
+
+  - tipo: bullets
+    titulo: "CORS"
+    bullets:
+      - "O navegador bloqueia página em painel.exemplo.com chamar api.exemplo.com."
+      - "Esta config é a API dizendo quais origens aceita."
+      - "O app nativo NÃO passa por CORS — é regra de navegador."
+      - "Na prática, existe por causa do painel web."
+
+  - tipo: pratica
+    titulo: "PRÁTICA"
+    bullets:
+      - "Monte as cinco rotas."
+      - "No Insomnia, uma requisição para cada uma."
+      - "Percorra: cadastro → e-mail → confirmação → login → /me → logout → 401."
+      - "Recupere a senha e confira que o token antigo parou de funcionar."
+      - "Cole o seu token em jwt.io e ache o sub, o jti e o exp."
+      - "Rode test, rubocop e brakeman."
+
+  - tipo: bullets
+    titulo: "RECAPITULANDO"
+    bullets:
+      - "Controller recebe e responde; a regra mora no service."
+      - "Serializer é a lista de convidados — sem ele o digest vaza."
+      - "O payload do JWT é público. Assinado ≠ criptografado."
+      - "Logout de verdade precisa de denylist por jti."
+      - "token_version derruba tudo, e é o que a troca de senha usa."
+      - "Em autenticação, resposta diferente vaza informação."
+
+  - tipo: fim
+    titulo: "ATÉ A PRÓXIMA!"
+    corpo: |
+      VAMOS COLOCAR NO AR

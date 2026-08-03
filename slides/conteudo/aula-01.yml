@@ -157,6 +157,48 @@ slides:
       - "O cliente sempre começa a conversa. O servidor nunca liga primeiro."
       - "Entre os dois: a internet, e o protocolo HTTP."
 
+  - tipo: bullets  # EXTRA
+    titulo: "O QUE É UM SERVIDOR, AFINAL"
+    bullets:
+      - "Não é uma máquina especial. É um programa esperando."
+      - "Ele fica ligado, escutando numa PORTA."
+      - "Chegou requisição naquela porta, ele responde."
+      - "bin/rails server sobe esse programa na porta 3000."
+      - "Na sua máquina ou numa VM na nuvem — é o mesmo programa."
+
+  - tipo: bullets  # EXTRA
+    titulo: "IP E PORTA"
+    bullets:
+      - "IP é o endereço da máquina. Ex.: 57.156.65.151"
+      - "Porta é a sala dentro dela. Um número de 1 a 65535."
+      - "Uma máquina, milhares de portas, um programa em cada."
+      - "- 22 SSH · 80 HTTP · 443 HTTPS · 5432 Postgres · 3000 Rails em dev"
+      - "127.0.0.1 (localhost) é sempre 'esta máquina aqui'."
+      - "Na Aula 4 vamos abrir e fechar portas na mão. Guarde isso."
+
+  - tipo: bullets  # EXTRA
+    titulo: "DNS: DE NOME PARA NÚMERO"
+    bullets:
+      - "Ninguém decora 57.156.65.151."
+      - "O DNS é a agenda telefônica da internet."
+      - "Você digita api.seemxxiii.tech; alguém pergunta ao DNS o IP."
+      - "A resposta fica em cache por um tempo — o TTL."
+      - "É por isso que trocar um domínio de servidor não vale na hora."
+      - "Na Aula 4 você vai criar um desses registros."
+
+  - tipo: codigo  # EXTRA
+    titulo: "ANATOMIA DE UMA URL"
+    codigo: |
+      https :// api.seemxxiii.tech : 443 /api/v1/lectures ?page=2 #topo
+        │             │              │          │           │      │
+      esquema        host          porta     caminho      query  fragmento
+
+      # O esquema diz o protocolo (http, https, ssh, postgres...).
+      # A porta é opcional: http assume 80, https assume 443.
+      #
+      # É por isso que localhost:3000 tem os dois pontos:
+      # a porta não é a padrão.
+
   - tipo: bullets
     titulo: "HTTP"
     bullets:
@@ -165,6 +207,39 @@ slides:
       - "A requisição tem: método, caminho, cabeçalhos e corpo."
       - "A resposta tem: status, cabeçalhos e corpo."
       - "É sem memória: cada requisição começa do zero."
+
+  - tipo: codigo  # EXTRA
+    titulo: "UMA REQUISIÇÃO CRUA"
+    codigo: |
+      POST /api/v1/sessions HTTP/1.1        ← método, caminho, versão
+      Host: api.seemxxiii.tech              ┐
+      Content-Type: application/json        │ cabeçalhos
+      Accept: application/json              ┘
+                                            ← linha em branco separa
+      {"email":"ana@ufop.br","password":"..."}   ← corpo
+
+      # É texto puro. HTTP é literalmente isso trafegando num cano.
+
+  - tipo: bullets  # EXTRA
+    titulo: "OS CABEÇALHOS"
+    bullets:
+      - "São metadados: informação SOBRE a mensagem, não a mensagem."
+      - "Chave: valor, uma por linha."
+      - "Content-Type — em que formato vai o corpo"
+      - "Accept — em que formato eu quero a resposta"
+      - "Authorization — quem sou eu (vai ser o nosso token, na Aula 3)"
+      - "Set-Cookie / Cookie — como o navegador guarda estado"
+      - "User-Agent — que programa está chamando"
+
+  - tipo: bullets  # EXTRA
+    titulo: "CONTENT-TYPE IMPORTA"
+    bullets:
+      - "O mesmo corpo, dois formatos possíveis:"
+      - "- application/json → {\"email\":\"ana@ufop.br\"}"
+      - "- application/x-www-form-urlencoded → email=ana%40ufop.br"
+      - "Sem o cabeçalho, o servidor não sabe como ler o corpo."
+      - "Esquecer isso no curl é o erro nº 1 de quem começa:"
+      - "- vem 400 e a mensagem não ajuda em nada."
     notas: |
       "Sem memória" (stateless) é a semente do problema de autenticação da
       Aula 3: se o servidor esquece tudo entre uma requisição e outra, como
@@ -362,6 +437,71 @@ slides:
       - "- save! salva e estoura erro se falhar"
       - "É convenção, não regra da linguagem. Mas todo mundo segue."
 
+  - tipo: codigo  # EXTRA
+    titulo: "ARGUMENTOS NOMEADOS"
+    codigo: |
+      # Python
+      def login(email, password, client="mobile"): ...
+      login(email="a@b.c", password="x")
+
+      # Ruby — os dois-pontos DEPOIS do nome tornam obrigatório nomear
+      def login(email:, password:, client: "mobile")
+      end
+      login(email: "a@b.c", password: "x")
+
+      # E desde o Ruby 3.1, se a variável tem o mesmo nome da chave:
+      email = "a@b.c"
+      login(email:, password:)     # em vez de login(email: email, ...)
+    notas: |
+      Esse atalho aparece em TODO service do projeto — `Result.new(success?: true, user:)`.
+      Sem explicar, eles leem como erro de digitação.
+
+  - tipo: codigo  # EXTRA
+    titulo: "STRUCT: UMA CLASSE DE UMA LINHA"
+    codigo: |
+      # Quando você só quer agrupar valores, sem comportamento:
+      Result = Struct.new(:success?, :user, :errors, keyword_init: true)
+
+      r = Result.new(success?: true, user: ana)
+      r.success?   # true
+      r.user       # ana
+
+      # keyword_init: true obriga a nomear na criação.
+      #
+      # É o namedtuple / dataclass do Python.
+      # Todo service do projeto devolve um Struct desses.
+
+  - tipo: bullets  # EXTRA
+    titulo: "EXCEÇÕES"
+    bullets:
+      - "Mesma ideia do Python, outra palavra."
+      - "- try  → begin"
+      - "- except → rescue"
+      - "- finally → ensure"
+      - "- raise → raise (igual)"
+      - "Em método, o begin é implícito: dá para escrever só rescue no fim."
+      - "raise sem argumento re-lança a exceção atual."
+
+  - tipo: codigo  # EXTRA
+    titulo: "EXCEÇÕES NA PRÁTICA"
+    codigo: |
+      # Python                        # Ruby
+      try:                            begin
+          arriscado()                   arriscado
+      except ValueError as e:         rescue ArgumentError => e
+          print(e)                      puts e.message
+      finally:                        ensure
+          limpar()                      limpar
+                                      end
+
+      # Criando o seu próprio tipo de erro:
+      class InvalidToken < StandardError; end
+
+      raise InvalidToken if token_ruim?
+    notas: |
+      `class InvalidToken < StandardError; end` aparece em Auth::DecodeToken na
+      Aula 3. Sempre herde de StandardError, nunca de Exception.
+
   - tipo: bullets
     titulo: "MÓDULOS E MIXINS"
     bullets:
@@ -479,6 +619,26 @@ slides:
       Sem o --api o Rails traz o pacote completo de site com telas. Não
       precisamos de nada disso, e cada peça a menos é uma peça a menos para
       dar problema.
+
+  - tipo: bullets  # EXTRA
+    titulo: "ZEITWERK: O NOME DIZ O CAMINHO"
+    bullets:
+      - "Você nunca escreve require no Rails. Por quê?"
+      - "O Zeitwerk carrega a classe na hora em que você a menciona."
+      - "E ele descobre o arquivo pelo NOME da classe:"
+      - "- Api::V1::StatusController → app/controllers/api/v1/status_controller.rb"
+      - "Errou o caminho, a classe não existe. Não é estilo — é mecanismo."
+      - "É o que faz 'convenção sobre configuração' funcionar de verdade."
+
+  - tipo: bullets  # EXTRA
+    titulo: "OS TRÊS AMBIENTES"
+    bullets:
+      - "development — sua máquina. Recarrega código, log verboso, erro na tela."
+      - "test — os testes. Banco separado, que é limpo a cada teste."
+      - "production — o servidor. Código congelado, log enxuto, erro genérico."
+      - "config/environments/ tem um arquivo para cada."
+      - "Rails.env diz onde você está."
+      - "É assim que o e-mail abre no navegador em dev e vai por SMTP em produção."
 
   - tipo: bullets
     titulo: "TOUR DAS PASTAS"
