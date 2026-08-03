@@ -594,19 +594,152 @@ curl $API/me -H "Authorization: Bearer $TOKEN"          # 401
 
 ## Exercício da aula
 
-1. Monte as cinco rotas.
-2. No Insomnia, crie uma coleção com uma requisição para cada uma.
-3. Percorra o fluxo inteiro: cadastro → e-mail → confirmação → login → `/me` → logout → `/me` (401).
-4. Peça recuperação de senha, troque a senha e confira que **o token antigo parou de funcionar**.
-5. Cole o seu token em [jwt.io](https://jwt.io) e leia o payload. Ache o `sub`, o `jti` e o `exp`.
-6. Rode `bin/rails test`, `bin/rubocop` e `bin/brakeman`.
+> São 1400 linhas em 37 arquivos. **Ninguém digita isso em três horas** — e não é esse o objetivo.
+> O que você tem que sair sabendo é *por que* cada peça existe.
 
-**Bônus 1**: crie `PATCH /api/v1/me` para o usuário editar o próprio `name` — e só o `name`.
+### 1. Traga o código para o seu projeto
 
-**Bônus 2**: descubra o que acontece se você trocar o `true` do `JWT.decode` por `false` e chamar
-`/me` com um token forjado. Depois desfaça.
+```bash
+cd ~/capacitacao-gabarito && git checkout aula-03
+rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
 
-Travou? Compare com o gabarito: `cd ~/capacitacao-gabarito && git checkout aula-03`.
+cd ~/automic_auth_api
+bundle install
+bin/rails db:migrate
+bin/rails test
+```
+
+**Meta: 71 testes verdes.** Se não deram, pare aqui e resolva antes de seguir.
+
+> O `Gemfile` vai junto porque esta aula acrescenta `jwt`, `rack-cors` e `letter_opener`. Sem ele a
+> aplicação nem sobe: você recebe `uninitialized constant Rack::Cors`.
+
+### 2. Leia os cinco arquivos que importam
+
+Nesta ordem, e **abrindo cada um no editor**:
+
+| Arquivo | A pergunta que ele responde |
+|---|---|
+| `app/services/users/register.rb` | Por que a regra não fica no controller? |
+| `app/services/auth/issue_token.rb` | O que exatamente vai dentro do token? |
+| `app/controllers/concerns/api/v1/authentication.rb` | Como o servidor sabe quem está chamando? |
+| `app/services/auth/token_denylist.rb` | Como um JWT deixa de valer antes de expirar? |
+| `app/services/users/complete_password_reset.rb` | Por que tudo numa transação? |
+
+### 3. Monte a coleção no Insomnia
+
+Uma requisição para cada rota. Todas com `Content-Type: application/json`.
+
+```
+POST   /api/v1/registrations
+POST   /api/v1/email_verifications/confirm
+POST   /api/v1/email_verifications/resend
+POST   /api/v1/sessions
+DELETE /api/v1/sessions
+POST   /api/v1/password_resets/request
+POST   /api/v1/password_resets/confirm
+GET    /api/v1/me
+```
+
+### 4. Percorra o fluxo inteiro
+
+Com o servidor rodando (`bin/rails server`):
+
+```bash
+API=localhost:3000/api/v1
+EMAIL=voce@aluno.ufop.edu.br
+
+# cadastro
+curl -X POST $API/registrations -H 'Content-Type: application/json' -d "{
+  \"name\":\"Seu Nome\",\"email\":\"$EMAIL\",
+  \"password\":\"Automic@2026\",\"confirm_password\":\"Automic@2026\",
+  \"course\":\"Engenharia\",\"matricula\":\"2013333\",\"check_terms_use\":true}"
+```
+
+**Confira**: `201`, e o e-mail abriu no navegador (letter_opener). Anote o código de 6 dígitos.
+
+```bash
+# login antes de confirmar
+curl -i -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}"
+```
+
+**Confira**: `403 email_unverified`. É a conta ainda não ativada.
+
+```bash
+# confirma
+curl -X POST $API/email_verifications/confirm -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\",\"code\":\"COLE_O_CODIGO\"}"
+
+# login de novo, guardando o token do cabeçalho
+TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}" \
+  | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
+echo $TOKEN
+
+curl $API/me -H "Authorization: Bearer $TOKEN"        # 200
+curl -X DELETE $API/sessions -H "Authorization: Bearer $TOKEN"
+curl -i $API/me -H "Authorization: Bearer $TOKEN"     # 401
+```
+
+**Confira**: o último tem que ser `401`. Sem a denylist, seria `200` — é este assert que prova que o
+logout serve para alguma coisa.
+
+### 5. Recuperação de senha, e o token que morre
+
+```bash
+TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}" \
+  | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
+
+curl -X POST $API/password_resets/request -H 'Content-Type: application/json' -d "{\"email\":\"$EMAIL\"}"
+# pegue o código no navegador
+curl -X POST $API/password_resets/confirm -H 'Content-Type: application/json' -d "{
+  \"email\":\"$EMAIL\",\"code\":\"COLE\",
+  \"password\":\"NovaSenha@9\",\"confirm_password\":\"NovaSenha@9\"}"
+
+curl -i $API/me -H "Authorization: Bearer $TOKEN"     # 401 — invalidate_sessions!
+```
+
+**Confira também**: `curl -X POST $API/password_resets/request -d '{"email":"ninguem@ufop.br"}'`
+responde exatamente a mesma coisa. É a resistência a enumeração.
+
+### 6. Leia o seu próprio token
+
+Cole o `$TOKEN` em [jwt.io](https://jwt.io). Ache o `sub`, o `jti` e o `exp`. Converta o `exp` para
+data e confira que é daqui a 24 horas.
+
+### 7. Qualidade e commit
+
+```bash
+bin/rails test          # 71 verdes
+bin/rubocop
+bin/brakeman --no-pager
+git add -A && git commit -m "Rotas de autenticação" && git push
+```
+
+---
+
+**Bônus 1**: crie `PATCH /api/v1/me` para o usuário editar o próprio `name`, **e só o `name`**.
+Tente mandar `"role": "admin"` junto e confirme que o `params.expect` recusa.
+
+**Bônus 2**: em `app/services/auth/decode_token.rb`, troque o `true` por `false`:
+
+```ruby
+JWT.decode(@token, TokenSecret.call, false, { algorithm: "HS256" })
+```
+
+Depois forje um token assinado com outro segredo e chame `/me`:
+
+```bash
+bin/rails runner 'puts JWT.encode({sub: User.first.id, ver: 0, jti: "x",
+  exp: 1.hour.from_now.to_i}, "segredo-do-atacante", "HS256")'
+```
+
+Ele vai responder `200`. **Desfaça em seguida** e rode `bin/rails test` para ver o teste
+"recusa token assinado com outro segredo" pegar o problema.
+
+**Travou?** O gabarito é o mesmo código: `cd ~/capacitacao-gabarito && git checkout aula-03`.
 
 ---
 

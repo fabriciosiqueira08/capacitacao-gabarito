@@ -510,23 +510,227 @@ o mesmo. Vamos usar esse método na Aula 3.
 
 ## Exercício da aula
 
-1. Crie as três migrations e rode `bin/rails db:migrate`.
-2. Abra `db/schema.rb` e confira que as colunas estão lá.
-3. Escreva o `User` com `has_secure_password` e as validações.
-4. Crie os dois concerns e inclua no `User`.
-5. No console: crie um usuário, veja o `password_digest`, teste `authenticate`.
-6. Emita um código de verificação e confirme com ele. Depois tente confirmar de novo — tem que
-   recusar.
-7. Escreva os testes e rode `bin/rails test`.
+> No **seu** projeto (`~/automic_auth_api`), continuando de onde a Aula 1 parou.
+> Cada bloco termina com um comando de conferência: **não siga em frente com ele vermelho.**
 
-8. Crie a migration de `login_events`, o model com `belongs_to` e o `has_many` no `User`.
-9. No console: `users(:ana).login_events.create!(...)`, depois `user.login_events.recentes`.
-10. Apague um usuário que tenha eventos e confira que o histórico foi junto.
+### 1. A gem do bcrypt
 
-**Bônus**: escreva o N+1 de propósito (`User.all.each { |u| puts u.login_events.count }`), olhe o
-log para contar as consultas, e conserte com `includes`.
+No `Gemfile`, descomente (ou acrescente) a linha:
 
-Travou? Compare com o gabarito: `cd ~/capacitacao-gabarito && git checkout aula-02`.
+```ruby
+gem "bcrypt", "~> 3.1.7"
+```
+
+```bash
+bundle install
+```
+
+### 2. As três migrations da tabela `users`
+
+```bash
+bin/rails generate migration CreateUsers
+bin/rails generate migration AddEmailVerificationToUsers
+bin/rails generate migration AddPasswordResetToUsers
+```
+
+O conteúdo de cada uma está na seção **3. Migrations** desta apostila (a primeira) e abaixo:
+
+```ruby
+# add_email_verification_to_users.rb
+add_column :users, :email_verification_code_digest, :string
+add_column :users, :email_verification_expires_at, :datetime
+add_column :users, :email_verification_sent_at, :datetime
+add_column :users, :email_verified_at, :datetime
+
+# add_password_reset_to_users.rb
+add_column :users, :password_reset_code_digest, :string
+add_column :users, :password_reset_expires_at, :datetime
+add_column :users, :password_reset_sent_at, :datetime
+```
+
+```bash
+bin/rails db:migrate
+sed -n '/create_table "users"/,/^  end/p' db/schema.rb | grep -c "^    t\."
+```
+
+**Confira**: tem que sair **17** (as 16 colunas mais o `id`).
+
+### 3. O validador de senha
+
+Crie `app/validators/password_policy_validator.rb`:
+
+```ruby
+class PasswordPolicyValidator
+  SPECIAL_CHARACTERS = %r{[!@#$%^&*(),.?":{}|<>]}
+  MIN_LENGTH = 8
+  MAX_LENGTH = 16
+
+  def self.validate(password)
+    new(password).validate
+  end
+
+  def initialize(password)
+    @password = password.to_s
+  end
+
+  # Devolve uma lista de mensagens. Vazia significa senha aceita.
+  def validate
+    errors = []
+    errors << "deve ter entre #{MIN_LENGTH} e #{MAX_LENGTH} caracteres" unless length_valid?
+    errors << "deve incluir pelo menos uma letra maiúscula" unless @password.match?(/[A-Z]/)
+    errors << "deve incluir pelo menos uma letra minúscula" unless @password.match?(/[a-z]/)
+    errors << "deve incluir pelo menos um dígito" unless @password.match?(/\d/)
+    errors << "deve incluir pelo menos um caractere especial" unless @password.match?(SPECIAL_CHARACTERS)
+    errors
+  end
+
+  private
+
+  def length_valid?
+    @password.length.between?(MIN_LENGTH, MAX_LENGTH)
+  end
+end
+```
+
+Ele fica fora do model porque o cadastro precisa validar a senha **antes** de existir um `User`
+(Aula 3), e a recuperação de senha valida de novo na hora de trocar.
+
+```bash
+bin/rails runner 'p PasswordPolicyValidator.validate("abc")'
+# tem que sair a lista de erros
+bin/rails runner 'p PasswordPolicyValidator.validate("Automic@2026")'
+# tem que sair []
+```
+
+### 4. Os dois concerns
+
+Crie `app/models/concerns/email_verifiable.rb` e `app/models/concerns/password_resettable.rb`.
+O primeiro está inteiro na seção **7. Concerns**; o segundo é o mesmo desenho, trocando
+`email_verification_*` por `password_reset_*` e sem o `email_verified_at`.
+
+Métodos que cada um precisa ter:
+
+| `EmailVerifiable` | `PasswordResettable` |
+|---|---|
+| `email_verified?` | — |
+| `issue_email_verification_code!` | `issue_password_reset_code!` |
+| `verify_email_code!` | `verify_password_reset_code!` |
+| `verification_expired?` | `password_reset_expired?` |
+| `resend_verification_allowed?` | `password_reset_request_allowed?` |
+| — | `clear_password_reset_code!` |
+
+### 5. O model `User`
+
+Crie `app/models/user.rb` com `has_secure_password validations: false`, as seis validações, os três
+normalizadores e o `authenticate_by_email` (seções **4**, **5** e **11**).
+
+```bash
+bin/rails runner '
+u = User.new(name: "Ana", email: "ana@ufop.br", password: "Automic@2026",
+             course: "Automação", matricula: "2011234", terms_accepted_at: Time.current)
+puts u.valid?
+puts u.password_digest[0, 20]
+'
+```
+
+Tem que sair `true` e um digest começando em `$2a$12$`.
+
+### 6. A segunda tabela: `login_events`
+
+```bash
+bin/rails generate migration CreateLoginEvents
+```
+
+O conteúdo está na seção **6. Associações**. Depois crie `app/models/login_event.rb` com o
+`belongs_to :user` e o `scope :recentes`, e acrescente no `User`:
+
+```ruby
+has_many :login_events, dependent: :delete_all
+```
+
+```bash
+bin/rails db:migrate
+```
+
+### 7. Fixtures e testes
+
+Crie `test/fixtures/users.yml` com dois usuários — um verificado, outro não:
+
+```yaml
+ana:
+  name: Ana Souza
+  email: ana@aluno.ufop.edu.br
+  password_digest: <%= BCrypt::Password.create("Automic@2026") %>
+  course: Engenharia de Controle e Automação
+  matricula: "2011234"
+  terms_accepted_at: <%= 1.day.ago.to_fs(:db) %>
+  email_verified_at: <%= 1.day.ago.to_fs(:db) %>
+
+bruno:
+  name: Bruno Lima
+  email: bruno@aluno.ufop.edu.br
+  password_digest: <%= BCrypt::Password.create("Automic@2026") %>
+  course: Engenharia de Minas
+  matricula: "2019876"
+  terms_accepted_at: <%= 1.day.ago.to_fs(:db) %>
+  email_verified_at:
+```
+
+Depois escreva os testes de `user_test.rb`, dos dois concerns, do validador e do `login_event_test.rb`.
+Comece pelo que está na seção **10. Testando o model**.
+
+```bash
+bin/rails test
+```
+
+**Meta: 30 testes verdes.** O gabarito tem exatamente esse número.
+
+### 8. Console: veja funcionando
+
+```bash
+bin/rails db:seed          # depois de escrever o db/seeds.rb
+bin/rails console
+```
+
+```ruby
+u = User.first
+u.password_digest                       # o hash, nunca a senha
+u.authenticate("Automic@2026")          # devolve o user
+u.authenticate("errada")                # false
+
+codigo = u.issue_email_verification_code!
+u.verify_email_code!(codigo)            # true
+u.verify_email_code!(codigo)            # false — o código só vale uma vez
+
+u.login_events.create!(client: "mobile", occurred_at: Time.current)
+u.login_events.recentes.first.user.name # navega para o outro lado
+```
+
+### 9. Commit
+
+```bash
+bin/rubocop
+git add -A && git commit -m "Model User, concerns e associações" && git push
+```
+
+---
+
+**Bônus 1**: apague um usuário que tenha `login_events` e confirme que o histórico foi junto
+(`dependent: :delete_all`).
+
+**Bônus 2**: escreva o N+1 de propósito e conte as consultas no log:
+
+```ruby
+User.all.each { |u| puts u.login_events.count }              # N+1
+User.includes(:login_events).each { |u| puts u.login_events.count }
+```
+
+**Travou?** Compare arquivo por arquivo com o gabarito:
+
+```bash
+cd ~/capacitacao-gabarito && git checkout aula-02
+cat app/models/user.rb
+```
 
 ---
 
