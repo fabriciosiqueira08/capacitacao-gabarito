@@ -22,6 +22,8 @@ Rails.application.routes.draw do
       # apagar é sair. `as: nil` porque o helper de rota já nasceu no POST.
       delete "sessions", to: "sessions#destroy", as: nil
       get "me", to: "me#show"
+      # Últimos acessos da própria conta — exercita a associação user 1—N login_events.
+      get "me/login_events", to: "me/login_events#index"
     end
   end
 end

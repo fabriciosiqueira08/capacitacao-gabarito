@@ -19,6 +19,7 @@ module Api
 
         return render_login_error(result.error_code) unless result.success?
 
+        registrar_login(result.user)
         entregar_token(Auth::IssueToken.call(result.user))
         render json: {
           message: "Login realizado com sucesso",
@@ -38,6 +39,15 @@ module Api
 
       def session_params
         expect_root_params(:email, :password, :client)
+      end
+
+      # Criar pela associação já preenche o user_id — não precisa passar.
+      def registrar_login(user)
+        user.login_events.create!(
+          client: session_params[:client],
+          ip_address: request.remote_ip,
+          occurred_at: Time.current
+        )
       end
 
       # O cliente diz quem é para receber o token do jeito certo: app no
