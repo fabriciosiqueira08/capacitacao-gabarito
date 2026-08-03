@@ -1,0 +1,25 @@
+# Rails
+/.bundle
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/.keep
+/config/master.key
+/config/credentials/*.key
+.env
+.env.*
+!.env.example
+
+# Editores
+.DS_Store
+*.swp
+.idea/
+
+# Python (gerador de slides)
+__pycache__/
+*.pyc
+.venv/
