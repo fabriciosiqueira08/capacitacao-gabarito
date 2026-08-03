@@ -462,18 +462,137 @@ curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;          # 401
 </code></pre>
 <hr>
 <h2 id="exercicio-da-aula">Exercício da aula</h2>
-<ol>
-<li>Monte as cinco rotas.</li>
-<li>No Insomnia, crie uma coleção com uma requisição para cada uma.</li>
-<li>Percorra o fluxo inteiro: cadastro → e-mail → confirmação → login → <code>/me</code> → logout → <code>/me</code> (401).</li>
-<li>Peça recuperação de senha, troque a senha e confira que <strong>o token antigo parou de funcionar</strong>.</li>
-<li>Cole o seu token em <a href="https://jwt.io">jwt.io</a> e leia o payload. Ache o <code>sub</code>, o <code>jti</code> e o <code>exp</code>.</li>
-<li>Rode <code>bin/rails test</code>, <code>bin/rubocop</code> e <code>bin/brakeman</code>.</li>
-</ol>
-<p><strong>Bônus 1</strong>: crie <code>PATCH /api/v1/me</code> para o usuário editar o próprio <code>name</code> — e só o <code>name</code>.</p>
-<p><strong>Bônus 2</strong>: descubra o que acontece se você trocar o <code>true</code> do <code>JWT.decode</code> por <code>false</code> e chamar
-<code>/me</code> com um token forjado. Depois desfaça.</p>
-<p>Travou? Compare com o gabarito: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03</code>.</p>
+<blockquote>
+<p>São 1400 linhas em 37 arquivos. <strong>Ninguém digita isso em três horas</strong> — e não é esse o objetivo.
+O que você tem que sair sabendo é <em>por que</em> cada peça existe.</p>
+</blockquote>
+<h3 id="1-traga-o-codigo-para-o-seu-projeto">1. Traga o código para o seu projeto</h3>
+<pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03
+rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
+
+cd ~/automic_auth_api
+bundle install
+bin/rails db:migrate
+bin/rails test
+</code></pre>
+<p><strong>Meta: 71 testes verdes.</strong> Se não deram, pare aqui e resolva antes de seguir.</p>
+<blockquote>
+<p>O <code>Gemfile</code> vai junto porque esta aula acrescenta <code>jwt</code>, <code>rack-cors</code> e <code>letter_opener</code>. Sem ele a
+aplicação nem sobe: você recebe <code>uninitialized constant Rack::Cors</code>.</p>
+</blockquote>
+<h3 id="2-leia-os-cinco-arquivos-que-importam">2. Leia os cinco arquivos que importam</h3>
+<p>Nesta ordem, e <strong>abrindo cada um no editor</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>A pergunta que ele responde</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/services/users/register.rb</code></td>
+<td>Por que a regra não fica no controller?</td>
+</tr>
+<tr>
+<td><code>app/services/auth/issue_token.rb</code></td>
+<td>O que exatamente vai dentro do token?</td>
+</tr>
+<tr>
+<td><code>app/controllers/concerns/api/v1/authentication.rb</code></td>
+<td>Como o servidor sabe quem está chamando?</td>
+</tr>
+<tr>
+<td><code>app/services/auth/token_denylist.rb</code></td>
+<td>Como um JWT deixa de valer antes de expirar?</td>
+</tr>
+<tr>
+<td><code>app/services/users/complete_password_reset.rb</code></td>
+<td>Por que tudo numa transação?</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-monte-a-colecao-no-insomnia">3. Monte a coleção no Insomnia</h3>
+<p>Uma requisição para cada rota. Todas com <code>Content-Type: application/json</code>.</p>
+<pre><code>POST   /api/v1/registrations
+POST   /api/v1/email_verifications/confirm
+POST   /api/v1/email_verifications/resend
+POST   /api/v1/sessions
+DELETE /api/v1/sessions
+POST   /api/v1/password_resets/request
+POST   /api/v1/password_resets/confirm
+GET    /api/v1/me
+</code></pre>
+<h3 id="4-percorra-o-fluxo-inteiro">4. Percorra o fluxo inteiro</h3>
+<p>Com o servidor rodando (<code>bin/rails server</code>):</p>
+<pre><code class="language-bash">API=localhost:3000/api/v1
+EMAIL=voce@aluno.ufop.edu.br
+
+# cadastro
+curl -X POST $API/registrations -H 'Content-Type: application/json' -d &quot;{
+  \&quot;name\&quot;:\&quot;Seu Nome\&quot;,\&quot;email\&quot;:\&quot;$EMAIL\&quot;,
+  \&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;confirm_password\&quot;:\&quot;Automic@2026\&quot;,
+  \&quot;course\&quot;:\&quot;Engenharia\&quot;,\&quot;matricula\&quot;:\&quot;2013333\&quot;,\&quot;check_terms_use\&quot;:true}&quot;
+</code></pre>
+<p><strong>Confira</strong>: <code>201</code>, e o e-mail abriu no navegador (letter_opener). Anote o código de 6 dígitos.</p>
+<pre><code class="language-bash"># login antes de confirmar
+curl -i -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;client\&quot;:\&quot;mobile\&quot;}&quot;
+</code></pre>
+<p><strong>Confira</strong>: <code>403 email_unverified</code>. É a conta ainda não ativada.</p>
+<pre><code class="language-bash"># confirma
+curl -X POST $API/email_verifications/confirm -H 'Content-Type: application/json' \
+  -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;code\&quot;:\&quot;COLE_O_CODIGO\&quot;}&quot;
+
+# login de novo, guardando o token do cabeçalho
+TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;client\&quot;:\&quot;mobile\&quot;}&quot; \
+  | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
+echo $TOKEN
+
+curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;        # 200
+curl -X DELETE $API/sessions -H &quot;Authorization: Bearer $TOKEN&quot;
+curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;     # 401
+</code></pre>
+<p><strong>Confira</strong>: o último tem que ser <code>401</code>. Sem a denylist, seria <code>200</code> — é este assert que prova que o
+logout serve para alguma coisa.</p>
+<h3 id="5-recuperacao-de-senha-e-o-token-que-morre">5. Recuperação de senha, e o token que morre</h3>
+<pre><code class="language-bash">TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;client\&quot;:\&quot;mobile\&quot;}&quot; \
+  | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
+
+curl -X POST $API/password_resets/request -H 'Content-Type: application/json' -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;}&quot;
+# pegue o código no navegador
+curl -X POST $API/password_resets/confirm -H 'Content-Type: application/json' -d &quot;{
+  \&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;code\&quot;:\&quot;COLE\&quot;,
+  \&quot;password\&quot;:\&quot;NovaSenha@9\&quot;,\&quot;confirm_password\&quot;:\&quot;NovaSenha@9\&quot;}&quot;
+
+curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;     # 401 — invalidate_sessions!
+</code></pre>
+<p><strong>Confira também</strong>: <code>curl -X POST $API/password_resets/request -d '{"email":"ninguem@ufop.br"}'</code>
+responde exatamente a mesma coisa. É a resistência a enumeração.</p>
+<h3 id="6-leia-o-seu-proprio-token">6. Leia o seu próprio token</h3>
+<p>Cole o <code>$TOKEN</code> em <a href="https://jwt.io">jwt.io</a>. Ache o <code>sub</code>, o <code>jti</code> e o <code>exp</code>. Converta o <code>exp</code> para
+data e confira que é daqui a 24 horas.</p>
+<h3 id="7-qualidade-e-commit">7. Qualidade e commit</h3>
+<pre><code class="language-bash">bin/rails test          # 71 verdes
+bin/rubocop
+bin/brakeman --no-pager
+git add -A &amp;&amp; git commit -m &quot;Rotas de autenticação&quot; &amp;&amp; git push
+</code></pre>
+<hr>
+<p><strong>Bônus 1</strong>: crie <code>PATCH /api/v1/me</code> para o usuário editar o próprio <code>name</code>, <strong>e só o <code>name</code></strong>.
+Tente mandar <code>"role": "admin"</code> junto e confirme que o <code>params.expect</code> recusa.</p>
+<p><strong>Bônus 2</strong>: em <code>app/services/auth/decode_token.rb</code>, troque o <code>true</code> por <code>false</code>:</p>
+<pre><code class="language-ruby">JWT.decode(@token, TokenSecret.call, false, { algorithm: &quot;HS256&quot; })
+</code></pre>
+<p>Depois forje um token assinado com outro segredo e chame <code>/me</code>:</p>
+<pre><code class="language-bash">bin/rails runner 'puts JWT.encode({sub: User.first.id, ver: 0, jti: &quot;x&quot;,
+  exp: 1.hour.from_now.to_i}, &quot;segredo-do-atacante&quot;, &quot;HS256&quot;)'
+</code></pre>
+<p>Ele vai responder <code>200</code>. <strong>Desfaça em seguida</strong> e rode <code>bin/rails test</code> para ver o teste
+"recusa token assinado com outro segredo" pegar o problema.</p>
+<p><strong>Travou?</strong> O gabarito é o mesmo código: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03</code>.</p>
 <hr>
 <h2 id="recapitulando">Recapitulando</h2>
 <ul>

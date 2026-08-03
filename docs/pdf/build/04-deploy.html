@@ -765,19 +765,171 @@ df -h
 backup, é esperança.</p>
 <hr>
 <h2 id="exercicio-da-aula">Exercício da aula</h2>
-<ol>
-<li>Crie a VM na Azure, sem porta pública nenhuma.</li>
-<li>Abra a 22 só para o seu IP, mais a 80 e a 443.</li>
-<li>Instale o Docker e rode o <code>hello-world</code>.</li>
-<li>Rode o <code>server-swap.sh</code> e endureça o SSH.</li>
-<li>Configure o OIDC e cadastre todos os secrets e variables.</li>
-<li>Crie o registro DNS e o certificado Origin CA. Ligue o Full (strict).</li>
-<li>Rode o workflow com <code>command: setup</code>.</li>
-<li><code>curl https://seunome.capacita.&lt;domínio&gt;/api/v1/status</code></li>
-<li>Faça o fluxo completo da Aula 3 <strong>contra a sua API em produção</strong>: cadastro, e-mail de verdade na
-   sua caixa de entrada, login, logout, recuperação de senha.</li>
-<li>Mude a mensagem da rota de status, dê push na <code>main</code> e veja o deploy acontecer sozinho.</li>
-</ol>
+<blockquote>
+<p>Marque cada caixa. <strong>Não pule para a próxima seção com uma caixa aberta</strong> — nesta aula um passo
+mal feito só aparece três passos depois, e aí fica caro achar.</p>
+</blockquote>
+<h3 id="a-a-maquina">A. A máquina</h3>
+<ul>
+<li>[ ] Conferir cota antes de criar: <strong>Assinaturas → Uso + quotas → Compute</strong>.</li>
+<li>[ ] Criar a VM: Ubuntu 24.04 LTS, chave SSH Ed25519, usuário <code>azureuser</code>,
+      <strong>portas públicas: Nenhuma</strong>.</li>
+<li>[ ] Guardar a chave privada:</li>
+</ul>
+<pre><code class="language-bash">mv ~/Downloads/vm-capacita_key.pem ~/.ssh/azure-capacita
+chmod 600 ~/.ssh/azure-capacita
+</code></pre>
+<ul>
+<li>[ ] No NSG, criar três regras de entrada:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Porta</th>
+<th>Origem</th>
+<th>Prioridade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>22</td>
+<td><code>SEU_IP/32</code> (veja com <code>curl -4 ifconfig.me</code>)</td>
+<td>100</td>
+</tr>
+<tr>
+<td>80</td>
+<td>Any</td>
+<td>110</td>
+</tr>
+<tr>
+<td>443</td>
+<td>Any</td>
+<td>120</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[ ] Conectar: <code>ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP</code></li>
+</ul>
+<p><strong>Confere</strong>: o prompt mudou para <code>azureuser@vm-capacita</code>.</p>
+<h3 id="b-o-ubuntu">B. O Ubuntu</h3>
+<ul>
+<li>[ ] <code>sudo apt update &amp;&amp; sudo apt upgrade -y</code></li>
+<li>[ ] Instalar o Docker pelo repositório oficial (seção <strong>3</strong> desta apostila).</li>
+<li>[ ] <code>sudo usermod -aG docker azureuser</code>, <strong>sair e entrar de novo</strong>.</li>
+<li>[ ] Swap: <code>ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'sudo bash -s' &lt; scripts/server-swap.sh</code></li>
+<li>[ ] Endurecer o SSH — <strong>com uma segunda sessão aberta para testar</strong>.</li>
+</ul>
+<p><strong>Confere</strong>:</p>
+<pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'docker run --rm hello-world &amp;&amp; free -h'
+</code></pre>
+<p>Tem que sair "Hello from Docker!" e uma linha <code>Swap:</code> com 2,0Gi.</p>
+<h3 id="c-os-arquivos-de-deploy-no-seu-projeto">C. Os arquivos de deploy no seu projeto</h3>
+<ul>
+<li>[ ] Copiar do gabarito:</li>
+</ul>
+<pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-04
+rsync -aR config/deploy.yml config/environments/production.rb \
+          .kamal scripts .github Dockerfile .dockerignore Gemfile Gemfile.lock \
+          ~/automic_auth_api/
+
+cd ~/automic_auth_api &amp;&amp; bundle install
+</code></pre>
+<blockquote>
+<p>O <strong><code>-R</code></strong> não é detalhe: sem ele o <code>rsync</code> joga <code>deploy.yml</code> e <code>production.rb</code> na raiz do
+projeto, fora de <code>config/</code>, e o Kamal não acha nada.</p>
+<p>O seu projeto já tinha um <code>config/deploy.yml</code>, um <code>Dockerfile</code> e um <code>.kamal/</code> — o <code>rails new</code> gera
+os três. O que você está fazendo aqui é <strong>substituir</strong> o <code>deploy.yml</code> genérico pelo nosso, que tem
+o proxy, os secrets e o Postgres como accessory.</p>
+</blockquote>
+<ul>
+<li>[ ] Validar sem tocar em nada:</li>
+</ul>
+<pre><code class="language-bash">GHCR_USER=seu-usuario AZURE_VM_IP=1.2.3.4 APP_HOST=teste.exemplo.tech \
+  bundle exec kamal config
+</code></pre>
+<p><strong>Confere</strong>: sai um YAML grande, sem erro. Se reclamar de variável faltando, é a mensagem dizendo
+exatamente qual.</p>
+<h3 id="d-a-chave-de-deploy-e-o-oidc">D. A chave de deploy e o OIDC</h3>
+<ul>
+<li>[ ] Chave SSH separada para o CI:</li>
+</ul>
+<pre><code class="language-bash">ssh-keygen -t ed25519 -f ~/.ssh/capacita-github -C &quot;github-actions&quot; -N &quot;&quot;
+ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP \
+  'umask 077; mkdir -p ~/.ssh; cat &gt;&gt; ~/.ssh/authorized_keys' &lt; ~/.ssh/capacita-github.pub
+ssh -i ~/.ssh/capacita-github -o IdentitiesOnly=yes azureuser@SEU_IP 'echo SSH_OK'
+</code></pre>
+<ul>
+<li>[ ] Entra ID → Registros de aplicativo → Novo registro. <strong>Não crie segredo do cliente.</strong></li>
+<li>[ ] Credencial federada, cenário GitHub Actions, branch <code>main</code>. O subject tem que ficar:</li>
+</ul>
+<pre><code>repo:SEU-USUARIO/automic_auth_api:ref:refs/heads/main
+</code></pre>
+<ul>
+<li>[ ] No <strong>NSG</strong> (não na assinatura): IAM → Adicionar atribuição de função → <strong>Colaborador de Rede</strong>
+      → o app que você criou.</li>
+</ul>
+<h3 id="e-secrets-e-variables">E. Secrets e variables</h3>
+<pre><code class="language-bash">cd ~/automic_auth_api
+
+gh secret set AZURE_CLIENT_ID
+gh secret set AZURE_TENANT_ID
+gh secret set AZURE_SUBSCRIPTION_ID
+gh secret set AZURE_SSH_PRIVATE_KEY &lt; ~/.ssh/capacita-github
+gh secret set RAILS_MASTER_KEY &lt; config/master.key
+gh secret set AUTOMIC_AUTH_API_DATABASE_PASSWORD
+gh secret set JWT_SECRET                    # cole a saída de: bin/rails secret
+gh secret set SMTP_ADDRESS
+gh secret set SMTP_USERNAME
+gh secret set SMTP_PASSWORD
+gh secret set KAMAL_PROXY_SSL_CERTIFICATE   &lt; origin-ca.pem
+gh secret set KAMAL_PROXY_SSL_PRIVATE_KEY   &lt; origin-ca-key.pem
+
+gh variable set GHCR_USER
+gh variable set AZURE_VM_IP
+gh variable set APP_HOST
+gh variable set AZURE_RESOURCE_GROUP
+gh variable set AZURE_NSG_NAME
+gh variable set CORS_ORIGINS
+gh variable set MAILER_FROM
+</code></pre>
+<p><strong>Confere</strong>: <code>gh secret list</code> mostra 12 e <code>gh variable list</code> mostra 7.</p>
+<h3 id="f-dns-e-tls">F. DNS e TLS</h3>
+<ul>
+<li>[ ] Registro <code>A</code>: <code>seunome.capacita</code> → IP da sua VM, <strong>Proxied</strong> (nuvem laranja).</li>
+<li>[ ] SSL/TLS → Overview → <strong>Full (strict)</strong>.</li>
+<li>[ ] O certificado Origin CA já está nos secrets (passo E).</li>
+</ul>
+<p><strong>Confere</strong>: <code>dig +short seunome.capacita.&lt;domínio&gt;</code> devolve IPs da Cloudflare, <strong>não</strong> o da sua VM.
+É isso que o proxy faz.</p>
+<h3 id="g-o-primeiro-deploy">G. O primeiro deploy</h3>
+<ul>
+<li>[ ] Commit e push do que veio no passo C.</li>
+<li>[ ] <strong>Actions → Deploy (Kamal) → Run workflow → command: <code>setup</code></strong>.</li>
+<li>[ ] Acompanhar o log. Demora ~8 minutos.</li>
+</ul>
+<p><strong>Confere</strong>:</p>
+<pre><code class="language-bash">curl https://seunome.capacita.&lt;domínio&gt;/api/v1/status
+</code></pre>
+<pre><code class="language-json">{&quot;status&quot;:&quot;ok&quot;,&quot;service&quot;:&quot;automic-auth-api&quot;,&quot;environment&quot;:&quot;production&quot;}
+</code></pre>
+<h3 id="h-o-sistema-inteiro-em-producao">H. O sistema inteiro, em produção</h3>
+<ul>
+<li>[ ] Refazer o fluxo da Aula 3 <strong>contra a sua API no ar</strong> — e desta vez o e-mail chega de verdade
+      na sua caixa de entrada, não no navegador.</li>
+<li>[ ] Mudar a mensagem da rota de status, <code>git push</code> na <code>main</code>, e ver o deploy acontecer sozinho.</li>
+</ul>
+<pre><code class="language-bash">kamal app logs -f     # acompanhe enquanto acontece
+</code></pre>
+<h3 id="i-antes-de-ir-embora">I. Antes de ir embora</h3>
+<ul>
+<li>[ ] <strong>Desligar a VM</strong> no portal (<code>Parar</code>). Parada, ela não consome crédito de computação.</li>
+<li>[ ] Conferir que a regra temporária de SSH sumiu do NSG:</li>
+</ul>
+<pre><code class="language-bash">az network nsg rule list --resource-group SEU_RG --nsg-name SEU_NSG \
+  --query &quot;[].name&quot; -o tsv
+</code></pre>
+<p>Não pode ter <code>allow-github-actions-deploy-ssh</code> na lista.</p>
 <hr>
 <h2 id="recapitulando">Recapitulando</h2>
 <ul>

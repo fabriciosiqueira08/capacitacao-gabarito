@@ -88,6 +88,23 @@ JSON e o <code>Content-Type: application/json</code>.</p>
 <h3 id="422-no-cadastro-sem-dizer-o-motivo-direito">422 no cadastro sem dizer o motivo direito</h3>
 <p>Olhe <code>error.details</code> na resposta: cada item tem <code>field</code> e <code>message</code>.</p>
 <hr>
+<h2 id="github">GitHub</h2>
+<h3 id="o-ci-ficou-vermelho-logo-no-primeiro-push">O CI ficou vermelho logo no primeiro push</h3>
+<p>O <code>rails new</code> já cria um <code>.github/workflows/ci.yml</code>, e ele roda sozinho a cada push. Nas Aulas 1 e 2
+ele deve passar. Se ficar vermelho, abra o log em <strong>Actions</strong> e veja qual dos três jobs quebrou:</p>
+<ul>
+<li><strong>lint</strong> — é o RuboCop. Rode <code>bin/rubocop -a</code> para corrigir o que dá sozinho.</li>
+<li><strong>test</strong> — rode <code>bin/rails test</code> na sua máquina; o erro é o mesmo.</li>
+<li><strong>scan_ruby</strong> — Brakeman ou uma gem com CVE. <code>bin/brakeman --no-pager</code> mostra o motivo.</li>
+</ul>
+<p>Na Aula 4 esse arquivo é substituído pelo nosso, que roda os testes contra um Postgres de verdade.</p>
+<h3 id="gh-command-not-found"><code>gh: command not found</code></h3>
+<p>O GitHub CLI não está instalado. Volte ao passo 7 de <strong><code>00-preparacao.md</code></strong>.</p>
+<h3 id="gh-repo-create-reclama-de-autenticacao"><code>gh repo create</code> reclama de autenticação</h3>
+<pre><code class="language-bash">gh auth status     # tem que dizer &quot;Logged in to github.com&quot;
+gh auth login      # se não estiver
+</code></pre>
+<hr>
 <h2 id="azure-e-vm">Azure e VM</h2>
 <h3 id="notavailableforsubscription-ao-criar-a-vm"><code>NotAvailableForSubscription</code> ao criar a VM</h3>
 <p>O tamanho escolhido não está habilitado para a sua assinatura naquela região.</p>

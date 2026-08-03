@@ -410,26 +410,192 @@ as respostas, dá para descobrir quem tem conta no sistema — é um <strong>ata
 o mesmo. Vamos usar esse método na Aula 3.</p>
 <hr>
 <h2 id="exercicio-da-aula">Exercício da aula</h2>
-<ol>
-<li>Crie as três migrations e rode <code>bin/rails db:migrate</code>.</li>
-<li>Abra <code>db/schema.rb</code> e confira que as colunas estão lá.</li>
-<li>Escreva o <code>User</code> com <code>has_secure_password</code> e as validações.</li>
-<li>Crie os dois concerns e inclua no <code>User</code>.</li>
-<li>No console: crie um usuário, veja o <code>password_digest</code>, teste <code>authenticate</code>.</li>
-<li>Emita um código de verificação e confirme com ele. Depois tente confirmar de novo — tem que
-   recusar.</li>
-<li>
-<p>Escreva os testes e rode <code>bin/rails test</code>.</p>
-</li>
-<li>
-<p>Crie a migration de <code>login_events</code>, o model com <code>belongs_to</code> e o <code>has_many</code> no <code>User</code>.</p>
-</li>
-<li>No console: <code>users(:ana).login_events.create!(...)</code>, depois <code>user.login_events.recentes</code>.</li>
-<li>Apague um usuário que tenha eventos e confira que o histórico foi junto.</li>
-</ol>
-<p><strong>Bônus</strong>: escreva o N+1 de propósito (<code>User.all.each { |u| puts u.login_events.count }</code>), olhe o
-log para contar as consultas, e conserte com <code>includes</code>.</p>
-<p>Travou? Compare com o gabarito: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-02</code>.</p>
+<blockquote>
+<p>No <strong>seu</strong> projeto (<code>~/automic_auth_api</code>), continuando de onde a Aula 1 parou.
+Cada bloco termina com um comando de conferência: <strong>não siga em frente com ele vermelho.</strong></p>
+</blockquote>
+<h3 id="1-a-gem-do-bcrypt">1. A gem do bcrypt</h3>
+<p>No <code>Gemfile</code>, descomente (ou acrescente) a linha:</p>
+<pre><code class="language-ruby">gem &quot;bcrypt&quot;, &quot;~&gt; 3.1.7&quot;
+</code></pre>
+<pre><code class="language-bash">bundle install
+</code></pre>
+<h3 id="2-as-tres-migrations-da-tabela-users">2. As três migrations da tabela <code>users</code></h3>
+<pre><code class="language-bash">bin/rails generate migration CreateUsers
+bin/rails generate migration AddEmailVerificationToUsers
+bin/rails generate migration AddPasswordResetToUsers
+</code></pre>
+<p>O conteúdo de cada uma está na seção <strong>3. Migrations</strong> desta apostila (a primeira) e abaixo:</p>
+<pre><code class="language-ruby"># add_email_verification_to_users.rb
+add_column :users, :email_verification_code_digest, :string
+add_column :users, :email_verification_expires_at, :datetime
+add_column :users, :email_verification_sent_at, :datetime
+add_column :users, :email_verified_at, :datetime
+
+# add_password_reset_to_users.rb
+add_column :users, :password_reset_code_digest, :string
+add_column :users, :password_reset_expires_at, :datetime
+add_column :users, :password_reset_sent_at, :datetime
+</code></pre>
+<pre><code class="language-bash">bin/rails db:migrate
+sed -n '/create_table &quot;users&quot;/,/^  end/p' db/schema.rb | grep -c &quot;^    t\.&quot;
+</code></pre>
+<p><strong>Confira</strong>: tem que sair <strong>17</strong> (as 16 colunas mais o <code>id</code>).</p>
+<h3 id="3-o-validador-de-senha">3. O validador de senha</h3>
+<p>Crie <code>app/validators/password_policy_validator.rb</code>:</p>
+<pre><code class="language-ruby">class PasswordPolicyValidator
+  SPECIAL_CHARACTERS = %r{[!@#$%^&amp;*(),.?&quot;:{}|&lt;&gt;]}
+  MIN_LENGTH = 8
+  MAX_LENGTH = 16
+
+  def self.validate(password)
+    new(password).validate
+  end
+
+  def initialize(password)
+    @password = password.to_s
+  end
+
+  # Devolve uma lista de mensagens. Vazia significa senha aceita.
+  def validate
+    errors = []
+    errors &lt;&lt; &quot;deve ter entre #{MIN_LENGTH} e #{MAX_LENGTH} caracteres&quot; unless length_valid?
+    errors &lt;&lt; &quot;deve incluir pelo menos uma letra maiúscula&quot; unless @password.match?(/[A-Z]/)
+    errors &lt;&lt; &quot;deve incluir pelo menos uma letra minúscula&quot; unless @password.match?(/[a-z]/)
+    errors &lt;&lt; &quot;deve incluir pelo menos um dígito&quot; unless @password.match?(/\d/)
+    errors &lt;&lt; &quot;deve incluir pelo menos um caractere especial&quot; unless @password.match?(SPECIAL_CHARACTERS)
+    errors
+  end
+
+  private
+
+  def length_valid?
+    @password.length.between?(MIN_LENGTH, MAX_LENGTH)
+  end
+end
+</code></pre>
+<p>Ele fica fora do model porque o cadastro precisa validar a senha <strong>antes</strong> de existir um <code>User</code>
+(Aula 3), e a recuperação de senha valida de novo na hora de trocar.</p>
+<pre><code class="language-bash">bin/rails runner 'p PasswordPolicyValidator.validate(&quot;abc&quot;)'
+# tem que sair a lista de erros
+bin/rails runner 'p PasswordPolicyValidator.validate(&quot;Automic@2026&quot;)'
+# tem que sair []
+</code></pre>
+<h3 id="4-os-dois-concerns">4. Os dois concerns</h3>
+<p>Crie <code>app/models/concerns/email_verifiable.rb</code> e <code>app/models/concerns/password_resettable.rb</code>.
+O primeiro está inteiro na seção <strong>7. Concerns</strong>; o segundo é o mesmo desenho, trocando
+<code>email_verification_*</code> por <code>password_reset_*</code> e sem o <code>email_verified_at</code>.</p>
+<p>Métodos que cada um precisa ter:</p>
+<table>
+<thead>
+<tr>
+<th><code>EmailVerifiable</code></th>
+<th><code>PasswordResettable</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>email_verified?</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>issue_email_verification_code!</code></td>
+<td><code>issue_password_reset_code!</code></td>
+</tr>
+<tr>
+<td><code>verify_email_code!</code></td>
+<td><code>verify_password_reset_code!</code></td>
+</tr>
+<tr>
+<td><code>verification_expired?</code></td>
+<td><code>password_reset_expired?</code></td>
+</tr>
+<tr>
+<td><code>resend_verification_allowed?</code></td>
+<td><code>password_reset_request_allowed?</code></td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>clear_password_reset_code!</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-o-model-user">5. O model <code>User</code></h3>
+<p>Crie <code>app/models/user.rb</code> com <code>has_secure_password validations: false</code>, as seis validações, os três
+normalizadores e o <code>authenticate_by_email</code> (seções <strong>4</strong>, <strong>5</strong> e <strong>11</strong>).</p>
+<pre><code class="language-bash">bin/rails runner '
+u = User.new(name: &quot;Ana&quot;, email: &quot;ana@ufop.br&quot;, password: &quot;Automic@2026&quot;,
+             course: &quot;Automação&quot;, matricula: &quot;2011234&quot;, terms_accepted_at: Time.current)
+puts u.valid?
+puts u.password_digest[0, 20]
+'
+</code></pre>
+<p>Tem que sair <code>true</code> e um digest começando em <code>$2a$12$</code>.</p>
+<h3 id="6-a-segunda-tabela-login_events">6. A segunda tabela: <code>login_events</code></h3>
+<pre><code class="language-bash">bin/rails generate migration CreateLoginEvents
+</code></pre>
+<p>O conteúdo está na seção <strong>6. Associações</strong>. Depois crie <code>app/models/login_event.rb</code> com o
+<code>belongs_to :user</code> e o <code>scope :recentes</code>, e acrescente no <code>User</code>:</p>
+<pre><code class="language-ruby">has_many :login_events, dependent: :delete_all
+</code></pre>
+<pre><code class="language-bash">bin/rails db:migrate
+</code></pre>
+<h3 id="7-fixtures-e-testes">7. Fixtures e testes</h3>
+<p>Crie <code>test/fixtures/users.yml</code> com dois usuários — um verificado, outro não:</p>
+<pre><code class="language-yaml">ana:
+  name: Ana Souza
+  email: ana@aluno.ufop.edu.br
+  password_digest: &lt;%= BCrypt::Password.create(&quot;Automic@2026&quot;) %&gt;
+  course: Engenharia de Controle e Automação
+  matricula: &quot;2011234&quot;
+  terms_accepted_at: &lt;%= 1.day.ago.to_fs(:db) %&gt;
+  email_verified_at: &lt;%= 1.day.ago.to_fs(:db) %&gt;
+
+bruno:
+  name: Bruno Lima
+  email: bruno@aluno.ufop.edu.br
+  password_digest: &lt;%= BCrypt::Password.create(&quot;Automic@2026&quot;) %&gt;
+  course: Engenharia de Minas
+  matricula: &quot;2019876&quot;
+  terms_accepted_at: &lt;%= 1.day.ago.to_fs(:db) %&gt;
+  email_verified_at:
+</code></pre>
+<p>Depois escreva os testes de <code>user_test.rb</code>, dos dois concerns, do validador e do <code>login_event_test.rb</code>.
+Comece pelo que está na seção <strong>10. Testando o model</strong>.</p>
+<pre><code class="language-bash">bin/rails test
+</code></pre>
+<p><strong>Meta: 30 testes verdes.</strong> O gabarito tem exatamente esse número.</p>
+<h3 id="8-console-veja-funcionando">8. Console: veja funcionando</h3>
+<pre><code class="language-bash">bin/rails db:seed          # depois de escrever o db/seeds.rb
+bin/rails console
+</code></pre>
+<pre><code class="language-ruby">u = User.first
+u.password_digest                       # o hash, nunca a senha
+u.authenticate(&quot;Automic@2026&quot;)          # devolve o user
+u.authenticate(&quot;errada&quot;)                # false
+
+codigo = u.issue_email_verification_code!
+u.verify_email_code!(codigo)            # true
+u.verify_email_code!(codigo)            # false — o código só vale uma vez
+
+u.login_events.create!(client: &quot;mobile&quot;, occurred_at: Time.current)
+u.login_events.recentes.first.user.name # navega para o outro lado
+</code></pre>
+<h3 id="9-commit">9. Commit</h3>
+<pre><code class="language-bash">bin/rubocop
+git add -A &amp;&amp; git commit -m &quot;Model User, concerns e associações&quot; &amp;&amp; git push
+</code></pre>
+<hr>
+<p><strong>Bônus 1</strong>: apague um usuário que tenha <code>login_events</code> e confirme que o histórico foi junto
+(<code>dependent: :delete_all</code>).</p>
+<p><strong>Bônus 2</strong>: escreva o N+1 de propósito e conte as consultas no log:</p>
+<pre><code class="language-ruby">User.all.each { |u| puts u.login_events.count }              # N+1
+User.includes(:login_events).each { |u| puts u.login_events.count }
+</code></pre>
+<p><strong>Travou?</strong> Compare arquivo por arquivo com o gabarito:</p>
+<pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-02
+cat app/models/user.rb
+</code></pre>
 <hr>
 <h2 id="recapitulando">Recapitulando</h2>
 <ul>
