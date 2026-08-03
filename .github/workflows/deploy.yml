@@ -1,0 +1,158 @@
+# Deploy com Kamal, disparado por push na main.
+#
+# O ponto delicado deste workflow é o SSH: a porta 22 da VM fica FECHADA para a
+# internet. O runner do GitHub abre uma regra no firewall (NSG) só para o
+# próprio IP, faz o deploy, e fecha a regra ao final — inclusive se falhar.
+#
+# Para autenticar na Azure não usamos senha nem client secret: usamos OIDC.
+# Ver docs/04-deploy.md, seção "OIDC".
+name: Deploy (Kamal)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "Comando do Kamal (use setup no primeiro deploy)"
+        type: choice
+        options: [ deploy, setup ]
+        default: deploy
+
+# Dois deploys ao mesmo tempo brigariam pelo lock do Kamal.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write    # necessário para o OIDC
+      packages: write    # necessário para publicar a imagem no ghcr.io
+
+    env:
+      # Secrets: Settings → Secrets and variables → Actions → Secrets
+      KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+      AUTOMIC_AUTH_API_DATABASE_PASSWORD: ${{ secrets.AUTOMIC_AUTH_API_DATABASE_PASSWORD }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SMTP_ADDRESS: ${{ secrets.SMTP_ADDRESS }}
+      SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      KAMAL_PROXY_SSL_CERTIFICATE: ${{ secrets.KAMAL_PROXY_SSL_CERTIFICATE }}
+      KAMAL_PROXY_SSL_PRIVATE_KEY: ${{ secrets.KAMAL_PROXY_SSL_PRIVATE_KEY }}
+
+      # Variables (não são segredo): mesma tela, aba Variables
+      GHCR_USER: ${{ vars.GHCR_USER }}
+      AZURE_VM_IP: ${{ vars.AZURE_VM_IP }}
+      APP_HOST: ${{ vars.APP_HOST }}
+      CORS_ORIGINS: ${{ vars.CORS_ORIGINS }}
+      MAILER_FROM: ${{ vars.MAILER_FROM }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_NSG_NAME: ${{ vars.AZURE_NSG_NAME }}
+
+      AZURE_CORE_OUTPUT: none
+      NSG_RULE_NAME: allow-github-actions-deploy-ssh
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - uses: docker/setup-buildx-action@v4
+
+      # Falhar aqui, com mensagem clara, é melhor que falhar no meio do deploy.
+      - name: Confere se está tudo configurado
+        run: |
+          set -euo pipefail
+          : "${GHCR_USER:?Falta a variable GHCR_USER}"
+          : "${AZURE_VM_IP:?Falta a variable AZURE_VM_IP}"
+          : "${APP_HOST:?Falta a variable APP_HOST}"
+          : "${AZURE_RESOURCE_GROUP:?Falta a variable AZURE_RESOURCE_GROUP}"
+          : "${AZURE_NSG_NAME:?Falta a variable AZURE_NSG_NAME}"
+          : "${KAMAL_PROXY_SSL_CERTIFICATE:?Falta o secret KAMAL_PROXY_SSL_CERTIFICATE}"
+          : "${KAMAL_PROXY_SSL_PRIVATE_KEY:?Falta o secret KAMAL_PROXY_SSL_PRIVATE_KEY}"
+
+      # Sem senha e sem client secret: a Azure confia no token que o GitHub
+      # emite para ESTE repositório, nesta branch.
+      - name: Entra na Azure com OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Abre o SSH só para o IP deste runner
+        run: |
+          set -euo pipefail
+          runner_ip="$(curl --fail --silent --show-error --ipv4 https://api.ipify.org)"
+          if [[ ! "${runner_ip}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+            echo "Não consegui descobrir o IPv4 do runner" >&2
+            exit 1
+          fi
+
+          az network nsg rule create \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --nsg-name "${AZURE_NSG_NAME}" \
+            --name "${NSG_RULE_NAME}" \
+            --priority 120 \
+            --direction Inbound --access Allow --protocol Tcp \
+            --source-address-prefixes "${runner_ip}/32" \
+            --destination-port-ranges 22 \
+            --description "SSH temporário para o deploy do GitHub Actions" \
+            --only-show-errors --output none
+
+      - name: Carrega a chave SSH de deploy
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+
+      # A regra de firewall leva alguns segundos para valer. Tentamos até 1 min.
+      - name: Prepara o known_hosts
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+
+          for tentativa in {1..12}; do
+            if ssh-keyscan -T 5 "${AZURE_VM_IP}" > /tmp/known_hosts 2>/dev/null && [[ -s /tmp/known_hosts ]]; then
+              install -m 600 /tmp/known_hosts ~/.ssh/known_hosts
+              printf 'Host %s\n  StrictHostKeyChecking yes\n' "${AZURE_VM_IP}" > ~/.ssh/config
+              exit 0
+            fi
+            echo "Esperando a regra do NSG propagar (${tentativa}/12)..."
+            sleep 5
+          done
+
+          echo "Não consegui alcançar o SSH da VM" >&2
+          exit 1
+
+      - name: Confere o acesso do Kamal ao Docker da VM
+        run: bundle exec kamal server exec "docker version --format '{{.Server.Version}}'"
+
+      # `kamal deploy` NÃO sobe accessories. Sem este passo, o app não acha o banco.
+      - name: Garante o Postgres
+        run: bundle exec kamal accessory boot db || true
+
+      - name: Deploy
+        run: bundle exec kamal ${{ inputs.command || 'deploy' }}
+
+      # `always()`: a regra fecha mesmo se o deploy falhar. Deixar a 22 aberta
+      # é o erro que transforma um deploy ruim num incidente de segurança.
+      - name: Fecha a regra temporária de SSH
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          az network nsg rule delete \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --nsg-name "${AZURE_NSG_NAME}" \
+            --name "${NSG_RULE_NAME}" \
+            --only-show-errors --output none
+
+      - name: Fumaça
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error "https://${APP_HOST}/api/v1/status" | tee /dev/stderr

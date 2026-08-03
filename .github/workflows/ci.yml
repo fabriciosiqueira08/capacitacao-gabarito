@@ -1,3 +1,5 @@
+# Roda a cada push e a cada pull request. Se qualquer job falhar, o deploy não
+# acontece — a main só recebe código que passou pelas três checagens.
 name: CI
 
 on:
@@ -6,85 +8,65 @@ on:
     branches: [ main ]
 
 jobs:
+  # Análise estática de segurança: SQL injection, mass assignment, redirect
+  # aberto e mais uma dúzia de padrões. Mais gems com CVE conhecido.
   scan_ruby:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
+      - name: Brakeman
         run: bin/brakeman --no-pager
-      
-      - name: Scan for known security vulnerabilities in gems used
+
+      - name: bundler-audit
         run: bin/bundler-audit
-      
+
   lint:
     runs-on: ubuntu-latest
-    env:
-      RUBOCOP_CACHE_ROOT: tmp/rubocop
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Prepare RuboCop cache
-        uses: actions/cache@v4
-        env:
-          DEPENDENCIES_HASH: ${{ hashFiles('.ruby-version', '**/.rubocop.yml', '**/.rubocop_todo.yml', 'Gemfile.lock') }}
-        with:
-          path: ${{ env.RUBOCOP_CACHE_ROOT }}
-          key: rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-${{ github.ref_name == github.event.repository.default_branch && github.run_id || 'default' }}
-          restore-keys: |
-            rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-
-
-      - name: Lint code for consistent style
+      - name: RuboCop
         run: bin/rubocop -f github
 
   test:
     runs-on: ubuntu-latest
 
+    # Um Postgres de verdade, descartável, só para esta execução.
     services:
       postgres:
-        image: postgres
+        image: postgres:16
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: automic
+          POSTGRES_PASSWORD: automic
         ports:
           - 5432:5432
-        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
-
-      # redis:
-      #   image: valkey/valkey:8
-      #   ports:
-      #     - 6379:6379
-      #   options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+        options: >-
+          --health-cmd=pg_isready --health-interval=10s
+          --health-timeout=5s --health-retries=3
 
     steps:
-      - name: Install packages
+      - name: Instala o cliente do Postgres
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev
 
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Run tests
+      - name: Testes
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
-          # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          # REDIS_URL: redis://localhost:6379/0
+          DB_HOST: localhost
+          DB_USER: automic
+          DB_PASSWORD: automic
         run: bin/rails db:test:prepare test

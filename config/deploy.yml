@@ -1,110 +1,92 @@
-# Name of your application. Used to uniquely configure containers.
-service: automic_auth_api
+# Kamal — deploy da automic-auth-api. Docs: https://kamal-deploy.org
+#
+# Este arquivo é IGUAL para todo mundo da turma. O que muda vem de variáveis do
+# GitHub Actions (Settings → Secrets and variables → Actions → Variables):
+#
+#   GHCR_USER   seu usuário do GitHub (dono da imagem no ghcr.io)
+#   AZURE_VM_IP   o IP público da sua VM
+#   APP_HOST      seu subdomínio, ex.: seunome.capacita.exemplo.tech
+#
+# O build e o deploy rodam no GitHub Actions (.github/workflows/deploy.yml).
+# Primeiro deploy: rode o workflow uma vez com `kamal setup` (ver docs/04-deploy.md).
 
-# Name of the container image (use your-user/app-name on external registries).
-image: automic_auth_api
+service: automic-auth-api
 
-# Deploy to these servers.
+# Sem host aqui: o Kamal concatena registry.server + image e vira
+# ghcr.io/<seu-usuario>/automic-auth-api.
+image: <%= ENV.fetch("GHCR_USER") %>/automic-auth-api
+
+# A VM da Azure bloqueia login como root. O Docker já está liberado para azureuser.
+ssh:
+  user: azureuser
+  forward_agent: false
+
+# Onde o Kamal grava locks, auditoria e arquivos de ambiente no servidor.
+run_directory: /home/azureuser/.kamal
+
 servers:
   web:
-    - 192.168.0.1
-  # job:
-  #   hosts:
-  #     - 192.168.0.1
-  #   cmd: bin/jobs
+    hosts:
+      - <%= ENV.fetch("AZURE_VM_IP") %>
 
-# Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
-# If used with Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
-#
-# Using an SSL proxy like this requires turning on config.assume_ssl and config.force_ssl in production.rb!
-#
-# Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
-#
-# proxy:
-#   ssl: true
-#   host: app.example.com
+# O tráfego público entra pelo Cloudflare. O certificado Origin CA protege o
+# trecho Cloudflare → Azure. Os PEM vêm dos Secrets do Actions e nunca entram
+# no container do Rails.
+proxy:
+  ssl:
+    certificate_pem: KAMAL_PROXY_SSL_CERTIFICATE
+    private_key_pem: KAMAL_PROXY_SSL_PRIVATE_KEY
+  host: <%= ENV.fetch("APP_HOST") %>
+  # Preserva o X-Forwarded-For/Proto que vem do Cloudflare, que é confiável.
+  forward_headers: true
 
-# Where you keep your container images.
 registry:
-  # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: localhost:5555
+  server: ghcr.io
+  username: <%= ENV.fetch("GHCR_USER") %>
+  password:
+    - KAMAL_REGISTRY_PASSWORD
 
-  # Needed for authenticated registries.
-  # username: your-user
-
-  # Always use an access token rather than real password when possible.
-  # password:
-  #   - KAMAL_REGISTRY_PASSWORD
-
-# Inject ENV variables into containers (secrets come from .kamal/secrets).
-env:
-  secret:
-    - RAILS_MASTER_KEY
-  clear:
-    # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
-    # When you start using multiple servers, you should split out job processing to a dedicated machine.
-    SOLID_QUEUE_IN_PUMA: true
-
-    # Set number of processes dedicated to Solid Queue (default: 1)
-    # JOB_CONCURRENCY: 3
-
-    # Set number of cores available to the application on each server (default: 1).
-    # WEB_CONCURRENCY: 2
-
-    # Match this to any external database server to configure Active Record correctly
-    # Use automic_auth_api-db for a db accessory server on same machine via local kamal docker network.
-    # DB_HOST: 192.168.0.2
-
-    # Log everything from Rails
-    # RAILS_LOG_LEVEL: debug
-
-# Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
-# "bin/kamal logs -r job" will tail logs from the first server in the job section.
-aliases:
-  console: app exec --interactive --reuse "bin/rails console"
-  shell: app exec --interactive --reuse "bash"
-  logs: app logs -f
-  dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
-
-
-# Configure the image builder.
+# A VM da Azure é x86_64.
 builder:
   arch: amd64
 
-  # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
-  # remote: ssh://docker@docker-builder-server
-  #
-  # # Pass arguments and secrets to the Docker build process
-  # args:
-  #   RUBY_VERSION: ruby-3.4.9
-  # secrets:
-  #   - GITHUB_TOKEN
-  #   - RAILS_MASTER_KEY
+env:
+  clear:
+    # O Solid Queue roda dentro do Puma — sem processo separado. Uma VM
+    # pequena não comporta um worker dedicado.
+    SOLID_QUEUE_IN_PUMA: "true"
+    # 1 vCPU dividido com o Postgres: um worker só.
+    WEB_CONCURRENCY: "1"
+    # Host do banco: é o nome do accessory na rede do Kamal.
+    DB_HOST: automic-auth-api-db
+    DB_USER: automic_auth_api
+    APP_NAME: "Automic Auth API"
+    SMTP_PORT: "587"
+    SMTP_AUTHENTICATION: "plain"
+    SMTP_ENABLE_STARTTLS_AUTO: "true"
+  secret:
+    - RAILS_MASTER_KEY
+    - AUTOMIC_AUTH_API_DATABASE_PASSWORD
+    - JWT_SECRET
+    - CORS_ORIGINS
+    - MAILER_FROM
+    - SMTP_ADDRESS
+    - SMTP_USERNAME
+    - SMTP_PASSWORD
 
-# Use a different ssh user than root
-# ssh:
-#   user: app
-
-# Use accessory services (secrets come from .kamal/secrets).
-# accessories:
-#   db:
-#     image: mysql:8.0
-#     host: 192.168.0.2
-#     # Change to 3306 to expose port to the world instead of just local network.
-#     port: "127.0.0.1:3306:3306"
-#     env:
-#       clear:
-#         MYSQL_ROOT_HOST: '%'
-#       secret:
-#         - MYSQL_ROOT_PASSWORD
-#     files:
-#       - config/mysql/production.cnf:/etc/mysql/my.cnf
-#       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
-#     directories:
-#       - data:/var/lib/mysql
-#   redis:
-#     image: valkey/valkey:8
-#     host: 192.168.0.2
-#     port: 6379
-#     directories:
-#       - data:/data
+# PostgreSQL como accessory: um container no mesmo host, com volume próprio.
+# Não é banco gerenciado — é decisão consciente (ver docs/04-deploy.md).
+accessories:
+  db:
+    image: postgres:16
+    host: <%= ENV.fetch("AZURE_VM_IP") %>
+    env:
+      clear:
+        POSTGRES_USER: automic_auth_api
+        POSTGRES_DB: automic_auth_api_production
+      secret:
+        # Mesmo valor de AUTOMIC_AUTH_API_DATABASE_PASSWORD.
+        - POSTGRES_PASSWORD
+    # O volume é o que faz os dados sobreviverem a deploy e a rebuild do container.
+    directories:
+      - data:/var/lib/postgresql/data
