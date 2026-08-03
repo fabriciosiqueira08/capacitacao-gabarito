@@ -1,7 +1,7 @@
 # Aula 2 — Banco de dados, ActiveRecord e o model `User`
 
 **Duração**: ~3h · **Você sai daqui com**: um `User` com validações e senha hasheada, testado.
-**Checkpoint**: `git checkout aula-02`
+**Gabarito**: `cd ~/capacitacao-gabarito && git checkout aula-02`
 
 ---
 
@@ -526,7 +526,7 @@ o mesmo. Vamos usar esse método na Aula 3.
 **Bônus**: escreva o N+1 de propósito (`User.all.each { |u| puts u.login_events.count }`), olhe o
 log para contar as consultas, e conserte com `includes`.
 
-Travou? `git checkout aula-02`.
+Travou? Compare com o gabarito: `cd ~/capacitacao-gabarito && git checkout aula-02`.
 
 ---
 
