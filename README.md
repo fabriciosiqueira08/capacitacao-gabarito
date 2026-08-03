@@ -55,10 +55,14 @@ git checkout main      # tudo pronto (o que aparece projetado na aula)
 | Branch | Contém |
 |---|---|
 | `aula-01` | App gerado + rota de status |
-| `aula-02` | + migrations, `User`, concerns, validador de senha |
+| `aula-02` | + migrations, `User`, concerns, associações, validador de senha |
 | `aula-03` | + rotas, services, mailer, serializer, testes |
 | `aula-04` | + Dockerfile, Kamal, GitHub Actions |
-| `main` | Tudo + slides + documentação completa |
+| `main` | Tudo, mais os slides, os PDFs e os roteiros |
+
+Cada checkpoint carrega **o código daquele ponto e as apostilas até aquela aula** — nada além
+disso. Slides, PDFs e roteiros do instrutor são gerados e vivem só na `main`, para não ficarem
+desatualizados em quatro lugares a cada regeração.
 
 ---
 
@@ -72,7 +76,8 @@ git checkout main      # tudo pronto (o que aparece projetado na aula)
 | [`docs/03-autenticacao.md`](docs/03-autenticacao.md) | Apostila da Aula 3 |
 | [`docs/04-deploy.md`](docs/04-deploy.md) | Apostila da Aula 4 |
 | [`docs/ruby-para-pythonistas.md`](docs/ruby-para-pythonistas.md) | Cheat sheet Python ↔ Ruby, lado a lado |
-| [`docs/roteiro-de-tempo.md`](docs/roteiro-de-tempo.md) | **Para quem apresenta**: tempo por bloco e o que cortar se atrasar |
+| [`docs/roteiro-de-tempo.md`](docs/roteiro-de-tempo.md) | **Para quem apresenta**: índice dos quatro roteiros de aula |
+| `docs/roteiro-aula-0N.md` | Runbook de cada encontro: cronograma, falas, demos, perguntas e plano B |
 | [`docs/glossario.md`](docs/glossario.md) | VPS, NSG, OIDC, JWT, OTP, ORM, CI/CD… |
 | [`docs/troubleshooting.md`](docs/troubleshooting.md) | Erros que realmente acontecem, e a saída de cada um |
 
