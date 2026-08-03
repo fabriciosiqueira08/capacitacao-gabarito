@@ -41,16 +41,60 @@ login só liberar depois que a conta é ativada, e duas rotas autenticadas: `GET
 
 ---
 
-## Como acompanhar o código
+## Como você vai usar este repositório
 
-O histórico é linear e cada aula tem uma branch de checkpoint. Se você se perder no meio de um
-encontro, dá `checkout` do checkpoint anterior e continua de um estado que funciona.
+**Você não escreve neste repositório.** Ele é o **gabarito**: o código pronto, para consultar quando
+travar ou quando quiser comparar com o seu.
+
+Na Aula 1 você cria o **seu próprio projeto**, e é nele que você trabalha nos quatro encontros. Isso
+não é preciosismo: na Aula 4, o deploy automático precisa de um repositório **seu** no GitHub — a
+credencial da Azure é emitida para `repo:SEU-USUARIO/SEU-REPO`, e não dá para apontar para o meu.
+
+```
+~/capacitacao-gabarito/    ← este repo. Só leitura.
+~/automic_auth_api/        ← o seu projeto. É aqui que você escreve.
+```
+
+### O setup, uma vez só (Aula 1)
 
 ```bash
-git checkout aula-01   # estado do código no fim da Aula 1
-git checkout aula-02   # …e assim por diante
-git checkout main      # tudo pronto (o que aparece projetado na aula)
+# 1. o gabarito, para consultar
+git clone <url-deste-repo> ~/capacitacao-gabarito
+
+# 2. o seu projeto (o passo a passo está em docs/01-fundamentos.md)
+cd ~ && rails new automic_auth_api --api -d postgresql \
+  --skip-action-mailbox --skip-action-text --skip-active-storage \
+  --skip-jbuilder --skip-action-cable
+cd automic_auth_api && git init && git add -A && git commit -m "Projeto inicial"
+
+# 3. publique no SEU GitHub — a Aula 4 depende disso
+gh repo create automic_auth_api --private --source=. --push
 ```
+
+### Consultando o gabarito
+
+Cada aula tem uma branch com o código **como ele fica no fim daquele encontro**:
+
+```bash
+cd ~/capacitacao-gabarito
+git checkout aula-01   # como ficou no fim da Aula 1
+git checkout aula-02   # …e assim por diante
+git checkout main      # tudo pronto, mais slides, PDFs e roteiros
+```
+
+Travou no meio de um exercício? Abra o arquivo correspondente no gabarito, entenda, e escreva no
+seu. **Copiar sem ler é o único jeito de sair daqui sem aprender nada.**
+
+Precisa mesmo copiar (a Aula 3 tem bastante código)? Então copie de propósito:
+
+```bash
+cd ~/capacitacao-gabarito && git checkout aula-03
+rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
+cd ~/automic_auth_api && bundle install && bin/rails db:migrate && bin/rails test
+```
+
+O `Gemfile` vai junto de propósito: a Aula 3 acrescenta as gems `jwt`, `rack-cors` e
+`letter_opener`. Sem ele, a aplicação nem sobe.
 
 | Branch | Contém |
 |---|---|
@@ -93,13 +137,17 @@ python3 slides/gerar_slides.py --aula 1       # só a Aula 1
 
 ---
 
-## Rodando o projeto
+## Rodando o gabarito
 
-Pré-requisitos e instalação passo a passo em [`docs/00-preparacao.md`](docs/00-preparacao.md).
-Com tudo instalado:
+Você não precisa disso para acompanhar a capacitação — só se quiser ver o projeto pronto
+funcionando na sua máquina.
 
 ```bash
 docker compose up -d          # sobe o Postgres
 bin/setup                     # instala gems e prepara o banco
 bin/rails server              # http://localhost:3000
+curl localhost:3000/api/v1/status
 ```
+
+> Se você já tem um Postgres na porta 5432, use `DB_PORT=5433 docker compose up -d` e exporte
+> `DB_PORT=5433` no shell.
