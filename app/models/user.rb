@@ -2,6 +2,11 @@ class User < ApplicationRecord
   include EmailVerifiable
   include PasswordResettable
 
+  # has_many é o lado "um" da relação um-para-muitos.
+  # dependent: :delete_all — apagar o usuário apaga o histórico dele junto.
+  # Sem isso, sobram linhas órfãs apontando para um id que não existe mais.
+  has_many :login_events, dependent: :delete_all
+
   # Digest descartável usado quando o e-mail não existe. Sem ele, "e-mail não
   # cadastrado" responderia mais rápido que "senha errada", e dava para
   # descobrir quem tem conta cronometrando as respostas.

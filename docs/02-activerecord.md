@@ -17,6 +17,29 @@ só aparece no deploy.**
 
 ---
 
+### Transação
+
+Um bloco de operações que acontece **inteiro ou não acontece**. Deu erro no meio, o banco desfaz
+tudo — isso se chama *rollback*.
+
+O exemplo clássico é transferir dinheiro: debitar de um e creditar no outro têm que ser a mesma
+operação. Debitar sozinho é dinheiro que sumiu.
+
+```ruby
+User.transaction do
+  user.save!
+  user.invalidate_sessions!
+  user.clear_password_reset_code!
+end
+```
+
+Repare no `!`: dentro de uma transação você **quer** que estoure. `save` devolve `false` em silêncio
+e a transação seguiria feliz, gravando metade.
+
+Na Aula 3, trocar a senha vai precisar exatamente disso.
+
+---
+
 ## 2. ActiveRecord
 
 É o ORM do Rails: cada classe é uma tabela, cada objeto é uma linha.
@@ -38,6 +61,35 @@ end
 ```
 
 Isso já tem `name`, `email`, `id`, `created_at` — tudo que existir na tabela `users`.
+
+---
+
+### ActiveSupport: os métodos que o Rails inventou
+
+O Rails adiciona métodos às classes do próprio Ruby. Isso é a gem `activesupport`, não Ruby puro —
+fora do Rails esses métodos somem.
+
+```ruby
+15.minutes
+1.day.ago
+2.weeks.from_now
+Time.current        # respeita o fuso configurado na app; Time.now não
+```
+
+E o par que você vai usar mais que qualquer outro:
+
+```ruby
+nil.blank?       # true
+"".blank?        # true
+"   ".blank?     # true   ← só espaço também conta como vazio
+[].blank?        # true
+0.blank?         # false  ← zero NÃO é vazio
+
+"oi".present?    # true — present? é o contrário de blank?
+```
+
+> **Pegadinha para quem vem de Python**: em Ruby puro, só `nil` e `false` são falsos. `if 0`
+> executa. `if ""` executa. É justamente por isso que `blank?` existe.
 
 ---
 
@@ -201,7 +253,94 @@ Sem isso o índice único não serve para nada: o banco acha que são valores di
 
 ---
 
-## 6. Concerns — o mixin da Aula 1, na prática
+## 6. Associações
+
+Uma tabela nunca basta. Todo sistema real tem tabelas que se referem umas às outras: usuário tem
+muitos pedidos; palestra acontece numa sala; sala tem muitas palestras.
+
+Vamos criar a segunda tabela do projeto: **`login_events`**, o histórico de acessos da conta. É o
+que o seu banco usa para mandar "novo acesso detectado" por e-mail.
+
+### Quem guarda a chave
+
+A relação um-para-muitos mora numa coluna só: a **chave estrangeira**. `login_events.user_id`
+aponta para `users.id`.
+
+- quem **carrega** a coluna usa `belongs_to`;
+- quem é **apontado** usa `has_many`.
+
+> Regra prática: a chave fica sempre no lado "muitos".
+
+### A migration
+
+```ruby
+create_table :login_events do |t|
+  t.references :user, null: false, foreign_key: true
+  t.string   :client, null: false
+  t.string   :ip_address
+  t.datetime :occurred_at, null: false
+  t.timestamps
+end
+
+add_index :login_events, [ :user_id, :occurred_at ]
+```
+
+- **`t.references :user`** cria a coluna `user_id`, o índice **e** a chave estrangeira.
+- **`foreign_key: true`** faz o **banco** recusar uma linha órfã — não é só validação de model.
+- O índice composto tem `user_id` primeiro porque a consulta é sempre "os últimos logins **deste**
+  usuário". Num índice composto, **a ordem das colunas importa**: primeiro o que filtra.
+
+### Os dois lados
+
+```ruby
+class User < ApplicationRecord
+  has_many :login_events, dependent: :delete_all
+end
+
+class LoginEvent < ApplicationRecord
+  belongs_to :user
+
+  scope :recentes, -> { order(occurred_at: :desc) }
+end
+```
+
+- **`dependent: :delete_all`** — apagar o usuário apaga o histórico junto. Sem isso sobram linhas
+  apontando para um `id` que não existe mais.
+- **`belongs_to` já exige presença** desde o Rails 5: `LoginEvent` sem `user` é inválido.
+- **`scope`** é uma consulta com nome, e ela encadeia.
+
+### Usando
+
+```ruby
+# Criar PELA associação já preenche o user_id — não precisa passar:
+user.login_events.create!(client: "mobile", occurred_at: Time.current)
+
+user.login_events.count
+user.login_events.recentes.limit(5)
+evento.user.name                      # navega para o outro lado
+```
+
+### A armadilha N+1
+
+```ruby
+users.each { |u| puts u.login_events.count }
+```
+
+Com 100 usuários isso são **101 consultas**: uma para buscar os usuários e cem para buscar o
+histórico de cada um. É o problema de performance número 1 de aplicação Rails.
+
+A correção é uma palavra:
+
+```ruby
+User.includes(:login_events).each { |u| puts u.login_events.count }
+```
+
+Duas consultas, sempre. O `seem-backend` usa a gem **Bullet**, que estoura um erro em
+desenvolvimento quando você escreve um N+1 sem perceber.
+
+---
+
+## 7. Concerns — o mixin da Aula 1, na prática
 
 O `User` vai ganhar confirmação de e-mail e recuperação de senha. São dois assuntos que não
 conversam entre si. Jogar os dois no `user.rb` produz um arquivo de 800 linhas que ninguém abre com
@@ -263,7 +402,7 @@ em 12 de agosto às 14h" — e isso você vai querer saber quando alguém abrir 
 
 ---
 
-## 7. O console
+## 8. O console
 
 ```bash
 bin/rails console
@@ -298,7 +437,7 @@ u.email_verified?
 
 ---
 
-## 8. Seeds e fixtures
+## 9. Seeds e fixtures
 
 **Seeds** povoam o banco de desenvolvimento:
 
@@ -321,7 +460,7 @@ No teste, `users(:ana)` devolve esse registro.
 
 ---
 
-## 9. Testando o model
+## 10. Testando o model
 
 ```ruby
 test "guarda o digest e nunca a senha em texto" do
@@ -344,7 +483,7 @@ O Rails vem com **Minitest**. Se você conhece `pytest`, a ideia é a mesma; a s
 
 ---
 
-## 10. Uma sutileza de segurança: `authenticate_by_email`
+## 11. Uma sutileza de segurança: `authenticate_by_email`
 
 ```ruby
 DUMMY_PASSWORD_DIGEST = BCrypt::Password.create("automic-timing-safe-dummy").freeze
@@ -380,7 +519,12 @@ o mesmo. Vamos usar esse método na Aula 3.
    recusar.
 7. Escreva os testes e rode `bin/rails test`.
 
-**Bônus**: faça um `scope :recentes` que devolve os usuários criados nos últimos 7 dias.
+8. Crie a migration de `login_events`, o model com `belongs_to` e o `has_many` no `User`.
+9. No console: `users(:ana).login_events.create!(...)`, depois `user.login_events.recentes`.
+10. Apague um usuário que tenha eventos e confira que o histórico foi junto.
+
+**Bônus**: escreva o N+1 de propósito (`User.all.each { |u| puts u.login_events.count }`), olhe o
+log para contar as consultas, e conserte com `includes`.
 
 Travou? `git checkout aula-02`.
 
@@ -393,5 +537,8 @@ Travou? `git checkout aula-02`.
 - Senha vira hash bcrypt, com salt, e nunca volta.
 - Concern é o mixin do Rails: um assunto por arquivo.
 - Normalize antes de validar, ou o índice único não serve para nada.
+- A chave estrangeira fica no lado "muitos": `belongs_to` carrega, `has_many` é apontado.
+- Transação é tudo ou nada. Dentro dela, use os métodos com `!`.
+- `includes` resolve N+1, e N+1 é o problema de performance mais comum em Rails.
 
 **Na próxima**: as rotas. O usuário vai conseguir se cadastrar, entrar, sair e recuperar a senha.
