@@ -34,11 +34,11 @@ slides:
   - tipo: bullets
     titulo: "AS QUATRO OPÇÕES"
     bullets:
-      - "Hospedagem compartilhada — você não controla nada."
-      - "PaaS (Heroku, Render, Fly) — controla o app, opera nada."
+      - "Hospedagem compartilhada: você não controla nada."
+      - "PaaS (Heroku, Render, Fly): controla o app, opera nada."
       - "- paga mais e obedece as regras deles"
-      - "VPS — controla tudo, e opera tudo."
-      - "Kubernetes — controla tudo, em escala, e opera muito mais."
+      - "VPS: controla tudo, e opera tudo."
+      - "Kubernetes: controla tudo, em escala, e opera muito mais."
 
   - tipo: bullets
     titulo: "POR QUE VM, E NÃO KUBERNETES"
@@ -58,7 +58,7 @@ slides:
     bullets:
       - "Uma VM é ponto único de falha."
       - "Volume Docker não é backup."
-      - "O Postgres não é gerenciado — quem cuida é você."
+      - "O Postgres não é gerenciado: quem cuida é você."
       - "Admitir o custo faz parte da decisão."
 
   - tipo: secao
@@ -76,7 +76,7 @@ slides:
   - tipo: bullets
     titulo: "CRIANDO A VM"
     bullets:
-      - "Ubuntu Server 24.04 LTS — x64 Gen2"
+      - "Ubuntu Server 24.04 LTS: x64 Gen2"
       - "Standard_B1s (1 vCPU, 1 GiB) ou maior, se houver crédito"
       - "Autenticação: chave pública SSH, tipo Ed25519"
       - "Usuário: azureuser"
@@ -98,8 +98,8 @@ slides:
       - "A PÚBLICA você espalha. A PRIVADA nunca sai da sua máquina."
       - "O que uma fecha, só a outra abre."
       - "Duas coisas saem daí:"
-      - "- sigilo — fecho com a sua pública, só você abre"
-      - "- assinatura — fecho com a minha privada, todos conferem que fui eu"
+      - "- sigilo: fecho com a sua pública, só você abre"
+      - "- assinatura: fecho com a minha privada, todos conferem que fui eu"
 
   - tipo: bullets  # EXTRA
     titulo: "É COMO O SSH FUNCIONA"
@@ -135,12 +135,12 @@ slides:
   - tipo: bullets
     titulo: "LINUX BÁSICO"  # CORTÁVEL
     bullets:
-      - "apt update / apt install — o gerenciador de pacotes"
-      - "sudo — executar como root, uma vez"
-      - "systemctl status / restart — serviços"
-      - "journalctl -u ssh — logs de um serviço"
-      - "free -h e df -h — memória e disco"
-      - "chmod 600 arquivo — só o dono lê e escreve"
+      - "apt update / apt install: o gerenciador de pacotes"
+      - "sudo: executar como root, uma vez"
+      - "systemctl status / restart: serviços"
+      - "journalctl -u ssh: logs de um serviço"
+      - "free -h e df -h: memória e disco"
+      - "chmod 600 arquivo: só o dono lê e escreve"
 
   - tipo: bullets  # EXTRA
     titulo: "ROOT E PERMISSÕES"
@@ -149,7 +149,7 @@ slides:
       - "Você trabalha como azureuser e chama sudo quando precisa."
       - "Todo arquivo tem dono, grupo e três permissões: ler, escrever, executar."
       - "chmod 600 = dono lê e escreve; mais ninguém vê nada."
-      - "É o que o SSH EXIGE de uma chave privada — senão ele recusa usar."
+      - "É o que o SSH EXIGE de uma chave privada. Senão ele recusa usar."
       - "Nunca rode a aplicação como root. O Dockerfile já cuida disso."
 
   - tipo: bullets  # EXTRA
@@ -359,9 +359,9 @@ slides:
     titulo: "CI: O PORTÃO"
     bullets:
       - "Roda em todo push e todo pull request."
-      - "scan_ruby — Brakeman e bundler-audit."
-      - "lint — RuboCop."
-      - "test — bin/rails test contra um Postgres descartável."
+      - "scan_ruby: Brakeman e bundler-audit."
+      - "lint: RuboCop."
+      - "test: bin/rails test contra um Postgres descartável."
       - "Falhou qualquer um, não entra na main."
       - "É isso que faz 'deploy automático' não ser 'publicar bug automático'."
 
@@ -436,7 +436,7 @@ slides:
     bullets:
       - "O HTTP da Aula 1 é texto puro: quem estiver no caminho lê tudo."
       - "O TLS embrulha esse texto num túnel criptografado."
-      - "Mesmo protocolo, mesmos verbos, mesmos cabeçalhos — só que fechado."
+      - "Mesmo protocolo, mesmos verbos, mesmos cabeçalhos, só que fechado."
       - "O 'S' de HTTPS é isso, e mais nada."
 
   - tipo: bullets  # EXTRA
@@ -464,7 +464,7 @@ slides:
       - "Proxy comum fica na frente do CLIENTE. Reverso fica na frente do SERVIDOR."
       - "Recebe tudo na 443, termina o TLS, e repassa para a app em HTTP interno."
       - "Assim o Rails não precisa saber nada de certificado."
-      - "É o kamal-proxy na sua VM — e o Cloudflare, uma camada antes."
+      - "É o kamal-proxy na sua VM: e o Cloudflare, uma camada antes."
       - "Por isso config.assume_ssl: avisa o Rails que o 'http' que chegou"
       - "- já veio de um https lá fora."
 
@@ -472,7 +472,7 @@ slides:
     titulo: "DNS NO CLOUDFLARE"
     bullets:
       - "Registro A, apontando para o IP público da VM."
-      - "Proxy: Proxied — a nuvem laranja."
+      - "Proxy: Proxied, a nuvem laranja."
       - "O tráfego passa pelo Cloudflare antes de chegar na sua VM."
       - "Cache, proteção contra DDoS,"
       - "- e o IP real da sua máquina não aparece no DNS."
@@ -480,9 +480,9 @@ slides:
   - tipo: bullets
     titulo: "OS TRÊS MODOS DE TLS"
     bullets:
-      - "Flexible — Cloudflare → sua VM em TEXTO PURO. Não use."
-      - "Full — criptografado, mas aceita certificado inválido."
-      - "Full (strict) — criptografado E o certificado é validado."
+      - "Flexible: Cloudflare → sua VM em TEXTO PURO. Não use."
+      - "Full: criptografado, mas aceita certificado inválido."
+      - "Full (strict): criptografado E o certificado é validado."
       - "Com Flexible, o cadeado aparece e a senha trafega em claro no fim."
       - "É pior que não ter HTTPS, porque mente."
 
@@ -491,7 +491,7 @@ slides:
     bullets:
       - "O Kamal sabe emitir Let's Encrypt sozinho. Aqui não dá."
       - "Com o DNS proxied, o desafio HTTP-01 não chega como esperado."
-      - "Daria para tirar o proxy durante a emissão — mas expõe o IP"
+      - "Daria para tirar o proxy durante a emissão, mas isso expõe o IP"
       - "- e vira ritual manual a cada renovação."
       - "Origin CA: protege Cloudflare → Azure, sem desafio, e vale anos."
       - "O certificado que o usuário vê é o público do Cloudflare."
@@ -555,17 +555,17 @@ slides:
       - "Escolha a ferramenta do tamanho do problema."
       - "Multi-stage e usuário não-root."
       - "clear é configuração, secret é segredo."
-      - "Volume salva o dado do deploy — e ainda assim não é backup."
+      - "Volume salva o dado do deploy. E ainda assim não é backup."
       - "OIDC troca segredo longo por token curto."
       - "A porta 22 abre por um minuto e fecha, inclusive quando dá errado."
 
   - tipo: bullets
     titulo: "O QUE O SEEM-BACKEND TEM A MAIS"
     bullets:
-      - "Datadog — logs centralizados e Error Tracking."
-      - "rack-attack — bloqueia scanner e rajada de erro por IP."
-      - "Active Storage — foto de perfil em volume persistente."
-      - "Audit log — histórico de toda mutação de admin."
+      - "Datadog: logs centralizados e Error Tracking."
+      - "rack-attack: bloqueia scanner e rajada de erro por IP."
+      - "Active Storage: foto de perfil em volume persistente."
+      - "Audit log: histórico de toda mutação de admin."
       - "Export .xlsx e OpenAPI/Swagger."
       - "Nenhum é difícil depois do que você viu. Agora dá para ler o código."
 

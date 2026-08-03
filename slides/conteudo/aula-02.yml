@@ -34,7 +34,7 @@ slides:
     titulo: "O MODELO RELACIONAL"  # CORTÁVEL
     bullets:
       - "Tabela é uma planilha: colunas fixas, linhas variáveis."
-      - "Cada linha tem um id único — a chave primária."
+      - "Cada linha tem um id único: a chave primária."
       - "Uma tabela aponta para outra por chave estrangeira."
       - "Índice é o sumário do livro: acha sem ler tudo."
       - "SQL é a linguagem: SELECT, INSERT, UPDATE, DELETE."
@@ -91,7 +91,7 @@ slides:
       - "Object-Relational Mapping."
       - "Cada classe é uma tabela. Cada objeto é uma linha."
       - "Você escreve Ruby; ele escreve SQL."
-      - "Não é para nunca mais ver SQL — é para não escrever o trivial."
+      - "Não é para nunca mais ver SQL. É para não escrever o trivial."
       - "Quando a query fica esquisita, escreva SQL. É legítimo."
 
   - tipo: duas_colunas
@@ -186,7 +186,7 @@ slides:
   - tipo: bullets
     titulo: "DOIS DETALHES DA MIGRATION"
     bullets:
-      - "t.timestamps cria created_at e updated_at — o Rails mantém sozinho."
+      - "t.timestamps cria created_at e updated_at, e o Rails mantém sozinho."
       - "add_index unique: true é restrição no BANCO, não no model."
       - "Por que importa:"
       - "- duas requisições simultâneas passam pela validação juntas"
@@ -199,7 +199,7 @@ slides:
     bullets:
       - "Depois de migrar, o Rails reescreve db/schema.rb."
       - "É o retrato atual do banco."
-      - "É ele que cria o banco de teste — por isso vai versionado."
+      - "É ele que cria o banco de teste. Por isso vai versionado."
       - "Você nunca edita esse arquivo à mão."
       - "Nunca edite migration que já rodou em produção. Crie outra."
 
@@ -225,7 +225,7 @@ slides:
   - tipo: bullets
     titulo: "POR QUE BCRYPT E NÃO SHA-256"
     bullets:
-      - "SHA-256 é rápido — e é esse o problema."
+      - "SHA-256 é rápido: e é esse o problema."
       - "Uma GPU testa bilhões por segundo."
       - "bcrypt é lento de propósito, com custo ajustável."
       - "Melhorou o hardware? Você aumenta o custo."
@@ -278,8 +278,8 @@ slides:
     bullets:
       - "validates (plural) usa um validador pronto."
       - "validate (singular) chama um método seu."
-      - "on: :create só valida na criação — termos se aceitam uma vez."
-      - "if: recebe um lambda — na edição de perfil não há senha para validar."
+      - "on: :create só valida na criação. Termos se aceitam uma vez."
+      - "if: recebe um lambda. Na edição de perfil não há senha para validar."
       - "u.valid? e u.errors.full_messages no console."
 
   - tipo: bullets
@@ -484,7 +484,7 @@ slides:
       - "Escreva o User com has_secure_password e as validações."
       - "Crie os dois concerns e inclua no User."
       - "No console: crie usuário, veja o digest, teste authenticate."
-      - "Emita um código, confirme, e tente confirmar de novo — tem que recusar."
+      - "Emita um código, confirme, e tente confirmar de novo. Tem que recusar."
       - "Escreva os testes e rode bin/rails test."
 
   - tipo: bullets

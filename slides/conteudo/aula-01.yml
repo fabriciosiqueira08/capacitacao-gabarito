@@ -40,21 +40,21 @@ slides:
   - tipo: bullets
     titulo: "EXTENSÕES ÚTEIS"
     bullets:
-      - "Ruby LSP — autocomplete e erro em tempo real"
-      - "Ruby Rails — pula entre model, controller e rota"
-      - "Docker — ver e parar containers pela barra lateral"
-      - "GitLens — quem escreveu esta linha, e quando"
-      - "WSL — só Windows, abre o projeto do Ubuntu"
+      - "Ruby LSP: autocomplete e erro em tempo real"
+      - "Ruby Rails: pula entre model, controller e rota"
+      - "Docker: ver e parar containers pela barra lateral"
+      - "GitLens: quem escreveu esta linha, e quando"
+      - "WSL: só Windows, abre o projeto do Ubuntu"
       - "vscode-icons"
 
   - tipo: bullets
     titulo: "O TERMINAL"  # CORTÁVEL
     bullets:
       - "No back-end você vive aqui. Não tem botão de play."
-      - "- pwd — onde eu estou"
-      - "- ls — o que tem aqui"
-      - "- cd pasta — entrar"
-      - "- cd .. — voltar"
+      - "- pwd: onde eu estou"
+      - "- ls: o que tem aqui"
+      - "- cd pasta: entrar"
+      - "- cd ..: voltar"
       - "Ctrl+C mata o processo que está rodando."
       - "Seta pra cima repete o último comando."
 
@@ -131,7 +131,7 @@ slides:
       - "Autentica usuários."
       - "Fala com outros sistemas: e-mail, pagamento, mapas."
       - "Processa o que é pesado demais para o celular."
-      - "Nada disso pode viver no front — o usuário mexeria."
+      - "Nada disso pode viver no front. O usuário mexeria."
     notas: |
       Este último ponto é o mais importante. Qualquer coisa que roda no
       navegador o usuário consegue ler e alterar. Por isso a validação de
@@ -164,7 +164,7 @@ slides:
       - "Ele fica ligado, escutando numa PORTA."
       - "Chegou requisição naquela porta, ele responde."
       - "bin/rails server sobe esse programa na porta 3000."
-      - "Na sua máquina ou numa VM na nuvem — é o mesmo programa."
+      - "Na sua máquina ou numa VM na nuvem, é o mesmo programa."
 
   - tipo: bullets  # EXTRA
     titulo: "IP E PORTA"
@@ -182,7 +182,7 @@ slides:
       - "Ninguém decora 57.156.65.151."
       - "O DNS é a agenda telefônica da internet."
       - "Você digita api.seemxxiii.tech; alguém pergunta ao DNS o IP."
-      - "A resposta fica em cache por um tempo — o TTL."
+      - "A resposta fica em cache por um tempo. Chama-se TTL."
       - "É por isso que trocar um domínio de servidor não vale na hora."
       - "Na Aula 4 você vai criar um desses registros."
 
@@ -225,11 +225,11 @@ slides:
     bullets:
       - "São metadados: informação SOBRE a mensagem, não a mensagem."
       - "Chave: valor, uma por linha."
-      - "Content-Type — em que formato vai o corpo"
-      - "Accept — em que formato eu quero a resposta"
-      - "Authorization — quem sou eu (vai ser o nosso token, na Aula 3)"
-      - "Set-Cookie / Cookie — como o navegador guarda estado"
-      - "User-Agent — que programa está chamando"
+      - "Content-Type: em que formato vai o corpo"
+      - "Accept: em que formato eu quero a resposta"
+      - "Authorization: quem sou eu (vai ser o nosso token, na Aula 3)"
+      - "Set-Cookie / Cookie: como o navegador guarda estado"
+      - "User-Agent: que programa está chamando"
 
   - tipo: bullets  # EXTRA
     titulo: "CONTENT-TYPE IMPORTA"
@@ -248,20 +248,20 @@ slides:
   - tipo: bullets
     titulo: "OS VERBOS"
     bullets:
-      - "GET — me dá isso (não muda nada)"
-      - "POST — cria isso"
-      - "PUT / PATCH — altera isso"
-      - "DELETE — apaga isso"
+      - "GET: me dá isso (não muda nada)"
+      - "POST: cria isso"
+      - "PUT / PATCH: altera isso"
+      - "DELETE: apaga isso"
       - "O verbo é uma promessa. GET que apaga coisa é bug, não criatividade."
 
   - tipo: bullets
     titulo: "OS STATUS CODES"
     bullets:
-      - "2xx — deu certo. 200 ok, 201 criado."
-      - "3xx — foi pra outro lugar."
-      - "4xx — você errou. 400 pedido mal feito, 401 não autenticado,"
+      - "2xx: deu certo. 200 ok, 201 criado."
+      - "3xx: foi pra outro lugar."
+      - "4xx: você errou. 400 pedido mal feito, 401 não autenticado,"
       - "- 403 autenticado mas sem permissão, 404 não existe, 422 dado inválido."
-      - "5xx — nós erramos. 500 é bug nosso."
+      - "5xx: nós erramos. 500 é bug nosso."
       - "A diferença entre 401 e 403 cai em toda entrevista."
     notas: |
       401 = "quem é você?". 403 = "sei quem você é, e você não pode".
@@ -323,7 +323,7 @@ slides:
     bullets:
       - "Criado por Yukihiro Matsumoto, o Matz, em 1995, no Japão."
       - "O objetivo declarado: fazer o programador feliz."
-      - "Interpretada, dinâmica, orientada a objetos — como Python."
+      - "Interpretada, dinâmica e orientada a objetos, como Python."
       - "Estourou em 2005, com o Rails."
       - "Hoje: GitHub, Shopify, Airbnb, Basecamp e o seem-backend."
 
@@ -384,7 +384,7 @@ slides:
       - "Escrito com dois-pontos: :aluno, :email, :admin"
       - "É um texto que serve de etiqueta, não de conteúdo."
       - "O mesmo símbolo é sempre o mesmo objeto na memória."
-      - "Não existe em Python — lá você usaria uma string."
+      - "Não existe em Python: lá você usaria uma string."
       - "Rails usa símbolo em tudo: chave de hash, nome de campo, estado."
     notas: |
       Regra prática: se é conteúdo que o usuário lê, string. Se é nome de
@@ -581,7 +581,7 @@ slides:
     titulo: "O QUE É RAILS"
     bullets:
       - "Framework web em Ruby, criado por David Heinemeier Hansson em 2004."
-      - "Nasceu extraído do Basecamp — um produto real, não um exercício."
+      - "Nasceu extraído do Basecamp: um produto real, não um exercício."
       - "Traz tudo junto: rotas, banco, e-mail, filas, testes, deploy."
       - "Está na versão 8. É a versão que o seem-backend usa."
       - "A promessa: uma pessoa sozinha consegue construir um sistema inteiro."
@@ -632,10 +632,10 @@ slides:
   - tipo: bullets
     titulo: "MVC"
     bullets:
-      - "Model — os dados e as regras. Conversa com o banco."
-      - "View — a tela. Na nossa API, é o JSON."
-      - "Controller — recebe a requisição e decide o que fazer."
-      - "Rota — o mapa: este endereço vai para aquele controller."
+      - "Model: os dados e as regras. Conversa com o banco."
+      - "View: a tela. Na nossa API, é o JSON."
+      - "Controller: recebe a requisição e decide o que fazer."
+      - "Rota: o mapa que liga este endereço àquele controller."
       - "O caminho é sempre: rota → controller → model → resposta."
 
   - tipo: codigo
@@ -658,15 +658,15 @@ slides:
       - "O Zeitwerk carrega a classe na hora em que você a menciona."
       - "E ele descobre o arquivo pelo NOME da classe:"
       - "- Api::V1::StatusController → app/controllers/api/v1/status_controller.rb"
-      - "Errou o caminho, a classe não existe. Não é estilo — é mecanismo."
+      - "Errou o caminho, a classe não existe. Não é estilo. É mecanismo."
       - "É o que faz 'convenção sobre configuração' funcionar de verdade."
 
   - tipo: bullets  # EXTRA
     titulo: "OS TRÊS AMBIENTES"
     bullets:
-      - "development — sua máquina. Recarrega código, log verboso, erro na tela."
-      - "test — os testes. Banco separado, que é limpo a cada teste."
-      - "production — o servidor. Código congelado, log enxuto, erro genérico."
+      - "development: sua máquina. Recarrega código, log verboso, erro na tela."
+      - "test: os testes. Banco separado, que é limpo a cada teste."
+      - "production: o servidor. Código congelado, log enxuto, erro genérico."
       - "config/environments/ tem um arquivo para cada."
       - "Rails.env diz onde você está."
       - "É assim que o e-mail abre no navegador em dev e vai por SMTP em produção."
@@ -674,23 +674,23 @@ slides:
   - tipo: bullets
     titulo: "TOUR DAS PASTAS"
     bullets:
-      - "app/ — o seu código. É onde você passa 90% do tempo."
+      - "app/: o seu código. É onde você passa 90% do tempo."
       - "- models, controllers, mailers, serializers, services"
-      - "config/ — rotas, banco, ambientes, credenciais"
-      - "db/ — migrations e o retrato atual do banco (schema.rb)"
-      - "test/ — os testes"
-      - "Gemfile — as dependências"
-      - "bin/ — os comandos: rails, setup, dev"
+      - "config/: rotas, banco, ambientes, credenciais"
+      - "db/: migrations e o retrato atual do banco (schema.rb)"
+      - "test/: os testes"
+      - "Gemfile: as dependências"
+      - "bin/ tem os comandos: rails, setup, dev"
 
   - tipo: bullets
     titulo: "OS COMANDOS DO DIA A DIA"
     bullets:
-      - "bin/rails server — sobe a aplicação"
-      - "bin/rails console — um irb com o seu projeto carregado dentro"
-      - "bin/rails routes — todas as rotas que existem"
-      - "bin/rails generate — cria arquivos seguindo a convenção"
-      - "bin/rails db:migrate — aplica as mudanças de banco"
-      - "bin/rails test — roda os testes"
+      - "bin/rails server: sobe a aplicação"
+      - "bin/rails console: um irb com o seu projeto carregado dentro"
+      - "bin/rails routes: todas as rotas que existem"
+      - "bin/rails generate: cria arquivos seguindo a convenção"
+      - "bin/rails db:migrate aplica as mudanças de banco"
+      - "bin/rails test: roda os testes"
     notas: |
       O console é a ferramenta mais subestimada do Rails. Dá para criar
       usuário, rodar query e testar método sem escrever um arquivo.
@@ -728,10 +728,10 @@ slides:
   - tipo: bullets
     titulo: "GIT"  # CORTÁVEL
     bullets:
-      - "git init — começa a versionar"
-      - "git add . — separa o que vai no próximo commit"
-      - "git commit -m \"mensagem\" — grava o ponto"
-      - "git push — manda para o GitHub"
+      - "git init: começa a versionar"
+      - "git add .: separa o que vai no próximo commit"
+      - "git commit -m \"mensagem\": grava o ponto"
+      - "git push: manda para o GitHub"
       - "Na Aula 4, é o push que dispara o deploy. Literalmente."
 
   - tipo: bullets
@@ -740,7 +740,7 @@ slides:
       - "Back-end é a cozinha: regra, dado e permissão."
       - "HTTP é o idioma; verbo, status e JSON são o vocabulário."
       - "Ruby é Python com outra sintaxe e mais açúcar."
-      - "Rails decide o óbvio por você — siga a convenção."
+      - "Rails decide o óbvio por você. Siga a convenção."
       - "Você já tem uma API respondendo. Na próxima ela ganha banco."
 
   - tipo: fim

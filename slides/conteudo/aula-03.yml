@@ -14,7 +14,7 @@ slides:
     titulo: "OBJETIVOS"
     bullets:
       - "Cadastro, ativação, login, logout e recuperação de senha."
-      - "Entender JWT de verdade — e o que ele não é."
+      - "Entender JWT de verdade: e o que ele não é."
       - "Descobrir por que logout é o problema difícil."
       - "Aprender a não vazar informação nas respostas."
 
@@ -74,7 +74,7 @@ slides:
   - tipo: bullets
     titulo: "LENDO O FORMATO DE ERRO"
     bullets:
-      - "code é estável — o cliente decide o que fazer com base nele."
+      - "code é estável: o cliente decide o que fazer com base nele."
       - "message é para o usuário ler. Pode mudar, pode ser traduzida."
       - "details diz qual campo falhou, para o app pintar o input de vermelho."
       - "API que erra de três jeitos força o cliente a tratar os três."
@@ -100,7 +100,7 @@ slides:
     titulo: "A PILHA DE MIDDLEWARE"
     bullets:
       - "A requisição não cai direto no controller."
-      - "Ela atravessa uma pilha de camadas — o middleware."
+      - "Ela atravessa uma pilha de camadas: o middleware."
       - "Cada camada pode ler, alterar, ou responder e cortar o caminho."
       - "É onde moram CORS, cookies e rate limit."
       - "bin/rails middleware lista a pilha inteira do seu app."
@@ -215,7 +215,7 @@ slides:
       - "O servidor guarda a sessão"
       - "Manda um id no cookie"
       - "Toda requisição consulta"
-      - "Logout é apagar — imediato"
+      - "Logout é apagar: imediato"
       - "Escalar exige sessão compartilhada"
     direita_titulo: "TOKEN"
     direita:
@@ -301,7 +301,7 @@ slides:
       - "Um par nome=valor que o servidor manda no cabeçalho Set-Cookie."
       - "O navegador guarda e reenvia SOZINHO, em toda requisição àquele site."
       - "É a memória que o HTTP não tem, colada por fora."
-      - "Quem manda é o navegador — o app nativo não participa disso."
+      - "Quem manda é o navegador: o app nativo não participa disso."
       - "assinado (signed): o Rails carimba o valor;"
       - "- alterou na mão, o Rails recusa."
 
@@ -339,9 +339,9 @@ slides:
   - tipo: bullets
     titulo: "401  ×  403"
     bullets:
-      - "401 Unauthorized — não sabemos quem é você."
+      - "401 Unauthorized: não sabemos quem é você."
       - "- senha errada, token ausente, token inválido"
-      - "403 Forbidden — sabemos quem é você, e você não pode."
+      - "403 Forbidden: sabemos quem é você, e você não pode."
       - "- conta sem e-mail confirmado"
       - "Trocar os dois é o erro mais comum em API."
 
@@ -371,8 +371,8 @@ slides:
     bullets:
       - "a) Apagar no cliente."
       - "- resolve o caso normal, não resolve nada se copiaram o token"
-      - "b) Denylist por jti — revoga aquele token."
-      - "c) token_version — derruba todos os tokens do usuário."
+      - "b) Denylist por jti: revoga aquele token."
+      - "c) token_version: derruba todos os tokens do usuário."
       - "Usamos b e c."
 
   - tipo: codigo
@@ -397,7 +397,7 @@ slides:
       - "Depois disso o token morre sozinho e a entrada não serve mais."
       - "A lista se limpa sem varredura e sem lixo acumulado."
       - "Isso revoga UM token."
-      - "Logout no celular não derruba o notebook — e é o certo."
+      - "Logout no celular não derruba o notebook. E é o certo."
 
   - tipo: codigo
     titulo: "TOKEN_VERSION: DERRUBA TUDO"
@@ -507,9 +507,9 @@ slides:
   - tipo: bullets
     titulo: "AS FERRAMENTAS DE QUALIDADE"
     bullets:
-      - "bin/rubocop — estilo. O black/ruff do Ruby."
-      - "bin/brakeman — análise estática de segurança."
-      - "bundler-audit — gems com CVE conhecido."
+      - "bin/rubocop: estilo. O black/ruff do Ruby."
+      - "bin/brakeman: análise estática de segurança."
+      - "bundler-audit: gems com CVE conhecido."
       - "As três rodam no CI, na Aula 4."
 
   - tipo: bullets
@@ -517,7 +517,7 @@ slides:
     bullets:
       - "O navegador bloqueia página em painel.exemplo.com chamar api.exemplo.com."
       - "Esta config é a API dizendo quais origens aceita."
-      - "O app nativo NÃO passa por CORS — é regra de navegador."
+      - "O app nativo NÃO passa por CORS. É regra de navegador."
       - "Na prática, existe por causa do painel web."
 
   - tipo: pratica
@@ -534,7 +534,7 @@ slides:
     titulo: "RECAPITULANDO"
     bullets:
       - "Controller recebe e responde; a regra mora no service."
-      - "Serializer é a lista de convidados — sem ele o digest vaza."
+      - "Serializer é a lista de convidados. Sem ele o digest vaza."
       - "O payload do JWT é público. Assinado ≠ criptografado."
       - "Logout de verdade precisa de denylist por jti."
       - "token_version derruba tudo, e é o que a troca de senha usa."
