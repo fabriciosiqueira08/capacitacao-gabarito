@@ -118,6 +118,9 @@ def escrever(shape, linhas, ajustar=False, centralizar=False, cor=None):
     Com `ajustar`, a fonte encolhe até o texto caber na caixa do doador.
     """
     escala = _escala_que_cabe(shape, linhas) if ajustar else 1.0
+    # Só o corpo interessa: título encolhido continua enorme.
+    if escala < LIMITE_LEGIVEL and not centralizar:
+        AVISOS.append(f"letra em {escala:.0%} — considere dividir: {linhas[0][:50]!r}")
     text_frame = shape.text_frame
     modelos = _modelos_de_paragrafo(text_frame)
     nivel_base = min(modelos)
@@ -178,6 +181,10 @@ def _centralizar(shape):
 ALTURA_IN = 11.25
 LARGURA_GLIFO = 0.52  # largura média de caractere em ems, para a fonte do deck
 ALTURA_LINHA = 1.6  # entrelinha em ems
+# O slide mais denso do Fiuza usa 28pt; o nosso doador de corpo tem 52,63pt.
+# 28/52,63 ≈ 0,53 — abaixo disso é mais apertado do que ele jamais escreveu.
+LIMITE_LEGIVEL = 0.5
+AVISOS = []
 
 
 def _escala_que_cabe(shape, linhas):
@@ -348,8 +355,12 @@ def main():
         if not (CONTEUDO / f"aula-{numero:02d}.yml").exists():
             print(f"aula-{numero:02d}.yml ainda não existe — pulando")
             continue
+
+        AVISOS.clear()
         saida, total = gerar(numero)
         print(f"{saida.relative_to(RAIZ.parent)} — {total} slides")
+        for aviso in AVISOS:
+            print(f"  ! {aviso}")
 
 
 if __name__ == "__main__":
