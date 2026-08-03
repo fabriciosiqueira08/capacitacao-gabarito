@@ -79,6 +79,46 @@ slides:
       - "details diz qual campo falhou, para o app pintar o input de vermelho."
       - "API que erra de três jeitos força o cliente a tratar os três."
 
+  - tipo: codigo  # EXTRA
+    titulo: "BEFORE_ACTION: O FILTRO"
+    codigo: |
+      class MeController < BaseController
+        before_action :authenticate_user!
+
+        def show
+          render_user(current_user)   # só roda se passou pelo filtro
+        end
+      end
+
+      # O filtro roda ANTES da action.
+      # Se ele renderizar alguma coisa (o 401), a action nem é chamada.
+      #
+      # only: e except: limitam a quais actions ele se aplica:
+      #   before_action :authenticate_user!, only: :destroy
+
+  - tipo: bullets  # EXTRA
+    titulo: "A PILHA DE MIDDLEWARE"
+    bullets:
+      - "A requisição não cai direto no controller."
+      - "Ela atravessa uma pilha de camadas — o middleware."
+      - "Cada camada pode ler, alterar, ou responder e cortar o caminho."
+      - "É onde moram CORS, cookies e rate limit."
+      - "bin/rails middleware lista a pilha inteira do seu app."
+      - "O modo --api remove várias. Trouxemos os cookies de volta na mão."
+
+  - tipo: codigo  # EXTRA
+    titulo: "O CAMINHO COMPLETO"
+    codigo: |
+      requisição
+         ↓
+      [ Rack::Cors ]          ← libera (ou não) a origem
+      [ ActionDispatch::Cookies ]
+      [ ... ]
+         ↓
+      rota → before_action → controller → service → model
+         ↓
+      serializer → JSON → resposta (voltando pela mesma pilha)
+
   - tipo: codigo
     titulo: "STRONG PARAMETERS"
     codigo: |
@@ -196,6 +236,15 @@ slides:
 
       # Três partes em Base64, separadas por ponto.
 
+  - tipo: bullets  # EXTRA
+    titulo: "BASE64 NÃO É SEGREDO"
+    bullets:
+      - "Base64 é uma forma de escrever bytes usando só letras e números."
+      - "Serve para caber num cabeçalho HTTP, que é texto."
+      - "Não é criptografia. Não tem chave. Qualquer um desfaz."
+      - "echo eyJzdWIiOjJ9 | base64 -d  →  {\"sub\":2}"
+      - "Aquele monte de caractere no JWT é isso: texto disfarçado."
+
   - tipo: bullets
     titulo: "O PAYLOAD É PÚBLICO"
     bullets:
@@ -246,6 +295,16 @@ slides:
       - "JavaScript não lê o cookie"
       - "Um XSS não rouba o token"
 
+  - tipo: bullets  # EXTRA
+    titulo: "O QUE É UM COOKIE"
+    bullets:
+      - "Um par nome=valor que o servidor manda no cabeçalho Set-Cookie."
+      - "O navegador guarda e reenvia SOZINHO, em toda requisição àquele site."
+      - "É a memória que o HTTP não tem, colada por fora."
+      - "Quem manda é o navegador — o app nativo não participa disso."
+      - "assinado (signed): o Rails carimba o valor;"
+      - "- alterou na mão, o Rails recusa."
+
   - tipo: codigo
     titulo: "O COOKIE DO CLIENTE WEB"
     codigo: |
@@ -255,6 +314,27 @@ slides:
         secure: Rails.env.production?,    # só trafega em HTTPS
         same_site: :lax                   # mitiga CSRF
       }
+
+  - tipo: bullets  # EXTRA
+    titulo: "XSS"
+    bullets:
+      - "Cross-Site Scripting."
+      - "O atacante consegue rodar JavaScript DENTRO da sua página."
+      - "Como? Você exibiu texto de usuário sem escapar."
+      - "- alguém salva <script>...</script> como nome e você imprime cru"
+      - "Com JS rodando na página, ele lê tudo que o JS lê."
+      - "É por isso que httponly existe: o token no cookie fica fora do alcance."
+
+  - tipo: bullets  # EXTRA
+    titulo: "CSRF"
+    bullets:
+      - "Cross-Site Request Forgery."
+      - "Lembra que o navegador reenvia o cookie SOZINHO?"
+      - "Um site malicioso monta um formulário que aponta para a sua API."
+      - "A vítima clica; o navegador anexa o cookie dela; a API obedece."
+      - "same_site: :lax manda o navegador não enviar o cookie"
+      - "- quando a requisição vem de outro site."
+      - "API com token no cabeçalho não sofre disso: ninguém anexa por você."
 
   - tipo: bullets
     titulo: "401  ×  403"

@@ -107,6 +107,137 @@ Chaves quando cabe numa linha, `do ... end` quando não cabe.
 
 ---
 
+## Argumentos nomeados
+
+```python
+# Python
+def login(email, password, client="mobile"): ...
+login(email="a@b.c", password="x")
+```
+
+```ruby
+# Ruby — os dois-pontos DEPOIS do nome tornam obrigatório nomear na chamada
+def login(email:, password:, client: "mobile")
+end
+
+login(email: "a@b.c", password: "x")
+```
+
+Sem os dois-pontos, é argumento posicional como em Python. Com eles, quem chama **tem** que nomear —
+e a ordem deixa de importar.
+
+### O atalho do Ruby 3.1
+
+Quando a variável tem o mesmo nome da chave, você omite o valor:
+
+```ruby
+email = "a@b.c"
+password = "x"
+
+login(email:, password:)        # em vez de login(email: email, password: password)
+```
+
+Isso aparece em **todo service do projeto**:
+
+```ruby
+Result.new(success?: true, user:)     # user: user
+```
+
+Não é erro de digitação.
+
+---
+
+## Struct
+
+Quando você só quer agrupar valores, sem comportamento:
+
+```ruby
+Result = Struct.new(:success?, :user, :errors, keyword_init: true)
+
+r = Result.new(success?: true, user: ana)
+r.success?   # true
+r.user       # ana
+```
+
+`keyword_init: true` obriga a nomear na criação. É o `namedtuple` / `dataclass` do Python. Todo
+service deste projeto devolve um `Struct` desses.
+
+---
+
+## Exceções
+
+| Python | Ruby |
+|---|---|
+| `try` | `begin` |
+| `except` | `rescue` |
+| `finally` | `ensure` |
+| `raise` | `raise` |
+| `Exception` (base para capturar) | `StandardError` |
+
+```python
+try:
+    arriscado()
+except ValueError as e:
+    print(e)
+finally:
+    limpar()
+```
+
+```ruby
+begin
+  arriscado
+rescue ArgumentError => e
+  puts e.message
+ensure
+  limpar
+end
+```
+
+Dentro de um método, o `begin` é implícito — dá para escrever só o `rescue` no fim:
+
+```ruby
+def call
+  arriscado
+rescue StandardError => e
+  Rails.error.report(e)
+  nil
+end
+```
+
+Criando o seu tipo de erro:
+
+```ruby
+class InvalidToken < StandardError; end
+
+raise InvalidToken if token_ruim?
+```
+
+> Herde sempre de `StandardError`, nunca de `Exception`. `rescue` sem classe captura
+> `StandardError`; capturar `Exception` pega até `Ctrl+C` e erro de falta de memória.
+
+`raise` sem argumento, dentro de um `rescue`, relança a exceção atual.
+
+---
+
+## Atalhos de literal
+
+```ruby
+%w[mobile web]      # => ["mobile", "web"]   — array de strings
+%i[name email]      # => [:name, :email]     — array de símbolos
+```
+
+Só economizam aspas e vírgulas. Aparecem em constantes por todo o projeto:
+
+```ruby
+CLIENTS = %w[mobile web].freeze
+REQUIRED_FIELDS = %i[name email password].freeze
+```
+
+`.freeze` congela o objeto: tentar alterar depois levanta erro. Em Ruby strings e arrays são
+mutáveis (diferente de Python), então constante sem `freeze` é constante só no nome.
+
+---
+
 ## Classes
 
 ```python

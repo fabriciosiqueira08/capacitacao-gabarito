@@ -91,6 +91,29 @@ slides:
       - "curl -4 ifconfig.me descobre qual é."
       - "O /32 na regra significa 'exatamente este endereço'."
 
+  - tipo: bullets  # EXTRA
+    titulo: "DUAS CHAVES, UM PAR"
+    bullets:
+      - "Criptografia assimétrica: duas chaves que se completam."
+      - "A PÚBLICA você espalha. A PRIVADA nunca sai da sua máquina."
+      - "O que uma fecha, só a outra abre."
+      - "Duas coisas saem daí:"
+      - "- sigilo — fecho com a sua pública, só você abre"
+      - "- assinatura — fecho com a minha privada, todos conferem que fui eu"
+
+  - tipo: bullets  # EXTRA
+    titulo: "É COMO O SSH FUNCIONA"
+    bullets:
+      - "Você põe a sua chave PÚBLICA no servidor (authorized_keys)."
+      - "Ao conectar, o servidor manda um desafio."
+      - "Você responde assinando com a PRIVADA."
+      - "O servidor confere com a pública que já tinha. Entrou."
+      - "A senha nunca trafega. Nem existe."
+      - "É por isso que perder a chave privada é perder o acesso."
+    notas: |
+      Mesma matemática da assinatura do JWT da Aula 3 — lá é chave simétrica
+      (HS256), aqui é par de chaves. Vale fazer a ponte.
+
   - tipo: codigo
     titulo: "A CHAVE PRIVADA"
     codigo: |
@@ -118,6 +141,25 @@ slides:
       - "journalctl -u ssh — logs de um serviço"
       - "free -h e df -h — memória e disco"
       - "chmod 600 arquivo — só o dono lê e escreve"
+
+  - tipo: bullets  # EXTRA
+    titulo: "ROOT E PERMISSÕES"
+    bullets:
+      - "root é o usuário que pode tudo. Não tem 'tem certeza?'."
+      - "Você trabalha como azureuser e chama sudo quando precisa."
+      - "Todo arquivo tem dono, grupo e três permissões: ler, escrever, executar."
+      - "chmod 600 = dono lê e escreve; mais ninguém vê nada."
+      - "É o que o SSH EXIGE de uma chave privada — senão ele recusa usar."
+      - "Nunca rode a aplicação como root. O Dockerfile já cuida disso."
+
+  - tipo: bullets  # EXTRA
+    titulo: "VARIÁVEL DE AMBIENTE"
+    bullets:
+      - "Um par nome=valor que o sistema operacional entrega ao processo."
+      - "export JWT_SECRET=abc123 e o programa lê com ENV['JWT_SECRET']."
+      - "Por que não deixar no código? Porque o código vai para o Git."
+      - "Mesmo código, ambientes diferentes, valores diferentes."
+      - "É o padrão dos 12 fatores, e é como o Kamal injeta segredo no container."
 
   - tipo: codigo
     titulo: "DOCKER, DO REPOSITÓRIO OFICIAL"
@@ -388,6 +430,43 @@ slides:
 
   - tipo: secao
     titulo: "TLS"
+
+  - tipo: bullets  # EXTRA
+    titulo: "HTTPS É HTTP DENTRO DE UM TÚNEL"
+    bullets:
+      - "O HTTP da Aula 1 é texto puro: quem estiver no caminho lê tudo."
+      - "O TLS embrulha esse texto num túnel criptografado."
+      - "Mesmo protocolo, mesmos verbos, mesmos cabeçalhos — só que fechado."
+      - "O 'S' de HTTPS é isso, e mais nada."
+
+  - tipo: bullets  # EXTRA
+    titulo: "O HANDSHAKE, EM TRÊS PASSOS"
+    bullets:
+      - "1. O servidor apresenta o certificado dele."
+      - "2. O cliente confere se confia em quem assinou aquele certificado."
+      - "3. Os dois combinam uma chave temporária e conversam com ela."
+      - "As chaves do par (assimétricas) só servem para o passo 3."
+      - "- depois disso é criptografia simétrica, que é muito mais rápida."
+
+  - tipo: bullets  # EXTRA
+    titulo: "CERTIFICADO E AUTORIDADE"
+    bullets:
+      - "Um certificado diz: 'esta chave pública pertence a este domínio'."
+      - "E vem assinado por uma Autoridade Certificadora (CA)."
+      - "O seu navegador já nasce com uma lista de CAs em que confia."
+      - "Confia na CA → confia em quem ela assinou. É uma cadeia."
+      - "Autoassinado é você jurando que é você. O navegador não aceita."
+      - "Let's Encrypt é uma CA pública e gratuita. Cloudflare Origin CA não é pública."
+
+  - tipo: bullets  # EXTRA
+    titulo: "PROXY REVERSO"
+    bullets:
+      - "Proxy comum fica na frente do CLIENTE. Reverso fica na frente do SERVIDOR."
+      - "Recebe tudo na 443, termina o TLS, e repassa para a app em HTTP interno."
+      - "Assim o Rails não precisa saber nada de certificado."
+      - "É o kamal-proxy na sua VM — e o Cloudflare, uma camada antes."
+      - "Por isso config.assume_ssl: avisa o Rails que o 'http' que chegou"
+      - "- já veio de um https lá fora."
 
   - tipo: bullets
     titulo: "DNS NO CLOUDFLARE"

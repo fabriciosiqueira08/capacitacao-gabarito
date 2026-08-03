@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_143448) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_152125) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "login_events", force: :cascade do |t|
+    t.string "client", null: false
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "occurred_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "occurred_at"], name: "index_login_events_on_user_id_and_occurred_at"
+    t.index ["user_id"], name: "index_login_events_on_user_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "course", null: false
@@ -34,4 +45,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_143448) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["matricula"], name: "index_users_on_matricula", unique: true
   end
+
+  add_foreign_key "login_events", "users"
 end
