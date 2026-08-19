@@ -34,8 +34,16 @@ redirect aberto e afins.
 **Bundler** — O gerenciador de dependências do Ruby. Lê o `Gemfile`, resolve versões e escreve o
 `Gemfile.lock`.
 
+**Autoassinado** — Certificado que você mesmo assinou. Criptografa igual a qualquer outro; o que
+falta é alguém em quem o cliente já confie tendo assinado. É por isso que o navegador reclama.
+
 **CA (Autoridade Certificadora)** — Quem assina certificados. O navegador nasce com uma lista de CAs
-em que confia; confiar na CA é confiar em quem ela assinou.
+em que confia; confiar na CA é confiar em quem ela assinou. Para uma CA pública assinar, você tem
+que provar que o domínio é seu.
+
+**cloud-init** — Padrão que quase todo provedor de nuvem usa para configurar uma VM no primeiro
+boot: usuários, chaves SSH, pacotes. É como a sua chave pública entra na máquina antes de ela
+existir.
 
 **Certificado** — Documento que afirma "esta chave pública pertence a este domínio", assinado por
 uma CA.
@@ -91,6 +99,9 @@ quem tem conta no sistema. Combatido com respostas idênticas e tempo constante.
 
 **ghcr.io** — GitHub Container Registry. Onde a imagem Docker fica hospedada.
 
+**`/etc/hosts`** — Arquivo que mapeia nome para IP na sua máquina. O sistema consulta ele **antes**
+do DNS. É como `seunome.test` acha a VM sem existir em DNS nenhum.
+
 **Handshake (TLS)** — A negociação inicial: o servidor apresenta o certificado, o cliente valida a
 cadeia, e os dois combinam uma chave temporária.
 
@@ -119,6 +130,9 @@ rate limit moram aí. `bin/rails middleware` lista a pilha.
 
 **Minitest** — O framework de teste que vem com o Rails.
 
+**Multipass** — Ferramenta da Canonical que cria VMs Ubuntu com um comando. É o que sobe o servidor
+da Aula 4.
+
 **mise** — Gerenciador de versões de runtime. O `pyenv` do mundo Ruby.
 
 **MVC** — *Model-View-Controller*. Model = dados e regras; View = a saída (aqui, JSON); Controller =
@@ -127,11 +141,11 @@ recebe a requisição e decide.
 **N+1** — Carregar uma lista e depois consultar o banco item a item. 100 registros viram 101
 consultas. Resolve-se com `includes`.
 
-**NSG** — *Network Security Group*. O firewall da Azure, com regras de entrada e saída por porta e
-origem.
+**NSG** — *Network Security Group*. O firewall da Azure, fora da máquina, com regras de entrada e
+saída por porta e origem. É o equivalente na nuvem do `ufw`, e vem antes dele: o pacote nem chega.
 
-**OIDC** — *OpenID Connect*. Permite o GitHub Actions autenticar na Azure com um token de curta
-duração, sem guardar segredo de longa duração.
+**OIDC** — *OpenID Connect*. Permite o GitHub Actions autenticar na nuvem com um token de curta
+duração, sem guardar segredo de longa duração. Aparece no apêndice de nuvem.
 
 **OOM killer** — O mecanismo do kernel Linux que mata processos quando a RAM acaba. É por isso que
 a VM tem swap.
@@ -139,6 +153,9 @@ a VM tem swap.
 **Origin CA** — Certificado emitido pelo Cloudflare para o trecho Cloudflare → seu servidor.
 Navegador não confia nele diretamente, e não precisa: o usuário vê o certificado público do
 Cloudflare.
+
+**PAT** — *Personal Access Token*. Token do GitHub que substitui a senha em ferramentas de linha de
+comando. O do curso tem só `write:packages` e `read:packages`, para o `ghcr.io`.
 
 **ORM** — *Object-Relational Mapping*. Traduz objetos em linhas de tabela.
 
@@ -199,6 +216,9 @@ do logout usa o cache.
 **Swap** — Área em disco usada como extensão da RAM. Lenta, mas evita que o OOM killer mate a
 aplicação.
 
+**`.test`** — Domínio de topo reservado para testes por RFC. Ninguém consegue registrar, então
+nunca colide com um site de verdade.
+
 **TLS** — O túnel criptografado que embrulha o HTTP e o transforma em HTTPS. Mesmo protocolo, só que
 fechado.
 
@@ -216,7 +236,13 @@ entradas da denylist têm o TTL do que restava do token.
 **Volume (Docker)** — Área de disco que sobrevive ao container. É o que faz o banco não sumir a cada
 deploy. **Não é backup.**
 
-**VPS** — *Virtual Private Server*. Um computador virtual que é seu, com acesso root.
+**ufw** — *Uncomplicated Firewall*. A casca amigável do firewall do Ubuntu. `ufw allow 22/tcp`.
+
+**VM** — *Virtual Machine*. Um computador inteiro simulado em software: kernel, disco, rede,
+usuários. É o que o Multipass cria no seu notebook, e é o que uma VPS é do outro lado.
+
+**VPS** — *Virtual Private Server*. Uma VM alugada, num datacenter, com IP público. Mesma coisa que
+a VM da Aula 4 — só que exposta ao mundo e cobrada por hora ligada.
 
 **WSL2** — *Windows Subsystem for Linux*. Um Linux de verdade dentro do Windows. Obrigatório para
 quem desenvolve Rails no Windows.
