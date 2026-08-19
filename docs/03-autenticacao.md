@@ -1,6 +1,6 @@
-# Aula 3 — As rotas de autenticação
+# Aula 3: As rotas de autenticação
 
-**Duração**: ~3h · **Você sai daqui com**: cadastro, ativação, login, logout e recuperação de senha.
+**Você sai daqui com**: cadastro, ativação, login, logout e recuperação de senha.
 **Gabarito**: `cd ~/capacitacao-gabarito && git checkout aula-03`
 
 ---
@@ -8,7 +8,7 @@
 ## De onde viemos, e o combinado de hoje
 
 Você já tem uma API (Aula 1) e um `User` que sabe guardar senha (Aula 2). **Hoje as duas coisas
-viram um sistema de autenticação que funciona de verdade** — o mesmo que roda no `seem-backend`.
+viram um sistema de autenticação que funciona de verdade**: o mesmo que roda no `seem-backend`.
 
 **O combinado desta aula é diferente das outras**, e é importante entender antes de começar: são
 1400 linhas em 37 arquivos, e **ninguém digita isso em três horas**. Você vai trazer o código pronto
@@ -18,7 +18,7 @@ Isso não é preguiça nem atalho. É o que um desenvolvedor faz na maior parte 
 código que já existe, descobrir por que foi feito assim, e mexer com segurança. Digitar 1400 linhas
 copiando ensinaria menos que as oito práticas de hoje.
 
-O que você tem que sair sabendo é **por que cada peça existe** — e é isso que as práticas cobram.
+O que você tem que sair sabendo é **por que cada peça existe**, e é isso que as práticas cobram.
 
 > A prática 8 pede que você quebre a verificação de assinatura do token e entre como outra pessoa.
 > É proposital, é o exercício que mais marca, e tem um passo explícito para desfazer. **Não pule o
@@ -112,7 +112,7 @@ end
 }
 ```
 
-- **`code`** é estável — o cliente decide o que fazer com base nele.
+- **`code`** é estável: o cliente decide o que fazer com base nele.
 - **`message`** é para o usuário ler. Pode mudar, pode ser traduzida.
 - **`details`** diz qual campo falhou, para o app pintar o input de vermelho.
 
@@ -130,7 +130,7 @@ class MeController < BaseController
 end
 ```
 
-O filtro roda **antes** da action. Se ele renderizar alguma coisa — o `401` — a action nem chega a
+O filtro roda **antes** da action. Se ele renderizar alguma coisa, o `401` por exemplo, a action nem chega a
 ser chamada. `only:` e `except:` limitam a quais actions ele se aplica:
 
 ```ruby
@@ -139,7 +139,7 @@ before_action :authenticate_user!, only: :destroy
 
 ### A pilha de middleware
 
-A requisição não cai direto no controller. Ela atravessa uma pilha de camadas — o **middleware**.
+A requisição não cai direto no controller. Ela atravessa uma pilha de camadas: o **middleware**.
 Cada camada pode ler, alterar, ou responder e cortar o caminho ali mesmo.
 
 ```
@@ -180,7 +180,7 @@ sistema grande.
 
 ---
 
-## 3. Rota 1 — Cadastro
+## 3. Rota 1: Cadastro
 
 ```
 POST /api/v1/registrations
@@ -266,7 +266,7 @@ POST /api/v1/email_verifications/confirm   { email, code }
 POST /api/v1/email_verifications/resend    { email }
 ```
 
-O `resend` **sempre** responde 200 com a mesma mensagem — conta inexistente, já verificada ou em
+O `resend` **sempre** responde 200 com a mesma mensagem: conta inexistente, já verificada ou em
 cooldown são indistinguíveis. É a mesma regra do cadastro.
 
 ---
@@ -281,10 +281,10 @@ Duas famílias de resposta:
 |---|---|
 | O servidor guarda a sessão e manda um id no cookie | O servidor manda um crachá assinado e não guarda nada |
 | Toda requisição consulta o armazenamento de sessão | A assinatura basta: só validar |
-| Logout é apagar a sessão — imediato | Logout é o problema difícil (já chegamos lá) |
+| Logout é apagar a sessão: imediato | Logout é o problema difícil (já chegamos lá) |
 | Escalar exige sessão compartilhada entre servidores | Qualquer servidor valida sozinho |
 
-Escolhemos **token**, porque o cliente principal é um app nativo — que não tem cookie e roda em
+Escolhemos **token**, porque o cliente principal é um app nativo: que não tem cookie e roda em
 milhares de celulares.
 
 ### JWT
@@ -297,7 +297,7 @@ eyJhbGciOiJIUzI1NiJ9 . eyJzdWIiOjIsInZlciI6MH0 . 4pQ8L_5f...
 Três partes em **Base64**, separadas por ponto.
 
 > **Base64 não é segredo.** É uma forma de escrever bytes usando só letras e números, para caber
-> num cabeçalho HTTP — que é texto. Não tem chave, não tem criptografia, qualquer um desfaz:
+> num cabeçalho HTTP, que é texto. Não tem chave, não tem criptografia, e qualquer um desfaz:
 >
 > ```bash
 > echo eyJzdWIiOjJ9 | base64 -d      # {"sub":2}
@@ -307,7 +307,7 @@ Três partes em **Base64**, separadas por ponto.
 
 > **O payload é público.** Cole um token em [jwt.io](https://jwt.io) e você lê tudo. A assinatura
 > garante que ninguém **alterou** o conteúdo, não que ninguém **leu**. Nunca ponha no payload nada
-> que não possa ser lido — nem CPF, nem e-mail, nem permissão sensível.
+> que não possa ser lido, nem CPF, nem e-mail, nem permissão sensível.
 
 O nosso payload:
 
@@ -328,7 +328,7 @@ JWT.decode(token, secret, true, { algorithm: "HS256" })
 #                        ^^^^
 ```
 
-Esse `true` é a validação da assinatura. Com `false`, o `JWT.decode` aceita **qualquer** token — e
+Esse `true` é a validação da assinatura. Com `false`, o `JWT.decode` aceita **qualquer** token: e
 qualquer pessoa forja o próprio acesso trocando o `sub`. Já foi CVE em várias bibliotecas.
 
 O teste que prova isso está em `me_controller_test.rb`:
@@ -343,7 +343,7 @@ end
 
 ---
 
-## 7. Rota 2 — Login
+## 7. Rota 2: Login
 
 ```
 POST /api/v1/sessions   { email, password, client }
@@ -362,7 +362,7 @@ Um par `nome=valor` que o servidor manda no cabeçalho `Set-Cookie`. O navegador
 **reenvia sozinho**, em toda requisição àquele site. É a memória que o HTTP não tem, colada por
 fora.
 
-Quem faz esse trabalho é o navegador — o app nativo não participa disso. Por isso o `client`.
+Quem faz esse trabalho é o navegador: o app nativo não participa disso. Por isso o `client`.
 
 ```ruby
 cookies.signed[AUTH_COOKIE] = {
@@ -378,7 +378,7 @@ cookies.signed[AUTH_COOKIE] = {
 ### XSS
 
 *Cross-Site Scripting*: o atacante consegue rodar **JavaScript dentro da sua página**. Como? Você
-exibiu texto de usuário sem escapar — alguém salvou `<script>...</script>` como nome e a sua página
+exibiu texto de usuário sem escapar: alguém salvou `<script>...</script>` como nome e a sua página
 imprimiu cru.
 
 Com JavaScript rodando ali, ele lê tudo que o JavaScript lê. É exatamente por isso que `httponly`
@@ -394,7 +394,7 @@ o cookie dela; a sua API obedece, achando que foi ela quem pediu.
 `same_site: :lax` manda o navegador **não enviar o cookie** quando a requisição parte de outro site.
 
 > API com token no cabeçalho não sofre de CSRF: ninguém anexa o `Authorization` por você. O
-> problema é exclusivo de quem autentica por cookie — ou seja, do nosso `client: "web"`.
+> problema é exclusivo de quem autentica por cookie, ou seja, do nosso `client: "web"`.
 
 ### 401 × 403
 
@@ -417,9 +417,9 @@ quando existe.
 
 ---
 
-## 8. Rota 3 — Logout, o problema difícil
+## 8. Rota 3: Logout, o problema difícil
 
-Um JWT é válido até expirar. O servidor não guarda sessão. **Então "sair" não existe** —
+Um JWT é válido até expirar. O servidor não guarda sessão. **Então "sair" não existe**,
 o token continua funcionando por até 24h.
 
 Três respostas possíveis, e nós usamos duas:
@@ -428,7 +428,7 @@ Três respostas possíveis, e nós usamos duas:
 
 O app joga o token fora. Resolve o caso normal e **não resolve nada** se alguém copiou o token.
 
-### b) Denylist por `jti` — revoga aquele token
+### b) Denylist por `jti`: revoga aquele token
 
 ```ruby
 module Auth::TokenDenylist
@@ -450,9 +450,9 @@ A sacada está no **TTL**: cada entrada vive exatamente o tempo que faltava para
 Depois disso o token morre sozinho e a entrada não serve mais. **A lista se limpa sem varredura e
 sem lixo acumulado.**
 
-Isso revoga **um** token. Logout no celular não derruba o notebook — que é o comportamento certo.
+Isso revoga **um** token. Logout no celular não derruba o notebook: que é o comportamento certo.
 
-### c) `token_version` — derruba tudo de uma vez
+### c) `token_version`: derruba tudo de uma vez
 
 ```ruby
 def token_version_matches?(submitted_version)
@@ -483,7 +483,7 @@ end
 
 ---
 
-## 9. Rota 4 — Recuperação de senha
+## 9. Rota 4: Recuperação de senha
 
 Dois passos, e o mais interessante do dia.
 
@@ -498,7 +498,7 @@ POST /api/v1/password_resets/confirm   { email, code, password, confirm_password
 GENERIC_MESSAGE = "Se o e-mail estiver cadastrado, enviamos um código para redefinir sua senha."
 ```
 
-**Sempre.** E-mail inexistente, não verificado, em cooldown, SMTP fora do ar — mesma resposta,
+**Sempre.** E-mail inexistente, não verificado, em cooldown, SMTP fora do ar: mesma resposta,
 mesmo status. Se respondesse 404 para e-mail inexistente, esta rota pública viraria um verificador
 de cadastro. É a quarta vez que o assunto aparece: **em fluxo de autenticação, respostas diferentes
 vazam informação.**
@@ -552,7 +552,7 @@ test "logout revoga o token apresentado" do
 end
 ```
 
-> **Pegadinha**: em teste o `Rails.cache` padrão é o `null_store` — não guarda nada. O teste acima
+> **Pegadinha**: em teste o `Rails.cache` padrão é o `null_store`. Não guarda nada. O teste acima
 > passaria "de graça", provando nada. Por isso o `test_helper.rb` troca por um `MemoryStore`.
 
 ### As ferramentas de qualidade
@@ -577,7 +577,7 @@ origins(ENV.fetch("CORS_ORIGINS", "http://localhost:5173").split(","))
 O navegador bloqueia, por padrão, uma página em `painel.exemplo.com` chamar `api.exemplo.com`. Esta
 config é a API dizendo quais origens aceita.
 
-**O app nativo não passa por CORS** — isso é regra de navegador. Na prática, essa configuração
+**O app nativo não passa por CORS**: isso é regra de navegador. Na prática, essa configuração
 existe por causa do painel web.
 
 ---
@@ -615,7 +615,7 @@ curl $API/me -H "Authorization: Bearer $TOKEN"          # 401
 
 ## As práticas da aula
 
-> São 1400 linhas em 37 arquivos. **Ninguém digita isso em três horas** — e não é esse o objetivo.
+> São 1400 linhas em 37 arquivos. **Ninguém digita isso em três horas**, e não é esse o objetivo.
 > Aqui você **traz o código pronto** e passa a aula fazendo o sistema funcionar, quebrando de
 > propósito e entendendo *por que* cada peça existe.
 
@@ -634,9 +634,9 @@ Oito práticas. As sete primeiras são o fluxo real, na ordem em que um usuário
 
 ---
 
-### Prática 1 — Traga o código e leia a arquitetura
+### Prática 1: Traga o código e leia a arquitetura
 
-> **~20 minutos**: 5 de comando, 15 de leitura. A leitura é a parte que conta.
+> Pouco comando e muita leitura. A leitura é a parte que conta.
 
 ```bash
 cd ~/capacitacao-gabarito && git checkout aula-03
@@ -648,7 +648,7 @@ bin/rails db:migrate
 bin/rails test
 ```
 
-**Confere**: **71 testes verdes.** Se não deram, pare aqui e resolva antes de seguir — todas as
+**Confere**: **71 testes verdes.** Se não deram, pare aqui e resolva antes de seguir. Todas as
 práticas seguintes dependem disso.
 
 > O `Gemfile` vai junto porque esta aula acrescenta `jwt`, `rack-cors` e `letter_opener`. Sem ele a
@@ -669,7 +669,7 @@ Em cada um, ache o `Struct` de retorno e os argumentos nomeados da Aula 1. **Ele
 **Se der errado**
 
 > Se os 71 testes não passarem de primeira, quase sempre é o `Gemfile` que ficou para trás no
-> `rsync` — e o erro que aparece (`uninitialized constant Rack::Cors`) não diz isso em lugar nenhum.
+> `rsync`, e o erro que aparece (`uninitialized constant Rack::Cors`) não diz isso em lugar nenhum.
 > É um caso clássico de mensagem de erro que aponta para o sintoma e não para a causa. Você vai ver
 > muitos assim.
 
@@ -685,9 +685,9 @@ Em cada um, ache o `Struct` de retorno e os argumentos nomeados da Aula 1. **Ele
 
 ---
 
-### Prática 2 — Cadastro, no terminal e no Insomnia
+### Prática 2: Cadastro, no terminal e no Insomnia
 
-> **~20 minutos.** A primeira rota que cria alguma coisa.
+> A primeira rota que cria alguma coisa.
 
 Com o servidor rodando (`bin/rails server`), num segundo terminal:
 
@@ -704,7 +704,7 @@ curl -i -X POST $API/registrations -H 'Content-Type: application/json' -d "{
 **Confere**: `201`, e o e-mail abriu numa aba do navegador (é o `letter_opener`). **Anote o código de
 6 dígitos.**
 
-Agora monte a mesma requisição no **Insomnia**, e aproveite para criar a coleção inteira — você vai
+Agora monte a mesma requisição no **Insomnia**, e aproveite para criar a coleção inteira: você vai
 usá-la o resto da aula. Todas com `Content-Type: application/json`:
 
 ```
@@ -735,9 +735,9 @@ entrega ao atacante que aquele e-mail já existe?
 
 ---
 
-### Prática 3 — O e-mail e a confirmação da conta
+### Prática 3: O e-mail e a confirmação da conta
 
-> **~15 minutos.** É aqui que fica claro por que existe conta "não ativada".
+> É aqui que fica claro por que existe conta "não ativada".
 
 ```bash
 # tente entrar ANTES de confirmar
@@ -745,7 +745,7 @@ curl -i -X POST $API/sessions -H 'Content-Type: application/json' \
   -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}"
 ```
 
-**Confere**: `403 email_unverified`. A senha está certa — o que falta é a conta estar ativa.
+**Confere**: `403 email_unverified`. A senha está certa. O que falta é a conta estar ativa.
 
 ```bash
 curl -i -X POST $API/email_verifications/confirm -H 'Content-Type: application/json' \
@@ -761,15 +761,15 @@ da Aula 2 se precisar.)
 |---|---|---|
 | `422 invalid_code` com o código certo | você colou com espaço, ou o código já foi usado | peça outro com `/email_verifications/resend` |
 | `422 code_expired` | passaram os 15 minutos | `/email_verifications/resend` |
-| `429` ou "aguarde" no resend | há um intervalo mínimo entre reenvios | espere o tempo indicado — é proteção contra abuso |
+| `429` ou "aguarde" no resend | há um intervalo mínimo entre reenvios | espere o tempo indicado: é proteção contra abuso |
 | `403 email_unverified` mesmo depois de confirmar | você confirmou outro e-mail | confira o `$EMAIL` do shell |
 | não acho o código | a aba do `letter_opener` fechou | `ls tmp/letter_opener/` e abra o mais recente |
 
 ---
 
-### Prática 4 — Login, e o token na mão
+### Prática 4: Login, e o token na mão
 
-> **~20 minutos.** O núcleo da aula.
+> O núcleo da aula.
 
 ```bash
 TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
@@ -780,7 +780,7 @@ echo $TOKEN
 curl -i $API/me -H "Authorization: Bearer $TOKEN"        # 200
 ```
 
-**Confere**: `200`, com os seus dados. Repare que o servidor **não guardou sessão nenhuma** — ele
+**Confere**: `200`, com os seus dados. Repare que o servidor **não guardou sessão nenhuma**. Ele
 descobriu quem é você lendo o token.
 
 Agora **leia o seu próprio token**: cole o `$TOKEN` em [jwt.io](https://jwt.io). Ache o `sub`, o
@@ -797,18 +797,17 @@ curl -i $API/me -H "Authorization: Bearer ${TOKEN}x"
 | Erro | Causa | Saída |
 |---|---|---|
 | `$TOKEN` saiu vazio | o `grep` não achou o cabeçalho | rode o `curl -i` sozinho e veja se o `Authorization:` está na resposta |
-| `401` logo depois do login | o token não foi copiado inteiro | `echo $TOKEN \| wc -c` — tem que ter centenas de caracteres |
+| `401` logo depois do login | o token não foi copiado inteiro | `echo $TOKEN \| wc -c`: tem que ter centenas de caracteres |
 | `401 invalid_token` | você colou com quebra de linha | o `tr -d '\r\n'` do comando existe para isso |
 | `403` em vez de `200` | a conta não está verificada | volte à Prática 3 |
-| `401 invalid_credentials` | senha errada — **ou e-mail que não existe** | é a mesma mensagem de propósito; veja a seção 7 |
+| `401 invalid_credentials` | senha errada: **ou e-mail que não existe** | é a mesma mensagem de propósito; veja a seção 7 |
 | jwt.io diz "invalid signature" | esperado: ele não tem o seu segredo | você só quer ler o payload, não validar |
 
 ---
 
-### Prática 5 — Logout que revoga de verdade
+### Prática 5: Logout que revoga de verdade
 
-> **~15 minutos.** A prática que mostra a diferença entre "apagar no cliente" e "revogar no
-> servidor".
+> A prática que mostra a diferença entre "apagar no cliente" e "revogar no servidor".
 
 > **Antes de rodar, decida**: aquele token continua matematicamente válido e ainda não expirou. O
 > segundo comando vai responder `200` ou `401`? A resposta é o assunto inteiro da seção 8.
@@ -818,7 +817,7 @@ curl -i -X DELETE $API/sessions -H "Authorization: Bearer $TOKEN"
 curl -i $API/me -H "Authorization: Bearer $TOKEN"
 ```
 
-**Confere**: o segundo comando tem que dar **`401`**. O token ainda é válido e ainda não expirou —
+**Confere**: o segundo comando tem que dar **`401`**. O token ainda é válido e ainda não expirou,
 mas está na denylist.
 
 Sem a denylist, esse `curl` responderia `200` até o `exp` chegar. **É este teste que prova que o
@@ -844,9 +843,9 @@ token?
 
 ---
 
-### Prática 6 — Recuperação de senha, e as sessões que caem
+### Prática 6: Recuperação de senha, e as sessões que caem
 
-> **~20 minutos.** O fluxo mais completo do sistema, e o que tem a decisão de segurança mais sutil.
+> O fluxo mais completo do sistema, e o que tem a decisão de segurança mais sutil.
 
 Faça login de novo para ter um token válido:
 
@@ -866,7 +865,7 @@ curl -i -X POST $API/password_resets/confirm -H 'Content-Type: application/json'
 curl -i $API/me -H "Authorization: Bearer $TOKEN"
 ```
 
-**Confere**: o último dá `401`. Trocar a senha **derrubou todas as sessões abertas** — é o
+**Confere**: o último dá `401`. Trocar a senha **derrubou todas as sessões abertas**. É o
 `token_version` sendo incrementado. Se alguém tinha roubado o seu token, acabou de perdê-lo.
 
 **Confere também, e é o ponto mais importante da prática:**
@@ -891,9 +890,7 @@ atacante não consegue usar esta rota para descobrir quem tem conta.
 
 ---
 
-### Prática 7 — Testes e qualidade
-
-> **~15 minutos.**
+### Prática 7: Testes e qualidade
 
 ```bash
 bin/rails test
@@ -923,9 +920,9 @@ git add -A && git commit -m "Rotas de autenticação" && git push
 
 ---
 
-### Prática 8 — Avançado: quebre a assinatura do token
+### Prática 8: quebre a assinatura do token (avançado)
 
-> **~15 minutos, se sobrou tempo.** É o exercício que faz entender o que uma assinatura garante.
+> Se sobrou tempo. É o exercício que faz entender o que uma assinatura garante.
 
 Em `app/services/auth/decode_token.rb`, troque o `true` por `false`:
 
@@ -980,7 +977,7 @@ falhas mais comuns em API.
 ## Recapitulando
 
 - Controller recebe e responde; a regra mora no service.
-- Serializer é a lista de convidados do JSON — sem ele o digest vaza.
+- Serializer é a lista de convidados do JSON: sem ele o digest vaza.
 - O payload do JWT é público. Assinado ≠ criptografado.
 - Logout de verdade precisa de denylist por `jti`; o TTL faz a limpeza sozinho.
 - `token_version` derruba tudo de uma vez, e é o que a troca de senha usa.

@@ -149,10 +149,10 @@ require_relative "helper"    # arquivo ao lado, caminho relativo
 ```
 
 `require` carrega uma vez só e devolve `false` se já estava carregado. **Não** traz nomes para o
-escopo como o `from x import y` — depois do `require`, você usa `JSON.parse` com o nome completo.
+escopo como o `from x import y`: depois do `require`, você usa `JSON.parse` com o nome completo.
 
 > **Dentro do Rails você nunca escreve `require`.** O Zeitwerk carrega a classe pelo nome do
-> arquivo. Fora do Rails — num script solto — o `require` volta a ser necessário.
+> arquivo. Fora do Rails, num script solto, o `require` volta a ser necessário.
 
 ### Splat
 
@@ -173,8 +173,8 @@ f(*valores)                  # espalha o array nos argumentos
 
 | Python | Ruby |
 |---|---|
-| `[1, 2, 3]` | `[1, 2, 3]` — `Array` |
-| `{"a": 1}` | `{ a: 1 }` — `Hash`, chave símbolo |
+| `[1, 2, 3]` | `[1, 2, 3]`: `Array` |
+| `{"a": 1}` | `{ a: 1 }`: `Hash`, chave símbolo |
 | `{"a": 1}["a"]` | `{ a: 1 }[:a]` |
 | `(1, 2)` tupla | não existe (use array congelado) |
 | `{1, 2}` set | `Set.new([1, 2])` |
@@ -251,7 +251,7 @@ scope :recentes, -> { order(occurred_at: :desc) }
 validate :password_meets_policy, if: -> { password.present? }
 ```
 
-Nos dois casos o Rails guarda aquele pedaço de código para executar **depois** — na hora da consulta
+Nos dois casos o Rails guarda aquele pedaço de código para executar **depois**: na hora da consulta
 ou na hora da validação. Por isso precisa ser um objeto, e não um bloco.
 
 > `->` e `Proc.new` são quase a mesma coisa. A diferença que importa: o lambda confere o número de
@@ -289,7 +289,7 @@ end
 login(email: "a@b.c", password: "x")
 ```
 
-Sem os dois-pontos, é argumento posicional como em Python. Com eles, quem chama **tem** que nomear —
+Sem os dois-pontos, é argumento posicional como em Python. Com eles, quem chama **tem** que nomear,
 e a ordem deixa de importar.
 
 ### O atalho do Ruby 3.1
@@ -359,7 +359,7 @@ ensure
 end
 ```
 
-Dentro de um método, o `begin` é implícito — dá para escrever só o `rescue` no fim:
+Dentro de um método, o `begin` é implícito. Dá para escrever só o `rescue` no fim:
 
 ```ruby
 def call
@@ -455,7 +455,7 @@ user.save      # devolve false se falhar
 user.save!     # estoura ActiveRecord::RecordInvalid se falhar
 ```
 
-Convenção, não regra da linguagem. Mas todo mundo segue — e o Rails inteiro depende dela.
+Convenção, não regra da linguagem. Mas todo mundo segue, e o Rails inteiro depende dela.
 
 ---
 
@@ -504,7 +504,7 @@ No Rails, um módulo desses vive em `app/models/concerns/` e se chama **concern*
 | `python -m x` | `bundle exec x` |
 | `pytest` | `minitest` (padrão do Rails) ou `rspec` |
 | `black` / `ruff` | `rubocop` |
-| `mypy` | não há equivalente padrão — Ruby é dinâmica de ponta a ponta |
+| `mypy` | não há equivalente padrão: Ruby é dinâmica de ponta a ponta |
 | `python` (REPL) | `irb` |
 
 ---
