@@ -2,6 +2,14 @@
 require "rubygems"
 require "bundler/setup"
 
-ARGV.unshift("--ensure-latest")
+# O bin/brakeman que o Rails gera acrescenta --ensure-latest aqui, e isso faz o
+# comando SAIR COM ERRO sempre que existe uma versão mais nova publicada, mesmo
+# sem nenhum aviso de segurança no código.
+#
+# Num projeto de capacitação isso é veneno: o CI de todo mundo ficaria vermelho
+# no dia em que o Brakeman lançasse uma versão, sem ninguém ter mexido em nada,
+# e CI que falha por motivo alheio ao código ensina a ignorar CI.
+#
+# Quem quiser cobrar a versão mais nova roda `bin/brakeman --ensure-latest`.
 
 load Gem.bin_path("brakeman", "brakeman")

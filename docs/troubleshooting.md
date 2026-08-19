@@ -43,6 +43,24 @@ Docker Desktop → Settings → Resources → WSL Integration → habilite a dis
 
 ## Banco
 
+### `docker: unknown command: docker compose`
+
+Você tem o Docker, mas sem o plugin do Compose. Algumas instalações trazem só o `docker-compose`
+antigo, separado, com hífen:
+
+```bash
+docker-compose up -d          # em vez de: docker compose up -d
+```
+
+Para instalar o plugin e usar a forma moderna:
+
+```bash
+sudo apt install -y docker-compose-plugin     # Ubuntu, Debian, WSL2
+sudo dnf install -y docker-compose-plugin     # Fedora
+```
+
+No Docker Desktop (Windows e macOS) o plugin já vem junto.
+
 ### `address already in use` ao subir o compose
 
 Já existe um Postgres na sua máquina ocupando a 5432.
