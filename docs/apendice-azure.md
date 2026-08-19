@@ -9,6 +9,11 @@ IP público, com domínio, certificado de CA pública e deploy automático a cad
 US$100 de crédito, sem cartão de crédito, mediante e-mail institucional. A verificação acadêmica
 **pode demorar dias**; comece por ela.
 
+**Você também vai precisar de um domínio**, e é a única coisa deste apêndice que custa dinheiro:
+uns R$15 por ano. Se você é estudante, o
+[GitHub Student Pack](https://education.github.com/pack) dá um de graça por um ano, e a aprovação
+também leva alguns dias. Vale pedir os dois na mesma tarde.
+
 > Nada aqui substitui a Aula 4. O Docker, o Kamal e o `deploy.yml` são **os mesmos**. O que este
 > apêndice acrescenta é o que só existe quando a máquina não é a sua: provisionar um Ubuntu do zero,
 > firewall de provedor, DNS, certificado de CA, e um jeito de o GitHub entrar na máquina sem guardar
