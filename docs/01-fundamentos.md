@@ -439,7 +439,7 @@ puts "inativo" unless ativo?
 status = idade >= 18 ? "maior" : "menor"    # ternário, igual ao C
 ```
 
-E o `case`, que é mais poderoso que o do Python:
+E o `case`, que aceita mais coisa que o do Python:
 
 ```ruby
 case status
