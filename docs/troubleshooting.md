@@ -305,9 +305,10 @@ kamal accessory boot db
 
 Depois de mudar env de accessory, `boot` não basta: é `kamal accessory reboot db`.
 
-### `curl` diz `self signed certificate`
+### O `curl` recusa o certificado, com o erro 60
 
-**Isso é o esperado**, e é o exercício G da apostila. O túnel TLS subiu; o que faltou foi confiança.
+**Isso é o esperado**, e é a Prática 6 da apostila. A frase exata muda com a versão do `curl`;
+o que não muda é o número 60 e a expressão *self-signed*. O túnel TLS subiu; o que faltou foi confiança.
 
 ```bash
 curl --cacert tls/capacita-cert.pem https://seunome.test/api/v1/status
