@@ -555,9 +555,12 @@ add_column :users, :password_reset_sent_at, :datetime
 </code></pre>
 <p><strong>Confere</strong>:</p>
 <pre><code class="language-bash">bin/rails db:migrate:status                      # três linhas &quot;up&quot;
-sed -n '/create_table &quot;users&quot;/,/^  end/p' db/schema.rb | grep -c &quot;^    t\.&quot;
+sed -n '/create_table &quot;users&quot;/,/^  end/p' db/schema.rb | grep '^    t\.' | grep -vc 't\.index'
 </code></pre>
-<p>O segundo comando tem que sair <strong>17</strong> (as 16 colunas mais o <code>id</code>).</p>
+<p>O segundo comando conta as colunas da tabela, e tem que sair <strong>16</strong>.</p>
+<p>Repare em duas coisas que ele mostra: o <code>id</code> não está na lista, porque o <code>create_table</code> cria essa
+coluna sozinho e nem a menciona; e as duas linhas <code>t.index</code> que o comando descarta são os índices
+únicos de <code>email</code> e <code>matricula</code>, que são restrição do banco e não coluna.</p>
 <p>Abra o <code>db/schema.rb</code> e leia: ele é o retrato do banco <strong>agora</strong>, montado sozinho pelas migrations.</p>
 <p><strong>Se der errado</strong></p>
 <blockquote>
@@ -602,8 +605,8 @@ nenhum para perder. Não tenha dó.</p>
 <td><code>bin/rails db:migrate:status</code>: a sua está <code>down</code>?</td>
 </tr>
 <tr>
-<td>saiu 16 em vez de 17</td>
-<td>falta uma coluna</td>
+<td>saiu menos que 16</td>
+<td>falta alguma coluna</td>
 <td>compare com o gabarito: <code>git -C ~/capacitacao-gabarito show aula-02:db/schema.rb</code></td>
 </tr>
 <tr>

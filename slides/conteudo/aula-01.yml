@@ -24,7 +24,7 @@ slides:
       - "Entender o que roda do outro lado da tela."
       - "Escrever Ruby partindo do que você já sabe de Python."
       - "Subir sua primeira API em Rails."
-      - "Colocar ela no ar, numa máquina de verdade."
+      - "E, no encontro 4, publicá-la com Docker, Kamal e HTTPS."
     notas: |
       Os quatro objetivos são as quatro aulas. Deixe claro que no fim do
       encontro 4 cada um vai ter uma URL https:// própria, funcionando.

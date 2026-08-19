@@ -18,9 +18,11 @@ as mesmas; a máquina é menor, e hoje ela mora no seu notebook.</p>
 <hr>
 <h2 id="o-ultimo-dia">O último dia</h2>
 <p>Você tem uma API com cinco fluxos de autenticação, testada, rodando com <code>bin/rails server</code>. <strong>Hoje
-ela deixa de ser "um comando que eu rodo" e vira um sistema publicado</strong>: empacotada numa imagem
-Docker, entregue por um registry, servida por um proxy com HTTPS, com o banco num volume que
-sobrevive a tudo.</p>
+ela deixa de ser "um comando que eu rodo" e vira um sistema publicado</strong>: sobe sozinha, aceita HTTPS,
+guarda os dados num lugar que sobrevive a reinício, e você consegue atualizar e voltar atrás sem
+ninguém perceber.</p>
+<p>As ferramentas que fazem isso têm nome, e você vai conhecer cada uma no caminho: Docker empacota,
+um registry distribui, o Kamal publica, e um proxy termina o HTTPS.</p>
 <p>E o servidor de hoje é <strong>a sua própria máquina</strong>. Não porque seja um faz de conta: é porque tudo o
 que você vai fazer aqui é idêntico ao que se faz numa máquina alugada, e num encontro de três horas
 o tempo é melhor gasto entendendo o deploy do que esperando um provedor liberar cota.</p>
@@ -316,7 +318,8 @@ agente e sem painel: ele conecta na máquina que serve e roda <code>docker</code
 <li>conecta no servidor por SSH</li>
 <li>puxa a imagem</li>
 <li>sobe o container novo <strong>ao lado</strong> do antigo</li>
-<li>espera o health check do novo passar</li>
+<li>espera o <strong>health check</strong> do novo passar, que é uma rota simples (a nossa é <code>/up</code>) que responde
+   200 quando a aplicação está de pé</li>
 <li>manda o tráfego para o novo e derruba o antigo</li>
 </ol>
 <p>Falhou o health check? Ele não troca. O antigo continua servindo.</p>
@@ -536,7 +539,7 @@ tem CVE conhecida. Um servidor sem CI publica bug automaticamente; um CI sem ser
 antes.</p>
 <p>O deploy automático a cada push é o passo seguinte, e só faz sentido quando o servidor tem IP
 público: o runner do GitHub não alcança um IP dentro do seu notebook. Ele está pronto em
-<code>.github/workflows/deploy.yml</code>, e a seção <strong>11</strong> explica o que ele faz.</p>
+<code>.github/workflows/deploy.yml</code>, e a seção <strong>10</strong> explica o que ele faz.</p>
 <hr>
 <h2 id="8-o-primeiro-deploy">8. O primeiro deploy</h2>
 <p>Primeiro, valide sem tocar em nada:</p>

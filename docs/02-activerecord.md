@@ -618,10 +618,14 @@ bin/rails db:migrate
 
 ```bash
 bin/rails db:migrate:status                      # três linhas "up"
-sed -n '/create_table "users"/,/^  end/p' db/schema.rb | grep -c "^    t\."
+sed -n '/create_table "users"/,/^  end/p' db/schema.rb | grep '^    t\.' | grep -vc 't\.index'
 ```
 
-O segundo comando tem que sair **17** (as 16 colunas mais o `id`).
+O segundo comando conta as colunas da tabela, e tem que sair **16**.
+
+Repare em duas coisas que ele mostra: o `id` não está na lista, porque o `create_table` cria essa
+coluna sozinho e nem a menciona; e as duas linhas `t.index` que o comando descarta são os índices
+únicos de `email` e `matricula`, que são restrição do banco e não coluna.
 
 Abra o `db/schema.rb` e leia: ele é o retrato do banco **agora**, montado sozinho pelas migrations.
 
@@ -641,7 +645,7 @@ Abra o `db/schema.rb` e leia: ele é o retrato do banco **agora**, montado sozin
 | `An error has occurred, this and all later migrations canceled` | uma migration falhou no meio | **leia a linha seguinte**: é ela que diz o motivo. Conserte o arquivo e rode de novo |
 | `ActiveRecord::IrreversibleMigration` ao fazer `rollback` | a migration usou `change` com algo que não sabe desfazer | troque por `up`/`down`, ou refaça com `db:drop` |
 | o `schema.rb` não mudou | a migration não rodou | `bin/rails db:migrate:status`: a sua está `down`? |
-| saiu 16 em vez de 17 | falta uma coluna | compare com o gabarito: `git -C ~/capacitacao-gabarito show aula-02:db/schema.rb` |
+| saiu menos que 16 | falta alguma coluna | compare com o gabarito: `git -C ~/capacitacao-gabarito show aula-02:db/schema.rb` |
 | `Multiple migrations have the name ...` | você gerou duas com o mesmo nome | apague a duplicada em `db/migrate/` |
 
 ---

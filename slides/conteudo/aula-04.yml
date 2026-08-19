@@ -15,10 +15,10 @@ slides:
   - tipo: objetivos
     titulo: "OBJETIVOS"
     bullets:
-      - "Subir o seu próprio servidor Linux, do zero."
-      - "Entrar nele por SSH, com chave. E fechá-lo."
-      - "Entender Docker e Kamal de verdade."
-      - "Colocar a sua API no ar, com HTTPS."
+      - "Transformar a sua máquina num servidor: SSH, chave, e entrar nela."
+      - "Empacotar a API numa imagem Docker, e publicá-la num registry."
+      - "Entender o Kamal: zero-downtime, rollback e segredo."
+      - "Servir com HTTPS, e ver a diferença entre criptografia e confiança."
 
   - tipo: bullets
     titulo: "DE ONDE PARAMOS, E O ÚLTIMO DIA"
@@ -281,7 +281,7 @@ slides:
       - "Ele é mostrado UMA VEZ. Guarde agora."
       - "Confere: ls config/deploy.yml .kamal/secrets .env.example"
       - "E uname -m para saber a sua arquitetura: x86_64 é amd64, aarch64 é arm64."
-      - "Apostila: Prática 3."
+      - "Apostila: Prática 2."
     notas: |
       ~15 minutos.
       Cobre o tipo do token: fine-grained NÃO funciona no ghcr.io, tem que
@@ -399,7 +399,7 @@ slides:
       - "RAILS_MASTER_KEY é o CONTEÚDO de config/master.key."
       - "Confere: git status NÃO pode mostrar o .env."
       - "Confere: bundle exec kamal config roda sem erro."
-      - "Apostila: Prática 4."
+      - "Apostila: Prática 3."
     notas: |
       ~15 minutos, e errar aqui é o que causa quase toda falha da Prática 6.
       Pare a turma no git status. Se o .env aparecer para alguém, conserte o
@@ -506,7 +506,7 @@ slides:
       - "echo \"SEU_IP  seunome.test\" | sudo tee -a /etc/hosts"
       - "Confere: getent hosts seunome.test devolve o IP da VM."
       - "Windows: repita no hosts do WINDOWS, é ele que o navegador lê."
-      - "Apostila: Prática 5."
+      - "Apostila: Prática 4."
     notas: |
       ~15 minutos.
       .test é reservado por RFC para testes: ninguém consegue registrar, e
@@ -576,7 +576,7 @@ slides:
       - "bundle exec kamal setup   — só na primeira vez."
       - "Confere: curl --cacert tls/capacita-cert.pem https://seunome.test/..."
       - "{\"status\":\"ok\", ..., \"environment\":\"production\"}"
-      - "Apostila: Prática 6, com a maior tabela de erros da capacitação."
+      - "Apostila: Prática 5, com a maior tabela de erros da capacitação."
     notas: |
       ~25 minutos, sendo ~5 de build. É o momento da aula.
       Use a espera do build para o bloco de backup e para perguntas.
@@ -593,7 +593,7 @@ slides:
       - "curl --cacert tls/capacita-cert.pem ...   ->  funciona, CONFERINDO."
       - "Abra no navegador e leia o aviso vermelho."
       - "Escreva a diferença entre o segundo e o terceiro comando."
-      - "Apostila: Prática 7."
+      - "Apostila: Prática 6."
     notas: |
       ~10 minutos, e é a prática que mais ensina do dia. Não passe rápido.
       A frase que fixa: o -k desliga a conferência; o --cacert não desliga
@@ -651,7 +651,7 @@ slides:
       - "kamal app logs -f enquanto acontece: veja o novo subir AO LADO."
       - "Faça um pg_dump pela SSH e confira que o arquivo não está vazio."
       - "multipass stop servidor antes de ir embora."
-      - "Apostila: Prática 8."
+      - "Apostila: Prática 7."
     notas: |
       ~20 minutos. Fecha a capacitação: o que eles construíram nas Aulas 2 e
       3, rodando em produção.
@@ -662,13 +662,14 @@ slides:
   - tipo: bullets
     titulo: "RECAPITULANDO"
     bullets:
-      - "Servidor no notebook ou em datacenter: muda o IP, não o trabalho."
+      - "Publicar não é rodar noutro lugar: é empacotar, versionar e poder voltar atrás."
       - "Escolha a ferramenta do tamanho do problema."
       - "Multi-stage e usuário não-root."
       - "clear é configuração, secret é segredo."
       - "Volume salva o dado do deploy. E ainda assim não é backup."
       - "TLS criptografa. CA é confiança. São coisas separadas."
-      - "Numa máquina exposta, firewall e segredo curto deixam de ser detalhe."
+      - "CI é o portão: te avisa antes, com ou sem deploy automático."
+      - "Numa máquina exposta, provisionar direito e o firewall deixam de ser detalhe."
 
   - tipo: bullets
     titulo: "O QUE O SEEM-BACKEND TEM A MAIS"

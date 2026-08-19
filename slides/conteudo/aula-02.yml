@@ -222,7 +222,7 @@ slides:
       - "Uma de cada vez, e db:migrate entre elas."
       - "Confere: bin/rails db:migrate:status  ->  três linhas \"up\""
       - "Abra o db/schema.rb e leia. Ele é o retrato do banco AGORA."
-      - "Confere: a tabela users tem 17 colunas (16 mais o id)."
+      - "Confere: a tabela users fica com 16 colunas."
       - "Apostila: Prática 2."
     notas: |
       ~20 minutos, a prática mais longa do dia.

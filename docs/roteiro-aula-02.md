@@ -1,6 +1,6 @@
 # Roteiro da Aula 2: banco, ActiveRecord e o model `User`
 
-**Deck**: `slides/build/aula-02-banco-de-dados-e-activerecord.pptx` (54 slides, sendo 8 de prática)
+**Deck**: `slides/build/aula-02-banco-de-dados-e-activerecord.pptx` (54 slides, sendo 7 de prática, que cobrem as 8 da apostila)
 **Apostila da turma**: [`02-activerecord.md`](02-activerecord.md) · **Checkpoint**: `aula-02`
 **Antes de tudo**: [`guia-do-instrutor.md`](guia-do-instrutor.md) — conduzir a sala, não o conteúdo
 
@@ -192,7 +192,7 @@ abrir a apostila na prática correspondente — não dite os comandos.
 | # | Slide | O que cobrar em voz alta |
 |:--|:--|:--|
 | 1 | 10 | O `docker compose ps` tem que dizer **healthy**, não `starting` |
-| 2 | 21 | Uma migration por vez, e `db:migrate` entre elas. A conferência é o **17** |
+| 2 | 21 | Uma migration por vez, e `db:migrate` entre elas. A conferência é o **16** |
 | 3 | 28 | Rodar o `create` duas vezes e ver dar diferente. Isso é o *salt* |
 | 4 e 5 | 33 | Quando `valid?` der `false`, o reflexo é `p u.errors.full_messages` |
 | 6 | 41 | O avançado (apagar o usuário e ver os eventos sumirem) vale fazer ao vivo |
