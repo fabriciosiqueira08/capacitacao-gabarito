@@ -174,128 +174,57 @@ gh ssh-key add ~/.ssh/id_ed25519.pub --title "meu-notebook"
 ssh -T git@github.com                        # tem que cumprimentar você pelo nome
 ```
 
-### Multipass: **teste isso com antecedência**
+### O servidor de SSH: **teste isso com antecedência**
 
-Na Aula 4 cada um vai subir o próprio servidor Linux: uma **máquina virtual**, rodando no seu
-notebook, com Ubuntu Server, IP próprio e acesso por SSH. Quem cria essa VM é o
-[Multipass](https://canonical.com/multipass), da Canonical.
+Na Aula 4 a **sua própria máquina** vira o servidor onde a API vai rodar. Para isso ela precisa
+aceitar conexão SSH, e o programa que faz isso é o `openssh-server`. Você já usa o *cliente* de SSH
+(é o comando `ssh`); o que falta é o *servidor*.
 
-```bash
-# Linux
-sudo snap install multipass
-
-# macOS
-brew install --cask multipass
-
-# Windows (PowerShell como administrador)
-winget install Canonical.Multipass
-```
-
-Teste **agora**, não na véspera. Uma VM de teste, que você apaga em seguida:
+Se você usa Windows, tudo abaixo é **dentro do WSL2**, que é o seu Linux.
 
 ```bash
-multipass launch 24.04 --name teste
-multipass info teste          # tem que mostrar State: Running e um IPv4
-multipass delete teste && multipass purge
+# Ubuntu, Debian e WSL2
+sudo apt update && sudo apt install -y openssh-server
+sudo service ssh start
+
+# Fedora
+sudo dnf install -y openssh-server && sudo systemctl enable --now sshd
 ```
 
-> O primeiro `launch` baixa ~500 MB da imagem do Ubuntu. Faça no wi-fi de casa.
+No **macOS** não se instala nada: ligue em **Ajustes do Sistema → Geral → Compartilhamento →
+Sessão remota**.
 
-#### Confira que você alcança a VM
+Confira, conectando na sua própria máquina:
 
-Subir a VM é metade. A outra metade é **alcançá-la de onde você programa**, e é aí que mora o único
-problema chato desta capacitação.
+```bash
+ssh "$USER"@127.0.0.1 'echo FUNCIONOU'
+```
 
-O diagnóstico está no repositório da capacitação. Clone-o agora (você vai usá-lo o curso inteiro):
+Ele vai pedir a sua senha (na Aula 4 isso vira uma chave) e tem que responder `FUNCIONOU`.
+**Mande o resultado no grupo.** Dez minutos hoje valem a aula inteira.
+
+> **WSL2**: o `sshd` não sobe sozinho a cada boot do Windows, a não ser que você habilite o systemd.
+> Se um dia o `ssh` parar de conectar do nada, é isso, e a saída é `sudo service ssh start`.
+
+### Clone o repositório da capacitação
+
+Você vai usá-lo o curso inteiro, para consultar o código pronto:
 
 ```bash
 git clone <url-do-repositório> ~/capacitacao-gabarito
 ```
-
-E, com a VM de teste rodando:
-
-```bash
-cd ~/capacitacao-gabarito
-./scripts/checar-servidor.sh <IP-que-o-multipass-info-mostrou>
-```
-
-Ele responde "está tudo pronto para a Aula 4" ou diz exatamente o que fazer. **Mande o resultado no
-grupo.** Dez minutos hoje valem a aula inteira.
-
-#### Se você usa Windows: **leia isto, é obrigatório**
-
-O Multipass roda no Windows, e o seu Rails roda dentro do WSL2. São duas máquinas virtuais
-diferentes, e **por padrão uma não enxerga a outra**: o `ssh` do WSL2 não alcança o IP da VM, e sem
-isso nada da Aula 4 funciona.
-
-Duas saídas. Tente a primeira; se o seu Windows for antigo, a segunda resolve sempre.
-
-**1. Rede espelhada** (Windows 11 22H2 ou mais novo). Um arquivo, e acabou.
-
-Crie (ou edite) `C:\Users\<seu-usuario>\.wslconfig`:
-
-```
-[wsl2]
-networkingMode=mirrored
-```
-
-E no PowerShell:
-
-```powershell
-wsl --shutdown
-```
-
-**2. Encaminhamento de porta** (funciona em qualquer Windows, inclusive o 10). Em vez de o WSL2
-alcançar a VM, o Windows leva o tráfego até ela. No PowerShell **como administrador**, trocando o IP
-pelo da sua VM:
-
-```powershell
-$vm = "SEU_IP_DA_VM"
-netsh interface portproxy add v4tov4 listenport=2222 listenaddress=0.0.0.0 connectport=22  connectaddress=$vm
-netsh interface portproxy add v4tov4 listenport=443  listenaddress=0.0.0.0 connectport=443 connectaddress=$vm
-netsh interface portproxy add v4tov4 listenport=80   listenaddress=0.0.0.0 connectport=80  connectaddress=$vm
-New-NetFirewallRule -DisplayName "Capacita VM" -Direction Inbound `
-  -Action Allow -Protocol TCP -LocalPort 2222,443,80
-```
-
-Agora, para o WSL2, o endereço da VM passa a ser o **do Windows**:
-
-```bash
-ip route show default | awk '{print $3}'
-```
-
-É esse o seu `SERVER_IP`, e é ele que vai no `/etc/hosts`. E como o SSH mudou de porta, o seu `.env`
-leva também:
-
-```bash
-export SSH_PORT=2222
-```
-
-Confira:
-
-```bash
-./scripts/checar-servidor.sh $(ip route show default | awk '{print $3}') 2222
-```
-
-> O endereço do Windows muda a cada `wsl --shutdown`. Quando o SSH parar de conectar do nada, é
-> isso: rode o `ip route` de novo e atualize o `.env` e o `/etc/hosts`.
-
-**Se nenhuma das duas funcionar, avise no grupo antes da Aula 4**: dá para resolver, mas não em
-cima da hora.
-
----
 
 ## Checagem final
 
 Cole os comandos no terminal. Se todos responderem, você está pronto:
 
 ```bash
-ruby -v             # ruby 3.4.9
-rails -v            # Rails 8.1.3
-docker -v           # Docker version 2x.x.x
+ruby -v                          # ruby 3.4.9
+rails -v                         # Rails 8.1.3
+docker -v                        # Docker version 2x.x.x
 git --version
-gh auth status      # Logged in to github.com
-multipass version   # multipass 1.x.x
+gh auth status                   # Logged in to github.com
+ssh "$USER"@127.0.0.1 'echo ok'  # ok  (é o servidor da Aula 4)
 ```
 
 ## Como a capacitação funciona
@@ -307,7 +236,7 @@ Você vai trabalhar em **dois diretórios**:
 ~/automic_auth_api/        ← o SEU projeto. Criado na Aula 1, é onde você escreve.
 ```
 
-O gabarito você já clonou, no passo do Multipass:
+O gabarito você já clonou, alguns passos acima:
 
 ```bash
 ls ~/capacitacao-gabarito     # se não existir:
@@ -328,7 +257,7 @@ o CI roda e é para a sua conta que a imagem Docker vai.
 | A instalação do Ruby falha com erro de compilação | Faltou alguma dependência do passo 3. Rode o `apt install`/`brew install` de novo e tente `mise install ruby@3.4.9` outra vez. |
 | `permission denied` no `docker` | Você não está no grupo `docker`. Rode `sudo usermod -aG docker $USER` e **saia e entre de novo** (só reabrir o terminal não basta). |
 | No Windows, o `docker` não aparece dentro do Ubuntu | Docker Desktop → Settings → Resources → WSL Integration → habilite a distro `Ubuntu-24.04`. |
-| `multipass launch` falha com erro de virtualização | Virtualização desabilitada na BIOS/UEFI (procure por `VT-x`, `AMD-V` ou `SVM`), ou o Hyper-V desligado no Windows. |
+| `ssh $USER@127.0.0.1` dá `Connection refused` | O `sshd` não está rodando: `sudo service ssh start`. No macOS, ligue a Sessão remota. |
 | `gem install rails` reclama de permissão | Você está usando o Ruby do sistema, não o do `mise`. Confira com `which ruby`: deve apontar para dentro de `~/.local/share/mise`. |
 
 Mais casos em [`troubleshooting.md`](troubleshooting.md).
