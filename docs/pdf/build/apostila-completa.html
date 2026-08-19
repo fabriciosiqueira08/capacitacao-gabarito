@@ -814,13 +814,14 @@ numa VM na nuvem, é o mesmo programa.</p>
 </tr>
 </tbody>
 </table>
-<p><code>127.0.0.1</code> (o <code>localhost</code>) significa sempre "esta máquina aqui". Na Aula 4 vamos abrir e fechar
-portas na mão, no firewall de um servidor Linux.</p>
+<p><code>127.0.0.1</code> (o <code>localhost</code>) significa sempre "esta máquina aqui". Na Aula 4 ele vira o endereço do
+seu servidor, e a sua API passa a atender na 443.</p>
 <h3 id="dns">DNS</h3>
 <p>Ninguém decora <code>57.156.65.151</code>. O <strong>DNS</strong> é a agenda telefônica da internet: você digita
 <code>api.seemxxiii.tech</code> e alguém pergunta ao DNS qual é o IP.</p>
 <p>A resposta fica em cache por um tempo: o <strong>TTL</strong>. É por isso que apontar um domínio para outro
-servidor não vale na hora. Na Aula 4 você vai criar um desses registros.</p>
+servidor não vale na hora. Na Aula 4 você faz isso na mão, no <code>/etc/hosts</code>, que é o atalho local
+para a mesma ideia.</p>
 <h3 id="anatomia-de-uma-url">Anatomia de uma URL</h3>
 <pre><code>https :// api.seemxxiii.tech : 443 /api/v1/lectures ?page=2 #topo
   │             │              │          │           │      │
@@ -5859,7 +5860,7 @@ chmod 600 ~/.ssh/azure-capacita
 <blockquote>
 <p>Internet de casa troca de IP. Quando o SSH parar de conectar do nada, é isso: atualize a regra.</p>
 </blockquote>
-<p><strong>Este é o firewall que a sua VM local não tinha.</strong> O <code>ufw</code> continua valendo dentro da máquina, e é
+<p><strong>Este é o firewall que a Aula 4 não teve.</strong> O <code>ufw</code> continua valendo dentro da máquina, e é
 uma segunda camada, mas o NSG é o que faz o pacote nem chegar.</p>
 <h3 id="primeiro-acesso">Primeiro acesso</h3>
 <pre><code class="language-bash">ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP_PUBLICO

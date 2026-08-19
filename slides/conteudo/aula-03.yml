@@ -313,6 +313,11 @@ slides:
       - "Não é criptografia. Não tem chave. Qualquer um desfaz."
       - "echo eyJzdWIiOjJ9 | base64 -d  →  {\"sub\":2}"
       - "Aquele monte de caractere no JWT é isso: texto disfarçado."
+    notas: |
+      DEMO. Cole um token em jwt.io e mostre o payload legível, ou rode no
+      console: Base64.decode64(token.split(".")[1]).
+      A frase: "está assinado, não está criptografado. Qualquer um lê. Então
+      nunca ponham aqui nada que não possa ser lido."
 
   - tipo: bullets
     titulo: "O PAYLOAD É PÚBLICO"
@@ -347,6 +352,11 @@ slides:
       # pessoa forja o próprio acesso trocando o `sub`.
       #
       # Já foi CVE em várias bibliotecas.
+    notas: |
+      Este slide é o que a Prática 8 transforma em experiência. Avise que eles
+      vão fazer isso na mão hoje: trocar o true por false e entrar como outra
+      pessoa, sem saber a senha dela.
+      Já foi CVE em várias bibliotecas de JWT, com exatamente este desenho.
 
   - tipo: secao
     titulo: "LOGIN"
@@ -393,6 +403,11 @@ slides:
       - "- alguém salva <script>...</script> como nome e você imprime cru"
       - "Com JS rodando na página, ele lê tudo que o JS lê."
       - "É por isso que httponly existe: o token no cookie fica fora do alcance."
+    notas: |
+      Se o tempo apertar, é aqui que você corta (este e o CSRF). O material fica
+      na apostila e nenhuma prática depende deles.
+      Antes de cortar, deixe uma frase: "existe um jeito de roubar o token pelo
+      navegador, e é por isso que o cookie é httponly."
 
   - tipo: bullets  # EXTRA
     titulo: "CSRF"
@@ -423,6 +438,10 @@ slides:
       - "Ele fecha o buraco pelo lado do TEMPO."
       - "Não adianta a mensagem ser igual se a resposta volta em 1ms num caso"
       - "- e em 100ms no outro."
+    notas: |
+      Segundo dos quatro momentos de "enumeração" da aula. A essa altura
+      pergunte ANTES de virar o slide: "o e-mail não existe. O que
+      respondemos?" Eles começam a acertar sozinhos aqui.
 
   - tipo: pratica
     titulo: "PRÁTICA 4: LOGIN, E O TOKEN NA MÃO"
@@ -459,6 +478,11 @@ slides:
       - "b) Denylist por jti: revoga aquele token."
       - "c) token_version: derruba todos os tokens do usuário."
       - "Usamos b e c."
+    notas: |
+      Conduza como problema, não como solução. Pergunte de verdade e espere:
+      "o token vale 24h e o servidor não guarda sessão. O que SAIR significa?"
+      Deixe alguém propor "apaga no cliente", aceite, e só então pergunte "e se
+      já copiaram o token?". A solução entra muito melhor depois da tentativa.
 
   - tipo: codigo
     titulo: "DENYLIST POR JTI"
@@ -483,6 +507,12 @@ slides:
       - "A lista se limpa sem varredura e sem lixo acumulado."
       - "Isso revoga UM token."
       - "Logout no celular não derruba o notebook. E é o certo."
+    notas: |
+      A sacada, e vale marcar: o TTL de cada entrada é exatamente o que faltava
+      para o token expirar. Depois disso ele já não vale por si, e guardar mais
+      seria lixo eterno.
+      Pergunta que aparece: "e se o cache cair?" Cai a revogação daquele token
+      até ele expirar. É o custo, e é aceitável para 24h.
 
   - tipo: codigo
     titulo: "TOKEN_VERSION: DERRUBA TUDO"
@@ -546,6 +576,10 @@ slides:
       - "Se respondesse 404, esta rota pública viraria verificador de cadastro."
       - "Quarta vez que o assunto aparece hoje:"
       - "- em autenticação, resposta diferente vaza informação."
+    notas: |
+      Terceiro "enumeração". Faça ao vivo, lado a lado: um e-mail que existe e
+      um que não existe, e mostre as duas respostas iguais na tela. É bem mais
+      convincente que o slide.
 
   - tipo: bullets
     titulo: "DUAS GUARDAS DENTRO"
@@ -620,6 +654,10 @@ slides:
       - "O teste acima passaria de graça, provando nada."
       - "Por isso o test_helper troca por um MemoryStore."
       - "Teste que passa sem exercitar a lógica é pior que teste nenhum."
+    notas: |
+      Erro comum de quem começa a testar: comparar o número (assert_equal 401)
+      em vez do símbolo. O símbolo sobrevive a refatoração e diz o que você
+      quis dizer.
 
   - tipo: bullets
     titulo: "AS FERRAMENTAS DE QUALIDADE"

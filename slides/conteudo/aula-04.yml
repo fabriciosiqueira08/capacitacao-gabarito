@@ -273,13 +273,11 @@ slides:
   - tipo: pratica
     titulo: "PRÁTICA 2: ARQUIVOS DE DEPLOY E O TOKEN"
     bullets:
-      - "rsync -aR do gabarito aula-04. O -R não é detalhe."
-      - "- sem ele, deploy.yml vai para a raiz e o Kamal não acha nada."
-      - "bundle install"
-      - "Crie o PAT (classic) no GitHub: write:packages e read:packages."
-      - "Ele é mostrado UMA VEZ. Guarde agora."
+      - "rsync -aR do gabarito aula-04, e bundle install."
+      - "- sem o -R, o deploy.yml vai pra raiz e o Kamal não acha nada"
+      - "Crie o PAT (classic): write:packages e read:packages."
+      - "- ele aparece UMA VEZ. Guarde agora"
       - "Confere: ls config/deploy.yml .kamal/secrets .env.example"
-      - "E uname -m para saber a sua arquitetura: x86_64 é amd64, aarch64 é arm64."
       - "Apostila: Prática 2."
     notas: |
       ~15 minutos.
@@ -663,14 +661,13 @@ slides:
   - tipo: bullets
     titulo: "RECAPITULANDO"
     bullets:
-      - "Publicar não é rodar noutro lugar: é empacotar, versionar e poder voltar atrás."
+      - "Publicar é empacotar, versionar, e poder voltar atrás."
       - "Escolha a ferramenta do tamanho do problema."
-      - "Multi-stage e usuário não-root."
+      - "Multi-stage, e usuário não-root."
       - "clear é configuração, secret é segredo."
       - "Volume salva o dado do deploy. E ainda assim não é backup."
       - "TLS criptografa. CA é confiança. São coisas separadas."
-      - "CI é o portão: te avisa antes, com ou sem deploy automático."
-      - "Numa máquina exposta, provisionar direito e o firewall deixam de ser detalhe."
+      - "CI é o portão: avisa antes, com ou sem deploy automático."
 
   - tipo: bullets
     titulo: "O QUE O SEEM-BACKEND TEM A MAIS"

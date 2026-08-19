@@ -193,7 +193,7 @@ slides:
       - "Uma máquina, milhares de portas, um programa em cada."
       - "- 22 SSH · 80 HTTP · 443 HTTPS · 5432 Postgres · 3000 Rails em dev"
       - "127.0.0.1 (localhost) é sempre 'esta máquina aqui'."
-      - "Na Aula 4 vamos abrir e fechar portas na mão. Guarde isso."
+      - "Na Aula 4 a sua API vai atender na 443, e o Postgres na 5432."
 
   - tipo: bullets  # EXTRA
     titulo: "DNS: DE NOME PARA NÚMERO"
@@ -203,7 +203,7 @@ slides:
       - "Você digita api.seemxxiii.tech; alguém pergunta ao DNS o IP."
       - "A resposta fica em cache por um tempo. Chama-se TTL."
       - "É por isso que trocar um domínio de servidor não vale na hora."
-      - "Na Aula 4 você vai criar um desses registros."
+      - "Na Aula 4 você aponta um nome para um IP na mão, no /etc/hosts."
 
   - tipo: codigo  # EXTRA
     titulo: "ANATOMIA DE UMA URL"
@@ -777,7 +777,7 @@ slides:
       - "~/automic_auth_api é o SEU projeto. É nele que você escreve."
       - "Travou? Abra o mesmo arquivo no gabarito, entenda, e digite no seu."
       - "O seu projeto vai para o SEU GitHub, hoje ainda."
-      - "Na Aula 4 o deploy é autorizado para repo:SEU-USUARIO/SEU-REPO."
+      - "Na Aula 4 o CI roda no SEU repositório, e a imagem vai pra SUA conta."
       - "Não dá para apontar para o meu repositório."
 
   - tipo: pratica
@@ -803,7 +803,7 @@ slides:
       - "git add .: separa o que vai no próximo commit"
       - "git commit -m \"mensagem\": grava o ponto"
       - "git push: manda para o GitHub"
-      - "Na Aula 4, é o push que dispara o deploy. Literalmente."
+      - "Na Aula 4, é o push que dispara o CI: testes, lint e scan de segurança."
 
   - tipo: pratica
     titulo: "PRÁTICAS 6 E 7: TESTE E COMMIT"

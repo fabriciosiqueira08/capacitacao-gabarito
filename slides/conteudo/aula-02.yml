@@ -205,6 +205,11 @@ slides:
       - "- as duas consultam, as duas não acham ninguém"
       - "- só uma vence o índice único"
       - "Validação é para mensagem bonita. Índice é para garantir."
+    notas: |
+      Este slide é sobre concorrência, e é sutil. Desenhe no quadro se
+      precisar: duas requisições chegam no mesmo milissegundo, as duas
+      consultam, as duas não acham ninguém, as duas passam na validação. Só
+      uma vence o índice. Sem ele, o banco fica com duplicata.
 
   - tipo: bullets
     titulo: "SCHEMA.RB"
@@ -249,6 +254,11 @@ slides:
       - "Hash não tem volta. É caminho só de ida."
       - "Você não guarda a senha; guarda o resultado da função."
       - "No login, passa de novo e compara os resultados."
+    notas: |
+      A pergunta que sempre vem: "e se eu esquecer a senha, vocês me mandam
+      ela?" Não, e nem conseguimos. Se um site te manda a sua senha antiga
+      por e-mail, ele guardou em texto, e você deveria trocar a senha em
+      todo lugar onde usou aquela.
 
   - tipo: bullets
     titulo: "POR QUE BCRYPT E NÃO SHA-256"
@@ -259,6 +269,11 @@ slides:
       - "Melhorou o hardware? Você aumenta o custo."
       - "E gera um salt aleatório por senha."
       - "Sem salt, mesma senha = mesmo hash, e uma tabela pronta quebra as duas."
+    notas: |
+      O argumento que fecha: uma GPU testa bilhões de SHA-256 por segundo e
+      algumas dezenas de bcrypt. É a mesma senha, o mesmo vazamento, e a
+      diferença entre quebrar em minutos ou em séculos.
+      Se sobrar tempo, é o momento de fazer a Prática 3 ao vivo antes deles.
 
   - tipo: codigo
     titulo: "ANATOMIA DE UM HASH BCRYPT"
@@ -335,6 +350,10 @@ slides:
       - "normalize_matricula: só os dígitos"
       - "Sem isso o índice único não serve para nada:"
       - "- o banco acha que são valores diferentes."
+    notas: |
+      Peça exemplos à turma antes de virar o slide: "que outras coisas duas
+      pessoas escrevem diferente querendo dizer a mesma coisa?" Telefone,
+      CPF, CEP. Normalizar é decidir uma forma canônica e gravar sempre ela.
 
   - tipo: pratica
     titulo: "PRÁTICAS 4 E 5: O VALIDADOR E O MODEL"
@@ -430,6 +449,10 @@ slides:
       - "A correção é uma palavra: User.includes(:login_events)"
       - "Aí são 2 consultas, sempre."
       - "É o problema de performance nº 1 de app Rails. E o mais fácil de achar."
+    notas: |
+      Se der, mostre no log ao vivo: rode o each sem includes e conte as linhas
+      de SELECT na tela. Ver 101 consultas rolando convence mais que o slide.
+      É o bônus 1 da Prática 8, para quem terminar antes.
 
   - tipo: pratica
     titulo: "PRÁTICA 6: A SEGUNDA TABELA"
@@ -493,6 +516,10 @@ slides:
       - "- vai para o e-mail e some. Não fica em coluna nem em log."
       - "email_verified_at é data, não booleano."
       - "- booleano responde 'sim'; data responde 'sim, dia 12 às 14h'."
+    notas: |
+      A pergunta boa: "quando eu tiro para um concern e quando deixo no model?"
+      A regra prática: quando o assunto tem começo, meio e fim próprios.
+      Verificar e-mail é um assunto inteiro; validar o nome não é.
 
   - tipo: pratica
     titulo: "PRÁTICA 7: OS DOIS CONCERNS"
