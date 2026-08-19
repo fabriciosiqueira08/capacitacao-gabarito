@@ -1,4 +1,4 @@
-# Roteiro — Aula 1: back-end, Ruby e o primeiro Rails
+# Roteiro da Aula 1: back-end, Ruby e o primeiro Rails
 
 **Deck**: `slides/build/aula-01-fundamentos-de-back-end.pptx` (69 slides, sendo 5 de prática)
 **Apostila da turma**: [`01-fundamentos.md`](01-fundamentos.md) · **Checkpoint**: `aula-01`
@@ -70,7 +70,7 @@ Cortando de 1 a 5, fecha em **3h31**. Cortando os seis, **3h21**.
 
 ## Bloco a bloco
 
-### 00:00 — Abertura e o combinado (1–3)
+### 00:00 · Abertura e o combinado (1–3)
 
 Você se apresenta e diz de onde veio a capacitação: **é a continuação da do Fiuza**. Lá foi o que o
 usuário vê; aqui é o outro lado.
@@ -88,7 +88,7 @@ Dita agora, ela dá permissão para a sala inteira. Sem ela, metade vai passar a
 está perdida, e você só descobre na hora da prática. Detalhes em
 [`guia-do-instrutor.md`](guia-do-instrutor.md).
 
-### 00:07 — Ferramentas e setup (4–11)
+### 00:07 · Ferramentas e setup (4–11)
 
 Passe rápido pelos slides e **pare no 10**. Todo mundo roda os quatro comandos ao mesmo tempo:
 
@@ -104,7 +104,7 @@ docker run --rm hello-world
 > ⚠️ **Ponto de não-retorno**: se passou de 00:35 e ainda tem gente instalando, **pare**. Pareie
 > quem travou com quem terminou e siga. Instalação é problema de casa, não de aula.
 
-### 00:30 — O que é back-end (12–16)
+### 00:30 · O que é back-end (12–16)
 
 O slide 12 é a ponte com a capacitação anterior: mostre a coluna do front e diga "isso vocês já
 viram". O slide 13 tem o ponto que importa: **tudo que roda no navegador o usuário consegue ler e
@@ -112,7 +112,7 @@ alterar** — por isso a validação que vale é a do back.
 
 O restaurante (14) funciona bem. Volte nele quando falar de API.
 
-### 00:42 — Rede (17–20)
+### 00:42 · Rede (17–20)
 
 Aqui muita gente descobre coisa que usava sem saber.
 
@@ -122,7 +122,7 @@ Aqui muita gente descobre coisa que usava sem saber.
 - **19**: desmonte a URL na tela. Pergunte: *"por que `localhost:3000` tem dois pontos e
   `google.com` não?"* Deixe alguém responder.
 
-### 00:55 — HTTP e REST (21–30)
+### 00:55 · HTTP e REST (21–30)
 
 **Slide 22 é o coração do bloco.** Uma requisição HTTP é texto puro. Se der, faça ao vivo:
 
@@ -142,7 +142,7 @@ No **26** (status codes), a pergunta: *"qual a diferença entre 401 e 403?"* —
 No **fim do bloco**, marque a frase: **HTTP não tem memória.** Escreva no quadro se tiver. É o
 problema inteiro da Aula 3.
 
-### 01:23 — Prática 1: HTTP na mão (31)
+### 01:23 · Prática 1: HTTP na mão (31)
 
 **A primeira vez que eles falam com um servidor sem navegador no meio.** Dez minutos, e circule.
 
@@ -159,7 +159,7 @@ isso hoje não confunde 404 com 500 na Aula 3.
 Quem terminar rápido: o item (e), o POST na mão com `-X`, `-H` e `-d`. É o que o Insomnia faz por
 baixo.
 
-### 01:43 — Ruby (32–49)
+### 01:43 · Ruby (32–49)
 
 O bloco mais longo. **Não leia os slides — rode no `irb` ao vivo.**
 
@@ -192,7 +192,7 @@ Pontos onde vale parar:
 - **47** — as três pegadinhas. Rode no `irb`: `7 / 2`, depois `7.0 / 2`. E `puts 'Olá #{1+1}'` com
   aspas simples. São 30 segundos e economizam um bug cada.
 
-### 02:27 — Prática 2: Ruby no `irb` (50)
+### 02:27 · Prática 2: Ruby no `irb` (50)
 
 Dez minutos no `irb`, e é a **única vez** na capacitação em que eles mexem em Ruby sem Rails no
 caminho. Não corte, mesmo atrasado.
@@ -211,7 +211,7 @@ puts "entrou" if 0     # entra! Só nil e false são falsos em Ruby.
 Quem terminar rápido: o item (h), escrever um módulo e incluir numa classe — é a Aula 2 chegando
 mais cedo.
 
-### 02:37 — Rails (51–61)
+### 02:37 · Rails (51–61)
 
 - **52** é a ideia central: você não configura o óbvio, você segue o combinado.
 - **55** (Django × Rails) — pergunte quem já usou Django ou Flask e ancore neles.
@@ -220,7 +220,7 @@ mais cedo.
 - **64** (`DOIS DIRETÓRIOS`) — **não corte**. É onde fica claro que o repositório da capacitação é
   gabarito e que o projeto é deles. Sem isso, metade da turma vai editar o repo errado.
 
-### 02:59 — Práticas 3 a 7: o projeto no ar (62, 65, 67)
+### 02:59 · Práticas 3 a 7: o projeto no ar (62, 65, 67)
 
 A entrega da aula, em três blocos separados por slides curtos. **Ninguém sai sem os 200 na tela e
 sem o projeto no GitHub deles.**
@@ -258,7 +258,7 @@ Quem travar em qualquer uma: projete o arquivo do gabarito (`~/capacitacao-gabar
 `aula-01`) e deixe a pessoa digitar. **Não mande copiar e colar** — o exercício inteiro são 20
 linhas.
 
-### 04:12 — Fecho (66, 68–69)
+### 04:12 · Fecho (66, 68–69)
 
 Recapitule em cinco frases (slide 68) e feche com o que vem: *"na próxima, a API ganha memória."*
 

@@ -1,6 +1,6 @@
-# Aula 1 — O que é back-end, Ruby e o primeiro Rails
+# Aula 1: O que é back-end, Ruby e o primeiro Rails
 
-**Duração**: ~3h · **Você sai daqui com**: uma API respondendo `GET /api/v1/status`.
+**Você sai daqui com**: uma API respondendo `GET /api/v1/status`.
 **Gabarito**: `cd ~/capacitacao-gabarito && git checkout aula-01`
 
 Pré-requisitos instalados em [`00-preparacao.md`](00-preparacao.md).
@@ -9,13 +9,13 @@ Pré-requisitos instalados em [`00-preparacao.md`](00-preparacao.md).
 
 ## Antes de tudo: como usar esta apostila
 
-Você não precisa entender tudo hoje. **Precisa fazer funcionar hoje** — o entendimento vem
+Você não precisa entender tudo hoje. **Precisa fazer funcionar hoje**: o entendimento vem
 completando os buracos nas próximas semanas, e é assim mesmo que se aprende back-end.
 
 Três coisas que vale saber antes de começar:
 
 **Você vai travar.** Não é sinal de que você não serve para isso; é o trabalho. A diferença entre
-quem começou ontem e quem faz isso há dez anos não é travar menos — é travar melhor, e ler a
+quem começou ontem e quem faz isso há dez anos não é travar menos: é travar melhor, e ler a
 mensagem de erro em vez de entrar em pânico. Toda prática desta apostila termina com uma tabela
 **Se der errado**, com os erros que acontecem de verdade. Ela existe exatamente para isso.
 
@@ -23,11 +23,11 @@ mensagem de erro em vez de entrar em pânico. Toda prática desta apostila termi
 tempo apertar e você tiver que escolher, escolha fazer.
 
 **Perguntar é rápido.** Se você travou por mais de dez minutos no mesmo ponto, pergunte. Ninguém vai
-achar a pergunta boba — e quem está do seu lado provavelmente está no mesmo lugar, calado.
+achar a pergunta boba, e quem está do seu lado provavelmente está no mesmo lugar, calado.
 
 > Uma nota sobre o tom: esta apostila afirma as coisas com bastante convicção, porque explicar com
 > mil ressalvas fica ilegível. Mas quase toda decisão aqui tem alternativa razoável. Quando você
-> discordar de alguma, **pergunta** — essa conversa costuma valer mais que o parágrafo.
+> discordar de alguma, **pergunta**: essa conversa costuma valer mais que o parágrafo.
 
 ---
 
@@ -48,7 +48,7 @@ usuários e conversa com outros sistemas (e-mail, pagamento, mapas).
 **Por que isso não pode viver no front?** Porque tudo que roda no navegador o usuário consegue ler
 e alterar. A validação de senha no front é conveniência; a que vale é a do back.
 
-> **A analogia**: o salão do restaurante é o front-end — mesa, cardápio, garçom. A cozinha é o
+> **A analogia**: o salão do restaurante é o front-end. Mesa, cardápio, garçom. A cozinha é o
 > back-end: ninguém entra, mas é lá que a comida sai. O pedido é a requisição, o prato é a
 > resposta. Você não pede pra ver a receita; você pede o prato.
 
@@ -59,7 +59,7 @@ e alterar. A validação de senha no front é conveniência; a que vale é a do 
 ### O que é um servidor, afinal
 
 Não é uma máquina especial. É um **programa esperando**: ele fica ligado, escutando numa porta, e
-responde ao que chegar ali. `bin/rails server` sobe esse programa na porta 3000 — na sua máquina ou
+responde ao que chegar ali. `bin/rails server` sobe esse programa na porta 3000: na sua máquina ou
 numa VM na nuvem, é o mesmo programa.
 
 ### IP e porta
@@ -75,7 +75,7 @@ numa VM na nuvem, é o mesmo programa.
 | 5432 | Postgres |
 | 3000 | Rails em desenvolvimento |
 
-`127.0.0.1` — o `localhost` — significa sempre "esta máquina aqui". Na Aula 4 vamos abrir e fechar
+`127.0.0.1` (o `localhost`) significa sempre "esta máquina aqui". Na Aula 4 vamos abrir e fechar
 portas na mão, no firewall de um servidor Linux.
 
 ### DNS
@@ -83,7 +83,7 @@ portas na mão, no firewall de um servidor Linux.
 Ninguém decora `57.156.65.151`. O **DNS** é a agenda telefônica da internet: você digita
 `api.seemxxiii.tech` e alguém pergunta ao DNS qual é o IP.
 
-A resposta fica em cache por um tempo — o **TTL**. É por isso que apontar um domínio para outro
+A resposta fica em cache por um tempo: o **TTL**. É por isso que apontar um domínio para outro
 servidor não vale na hora. Na Aula 4 você vai criar um desses registros.
 
 ### Anatomia de uma URL
@@ -94,9 +94,9 @@ https :// api.seemxxiii.tech : 443 /api/v1/lectures ?page=2 #topo
 esquema        host          porta     caminho      query  fragmento
 ```
 
-- **Esquema** — o protocolo: `http`, `https`, `ssh`, `postgres`.
-- **Porta** — opcional. `http` assume 80, `https` assume 443.
-- **Fragmento** — nunca vai para o servidor; é só para o navegador.
+- **Esquema**: o protocolo. `http`, `https`, `ssh`, `postgres`.
+- **Porta**: opcional. `http` assume 80, `https` assume 443.
+- **Fragmento**: nunca vai para o servidor; é só para o navegador.
 
 É por isso que `localhost:3000` tem os dois pontos: a porta não é a padrão.
 
@@ -105,7 +105,7 @@ esquema        host          porta     caminho      query  fragmento
 ## 3. HTTP
 
 Cliente é quem pede (navegador, app, outro servidor). Servidor é quem responde. **O cliente sempre
-começa a conversa** — o servidor nunca liga primeiro.
+começa a conversa**: o servidor nunca liga primeiro.
 
 Uma **requisição** tem método, caminho, cabeçalhos e corpo. Uma **resposta** tem status, cabeçalhos
 e corpo.
@@ -131,7 +131,7 @@ São **metadados**: informação *sobre* a mensagem, não a mensagem. Um par `ch
 |---|---|
 | `Content-Type` | Em que formato vai o corpo |
 | `Accept` | Em que formato eu quero a resposta |
-| `Authorization` | Quem sou eu — vai ser o nosso token, na Aula 3 |
+| `Authorization` | Quem sou eu (vai ser o nosso token, na Aula 3) |
 | `Set-Cookie` / `Cookie` | Como o navegador guarda estado |
 | `User-Agent` | Que programa está chamando |
 
@@ -177,10 +177,10 @@ Cada requisição começa do zero. O servidor esquece tudo entre uma e outra.
 **Guarde essa frase.** Ela é o problema inteiro da Aula 3: se o servidor esquece tudo, como ele
 sabe que você já fez login?
 
-### Prática 1 — HTTP com as próprias mãos
+### Prática 1: HTTP com as próprias mãos
 
-> **~10 minutos.** É a primeira vez que você fala com um servidor sem navegador no meio. Faça
-> comando por comando, e **leia a saída** de cada um antes de passar para o próximo.
+> É a primeira vez que você fala com um servidor sem navegador no meio. Faça comando por comando,
+> e **leia a saída** de cada um antes de passar para o próximo.
 
 **a) A requisição mais simples que existe**
 
@@ -195,7 +195,7 @@ content-type: application/json; charset=utf-8
 {"status":"ok","service":"seem-backend"}
 ```
 
-O `-i` manda o `curl` mostrar os **cabeçalhos** junto com o corpo. Isso é uma API real, no ar — é
+O `-i` manda o `curl` mostrar os **cabeçalhos** junto com o corpo. Isso é uma API real, no ar: é
 exatamente o que você vai construir.
 
 **b) Veja a requisição inteira, dos dois lados**
@@ -206,9 +206,9 @@ curl -v https://api.seemxxiii.tech/api/v1/status
 
 Linhas com `>` são o que **você mandou**; com `<`, o que o **servidor respondeu**. Ache no meio:
 
-- a linha `> GET /api/v1/status HTTP/2` — o método e o caminho
-- o cabeçalho `> user-agent: curl/...` — quem você disse que era
-- a linha `< HTTP/2 200` — o status
+- a linha `> GET /api/v1/status HTTP/2`: o método e o caminho
+- o cabeçalho `> user-agent: curl/...`: quem você disse que era
+- a linha `< HTTP/2 200`: o status
 
 **c) Provoque um erro de propósito**
 
@@ -220,7 +220,7 @@ Linhas com `>` são o que **você mandou**; com `<`, o que o **servidor responde
 curl -i https://api.seemxxiii.tech/api/v1/rota-que-nao-existe
 ```
 
-Veio `404`. Repare que o servidor **respondeu** — 404 não é "deu erro de conexão", é uma resposta
+Veio `404`. Repare que o servidor **respondeu**: 404 não é "deu erro de conexão", é uma resposta
 perfeitamente bem-sucedida dizendo "esse recurso não existe".
 
 **d) Só os cabeçalhos**
@@ -241,7 +241,7 @@ curl -i -X POST https://api.seemxxiii.tech/api/v1/status \
 ```
 
 A rota de status só aceita `GET`, então você vai levar um `404` ou `405`. **O ponto não é o sucesso**
-— é você ter montado uma requisição com método, cabeçalho e corpo na mão, que é o que o Insomnia faz
+é você ter montado uma requisição com método, cabeçalho e corpo na mão, que é o que o Insomnia faz
 por baixo.
 
 **Confere**: você consegue apontar, na saída do `-v`, onde termina a sua requisição e onde começa a
@@ -253,7 +253,7 @@ resposta. E consegue dizer o que significa cada um dos três números que viu: 2
 |---|---|---|
 | `curl: command not found` | o `curl` não está instalado | `sudo apt install curl` (ou `brew install curl`) |
 | `Could not resolve host` | sem internet, ou o nome está errado | teste `curl -i https://example.com` |
-| `Connection refused` | o servidor não está no ar | avise no grupo — pode ser a API que caiu, e não você |
+| `Connection refused` | o servidor não está no ar | avise no grupo: pode ser a API que caiu, e não você |
 | `curl: (60) SSL certificate problem` | relógio da máquina errado, ou proxy da rede | confira a data do sistema; na Aula 4 você vai entender esse erro por dentro |
 | a saída sai toda numa linha só, ilegível | faltou o `-i`, ou o JSON não tem quebra | acrescente `\| python3 -m json.tool` no fim |
 
@@ -281,14 +281,14 @@ DELETE /api/v1/lectures/7     apaga
 ❌ `/criarPalestra` · ✅ `POST /lectures`
 
 O `v1` no caminho é a versão. Quando a API mudar de forma incompatível, nasce uma `/v2` e a `/v1`
-continua funcionando — porque o app na loja do celular demora dias para atualizar.
+continua funcionando, porque o app na loja do celular demora dias para atualizar.
 
 ---
 
 ## 5. Ruby, partindo do Python
 
 Ruby foi criado por **Yukihiro Matsumoto (Matz)** em 1995, no Japão, com um objetivo declarado:
-*fazer o programador feliz*. É interpretada, dinâmica e orientada a objetos — como Python.
+*fazer o programador feliz*. É interpretada, dinâmica e orientada a objetos, como Python.
 
 Esta seção é a **referência de sintaxe da capacitação**. Não é a linguagem inteira: é exatamente o
 que aparece nas quatro aulas, na ordem em que aparece, e cada bloco diz **onde no projeto você vai
@@ -310,11 +310,11 @@ def saudacao(nome, formal=False): def saudacao(nome, formal: false)
 Quatro coisas para reparar, e são elas que fazem Ruby parecer estranho no primeiro dia:
 
 1. **`end`** fecha o bloco, em vez da indentação.
-2. **`if` no fim da linha** — é o *modificador*, e é muito usado.
+2. **`if` no fim da linha**: é o *modificador*, e é muito usado.
 3. **A última linha avaliada é o retorno.** `return` só se você quiser sair antes.
 4. **`#{}`** interpola, como o `f"..."` do Python.
 
-Não há ponto e vírgula, e parênteses na chamada são opcionais — `puts "oi"` e `puts("oi")` são a
+Não há ponto e vírgula, e parênteses na chamada são opcionais: `puts "oi"` e `puts("oi")` são a
 mesma coisa. O projeto usa parênteses quando há argumento e omite quando não há.
 
 ### 5.2 Variáveis e o que é "falso"
@@ -339,7 +339,7 @@ if false then puts "entrou" end    # não entra
 ```
 
 **Só `nil` e `false` são falsos.** Todo o resto é verdadeiro. Em Python, `0`, `""`, `[]` e `{}` são
-todos falsos — aqui, não.
+todos falsos: aqui, não.
 
 É por isso que no projeto você vai ver `if params[:email].present?` e não `if params[:email]`: a
 string vazia passaria pela segunda.
@@ -376,7 +376,7 @@ direita, cada método operando no resultado do anterior.
 'linha\n'              # aspas simples: dois caracteres, \ e n
 ```
 
-Use aspas simples quando não há nada para interpolar — é a convenção, e o RuboCop cobra.
+Use aspas simples quando não há nada para interpolar: é a convenção, e o RuboCop cobra.
 
 **Símbolo** é um texto que serve de **etiqueta**, não de conteúdo:
 
@@ -385,7 +385,7 @@ Use aspas simples quando não há nada para interpolar — é a convenção, e o
 ```
 
 O mesmo símbolo é sempre o mesmo objeto na memória; duas strings iguais são dois objetos. Não existe
-em Python — lá você usaria uma string.
+em Python. Lá você usaria uma string.
 
 > **Regra prática**: conteúdo que o usuário lê → string. Nome de coisa no código → símbolo.
 
@@ -412,10 +412,10 @@ user.fetch(:idade, 0)       # 0
 ```
 
 Repare em `{ nome: "Ana" }`: é o atalho para `{ :nome => "Ana" }`. **A chave é um símbolo**, não uma
-string — e `user["nome"]` devolveria `nil`. Esse é o erro mais comum da primeira semana.
+string, e `user["nome"]` devolveria `nil`. Esse é o erro mais comum da primeira semana.
 
 `fetch` é importante: ele **falha alto** quando a chave não existe. É por isso que o
-`config/deploy.yml` da Aula 4 usa `ENV.fetch("SERVER_IP")` — se a variável não estiver definida, você
+`config/deploy.yml` da Aula 4 usa `ENV.fetch("SERVER_IP")`: se a variável não estiver definida, você
 descobre na hora, e não três passos depois.
 
 ### 5.6 Condicionais
@@ -453,7 +453,7 @@ end
 ### 5.7 Blocos
 
 Um bloco é um pedaço de código que você entrega para um método executar. É o `lambda` do Python, mas
-usado o tempo todo — é a construção mais característica da linguagem.
+usado o tempo todo, e é a construção mais característica da linguagem.
 
 ```ruby
 usuarios.each do |u|              # for u in usuarios
@@ -614,7 +614,7 @@ r.success?   # true
 r.user       # ana
 ```
 
-É o `namedtuple` / `dataclass` do Python. **Todo service deste projeto devolve um desses** — é o que
+É o `namedtuple` / `dataclass` do Python. **Todo service deste projeto devolve um desses**: é o que
 permite ao controller escrever `if resultado.success?` sem saber nada de dentro do service.
 
 ### 5.13 Módulos e mixins
@@ -665,7 +665,7 @@ rescue StandardError => e
 end
 ```
 
-Dentro de um método o `begin` é implícito — dá para escrever só o `rescue` no fim. Criando o seu
+Dentro de um método o `begin` é implícito: dá para escrever só o `rescue` no fim. Criando o seu
 tipo de erro:
 
 ```ruby
@@ -687,7 +687,7 @@ raise InvalidToken if token_ruim?
 | `python script.py` | `ruby script.rb` |
 | `python -m pytest` | `bundle exec rspec` / `bin/rails test` |
 
-O `Gemfile.lock` é o `requirements.txt` travado — só que automático e **sempre versionado**. Ele é a
+O `Gemfile.lock` é o `requirements.txt` travado: só que automático e **sempre versionado**. Ele é a
 garantia de que a sua máquina e o servidor rodam exatamente as mesmas versões.
 
 E o `bundle exec` na frente do comando significa "rode usando as versões do `Gemfile.lock`, não as
@@ -697,23 +697,23 @@ que estiverem soltas na máquina".
 
 | Sintaxe | Onde você vai encontrar |
 |---|---|
-| símbolo, hash | `params[:email]`, validações — Aula 2 e 3 |
-| bloco | `each`, `map`, `User.transaction do` — Aula 2 |
-| `?` e `!` | `user.save!`, `valid?` — Aula 2 |
-| `&.` e `\|\|=` | tratamento de `nil` nos controllers — Aula 3 |
-| argumento nomeado + atalho 3.1 | todo service — Aula 3 |
-| `Struct` | o retorno de todo service — Aula 3 |
-| módulo / `include` | os concerns do `User` — Aula 2 |
-| namespace com módulo | `Api::V1::SessionsController` — Aula 3 |
-| `rescue` | tratamento de erro da API — Aula 3 |
-| `ENV.fetch` | `config/deploy.yml` — Aula 4 |
+| símbolo, hash | `params[:email]`, validações (Aula 2 e 3) |
+| bloco | `each`, `map`, `User.transaction do` (Aula 2) |
+| `?` e `!` | `user.save!`, `valid?` (Aula 2) |
+| `&.` e `\|\|=` | tratamento de `nil` nos controllers (Aula 3) |
+| argumento nomeado + atalho 3.1 | todo service (Aula 3) |
+| `Struct` | o retorno de todo service (Aula 3) |
+| módulo / `include` | os concerns do `User` (Aula 2) |
+| namespace com módulo | `Api::V1::SessionsController` (Aula 3) |
+| `rescue` | tratamento de erro da API (Aula 3) |
+| `ENV.fetch` | `config/deploy.yml` (Aula 4) |
 
 ---
 
-### Prática 2 — Ruby no `irb`
+### Prática 2: Ruby no `irb`
 
-> **~10 minutos.** Não pule: é a única vez na capacitação em que você mexe em Ruby sem Rails no
-> caminho, e é aqui que a sintaxe entra.
+> Não pule esta: é a única vez na capacitação em que você mexe em Ruby sem Rails no caminho, e é
+> aqui que a sintaxe entra.
 
 Abra o console interativo:
 
@@ -761,7 +761,7 @@ Responda para você mesmo por que `usuario["nome"]` deu `nil`.
 %w[ana bia caio].each { |n| puts n.capitalize }
 ```
 
-`%w[...]` é o atalho para array de strings — aparece bastante em código Rails.
+`%w[...]` é o atalho para array de strings: aparece bastante em código Rails.
 
 **e) Nil, e como não apanhar dele**
 
@@ -796,7 +796,7 @@ r.errors
 
 **h) Avançado: escreva um módulo e inclua numa classe**
 
-Faça isto sem olhar a seção 5.13 — e depois confira.
+Faça isto sem olhar a seção 5.13, e depois confira.
 
 ```ruby
 module Saudavel
@@ -831,7 +831,7 @@ Pessoa.new("Ana").cumprimentar
 
 ## 6. Rails
 
-Framework web em Ruby, criado por **David Heinemeier Hansson** em 2004 — extraído do Basecamp, um
+Framework web em Ruby, criado por **David Heinemeier Hansson** em 2004: extraído do Basecamp, um
 produto real. Traz tudo junto: rotas, banco, e-mail, filas, testes, deploy. Estamos na versão 8.
 
 ### As duas leis
@@ -840,7 +840,7 @@ produto real. Traz tudo junto: rotas, banco, e-mail, filas, testes, deploy. Esta
 `User`? Então a tabela é `users`, o arquivo é `user.rb`, a chave primária é `id`. Ninguém precisa
 dizer. Seguindo a convenção você escreve quase nada; brigando com ela, o dobro.
 
-**DRY** — *Don't Repeat Yourself*. Cada regra existe num lugar só.
+**DRY**: *Don't Repeat Yourself*. Cada regra existe num lugar só.
 
 E uma atitude: **omakase**, "deixa comigo, chef". O Rails já escolheu as ferramentas por você. Você
 pode trocar, mas só troque quando tiver um motivo real. Isso é liberdade: sobra tempo pro problema
@@ -862,10 +862,10 @@ encaixadas.
 
 ### MVC
 
-- **Model** — os dados e as regras. Conversa com o banco.
-- **View** — a tela. Na nossa API, é o JSON.
-- **Controller** — recebe a requisição e decide o que fazer.
-- **Rota** — o mapa: este endereço vai para aquele controller.
+- **Model**: os dados e as regras. Conversa com o banco.
+- **View**: a tela. Na nossa API, é o JSON.
+- **Controller**: recebe a requisição e decide o que fazer.
+- **Rota**: o mapa. Este endereço vai para aquele controller.
 
 O caminho é sempre: **rota → controller → model → resposta**.
 
@@ -880,7 +880,7 @@ O **Zeitwerk** carrega a classe no instante em que você a menciona, e descobre 
 Api::V1::StatusController  →  app/controllers/api/v1/status_controller.rb
 ```
 
-Errou o caminho, a classe simplesmente não existe. Não é questão de estilo — é o mecanismo que faz
+Errou o caminho, a classe simplesmente não existe. Não é questão de estilo: é o mecanismo que faz
 "convenção sobre configuração" funcionar de verdade.
 
 ### Os três ambientes
@@ -893,7 +893,7 @@ Errou o caminho, a classe simplesmente não existe. Não é questão de estilo �
 
 Cada um tem um arquivo em `config/environments/`. `Rails.env` diz onde você está.
 
-É assim que o e-mail abre no navegador em desenvolvimento e sai por SMTP em produção — mesmo
+É assim que o e-mail abre no navegador em desenvolvimento e sai por SMTP em produção: mesmo
 código, ambientes diferentes.
 
 ---
@@ -909,8 +909,8 @@ rails new automic_auth_api --api -d postgresql \
 cd automic_auth_api
 ```
 
-- `--api` — sem HTML, sem CSS, sem sessão de navegador. Só JSON.
-- `-d postgresql` — o mesmo banco que usamos em produção.
+- `--api`: sem HTML, sem CSS, sem sessão de navegador. Só JSON.
+- `-d postgresql`: o mesmo banco que usamos em produção.
 - Os `--skip` tiram peças que não vamos usar. Cada peça a menos é uma peça a menos para dar
   problema.
 
@@ -1038,13 +1038,11 @@ Sete práticas, em ordem crescente. As duas primeiras você já fez no meio da a
 | 7 | Commit e GitHub | aqui |
 
 > **Onde você trabalha**: no **seu** projeto, que você cria na Prática 3. O repositório da
-> capacitação é o **gabarito** — abra para consultar, não para escrever.
+> capacitação é o **gabarito**: abra para consultar, não para escrever.
 
 ---
 
-### Prática 3 — Crie o seu projeto
-
-> **~10 minutos.**
+### Prática 3: Crie o seu projeto
 
 ```bash
 cd ~
@@ -1069,7 +1067,7 @@ bin/rails -v            # Rails 8.1.x
 
 | Erro | Causa | Saída |
 |---|---|---|
-| `rails: command not found` | o `mise` não está ativo neste shell | `exec bash`, depois `which ruby` — tem que apontar para dentro de `~/.local/share/mise` |
+| `rails: command not found` | o `mise` não está ativo neste shell | `exec bash`, depois `which ruby`: tem que apontar para dentro de `~/.local/share/mise` |
 | `Could not find gem 'rails'` | Ruby do sistema, não o do `mise` | `mise use -g ruby@3.4.9` e `gem install rails` |
 | `You don't have write permissions` | você está usando o Ruby do sistema com `sudo` | **nunca** use `sudo gem install`; conserte o `mise` |
 | a pasta `automic_auth_api` já existe | você rodou duas vezes | `rm -rf ~/automic_auth_api` e refaça, ou escolha outro nome |
@@ -1077,9 +1075,9 @@ bin/rails -v            # Rails 8.1.x
 
 ---
 
-### Prática 4 — Suba o banco e a aplicação
+### Prática 4: Suba o banco e a aplicação
 
-> **~15 minutos.** É a prática em que mais gente trava, e quase sempre é porta ocupada.
+> É a prática em que mais gente trava, e quase sempre é porta ocupada.
 
 Crie um arquivo `compose.yaml` na raiz do projeto:
 
@@ -1125,7 +1123,7 @@ bin/rails server
 
 **Se der errado**
 
-> Esta é, de longe, a prática em que mais gente trava — em toda turma, em qualquer material. Os dois
+> Esta é, de longe, a prática em que mais gente trava: em toda turma, em qualquer material. Os dois
 > erros de sempre são porta ocupada e permissão do Docker, e **nenhum dos dois é sobre programar**.
 > São detalhes de ambiente que todo mundo enfrenta uma vez na vida e depois nunca mais. Achou o seu
 > na tabela? Resolve em dois minutos.
@@ -1135,7 +1133,7 @@ bin/rails server
 | `address already in use` na 5432 | você já tem um Postgres na máquina | `DB_PORT=5433 docker compose up -d` e `export DB_PORT=5433` **no mesmo shell** do `rails` |
 | `permission denied` no `docker` | você não está no grupo `docker` | `sudo usermod -aG docker $USER`, e **saia e entre de novo** (reabrir o terminal não basta) |
 | `docker: command not found` no WSL2 | falta a integração do Docker Desktop | Docker Desktop → Settings → Resources → WSL Integration → habilite a distro |
-| `PG::ConnectionBad: could not connect` | o container ainda não subiu, ou a porta não bate | `docker compose ps` — o status tem que ser `healthy`, não `starting` |
+| `PG::ConnectionBad: could not connect` | o container ainda não subiu, ou a porta não bate | `docker compose ps`: o status tem que ser `healthy`, não `starting` |
 | `PG::ConnectionBad: password authentication failed` | o `database.yml` não bate com o `compose.yaml` | usuário e senha têm que ser `automic` nos dois |
 | `ActiveRecord::NoDatabaseError` | o banco não foi criado | `bin/rails db:prepare` (ele cria e migra) |
 | a página `/up` fica vermelha | o Rails subiu mas não alcança o banco | é o mesmo problema acima; leia o log do `rails server` |
@@ -1143,9 +1141,9 @@ bin/rails server
 
 ---
 
-### Prática 5 — A sua primeira rota
+### Prática 5: A sua primeira rota
 
-> **~20 minutos.** O coração da aula.
+> O coração da aula.
 
 Em `config/routes.rb`, dentro do `Rails.application.routes.draw do`:
 
@@ -1157,7 +1155,7 @@ namespace :api do
 end
 ```
 
-Crie o arquivo `app/controllers/api/v1/status_controller.rb` — **o caminho tem que ser exatamente
+Crie o arquivo `app/controllers/api/v1/status_controller.rb`: **o caminho tem que ser exatamente
 esse**, é o Zeitwerk que exige:
 
 ```ruby
@@ -1184,12 +1182,12 @@ curl -i localhost:3000/api/v1/status
 ```
 
 Tem que vir `200` e o JSON. Depois monte a mesma requisição no Insomnia e confira o status ali
-também — é a ferramenta que você vai usar nas Aulas 3 e 4.
+também: é a ferramenta que você vai usar nas Aulas 3 e 4.
 
 **Se der errado**
 
 > O erro campeão aqui é `uninitialized constant`. Ele assusta porque parece dizer que a sua classe
-> não existe — e o que ele está dizendo, na verdade, é *"procurei no caminho que o nome promete e
+> não existe, e o que ele está dizendo, na verdade, é *"procurei no caminho que o nome promete e
 > não achei"*. É o Zeitwerk da seção 6, e a correção é sempre no nome do arquivo ou da pasta.
 
 | Erro | Causa | Saída |
@@ -1204,10 +1202,10 @@ também — é a ferramenta que você vai usar nas Aulas 3 e 4.
 
 ---
 
-### Prática 6 — O teste
+### Prática 6: O teste
 
-> **~10 minutos.** Um teste que você escreve hoje é o que vai te avisar, na Aula 4, que o deploy
-> quebrou alguma coisa.
+> Um teste que você escreve hoje é o que vai te avisar, na Aula 4, que o deploy quebrou alguma
+> coisa.
 
 Crie `test/controllers/api/v1/status_controller_test.rb`:
 
@@ -1245,10 +1243,10 @@ Ver o teste falhar é o que prova que ele está realmente testando alguma coisa.
 
 ---
 
-### Prática 7 — Commit e GitHub
+### Prática 7: Commit e GitHub
 
-> **~10 minutos.** Não é opcional: na Aula 4 o CI roda no **seu** repositório e a imagem Docker vai
-> para a **sua** conta.
+> Não é opcional: na Aula 4 o CI roda no **seu** repositório e a imagem Docker vai para a **sua**
+> conta.
 
 ```bash
 git add -A
@@ -1304,7 +1302,7 @@ cat app/controllers/api/v1/status_controller.rb
 
 - Back-end é a cozinha: regra, dado e permissão.
 - HTTP é o idioma; verbo, status e JSON são o vocabulário.
-- HTTP não tem memória — segure essa ponta até a Aula 3.
+- HTTP não tem memória: segure essa ponta até a Aula 3.
 - Ruby é Python com outra sintaxe e mais açúcar.
 - Rails decide o óbvio por você. Siga a convenção.
 

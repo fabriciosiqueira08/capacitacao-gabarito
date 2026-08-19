@@ -157,7 +157,7 @@ slides:
       # O nome disso é mass assignment.
 
   - tipo: pratica
-    titulo: "PRÁTICA 1 — TRAGA O CÓDIGO E LEIA"
+    titulo: "PRÁTICA 1: TRAGA O CÓDIGO E LEIA"
     bullets:
       - "rsync do gabarito aula-03, bundle install, db:migrate."
       - "Confere: bin/rails test  ->  71 verdes. NÃO siga sem isso."
@@ -203,7 +203,7 @@ slides:
       Este assunto volta mais três vezes hoje. Vale marcar.
 
   - tipo: pratica
-    titulo: "PRÁTICA 2 — CADASTRO NO TERMINAL"
+    titulo: "PRÁTICA 2: CADASTRO NO TERMINAL"
     bullets:
       - "curl -i -X POST $API/registrations com o JSON completo."
       - "Confere: 201, e o e-mail abriu no navegador. ANOTE o código."
@@ -255,7 +255,7 @@ slides:
       - "Por isso o service tem rescue: falha de envio não pode virar 500."
 
   - tipo: pratica
-    titulo: "PRÁTICA 3 — O E-MAIL E A CONFIRMAÇÃO"
+    titulo: "PRÁTICA 3: O E-MAIL E A CONFIRMAÇÃO"
     bullets:
       - "Tente logar ANTES de confirmar. Confere: 403 email_unverified."
       - "A senha está certa. O que falta é a conta estar ativa."
@@ -425,7 +425,7 @@ slides:
       - "- e em 100ms no outro."
 
   - tipo: pratica
-    titulo: "PRÁTICA 4 — LOGIN, E O TOKEN NA MÃO"
+    titulo: "PRÁTICA 4: LOGIN, E O TOKEN NA MÃO"
     bullets:
       - "Faça login e capture o token do cabeçalho Authorization."
       - "curl $API/me -H \"Authorization: Bearer $TOKEN\"  ->  200"
@@ -513,7 +513,7 @@ slides:
       end
 
   - tipo: pratica
-    titulo: "PRÁTICA 5 — LOGOUT QUE REVOGA DE VERDADE"
+    titulo: "PRÁTICA 5: LOGOUT QUE REVOGA DE VERDADE"
     bullets:
       - "DELETE /sessions com o token."
       - "Depois: curl -i $API/me com o MESMO token."
@@ -579,7 +579,7 @@ slides:
       - "- sem essa linha, ele continua logado com o token antigo"
 
   - tipo: pratica
-    titulo: "PRÁTICA 6 — RECUPERAÇÃO DE SENHA"
+    titulo: "PRÁTICA 6: RECUPERAÇÃO DE SENHA"
     bullets:
       - "Faça login, guarde o token. Peça a recuperação e confirme a nova senha."
       - "Depois chame /me com o token ANTIGO."
@@ -638,7 +638,7 @@ slides:
       - "Na prática, existe por causa do painel web."
 
   - tipo: pratica
-    titulo: "PRÁTICA 7 — TESTES E QUALIDADE"
+    titulo: "PRÁTICA 7: TESTES E QUALIDADE"
     bullets:
       - "bin/rails test · bin/rubocop · bin/brakeman --no-pager"
       - "Agora QUEBRE: comente a linha da denylist no authentication.rb."
@@ -653,7 +653,7 @@ slides:
       git checkout . desfaz tudo o que não foi commitado, se alguém se perder.
 
   - tipo: pratica
-    titulo: "PRÁTICA 8 — AVANÇADO: QUEBRE A ASSINATURA"
+    titulo: "PRÁTICA 8: AVANÇADO: QUEBRE A ASSINATURA"
     bullets:
       - "Em decode_token.rb, troque o true por false (é o \"verifique a assinatura?\")."
       - "Forje um token assinado com OUTRO segredo, pelo rails runner."

@@ -7,7 +7,7 @@
 <style>@page { @bottom-left { content: "Capacitação Back-end · roteiro do instrutor"; } }</style>
 </head>
 <body><main>
-<h1 id="roteiro-aula-3-as-rotas-de-autenticacao">Roteiro — Aula 3: as rotas de autenticação</h1>
+<h1 id="roteiro-da-aula-3-as-rotas-de-autenticacao">Roteiro da Aula 3: as rotas de autenticação</h1>
 <p><strong>Deck</strong>: <code>slides/build/aula-03-autenticacao.pptx</code> (66 slides, sendo 8 de prática)
 <strong>Apostila da turma</strong>: <strong><code>03-autenticacao.md</code></strong> · <strong>Checkpoint</strong>: <code>aula-03</code>
 <strong>Antes de tudo</strong>: <strong><code>guia-do-instrutor.md</code></strong> — conduzir a sala, não o conteúdo</p>
@@ -18,7 +18,7 @@ Leia a seção seguinte antes de qualquer outra coisa.</p>
 <hr>
 <h2 id="a-decisao-que-voce-precisa-tomar-antes">A decisão que você precisa tomar antes</h2>
 <p>Você tem duas formas de conduzir esta aula:</p>
-<h3 id="opcao-a-codigo-pronto-leitura-guiada-recomendada">Opção A — código pronto, leitura guiada (recomendada)</h3>
+<h3 id="opcao-a-codigo-pronto-leitura-guiada-recomendada">Opção A: código pronto, leitura guiada (recomendada)</h3>
 <p>No começo da aula, todo mundo copia o código do gabarito para <strong>o próprio projeto</strong>:</p>
 <pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03
 rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
@@ -30,7 +30,7 @@ arquivos projetados, explicando decisão por decisão, com eles acompanhando no 
 <p>A prática vira <strong>modificar</strong> o que já existe, que é o que se faz num emprego de verdade. E o código
 fica no repositório deles, que é de onde a Aula 4 vai fazer o deploy.</p>
 <p>Cabe em ~2h50. É o que este roteiro assume.</p>
-<h3 id="opcao-b-digitar-junto">Opção B — digitar junto</h3>
+<h3 id="opcao-b-digitar-junto">Opção B: digitar junto</h3>
 <p>Só funciona se você tiver 6h ou dividir em dois encontros. Se for por aqui, corte para <strong>três
 rotas</strong>: cadastro, login e logout. Recuperação de senha vira leitura da apostila.</p>
 <hr>
@@ -217,12 +217,12 @@ e são o que diferencia esta capacitação de um tutorial de YouTube.</p>
 </blockquote>
 <hr>
 <h2 id="bloco-a-bloco">Bloco a bloco</h2>
-<h3 id="0000-abertura-e-o-combinado-15">00:00 — Abertura e o combinado (1–5)</h3>
+<h3 id="0000-abertura-e-o-combinado-15">00:00 · Abertura e o combinado (1–5)</h3>
 <p>O slide 3 é o mapa da aula inteira. Deixe ele na tela enquanto fala a regra:</p>
 <blockquote>
 <p><strong>Controller recebe requisição e devolve resposta. Regra de negócio não mora nele.</strong></p>
 </blockquote>
-<h3 id="0010-arquitetura-615">00:10 — Arquitetura (6–15)</h3>
+<h3 id="0010-arquitetura-615">00:10 · Arquitetura (6–15)</h3>
 <p>Abra <code>app/services/users/register.rb</code> projetado e conte as seis coisas que ele faz. Depois pergunte:
 <em>"quanto disso vocês conseguiriam testar sem subir uma requisição HTTP inteira?"</em></p>
 <ul>
@@ -241,17 +241,17 @@ e são o que diferencia esta capacitação de um tutorial de YouTube.</p>
 <li><strong>13</strong> — strong parameters. A frase: <em>"sem isso, alguém manda <code>role: admin</code> no cadastro e vira
   admin. Isso tem nome: mass assignment, e já derrubou sistema grande."</em></li>
 </ul>
-<h3 id="0056-cadastro-1719">00:56 — Cadastro (17–19)</h3>
+<h3 id="0056-cadastro-1719">00:56 · Cadastro (17–19)</h3>
 <p><strong>O slide 19 é o primeiro dos quatro momentos de "enumeração" da aula.</strong> Marque isso: você vai
 voltar nele três vezes, e no fim eles devem conseguir prever a decisão sozinhos.</p>
 <p>Pergunta para a turma antes de virar o slide: <em>"o e-mail já existe. O que a API deve responder?"</em>
 Alguém vai dizer "este e-mail já está cadastrado". Aí você mostra por que não.</p>
-<h3 id="0136-e-mail-2124">01:36 — E-mail (21–24)</h3>
+<h3 id="0136-e-mail-2124">01:36 · E-mail (21–24)</h3>
 <p>Faça o cadastro ao vivo no Insomnia e <strong>mostre o e-mail abrindo no navegador</strong> pelo letter_opener.
 É um daqueles momentos em que a turma acorda.</p>
 <p>No slide 24, a decisão contra o livro-texto: <code>deliver_now</code> porque, numa fila, o código de 6 dígitos
 ficaria gravado <strong>em texto</strong> na tabela de jobs.</p>
-<h3 id="0203-jwt-2633">02:03 — JWT (26–33)</h3>
+<h3 id="0203-jwt-2633">02:03 · JWT (26–33)</h3>
 <p>O bloco conceitual mais denso. Comece pelo problema (27): <em>"lembram que HTTP não tem memória?
 Então como o servidor sabe que vocês já entraram?"</em></p>
 <p><strong>Faça a demo do jwt.io.</strong> Cole o token que você preparou e mostre o payload legível na tela.</p>
@@ -261,7 +261,7 @@ possa ser lido."</em></p>
 </blockquote>
 <p>No <strong>33</strong>, o <code>true</code> do <code>JWT.decode</code>. Diga que já foi CVE em várias bibliotecas, e que eles vão
 brincar com isso na prática.</p>
-<h3 id="0224-login-3441">02:24 — Login (34–41)</h3>
+<h3 id="0224-login-3441">02:24 · Login (34–41)</h3>
 <ul>
 <li><strong>35</strong> — os dois transportes. O <code>client</code> no corpo existe por isso.</li>
 <li><strong>36–37</strong> — o que é cookie, e as três flags.</li>
@@ -269,7 +269,7 @@ brincar com isso na prática.</p>
 <li><strong>41</strong> — o segundo "enumeração": mesma mensagem para e-mail inexistente e senha errada. E o
   <code>DUMMY_PASSWORD_DIGEST</code> da Aula 2 volta, fechando o buraco pelo lado do tempo.</li>
 </ul>
-<h3 id="0305-logout-4349">03:05 — Logout (43–49)</h3>
+<h3 id="0305-logout-4349">03:05 · Logout (43–49)</h3>
 <p><strong>O ponto alto.</strong> Conduza como um problema, não como uma solução.</p>
 <ol>
 <li>Pergunte: <em>"o token vale 24h e o servidor não guarda sessão. O que 'sair' significa?"</em></li>
@@ -286,14 +286,14 @@ curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;        # 200
 curl -X DELETE $API/sessions -H &quot;Authorization: Bearer $TOKEN&quot;
 curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;     # 401
 </code></pre>
-<h3 id="0342-recuperacao-de-senha-5156">03:42 — Recuperação de senha (51–56)</h3>
+<h3 id="0342-recuperacao-de-senha-5156">03:42 · Recuperação de senha (51–56)</h3>
 <p>Terceiro e quarto "enumeração" (53). A essa altura, <strong>pergunte antes</strong>: <em>"o e-mail não existe. O que
 respondemos?"</em> Eles devem acertar sozinhos.</p>
 <p>O slide 55 amarra com a Aula 2: a transação. E o 56 tem o ponto do fluxo inteiro —
 <code>invalidate_sessions!</code>: <em>"se alguém invadiu a conta, trocar a senha tem que expulsar o invasor.
 Sem essa linha, ele continua logado."</em></p>
 <p>Demonstre: faça o reset e mostre o token antigo virando 401.</p>
-<h3 id="0418-testes-ferramentas-e-cors-5862">04:18 — Testes, ferramentas e CORS (58–62)</h3>
+<h3 id="0418-testes-ferramentas-e-cors-5862">04:18 · Testes, ferramentas e CORS (58–62)</h3>
 <p>Rápido, e é o que amarra com a Aula 4.</p>
 <ul>
 <li><strong>59</strong> — o teste que resume a aula: login → logout → <code>/me</code> dá 401. Projete-o.</li>

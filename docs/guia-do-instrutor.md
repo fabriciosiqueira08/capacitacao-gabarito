@@ -1,4 +1,4 @@
-# Guia do instrutor — conduzir, não apresentar
+# Guia do instrutor: conduzir, não apresentar
 
 Os quatro roteiros dizem **o que** falar e **quando**. Este documento é sobre a outra metade: você,
 na frente de uma sala, por três horas, com gente que confia que você sabe.

@@ -1,4 +1,4 @@
-# Roteiro — Aula 3: as rotas de autenticação
+# Roteiro da Aula 3: as rotas de autenticação
 
 **Deck**: `slides/build/aula-03-autenticacao.pptx` (66 slides, sendo 8 de prática)
 **Apostila da turma**: [`03-autenticacao.md`](03-autenticacao.md) · **Checkpoint**: `aula-03`
@@ -13,7 +13,7 @@
 
 Você tem duas formas de conduzir esta aula:
 
-### Opção A — código pronto, leitura guiada (recomendada)
+### Opção A: código pronto, leitura guiada (recomendada)
 
 No começo da aula, todo mundo copia o código do gabarito para **o próprio projeto**:
 
@@ -32,7 +32,7 @@ fica no repositório deles, que é de onde a Aula 4 vai fazer o deploy.
 
 Cabe em ~2h50. É o que este roteiro assume.
 
-### Opção B — digitar junto
+### Opção B: digitar junto
 
 Só funciona se você tiver 6h ou dividir em dois encontros. Se for por aqui, corte para **três
 rotas**: cadastro, login e logout. Recuperação de senha vira leitura da apostila.
@@ -98,13 +98,13 @@ Cortando de 1 a 4, fecha em **4h07**. Cortando os sete, **3h19**.
 
 ## Bloco a bloco
 
-### 00:00 — Abertura e o combinado (1–5)
+### 00:00 · Abertura e o combinado (1–5)
 
 O slide 3 é o mapa da aula inteira. Deixe ele na tela enquanto fala a regra:
 
 > **Controller recebe requisição e devolve resposta. Regra de negócio não mora nele.**
 
-### 00:10 — Arquitetura (6–15)
+### 00:10 · Arquitetura (6–15)
 
 Abra `app/services/users/register.rb` projetado e conte as seis coisas que ele faz. Depois pergunte:
 *"quanto disso vocês conseguiriam testar sem subir uma requisição HTTP inteira?"*
@@ -127,7 +127,7 @@ Abra `app/services/users/register.rb` projetado e conte as seis coisas que ele f
 - **13** — strong parameters. A frase: *"sem isso, alguém manda `role: admin` no cadastro e vira
   admin. Isso tem nome: mass assignment, e já derrubou sistema grande."*
 
-### 00:56 — Cadastro (17–19)
+### 00:56 · Cadastro (17–19)
 
 **O slide 19 é o primeiro dos quatro momentos de "enumeração" da aula.** Marque isso: você vai
 voltar nele três vezes, e no fim eles devem conseguir prever a decisão sozinhos.
@@ -135,7 +135,7 @@ voltar nele três vezes, e no fim eles devem conseguir prever a decisão sozinho
 Pergunta para a turma antes de virar o slide: *"o e-mail já existe. O que a API deve responder?"*
 Alguém vai dizer "este e-mail já está cadastrado". Aí você mostra por que não.
 
-### 01:36 — E-mail (21–24)
+### 01:36 · E-mail (21–24)
 
 Faça o cadastro ao vivo no Insomnia e **mostre o e-mail abrindo no navegador** pelo letter_opener.
 É um daqueles momentos em que a turma acorda.
@@ -143,7 +143,7 @@ Faça o cadastro ao vivo no Insomnia e **mostre o e-mail abrindo no navegador** 
 No slide 24, a decisão contra o livro-texto: `deliver_now` porque, numa fila, o código de 6 dígitos
 ficaria gravado **em texto** na tabela de jobs.
 
-### 02:03 — JWT (26–33)
+### 02:03 · JWT (26–33)
 
 O bloco conceitual mais denso. Comece pelo problema (27): *"lembram que HTTP não tem memória?
 Então como o servidor sabe que vocês já entraram?"*
@@ -156,7 +156,7 @@ Então como o servidor sabe que vocês já entraram?"*
 No **33**, o `true` do `JWT.decode`. Diga que já foi CVE em várias bibliotecas, e que eles vão
 brincar com isso na prática.
 
-### 02:24 — Login (34–41)
+### 02:24 · Login (34–41)
 
 - **35** — os dois transportes. O `client` no corpo existe por isso.
 - **36–37** — o que é cookie, e as três flags.
@@ -164,7 +164,7 @@ brincar com isso na prática.
 - **41** — o segundo "enumeração": mesma mensagem para e-mail inexistente e senha errada. E o
   `DUMMY_PASSWORD_DIGEST` da Aula 2 volta, fechando o buraco pelo lado do tempo.
 
-### 03:05 — Logout (43–49)
+### 03:05 · Logout (43–49)
 
 **O ponto alto.** Conduza como um problema, não como uma solução.
 
@@ -185,7 +185,7 @@ curl -X DELETE $API/sessions -H "Authorization: Bearer $TOKEN"
 curl -i $API/me -H "Authorization: Bearer $TOKEN"     # 401
 ```
 
-### 03:42 — Recuperação de senha (51–56)
+### 03:42 · Recuperação de senha (51–56)
 
 Terceiro e quarto "enumeração" (53). A essa altura, **pergunte antes**: *"o e-mail não existe. O que
 respondemos?"* Eles devem acertar sozinhos.
@@ -196,7 +196,7 @@ Sem essa linha, ele continua logado."*
 
 Demonstre: faça o reset e mostre o token antigo virando 401.
 
-### 04:18 — Testes, ferramentas e CORS (58–62)
+### 04:18 · Testes, ferramentas e CORS (58–62)
 
 Rápido, e é o que amarra com a Aula 4.
 

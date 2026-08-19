@@ -83,7 +83,7 @@ slides:
       - "- DB_PORT=5433 docker compose up -d"
 
   - tipo: pratica
-    titulo: "PRÁTICA 1 — O BANCO DE PÉ, E O BCRYPT"
+    titulo: "PRÁTICA 1: O BANCO DE PÉ, E O BCRYPT"
     bullets:
       - "docker compose up -d  ->  o status tem que ser healthy."
       - "No Gemfile: gem \"bcrypt\", \"~> 3.1.7\"  e  bundle install"
@@ -216,7 +216,7 @@ slides:
       - "Nunca edite migration que já rodou em produção. Crie outra."
 
   - tipo: pratica
-    titulo: "PRÁTICA 2 — AS TRÊS MIGRATIONS"
+    titulo: "PRÁTICA 2: AS TRÊS MIGRATIONS"
     bullets:
       - "generate migration CreateUsers / AddEmailVerification / AddPasswordReset"
       - "Uma de cada vez, e db:migrate entre elas."
@@ -286,7 +286,7 @@ slides:
       # A senha em texto NUNCA toca o banco.
 
   - tipo: pratica
-    titulo: "PRÁTICA 3 — O BCRYPT NO CONSOLE"
+    titulo: "PRÁTICA 3: O BCRYPT NO CONSOLE"
     bullets:
       - "BCrypt::Password.create(\"Automic@2026\") duas vezes. Deu diferente?"
       - "Isso é o salt. Ninguém descobre que dois usuários têm a mesma senha."
@@ -337,7 +337,7 @@ slides:
       - "- o banco acha que são valores diferentes."
 
   - tipo: pratica
-    titulo: "PRÁTICAS 4 E 5 — O VALIDADOR E O MODEL"
+    titulo: "PRÁTICAS 4 E 5: O VALIDADOR E O MODEL"
     bullets:
       - "app/validators/password_policy_validator.rb — o seu primeiro arquivo Ruby."
       - "Confere: validate(\"abc\") devolve a lista; validate(\"Automic@2026\") devolve []"
@@ -432,7 +432,7 @@ slides:
       - "É o problema de performance nº 1 de app Rails. E o mais fácil de achar."
 
   - tipo: pratica
-    titulo: "PRÁTICA 6 — A SEGUNDA TABELA"
+    titulo: "PRÁTICA 6: A SEGUNDA TABELA"
     bullets:
       - "generate migration CreateLoginEvents, e o model LoginEvent."
       - "belongs_to :user de um lado, has_many :login_events do outro."
@@ -495,7 +495,7 @@ slides:
       - "- booleano responde 'sim'; data responde 'sim, dia 12 às 14h'."
 
   - tipo: pratica
-    titulo: "PRÁTICA 7 — OS DOIS CONCERNS"
+    titulo: "PRÁTICA 7: OS DOIS CONCERNS"
     bullets:
       - "app/models/concerns/email_verifiable.rb e password_resettable.rb"
       - "include os dois no User."
@@ -567,7 +567,7 @@ slides:
       Guardar esse método: ele é usado na Aula 3, no login.
 
   - tipo: pratica
-    titulo: "PRÁTICA 8 — FIXTURES, TESTES E COMMIT"
+    titulo: "PRÁTICA 8: FIXTURES, TESTES E COMMIT"
     bullets:
       - "test/fixtures/users.yml com dois usuários: um verificado, outro não."
       - "Escreva os testes do User, dos concerns, do validador e do LoginEvent."

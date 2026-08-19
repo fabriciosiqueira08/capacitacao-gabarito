@@ -7,27 +7,27 @@
 <style>@page { @bottom-left { content: "Capacitação Back-end · Automic Jr."; } }</style>
 </head>
 <body><main>
-<h1 id="aula-1-o-que-e-back-end-ruby-e-o-primeiro-rails">Aula 1 — O que é back-end, Ruby e o primeiro Rails</h1>
-<p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: uma API respondendo <code>GET /api/v1/status</code>.
+<h1 id="aula-1-o-que-e-back-end-ruby-e-o-primeiro-rails">Aula 1: O que é back-end, Ruby e o primeiro Rails</h1>
+<p><strong>Você sai daqui com</strong>: uma API respondendo <code>GET /api/v1/status</code>.
 <strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-01</code></p>
 <p>Pré-requisitos instalados em <strong><code>00-preparacao.md</code></strong>.</p>
 <hr>
 <h2 id="antes-de-tudo-como-usar-esta-apostila">Antes de tudo: como usar esta apostila</h2>
-<p>Você não precisa entender tudo hoje. <strong>Precisa fazer funcionar hoje</strong> — o entendimento vem
+<p>Você não precisa entender tudo hoje. <strong>Precisa fazer funcionar hoje</strong>: o entendimento vem
 completando os buracos nas próximas semanas, e é assim mesmo que se aprende back-end.</p>
 <p>Três coisas que vale saber antes de começar:</p>
 <p><strong>Você vai travar.</strong> Não é sinal de que você não serve para isso; é o trabalho. A diferença entre
-quem começou ontem e quem faz isso há dez anos não é travar menos — é travar melhor, e ler a
+quem começou ontem e quem faz isso há dez anos não é travar menos: é travar melhor, e ler a
 mensagem de erro em vez de entrar em pânico. Toda prática desta apostila termina com uma tabela
 <strong>Se der errado</strong>, com os erros que acontecem de verdade. Ela existe exatamente para isso.</p>
 <p><strong>As práticas são a aula.</strong> Os textos entre elas explicam o porquê; as práticas é que fixam. Se o
 tempo apertar e você tiver que escolher, escolha fazer.</p>
 <p><strong>Perguntar é rápido.</strong> Se você travou por mais de dez minutos no mesmo ponto, pergunte. Ninguém vai
-achar a pergunta boba — e quem está do seu lado provavelmente está no mesmo lugar, calado.</p>
+achar a pergunta boba, e quem está do seu lado provavelmente está no mesmo lugar, calado.</p>
 <blockquote>
 <p>Uma nota sobre o tom: esta apostila afirma as coisas com bastante convicção, porque explicar com
 mil ressalvas fica ilegível. Mas quase toda decisão aqui tem alternativa razoável. Quando você
-discordar de alguma, <strong>pergunta</strong> — essa conversa costuma valer mais que o parágrafo.</p>
+discordar de alguma, <strong>pergunta</strong>: essa conversa costuma valer mais que o parágrafo.</p>
 </blockquote>
 <hr>
 <h2 id="1-os-dois-lados">1. Os dois lados</h2>
@@ -63,7 +63,7 @@ usuários e conversa com outros sistemas (e-mail, pagamento, mapas).</p>
 <p><strong>Por que isso não pode viver no front?</strong> Porque tudo que roda no navegador o usuário consegue ler
 e alterar. A validação de senha no front é conveniência; a que vale é a do back.</p>
 <blockquote>
-<p><strong>A analogia</strong>: o salão do restaurante é o front-end — mesa, cardápio, garçom. A cozinha é o
+<p><strong>A analogia</strong>: o salão do restaurante é o front-end. Mesa, cardápio, garçom. A cozinha é o
 back-end: ninguém entra, mas é lá que a comida sai. O pedido é a requisição, o prato é a
 resposta. Você não pede pra ver a receita; você pede o prato.</p>
 </blockquote>
@@ -71,7 +71,7 @@ resposta. Você não pede pra ver a receita; você pede o prato.</p>
 <h2 id="2-a-rede-o-minimo-necessario">2. A rede, o mínimo necessário</h2>
 <h3 id="o-que-e-um-servidor-afinal">O que é um servidor, afinal</h3>
 <p>Não é uma máquina especial. É um <strong>programa esperando</strong>: ele fica ligado, escutando numa porta, e
-responde ao que chegar ali. <code>bin/rails server</code> sobe esse programa na porta 3000 — na sua máquina ou
+responde ao que chegar ali. <code>bin/rails server</code> sobe esse programa na porta 3000: na sua máquina ou
 numa VM na nuvem, é o mesmo programa.</p>
 <h3 id="ip-e-porta">IP e porta</h3>
 <p><strong>IP</strong> é o endereço da máquina (<code>57.156.65.151</code>). <strong>Porta</strong> é a sala dentro dela: um número de 1 a
@@ -106,12 +106,12 @@ numa VM na nuvem, é o mesmo programa.</p>
 </tr>
 </tbody>
 </table>
-<p><code>127.0.0.1</code> — o <code>localhost</code> — significa sempre "esta máquina aqui". Na Aula 4 vamos abrir e fechar
+<p><code>127.0.0.1</code> (o <code>localhost</code>) significa sempre "esta máquina aqui". Na Aula 4 vamos abrir e fechar
 portas na mão, no firewall de um servidor Linux.</p>
 <h3 id="dns">DNS</h3>
 <p>Ninguém decora <code>57.156.65.151</code>. O <strong>DNS</strong> é a agenda telefônica da internet: você digita
 <code>api.seemxxiii.tech</code> e alguém pergunta ao DNS qual é o IP.</p>
-<p>A resposta fica em cache por um tempo — o <strong>TTL</strong>. É por isso que apontar um domínio para outro
+<p>A resposta fica em cache por um tempo: o <strong>TTL</strong>. É por isso que apontar um domínio para outro
 servidor não vale na hora. Na Aula 4 você vai criar um desses registros.</p>
 <h3 id="anatomia-de-uma-url">Anatomia de uma URL</h3>
 <pre><code>https :// api.seemxxiii.tech : 443 /api/v1/lectures ?page=2 #topo
@@ -119,15 +119,15 @@ servidor não vale na hora. Na Aula 4 você vai criar um desses registros.</p>
 esquema        host          porta     caminho      query  fragmento
 </code></pre>
 <ul>
-<li><strong>Esquema</strong> — o protocolo: <code>http</code>, <code>https</code>, <code>ssh</code>, <code>postgres</code>.</li>
-<li><strong>Porta</strong> — opcional. <code>http</code> assume 80, <code>https</code> assume 443.</li>
-<li><strong>Fragmento</strong> — nunca vai para o servidor; é só para o navegador.</li>
+<li><strong>Esquema</strong>: o protocolo. <code>http</code>, <code>https</code>, <code>ssh</code>, <code>postgres</code>.</li>
+<li><strong>Porta</strong>: opcional. <code>http</code> assume 80, <code>https</code> assume 443.</li>
+<li><strong>Fragmento</strong>: nunca vai para o servidor; é só para o navegador.</li>
 </ul>
 <p>É por isso que <code>localhost:3000</code> tem os dois pontos: a porta não é a padrão.</p>
 <hr>
 <h2 id="3-http">3. HTTP</h2>
 <p>Cliente é quem pede (navegador, app, outro servidor). Servidor é quem responde. <strong>O cliente sempre
-começa a conversa</strong> — o servidor nunca liga primeiro.</p>
+começa a conversa</strong>: o servidor nunca liga primeiro.</p>
 <p>Uma <strong>requisição</strong> tem método, caminho, cabeçalhos e corpo. Uma <strong>resposta</strong> tem status, cabeçalhos
 e corpo.</p>
 <h3 id="como-ela-e-por-dentro">Como ela é, por dentro</h3>
@@ -159,7 +159,7 @@ Accept: application/json              ┘
 </tr>
 <tr>
 <td><code>Authorization</code></td>
-<td>Quem sou eu — vai ser o nosso token, na Aula 3</td>
+<td>Quem sou eu (vai ser o nosso token, na Aula 3)</td>
 </tr>
 <tr>
 <td><code>Set-Cookie</code> / <code>Cookie</code></td>
@@ -244,10 +244,10 @@ quem começa: vem <code>400</code> e a mensagem não ajuda em nada. Por isso tod
 <p>Cada requisição começa do zero. O servidor esquece tudo entre uma e outra.</p>
 <p><strong>Guarde essa frase.</strong> Ela é o problema inteiro da Aula 3: se o servidor esquece tudo, como ele
 sabe que você já fez login?</p>
-<h3 id="pratica-1-http-com-as-proprias-maos">Prática 1 — HTTP com as próprias mãos</h3>
+<h3 id="pratica-1-http-com-as-proprias-maos">Prática 1: HTTP com as próprias mãos</h3>
 <blockquote>
-<p><strong>~10 minutos.</strong> É a primeira vez que você fala com um servidor sem navegador no meio. Faça
-comando por comando, e <strong>leia a saída</strong> de cada um antes de passar para o próximo.</p>
+<p>É a primeira vez que você fala com um servidor sem navegador no meio. Faça comando por comando,
+e <strong>leia a saída</strong> de cada um antes de passar para o próximo.</p>
 </blockquote>
 <p><strong>a) A requisição mais simples que existe</strong></p>
 <pre><code class="language-bash">curl -i https://api.seemxxiii.tech/api/v1/status
@@ -257,16 +257,16 @@ content-type: application/json; charset=utf-8
 
 {&quot;status&quot;:&quot;ok&quot;,&quot;service&quot;:&quot;seem-backend&quot;}
 </code></pre>
-<p>O <code>-i</code> manda o <code>curl</code> mostrar os <strong>cabeçalhos</strong> junto com o corpo. Isso é uma API real, no ar — é
+<p>O <code>-i</code> manda o <code>curl</code> mostrar os <strong>cabeçalhos</strong> junto com o corpo. Isso é uma API real, no ar: é
 exatamente o que você vai construir.</p>
 <p><strong>b) Veja a requisição inteira, dos dois lados</strong></p>
 <pre><code class="language-bash">curl -v https://api.seemxxiii.tech/api/v1/status
 </code></pre>
 <p>Linhas com <code>&gt;</code> são o que <strong>você mandou</strong>; com <code>&lt;</code>, o que o <strong>servidor respondeu</strong>. Ache no meio:</p>
 <ul>
-<li>a linha <code>&gt; GET /api/v1/status HTTP/2</code> — o método e o caminho</li>
-<li>o cabeçalho <code>&gt; user-agent: curl/...</code> — quem você disse que era</li>
-<li>a linha <code>&lt; HTTP/2 200</code> — o status</li>
+<li>a linha <code>&gt; GET /api/v1/status HTTP/2</code>: o método e o caminho</li>
+<li>o cabeçalho <code>&gt; user-agent: curl/...</code>: quem você disse que era</li>
+<li>a linha <code>&lt; HTTP/2 200</code>: o status</li>
 </ul>
 <p><strong>c) Provoque um erro de propósito</strong></p>
 <blockquote>
@@ -276,7 +276,7 @@ transforma "vi acontecer" em "entendi".</p>
 </blockquote>
 <pre><code class="language-bash">curl -i https://api.seemxxiii.tech/api/v1/rota-que-nao-existe
 </code></pre>
-<p>Veio <code>404</code>. Repare que o servidor <strong>respondeu</strong> — 404 não é "deu erro de conexão", é uma resposta
+<p>Veio <code>404</code>. Repare que o servidor <strong>respondeu</strong>: 404 não é "deu erro de conexão", é uma resposta
 perfeitamente bem-sucedida dizendo "esse recurso não existe".</p>
 <p><strong>d) Só os cabeçalhos</strong></p>
 <pre><code class="language-bash">curl -I https://api.seemxxiii.tech/api/v1/status
@@ -289,7 +289,7 @@ de pé sem baixar a página inteira.</p>
   -d '{&quot;oi&quot;: true}'
 </code></pre>
 <p>A rota de status só aceita <code>GET</code>, então você vai levar um <code>404</code> ou <code>405</code>. <strong>O ponto não é o sucesso</strong>
-— é você ter montado uma requisição com método, cabeçalho e corpo na mão, que é o que o Insomnia faz
+é você ter montado uma requisição com método, cabeçalho e corpo na mão, que é o que o Insomnia faz
 por baixo.</p>
 <p><strong>Confere</strong>: você consegue apontar, na saída do <code>-v</code>, onde termina a sua requisição e onde começa a
 resposta. E consegue dizer o que significa cada um dos três números que viu: 200, 404 e o do POST.</p>
@@ -316,7 +316,7 @@ resposta. E consegue dizer o que significa cada um dos três números que viu: 2
 <tr>
 <td><code>Connection refused</code></td>
 <td>o servidor não está no ar</td>
-<td>avise no grupo — pode ser a API que caiu, e não você</td>
+<td>avise no grupo: pode ser a API que caiu, e não você</td>
 </tr>
 <tr>
 <td><code>curl: (60) SSL certificate problem</code></td>
@@ -345,11 +345,11 @@ DELETE /api/v1/lectures/7     apaga
 </code></pre>
 <p>❌ <code>/criarPalestra</code> · ✅ <code>POST /lectures</code></p>
 <p>O <code>v1</code> no caminho é a versão. Quando a API mudar de forma incompatível, nasce uma <code>/v2</code> e a <code>/v1</code>
-continua funcionando — porque o app na loja do celular demora dias para atualizar.</p>
+continua funcionando, porque o app na loja do celular demora dias para atualizar.</p>
 <hr>
 <h2 id="5-ruby-partindo-do-python">5. Ruby, partindo do Python</h2>
 <p>Ruby foi criado por <strong>Yukihiro Matsumoto (Matz)</strong> em 1995, no Japão, com um objetivo declarado:
-<em>fazer o programador feliz</em>. É interpretada, dinâmica e orientada a objetos — como Python.</p>
+<em>fazer o programador feliz</em>. É interpretada, dinâmica e orientada a objetos, como Python.</p>
 <p>Esta seção é a <strong>referência de sintaxe da capacitação</strong>. Não é a linguagem inteira: é exatamente o
 que aparece nas quatro aulas, na ordem em que aparece, e cada bloco diz <strong>onde no projeto você vai
 encontrar aquilo</strong>. A tabela lado a lado mais completa está em
@@ -367,11 +367,11 @@ def saudacao(nome, formal=False): def saudacao(nome, formal: false)
 <p>Quatro coisas para reparar, e são elas que fazem Ruby parecer estranho no primeiro dia:</p>
 <ol>
 <li><strong><code>end</code></strong> fecha o bloco, em vez da indentação.</li>
-<li><strong><code>if</code> no fim da linha</strong> — é o <em>modificador</em>, e é muito usado.</li>
+<li><strong><code>if</code> no fim da linha</strong>: é o <em>modificador</em>, e é muito usado.</li>
 <li><strong>A última linha avaliada é o retorno.</strong> <code>return</code> só se você quiser sair antes.</li>
 <li><strong><code>#{}</code></strong> interpola, como o <code>f"..."</code> do Python.</li>
 </ol>
-<p>Não há ponto e vírgula, e parênteses na chamada são opcionais — <code>puts "oi"</code> e <code>puts("oi")</code> são a
+<p>Não há ponto e vírgula, e parênteses na chamada são opcionais: <code>puts "oi"</code> e <code>puts("oi")</code> são a
 mesma coisa. O projeto usa parênteses quando há argumento e omite quando não há.</p>
 <h3 id="52-variaveis-e-o-que-e-falso">5.2 Variáveis e o que é "falso"</h3>
 <pre><code class="language-ruby">nome = &quot;Ana&quot;          # variável local
@@ -388,7 +388,7 @@ if nil   then puts &quot;entrou&quot; end    # não entra
 if false then puts &quot;entrou&quot; end    # não entra
 </code></pre>
 <p><strong>Só <code>nil</code> e <code>false</code> são falsos.</strong> Todo o resto é verdadeiro. Em Python, <code>0</code>, <code>""</code>, <code>[]</code> e <code>{}</code> são
-todos falsos — aqui, não.</p>
+todos falsos: aqui, não.</p>
 <p>É por isso que no projeto você vai ver <code>if params[:email].present?</code> e não <code>if params[:email]</code>: a
 string vazia passaria pela segunda.</p>
 <table>
@@ -439,12 +439,12 @@ direita, cada método operando no resultado do anterior.</p>
 &quot;linha\n&quot;              # aspas duplas: entende \n
 'linha\n'              # aspas simples: dois caracteres, \ e n
 </code></pre>
-<p>Use aspas simples quando não há nada para interpolar — é a convenção, e o RuboCop cobra.</p>
+<p>Use aspas simples quando não há nada para interpolar: é a convenção, e o RuboCop cobra.</p>
 <p><strong>Símbolo</strong> é um texto que serve de <strong>etiqueta</strong>, não de conteúdo:</p>
 <pre><code class="language-ruby">:aluno   :email   :admin
 </code></pre>
 <p>O mesmo símbolo é sempre o mesmo objeto na memória; duas strings iguais são dois objetos. Não existe
-em Python — lá você usaria uma string.</p>
+em Python. Lá você usaria uma string.</p>
 <blockquote>
 <p><strong>Regra prática</strong>: conteúdo que o usuário lê → string. Nome de coisa no código → símbolo.</p>
 </blockquote>
@@ -467,9 +467,9 @@ user.fetch(:idade)          # aí sim: KeyError
 user.fetch(:idade, 0)       # 0
 </code></pre>
 <p>Repare em <code>{ nome: "Ana" }</code>: é o atalho para <code>{ :nome =&gt; "Ana" }</code>. <strong>A chave é um símbolo</strong>, não uma
-string — e <code>user["nome"]</code> devolveria <code>nil</code>. Esse é o erro mais comum da primeira semana.</p>
+string, e <code>user["nome"]</code> devolveria <code>nil</code>. Esse é o erro mais comum da primeira semana.</p>
 <p><code>fetch</code> é importante: ele <strong>falha alto</strong> quando a chave não existe. É por isso que o
-<code>config/deploy.yml</code> da Aula 4 usa <code>ENV.fetch("SERVER_IP")</code> — se a variável não estiver definida, você
+<code>config/deploy.yml</code> da Aula 4 usa <code>ENV.fetch("SERVER_IP")</code>: se a variável não estiver definida, você
 descobre na hora, e não três passos depois.</p>
 <h3 id="56-condicionais">5.6 Condicionais</h3>
 <pre><code class="language-ruby">if idade &gt;= 18
@@ -499,7 +499,7 @@ end
 </code></pre>
 <h3 id="57-blocos">5.7 Blocos</h3>
 <p>Um bloco é um pedaço de código que você entrega para um método executar. É o <code>lambda</code> do Python, mas
-usado o tempo todo — é a construção mais característica da linguagem.</p>
+usado o tempo todo, e é a construção mais característica da linguagem.</p>
 <pre><code class="language-ruby">usuarios.each do |u|              # for u in usuarios
   puts u.nome
 end
@@ -631,7 +631,7 @@ r = Result.new(success?: true, user: ana, errors: [])
 r.success?   # true
 r.user       # ana
 </code></pre>
-<p>É o <code>namedtuple</code> / <code>dataclass</code> do Python. <strong>Todo service deste projeto devolve um desses</strong> — é o que
+<p>É o <code>namedtuple</code> / <code>dataclass</code> do Python. <strong>Todo service deste projeto devolve um desses</strong>: é o que
 permite ao controller escrever <code>if resultado.success?</code> sem saber nada de dentro do service.</p>
 <h3 id="513-modulos-e-mixins">5.13 Módulos e mixins</h3>
 <p>Ruby não tem herança múltipla. Tem <strong>módulo</strong>: um saco de métodos que você inclui numa classe.</p>
@@ -692,7 +692,7 @@ rescue StandardError =&gt; e
   nil
 end
 </code></pre>
-<p>Dentro de um método o <code>begin</code> é implícito — dá para escrever só o <code>rescue</code> no fim. Criando o seu
+<p>Dentro de um método o <code>begin</code> é implícito: dá para escrever só o <code>rescue</code> no fim. Criando o seu
 tipo de erro:</p>
 <pre><code class="language-ruby">class InvalidToken &lt; StandardError; end
 
@@ -736,7 +736,7 @@ raise InvalidToken if token_ruim?
 </tr>
 </tbody>
 </table>
-<p>O <code>Gemfile.lock</code> é o <code>requirements.txt</code> travado — só que automático e <strong>sempre versionado</strong>. Ele é a
+<p>O <code>Gemfile.lock</code> é o <code>requirements.txt</code> travado: só que automático e <strong>sempre versionado</strong>. Ele é a
 garantia de que a sua máquina e o servidor rodam exatamente as mesmas versões.</p>
 <p>E o <code>bundle exec</code> na frente do comando significa "rode usando as versões do <code>Gemfile.lock</code>, não as
 que estiverem soltas na máquina".</p>
@@ -751,51 +751,51 @@ que estiverem soltas na máquina".</p>
 <tbody>
 <tr>
 <td>símbolo, hash</td>
-<td><code>params[:email]</code>, validações — Aula 2 e 3</td>
+<td><code>params[:email]</code>, validações (Aula 2 e 3)</td>
 </tr>
 <tr>
 <td>bloco</td>
-<td><code>each</code>, <code>map</code>, <code>User.transaction do</code> — Aula 2</td>
+<td><code>each</code>, <code>map</code>, <code>User.transaction do</code> (Aula 2)</td>
 </tr>
 <tr>
 <td><code>?</code> e <code>!</code></td>
-<td><code>user.save!</code>, <code>valid?</code> — Aula 2</td>
+<td><code>user.save!</code>, <code>valid?</code> (Aula 2)</td>
 </tr>
 <tr>
 <td><code>&amp;.</code> e <code>\|\|=</code></td>
-<td>tratamento de <code>nil</code> nos controllers — Aula 3</td>
+<td>tratamento de <code>nil</code> nos controllers (Aula 3)</td>
 </tr>
 <tr>
 <td>argumento nomeado + atalho 3.1</td>
-<td>todo service — Aula 3</td>
+<td>todo service (Aula 3)</td>
 </tr>
 <tr>
 <td><code>Struct</code></td>
-<td>o retorno de todo service — Aula 3</td>
+<td>o retorno de todo service (Aula 3)</td>
 </tr>
 <tr>
 <td>módulo / <code>include</code></td>
-<td>os concerns do <code>User</code> — Aula 2</td>
+<td>os concerns do <code>User</code> (Aula 2)</td>
 </tr>
 <tr>
 <td>namespace com módulo</td>
-<td><code>Api::V1::SessionsController</code> — Aula 3</td>
+<td><code>Api::V1::SessionsController</code> (Aula 3)</td>
 </tr>
 <tr>
 <td><code>rescue</code></td>
-<td>tratamento de erro da API — Aula 3</td>
+<td>tratamento de erro da API (Aula 3)</td>
 </tr>
 <tr>
 <td><code>ENV.fetch</code></td>
-<td><code>config/deploy.yml</code> — Aula 4</td>
+<td><code>config/deploy.yml</code> (Aula 4)</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-2-ruby-no-irb">Prática 2 — Ruby no <code>irb</code></h3>
+<h3 id="pratica-2-ruby-no-irb">Prática 2: Ruby no <code>irb</code></h3>
 <blockquote>
-<p><strong>~10 minutos.</strong> Não pule: é a única vez na capacitação em que você mexe em Ruby sem Rails no
-caminho, e é aqui que a sintaxe entra.</p>
+<p>Não pule esta: é a única vez na capacitação em que você mexe em Ruby sem Rails no caminho, e é
+aqui que a sintaxe entra.</p>
 </blockquote>
 <p>Abra o console interativo:</p>
 <pre><code class="language-bash">irb
@@ -826,7 +826,7 @@ usuario.fetch(:idade) # KeyError
 [1, 2, 3].select { |n| n.odd? }
 %w[ana bia caio].each { |n| puts n.capitalize }
 </code></pre>
-<p><code>%w[...]</code> é o atalho para array de strings — aparece bastante em código Rails.</p>
+<p><code>%w[...]</code> é o atalho para array de strings: aparece bastante em código Rails.</p>
 <p><strong>e) Nil, e como não apanhar dele</strong></p>
 <pre><code class="language-ruby">user = nil
 user.email        # NoMethodError — leia a mensagem inteira
@@ -850,7 +850,7 @@ r.success?
 r.errors
 </code></pre>
 <p><strong>h) Avançado: escreva um módulo e inclua numa classe</strong></p>
-<p>Faça isto sem olhar a seção 5.13 — e depois confira.</p>
+<p>Faça isto sem olhar a seção 5.13, e depois confira.</p>
 <pre><code class="language-ruby">module Saudavel
   def cumprimentar = &quot;Oi, #{nome}&quot;
 end
@@ -907,13 +907,13 @@ Pessoa.new(&quot;Ana&quot;).cumprimentar
 </table>
 <hr>
 <h2 id="6-rails">6. Rails</h2>
-<p>Framework web em Ruby, criado por <strong>David Heinemeier Hansson</strong> em 2004 — extraído do Basecamp, um
+<p>Framework web em Ruby, criado por <strong>David Heinemeier Hansson</strong> em 2004: extraído do Basecamp, um
 produto real. Traz tudo junto: rotas, banco, e-mail, filas, testes, deploy. Estamos na versão 8.</p>
 <h3 id="as-duas-leis">As duas leis</h3>
 <p><strong>Convenção sobre configuração.</strong> Você não configura o óbvio, você segue o combinado. Classe
 <code>User</code>? Então a tabela é <code>users</code>, o arquivo é <code>user.rb</code>, a chave primária é <code>id</code>. Ninguém precisa
 dizer. Seguindo a convenção você escreve quase nada; brigando com ela, o dobro.</p>
-<p><strong>DRY</strong> — <em>Don't Repeat Yourself</em>. Cada regra existe num lugar só.</p>
+<p><strong>DRY</strong>: <em>Don't Repeat Yourself</em>. Cada regra existe num lugar só.</p>
 <p>E uma atitude: <strong>omakase</strong>, "deixa comigo, chef". O Rails já escolheu as ferramentas por você. Você
 pode trocar, mas só troque quando tiver um motivo real. Isso é liberdade: sobra tempo pro problema
 de verdade.</p>
@@ -956,10 +956,10 @@ de verdade.</p>
 encaixadas.</p>
 <h3 id="mvc">MVC</h3>
 <ul>
-<li><strong>Model</strong> — os dados e as regras. Conversa com o banco.</li>
-<li><strong>View</strong> — a tela. Na nossa API, é o JSON.</li>
-<li><strong>Controller</strong> — recebe a requisição e decide o que fazer.</li>
-<li><strong>Rota</strong> — o mapa: este endereço vai para aquele controller.</li>
+<li><strong>Model</strong>: os dados e as regras. Conversa com o banco.</li>
+<li><strong>View</strong>: a tela. Na nossa API, é o JSON.</li>
+<li><strong>Controller</strong>: recebe a requisição e decide o que fazer.</li>
+<li><strong>Rota</strong>: o mapa. Este endereço vai para aquele controller.</li>
 </ul>
 <p>O caminho é sempre: <strong>rota → controller → model → resposta</strong>.</p>
 <h3 id="zeitwerk-o-nome-diz-o-caminho">Zeitwerk: o nome diz o caminho</h3>
@@ -968,7 +968,7 @@ encaixadas.</p>
 <strong>nome da classe</strong>:</p>
 <pre><code>Api::V1::StatusController  →  app/controllers/api/v1/status_controller.rb
 </code></pre>
-<p>Errou o caminho, a classe simplesmente não existe. Não é questão de estilo — é o mecanismo que faz
+<p>Errou o caminho, a classe simplesmente não existe. Não é questão de estilo: é o mecanismo que faz
 "convenção sobre configuração" funcionar de verdade.</p>
 <h3 id="os-tres-ambientes">Os três ambientes</h3>
 <table>
@@ -998,7 +998,7 @@ encaixadas.</p>
 </tbody>
 </table>
 <p>Cada um tem um arquivo em <code>config/environments/</code>. <code>Rails.env</code> diz onde você está.</p>
-<p>É assim que o e-mail abre no navegador em desenvolvimento e sai por SMTP em produção — mesmo
+<p>É assim que o e-mail abre no navegador em desenvolvimento e sai por SMTP em produção: mesmo
 código, ambientes diferentes.</p>
 <hr>
 <h2 id="7-mao-na-massa">7. Mão na massa</h2>
@@ -1009,8 +1009,8 @@ código, ambientes diferentes.</p>
 cd automic_auth_api
 </code></pre>
 <ul>
-<li><code>--api</code> — sem HTML, sem CSS, sem sessão de navegador. Só JSON.</li>
-<li><code>-d postgresql</code> — o mesmo banco que usamos em produção.</li>
+<li><code>--api</code>: sem HTML, sem CSS, sem sessão de navegador. Só JSON.</li>
+<li><code>-d postgresql</code>: o mesmo banco que usamos em produção.</li>
 <li>Os <code>--skip</code> tiram peças que não vamos usar. Cada peça a menos é uma peça a menos para dar
   problema.</li>
 </ul>
@@ -1170,13 +1170,10 @@ end
 </table>
 <blockquote>
 <p><strong>Onde você trabalha</strong>: no <strong>seu</strong> projeto, que você cria na Prática 3. O repositório da
-capacitação é o <strong>gabarito</strong> — abra para consultar, não para escrever.</p>
+capacitação é o <strong>gabarito</strong>: abra para consultar, não para escrever.</p>
 </blockquote>
 <hr>
-<h3 id="pratica-3-crie-o-seu-projeto">Prática 3 — Crie o seu projeto</h3>
-<blockquote>
-<p><strong>~10 minutos.</strong></p>
-</blockquote>
+<h3 id="pratica-3-crie-o-seu-projeto">Prática 3: Crie o seu projeto</h3>
 <pre><code class="language-bash">cd ~
 rails new automic_auth_api --api -d postgresql \
   --skip-action-mailbox --skip-action-text --skip-active-storage \
@@ -1203,7 +1200,7 @@ bin/rails -v            # Rails 8.1.x
 <tr>
 <td><code>rails: command not found</code></td>
 <td>o <code>mise</code> não está ativo neste shell</td>
-<td><code>exec bash</code>, depois <code>which ruby</code> — tem que apontar para dentro de <code>~/.local/share/mise</code></td>
+<td><code>exec bash</code>, depois <code>which ruby</code>: tem que apontar para dentro de <code>~/.local/share/mise</code></td>
 </tr>
 <tr>
 <td><code>Could not find gem 'rails'</code></td>
@@ -1228,9 +1225,9 @@ bin/rails -v            # Rails 8.1.x
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-4-suba-o-banco-e-a-aplicacao">Prática 4 — Suba o banco e a aplicação</h3>
+<h3 id="pratica-4-suba-o-banco-e-a-aplicacao">Prática 4: Suba o banco e a aplicação</h3>
 <blockquote>
-<p><strong>~15 minutos.</strong> É a prática em que mais gente trava, e quase sempre é porta ocupada.</p>
+<p>É a prática em que mais gente trava, e quase sempre é porta ocupada.</p>
 </blockquote>
 <p>Crie um arquivo <code>compose.yaml</code> na raiz do projeto:</p>
 <pre><code class="language-yaml">services:
@@ -1267,7 +1264,7 @@ bin/rails server
 <p><strong>Confere</strong>: abra <code>http://localhost:3000/up</code>. Verde é a aplicação de pé, falando com o banco.</p>
 <p><strong>Se der errado</strong></p>
 <blockquote>
-<p>Esta é, de longe, a prática em que mais gente trava — em toda turma, em qualquer material. Os dois
+<p>Esta é, de longe, a prática em que mais gente trava: em toda turma, em qualquer material. Os dois
 erros de sempre são porta ocupada e permissão do Docker, e <strong>nenhum dos dois é sobre programar</strong>.
 São detalhes de ambiente que todo mundo enfrenta uma vez na vida e depois nunca mais. Achou o seu
 na tabela? Resolve em dois minutos.</p>
@@ -1299,7 +1296,7 @@ na tabela? Resolve em dois minutos.</p>
 <tr>
 <td><code>PG::ConnectionBad: could not connect</code></td>
 <td>o container ainda não subiu, ou a porta não bate</td>
-<td><code>docker compose ps</code> — o status tem que ser <code>healthy</code>, não <code>starting</code></td>
+<td><code>docker compose ps</code>: o status tem que ser <code>healthy</code>, não <code>starting</code></td>
 </tr>
 <tr>
 <td><code>PG::ConnectionBad: password authentication failed</code></td>
@@ -1324,9 +1321,9 @@ na tabela? Resolve em dois minutos.</p>
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-5-a-sua-primeira-rota">Prática 5 — A sua primeira rota</h3>
+<h3 id="pratica-5-a-sua-primeira-rota">Prática 5: A sua primeira rota</h3>
 <blockquote>
-<p><strong>~20 minutos.</strong> O coração da aula.</p>
+<p>O coração da aula.</p>
 </blockquote>
 <p>Em <code>config/routes.rb</code>, dentro do <code>Rails.application.routes.draw do</code>:</p>
 <pre><code class="language-ruby">namespace :api do
@@ -1335,7 +1332,7 @@ na tabela? Resolve em dois minutos.</p>
   end
 end
 </code></pre>
-<p>Crie o arquivo <code>app/controllers/api/v1/status_controller.rb</code> — <strong>o caminho tem que ser exatamente
+<p>Crie o arquivo <code>app/controllers/api/v1/status_controller.rb</code>: <strong>o caminho tem que ser exatamente
 esse</strong>, é o Zeitwerk que exige:</p>
 <pre><code class="language-ruby">module Api
   module V1
@@ -1356,11 +1353,11 @@ end
 curl -i localhost:3000/api/v1/status
 </code></pre>
 <p>Tem que vir <code>200</code> e o JSON. Depois monte a mesma requisição no Insomnia e confira o status ali
-também — é a ferramenta que você vai usar nas Aulas 3 e 4.</p>
+também: é a ferramenta que você vai usar nas Aulas 3 e 4.</p>
 <p><strong>Se der errado</strong></p>
 <blockquote>
 <p>O erro campeão aqui é <code>uninitialized constant</code>. Ele assusta porque parece dizer que a sua classe
-não existe — e o que ele está dizendo, na verdade, é <em>"procurei no caminho que o nome promete e
+não existe, e o que ele está dizendo, na verdade, é <em>"procurei no caminho que o nome promete e
 não achei"</em>. É o Zeitwerk da seção 6, e a correção é sempre no nome do arquivo ou da pasta.</p>
 </blockquote>
 <table>
@@ -1410,10 +1407,10 @@ não achei"</em>. É o Zeitwerk da seção 6, e a correção é sempre no nome d
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-6-o-teste">Prática 6 — O teste</h3>
+<h3 id="pratica-6-o-teste">Prática 6: O teste</h3>
 <blockquote>
-<p><strong>~10 minutos.</strong> Um teste que você escreve hoje é o que vai te avisar, na Aula 4, que o deploy
-quebrou alguma coisa.</p>
+<p>Um teste que você escreve hoje é o que vai te avisar, na Aula 4, que o deploy quebrou alguma
+coisa.</p>
 </blockquote>
 <p>Crie <code>test/controllers/api/v1/status_controller_test.rb</code>:</p>
 <pre><code class="language-ruby">require &quot;test_helper&quot;
@@ -1470,10 +1467,10 @@ end
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-7-commit-e-github">Prática 7 — Commit e GitHub</h3>
+<h3 id="pratica-7-commit-e-github">Prática 7: Commit e GitHub</h3>
 <blockquote>
-<p><strong>~10 minutos.</strong> Não é opcional: na Aula 4 o CI roda no <strong>seu</strong> repositório e a imagem Docker vai
-para a <strong>sua</strong> conta.</p>
+<p>Não é opcional: na Aula 4 o CI roda no <strong>seu</strong> repositório e a imagem Docker vai para a <strong>sua</strong>
+conta.</p>
 </blockquote>
 <pre><code class="language-bash">git add -A
 git commit -m &quot;Rota de status&quot;
@@ -1547,7 +1544,7 @@ cat app/controllers/api/v1/status_controller.rb
 <ul>
 <li>Back-end é a cozinha: regra, dado e permissão.</li>
 <li>HTTP é o idioma; verbo, status e JSON são o vocabulário.</li>
-<li>HTTP não tem memória — segure essa ponta até a Aula 3.</li>
+<li>HTTP não tem memória: segure essa ponta até a Aula 3.</li>
 <li>Ruby é Python com outra sintaxe e mais açúcar.</li>
 <li>Rails decide o óbvio por você. Siga a convenção.</li>
 </ul>

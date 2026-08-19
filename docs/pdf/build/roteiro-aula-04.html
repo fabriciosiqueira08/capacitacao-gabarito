@@ -7,7 +7,7 @@
 <style>@page { @bottom-left { content: "Capacitação Back-end · roteiro do instrutor"; } }</style>
 </head>
 <body><main>
-<h1 id="roteiro-aula-4-servidor-docker-kamal-e-deploy">Roteiro — Aula 4: Servidor, Docker, Kamal e deploy</h1>
+<h1 id="roteiro-da-aula-4-servidor-docker-kamal-e-deploy">Roteiro da Aula 4: Servidor, Docker, Kamal e deploy</h1>
 <p><strong>Deck</strong>: <code>slides/build/aula-04-servidor-docker-kamal-e-deploy.pptx</code> (71 slides, sendo 8 de prática)
 <strong>Apostila da turma</strong>: <strong><code>04-deploy.md</code></strong> · <strong>Checkpoint</strong>: <code>aula-04</code>
 <strong>Antes de tudo</strong>: <strong><code>guia-do-instrutor.md</code></strong> — conduzir a sala, não o conteúdo
@@ -328,7 +328,7 @@ respondendo ao SSH, pare de esperar. Projete o percurso do começo ao fim.
 <strong>Melhor todo mundo ver funcionando do que metade travar em rede.</strong></p>
 <hr>
 <h2 id="bloco-a-bloco">Bloco a bloco</h2>
-<h3 id="0006-o-servidor-410">00:06 — O servidor (4–10)</h3>
+<h3 id="0006-o-servidor-410">00:06 · O servidor (4–10)</h3>
 <p>A frase que abre e fecha a aula está no slide 4, e vale repetir três vezes ao longo do dia:</p>
 <blockquote>
 <p><strong>Muda o IP e a conta no fim do mês. Não muda o que você faz.</strong></p>
@@ -338,7 +338,7 @@ meu Ubuntu mesmo?"): porque servidor tem que ser descartável, e porque containe
 firewall, <code>systemd</code> nem <code>sshd</code> — que é metade da aula.</p>
 <p>O slide 10 é o que dá credibilidade: admita o custo. Uma VM é ponto único de falha, volume não é
 backup, o Postgres não é gerenciado.</p>
-<h3 id="0022-a-maquina-1117-e-a-pratica-1-18">00:22 — A máquina (11–17), e a Prática 1 (18)</h3>
+<h3 id="0022-a-maquina-1117-e-a-pratica-1-18">00:22 · A máquina (11–17), e a Prática 1 (18)</h3>
 <p><strong>Primeira coisa, antes de qualquer slide deste bloco</strong>: mande todo mundo rodar o <code>multipass launch</code>
 (slide 17, projete-o já). Deixe baixando. Depois volte ao 10 e dê a teoria.</p>
 <ul>
@@ -352,7 +352,7 @@ backup, o Postgres não é gerenciado.</p>
 <blockquote>
 <p>⚠️ <strong>Ponto de decisão às 00:56</strong>: se menos da metade conectou por SSH, aplique o plano B2.</p>
 </blockquote>
-<h3 id="0056-ubuntu-1927-e-a-pratica-2-28">00:56 — Ubuntu (19–27), e a Prática 2 (28)</h3>
+<h3 id="0056-ubuntu-1927-e-a-pratica-2-28">00:56 · Ubuntu (19–27), e a Prática 2 (28)</h3>
 <ul>
 <li><strong>21–22</strong> — o firewall. O slide 22 é o mais importante do bloco, e o mais desconfortável: <strong>diga
   que o <code>ufw</code> não está protegendo eles de nada hoje.</strong> Turma percebe quando a gente finge que um
@@ -364,7 +364,7 @@ backup, o Postgres não é gerenciado.</p>
   outro terminal."</em> E logo depois: <em>"aqui vocês têm o <code>multipass shell</code> como rede de segurança.
   Numa máquina alugada, essa porta não existe — por isso o hábito é agora."</em></li>
 </ul>
-<h3 id="0200-docker-2934-e-a-pratica-3-35">02:00 — Docker (29–34), e a Prática 3 (35)</h3>
+<h3 id="0200-docker-2934-e-a-pratica-3-35">02:00 · Docker (29–34), e a Prática 3 (35)</h3>
 <p>Conceitual e rápido. Imagem é receita, container é bolo.</p>
 <p>No <strong>32</strong>, as duas decisões: multi-stage (compilador não vai para produção) e usuário não-root (<em>"é
 uma linha que muda o tamanho do estrago"</em>).</p>
@@ -374,7 +374,7 @@ nos dois casos. Sem isso, alguém vai perguntar — com razão.</p>
 <p>O <strong>34</strong> é operacional: PAT com <code>write:packages</code>, e a arquitetura. <strong>Circule pela sala neste slide</strong>:
 quem tem Mac com chip M precisa de <code>arm64</code>, e quem errar isso só descobre no meio do <code>kamal setup</code>,
 com uma mensagem que não diz "arquitetura".</p>
-<h3 id="0231-kamal-3644-e-a-pratica-4-45">02:31 — Kamal (36–44), e a Prática 4 (45)</h3>
+<h3 id="0231-kamal-3644-e-a-pratica-4-45">02:31 · Kamal (36–44), e a Prática 4 (45)</h3>
 <p>Abra o <code>config/deploy.yml</code> projetado e percorra junto com os slides.</p>
 <p>O slide 40 (<code>clear</code> × <code>secret</code>) tem o argumento concreto: <code>JWT_SECRET</code> no <code>clear</code> apareceria em
 <code>docker inspect</code> e no histórico do shell. Se der, mostre um <code>docker inspect</code> de verdade.</p>
@@ -382,7 +382,7 @@ com uma mensagem que não diz "arquitetura".</p>
 a linha que conecta com o apêndice: <em>"quando isso virar um pipeline, só a primeira camada muda."</em></p>
 <p>No <strong>44</strong>, pare no <code>.env</code>: <strong><code>git status</code> não pode mostrar esse arquivo.</strong> Mande todo mundo rodar,
 ali, na frente de você.</p>
-<h3 id="0308-tls-4653-e-as-praticas-5-a-7-54-6061">03:08 — TLS (46–53), e as Práticas 5 a 7 (54, 60–61)</h3>
+<h3 id="0308-tls-4653-e-as-praticas-5-a-7-54-6061">03:08 · TLS (46–53), e as Práticas 5 a 7 (54, 60–61)</h3>
 <p>O melhor bloco da aula nova. Antes era teoria sobre Cloudflare; agora eles veem acontecer.</p>
 <ul>
 <li><strong>46–49</strong> — HTTPS é HTTP num túnel; handshake em três passos; certificado e cadeia de confiança.</li>
@@ -402,7 +402,7 @@ curl --cacert tls/capacita-cert.pem ...     # funciona, CONFERINDO
 confiar. Uma CA é isso, e só isso: alguém em quem o seu sistema já decidiu confiar, de fábrica."</em></p>
 <p>Depois abra no navegador e leia o aviso vermelho junto com eles. <strong>É o mesmo fato, dito para um
 humano.</strong></p>
-<h3 id="0345-ci-deploy-e-operacao-5559">03:45 — CI, deploy e operação (55–59)</h3>
+<h3 id="0345-ci-deploy-e-operacao-5559">03:45 · CI, deploy e operação (55–59)</h3>
 <pre><code class="language-bash">source .env &amp;&amp; bundle exec kamal config
 </code></pre>
 <p>Valida sem tocar em nada. <strong>Faça isso antes</strong> — pega variável faltando de graça.</p>
@@ -414,7 +414,7 @@ para perguntas.</p>
 <p>Diga o que está na frente deles, porque nem todo mundo percebe sozinho: <em>"o código de vocês está
 rodando num container, dentro de um Ubuntu que vocês provisionaram, atrás de um proxy TLS, com um
 Postgres com volume. Isto é produção. Só falta o IP ser público."</em></p>
-<h3 id="0434-a-nuvem-demo-6265">04:34 — A nuvem, demo (62–65)</h3>
+<h3 id="0434-a-nuvem-demo-6265">04:34 · A nuvem, demo (62–65)</h3>
 <p><strong>Quinze minutos, projetado, sem ninguém acompanhando no teclado.</strong> Diga isso antes de começar, ou
 metade da turma vai tentar criar conta na Azure e perder o fim da aula.</p>
 <p>Percorra: portal → VM → NSG com a 22 só para o seu IP → DNS no Cloudflare → Origin CA → OIDC. Não
@@ -425,7 +425,7 @@ deployar, e <strong>fechar mesmo se falhar</strong>.</p>
 execução."</em></p>
 <p>Feche apontando o apêndice: <strong><code>docs/apendice-azure.md</code>, e a Azure for Students dá US$100 sem
 cartão.</strong> Quem quiser, faz em casa e me chama.</p>
-<h3 id="0449-pratica-8-e-fecho-6671">04:49 — Prática 8 e fecho (66–71)</h3>
+<h3 id="0449-pratica-8-e-fecho-6671">04:49 · Prática 8 e fecho (66–71)</h3>
 <p>O slide 68 (<code>O QUE O SEEM-BACKEND TEM A MAIS</code>) é o convite: <em>"nada disso é difícil depois do que
 vocês viram hoje. O código está lá, e agora vocês conseguem ler."</em></p>
 <p>E então <strong>reserve cinco minutos de verdade para os slides 69 e 70.</strong> Não corra.</p>

@@ -7,7 +7,7 @@
 <style>@page { @bottom-left { content: "Capacitação Back-end · roteiro do instrutor"; } }</style>
 </head>
 <body><main>
-<h1 id="roteiro-aula-2-banco-activerecord-e-o-model-user">Roteiro — Aula 2: banco, ActiveRecord e o model <code>User</code></h1>
+<h1 id="roteiro-da-aula-2-banco-activerecord-e-o-model-user">Roteiro da Aula 2: banco, ActiveRecord e o model <code>User</code></h1>
 <p><strong>Deck</strong>: <code>slides/build/aula-02-banco-de-dados-e-activerecord.pptx</code> (54 slides, sendo 8 de prática)
 <strong>Apostila da turma</strong>: <strong><code>02-activerecord.md</code></strong> · <strong>Checkpoint</strong>: <code>aula-02</code>
 <strong>Antes de tudo</strong>: <strong><code>guia-do-instrutor.md</code></strong> — conduzir a sala, não o conteúdo</p>
@@ -198,16 +198,16 @@ uma semana depois.</p>
 </blockquote>
 <hr>
 <h2 id="bloco-a-bloco">Bloco a bloco</h2>
-<h3 id="0000-retomada-13">00:00 — Retomada (1–3)</h3>
+<h3 id="0000-retomada-13">00:00 · Retomada (1–3)</h3>
 <p>O slide 3 é a ponte: <em>"temos uma API que responde. Ela não guarda nada. Reiniciou, esqueceu tudo.
 Hoje ela ganha memória."</em></p>
-<h3 id="0006-banco-49">00:06 — Banco (4–9)</h3>
+<h3 id="0006-banco-49">00:06 · Banco (4–9)</h3>
 <p><strong>Transação (6–7) é o slide que eles vão precisar na Aula 3.</strong> Use o exemplo do dinheiro: debitar de
 um e creditar no outro têm que ser a mesma operação; debitar sozinho é dinheiro que sumiu.</p>
 <p>Aponte o <code>!</code> no slide 7 e explique: dentro da transação você <strong>quer</strong> que estoure, porque <code>save</code>
 devolve <code>false</code> em silêncio e a transação seguiria feliz gravando metade.</p>
 <p>No 8, a frase: <em>"desenvolver no mesmo banco da produção elimina uma categoria inteira de bug."</em></p>
-<h3 id="0029-activerecord-1116">00:29 — ActiveRecord (11–16)</h3>
+<h3 id="0029-activerecord-1116">00:29 · ActiveRecord (11–16)</h3>
 <p>O slide 13 é o que causa espanto em quem vem de Django: <strong>a classe não declara nada</strong>.</p>
 <pre><code class="language-ruby">class User &lt; ApplicationRecord
 end
@@ -221,7 +221,7 @@ end
 </code></pre>
 <p>E a pegadinha que vem de Python: em Ruby, <code>if 0</code> executa. <code>if ""</code> executa. Só <code>nil</code> e <code>false</code> são
 falsos.</p>
-<h3 id="0044-migrations-1720">00:44 — Migrations (17–20)</h3>
+<h3 id="0044-migrations-1720">00:44 · Migrations (17–20)</h3>
 <p>Gere uma migration ao vivo:</p>
 <pre><code class="language-bash">bin/rails generate migration CreateUsers
 </code></pre>
@@ -230,7 +230,7 @@ falsos.</p>
 mensagem bonita. Duas requisições simultâneas passam pela validação juntas — as duas consultam, as
 duas não acham ninguém — mas só uma vence o índice.</p>
 <p>No 19, a regra: <strong>nunca edite migration que já rodou em produção.</strong> Crie outra.</p>
-<h3 id="0129-senha-2227">01:29 — Senha (22–27)</h3>
+<h3 id="0129-senha-2227">01:29 · Senha (22–27)</h3>
 <p>O bloco mais importante da aula inteira.</p>
 <ul>
 <li><strong>21</strong> — comece pelo susto. Cite o vazamento que você separou.</li>
@@ -244,10 +244,10 @@ duas não acham ninguém — mas só uma vence o índice.</p>
 BCrypt::Password.create(&quot;senha123&quot;)   # rode DE NOVO
 </code></pre>
 <p><strong>São diferentes.</strong> É o salt. Pergunte por que, antes de responder.</p>
-<h3 id="0157-validacoes-2932">01:57 — Validações (29–32)</h3>
+<h3 id="0157-validacoes-2932">01:57 · Validações (29–32)</h3>
 <p>O 29 (normalizar antes de validar) fecha com o 18: se você não normaliza, o índice único não serve
 para nada, porque o banco acha que <code>Ana@UFOP.br</code> e <code>ana@ufop.br</code> são valores diferentes.</p>
-<h3 id="0246-associacoes-3440">02:46 — Associações (34–40)</h3>
+<h3 id="0246-associacoes-3440">02:46 · Associações (34–40)</h3>
 <p>Bloco novo, e é o que eles mais vão usar no primeiro projeto de verdade.</p>
 <p>A regra que resume tudo (slide 32): <strong>a chave estrangeira fica no lado "muitos"</strong>. Quem carrega a
 coluna usa <code>belongs_to</code>; quem é apontado usa <code>has_many</code>.</p>
@@ -262,12 +262,12 @@ ana.login_events.recentes.first.user.name    # e volta
 User.includes(:login_events).each { |u| puts u.login_events.count }
 </code></pre>
 <p>A diferença no log é o argumento. Nenhum slide convence tanto.</p>
-<h3 id="0321-concerns-4245">03:21 — Concerns (42–45)</h3>
+<h3 id="0321-concerns-4245">03:21 · Concerns (42–45)</h3>
 <p>A ponte com a Aula 1: <em>"lembram do módulo que se inclui numa classe? Isto aqui é ele, com nome de
 Rails."</em></p>
 <p>O slide 40 tem as três decisões — a que mais rende é a terceira: <code>email_verified_at</code> é data, não
 booleano, porque um dia alguém vai abrir chamado perguntando <em>quando</em> a conta foi ativada.</p>
-<h3 id="0355-console-e-testes-4751">03:55 — Console e testes (47–51)</h3>
+<h3 id="0355-console-e-testes-4751">03:55 · Console e testes (47–51)</h3>
 <p>O slide 51 (<code>authenticate_by_email</code>) merece atenção: o ataque de temporização. Se a resposta volta
 em 1ms quando o e-mail não existe e em 100ms quando existe, dá para descobrir quem tem conta
 cronometrando. Guarde — volta na Aula 3.</p>

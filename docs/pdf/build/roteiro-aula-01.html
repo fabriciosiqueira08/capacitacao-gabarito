@@ -7,7 +7,7 @@
 <style>@page { @bottom-left { content: "Capacitação Back-end · roteiro do instrutor"; } }</style>
 </head>
 <body><main>
-<h1 id="roteiro-aula-1-back-end-ruby-e-o-primeiro-rails">Roteiro — Aula 1: back-end, Ruby e o primeiro Rails</h1>
+<h1 id="roteiro-da-aula-1-back-end-ruby-e-o-primeiro-rails">Roteiro da Aula 1: back-end, Ruby e o primeiro Rails</h1>
 <p><strong>Deck</strong>: <code>slides/build/aula-01-fundamentos-de-back-end.pptx</code> (69 slides, sendo 5 de prática)
 <strong>Apostila da turma</strong>: <strong><code>01-fundamentos.md</code></strong> · <strong>Checkpoint</strong>: <code>aula-01</code>
 <strong>Antes de tudo</strong>: <strong><code>guia-do-instrutor.md</code></strong> — conduzir a sala, não o conteúdo</p>
@@ -185,7 +185,7 @@ Corte <strong>nesta ordem</strong>, e decida na véspera:</p>
 </blockquote>
 <hr>
 <h2 id="bloco-a-bloco">Bloco a bloco</h2>
-<h3 id="0000-abertura-e-o-combinado-13">00:00 — Abertura e o combinado (1–3)</h3>
+<h3 id="0000-abertura-e-o-combinado-13">00:00 · Abertura e o combinado (1–3)</h3>
 <p>Você se apresenta e diz de onde veio a capacitação: <strong>é a continuação da do Fiuza</strong>. Lá foi o que o
 usuário vê; aqui é o outro lado.</p>
 <p>Nos objetivos, a frase que prende: <em>"no fim do encontro 4, cada um de vocês vai ter uma URL
@@ -199,7 +199,7 @@ aqui, e não para vocês fingirem que está tudo bem."</em></p>
 <p>Dita agora, ela dá permissão para a sala inteira. Sem ela, metade vai passar a aula escondendo que
 está perdida, e você só descobre na hora da prática. Detalhes em
 <strong><code>guia-do-instrutor.md</code></strong>.</p>
-<h3 id="0007-ferramentas-e-setup-411">00:07 — Ferramentas e setup (4–11)</h3>
+<h3 id="0007-ferramentas-e-setup-411">00:07 · Ferramentas e setup (4–11)</h3>
 <p>Passe rápido pelos slides e <strong>pare no 10</strong>. Todo mundo roda os quatro comandos ao mesmo tempo:</p>
 <pre><code class="language-bash">curl https://mise.run | sh
 mise use --global ruby@3.4.9
@@ -211,12 +211,12 @@ docker run --rm hello-world
 <p>⚠️ <strong>Ponto de não-retorno</strong>: se passou de 00:35 e ainda tem gente instalando, <strong>pare</strong>. Pareie
 quem travou com quem terminou e siga. Instalação é problema de casa, não de aula.</p>
 </blockquote>
-<h3 id="0030-o-que-e-back-end-1216">00:30 — O que é back-end (12–16)</h3>
+<h3 id="0030-o-que-e-back-end-1216">00:30 · O que é back-end (12–16)</h3>
 <p>O slide 12 é a ponte com a capacitação anterior: mostre a coluna do front e diga "isso vocês já
 viram". O slide 13 tem o ponto que importa: <strong>tudo que roda no navegador o usuário consegue ler e
 alterar</strong> — por isso a validação que vale é a do back.</p>
 <p>O restaurante (14) funciona bem. Volte nele quando falar de API.</p>
-<h3 id="0042-rede-1720">00:42 — Rede (17–20)</h3>
+<h3 id="0042-rede-1720">00:42 · Rede (17–20)</h3>
 <p>Aqui muita gente descobre coisa que usava sem saber.</p>
 <ul>
 <li><strong>16</strong>: servidor não é máquina especial, é programa esperando numa porta.</li>
@@ -225,7 +225,7 @@ alterar</strong> — por isso a validação que vale é a do back.</p>
 <li><strong>19</strong>: desmonte a URL na tela. Pergunte: <em>"por que <code>localhost:3000</code> tem dois pontos e
   <code>google.com</code> não?"</em> Deixe alguém responder.</li>
 </ul>
-<h3 id="0055-http-e-rest-2130">00:55 — HTTP e REST (21–30)</h3>
+<h3 id="0055-http-e-rest-2130">00:55 · HTTP e REST (21–30)</h3>
 <p><strong>Slide 22 é o coração do bloco.</strong> Uma requisição HTTP é texto puro. Se der, faça ao vivo:</p>
 <pre><code class="language-bash">curl -v https://api.seemxxiii.tech/api/v1/status
 </code></pre>
@@ -237,7 +237,7 @@ Vem 400 e a mensagem não ajuda em nada."</em></p>
 403 é "sei quem você é, e você não pode". Diga que cai em entrevista.</p>
 <p>No <strong>fim do bloco</strong>, marque a frase: <strong>HTTP não tem memória.</strong> Escreva no quadro se tiver. É o
 problema inteiro da Aula 3.</p>
-<h3 id="0123-pratica-1-http-na-mao-31">01:23 — Prática 1: HTTP na mão (31)</h3>
+<h3 id="0123-pratica-1-http-na-mao-31">01:23 · Prática 1: HTTP na mão (31)</h3>
 <p><strong>A primeira vez que eles falam com um servidor sem navegador no meio.</strong> Dez minutos, e circule.</p>
 <p>O erro de condução aqui é deixar rodarem os cinco comandos em sequência sem ler nada. Pare depois do
 <code>-v</code> e peça, em voz alta, que alguém aponte onde termina a requisição e onde começa a resposta.</p>
@@ -249,7 +249,7 @@ problema inteiro da Aula 3.</p>
 isso hoje não confunde 404 com 500 na Aula 3.</p>
 <p>Quem terminar rápido: o item (e), o POST na mão com <code>-X</code>, <code>-H</code> e <code>-d</code>. É o que o Insomnia faz por
 baixo.</p>
-<h3 id="0143-ruby-3249">01:43 — Ruby (32–49)</h3>
+<h3 id="0143-ruby-3249">01:43 · Ruby (32–49)</h3>
 <p>O bloco mais longo. <strong>Não leia os slides — rode no <code>irb</code> ao vivo.</strong></p>
 <pre><code class="language-ruby">3.class            # Integer
 &quot;oi&quot;.class         # String
@@ -278,7 +278,7 @@ usuario[:nome]
 <li><strong>47</strong> — as três pegadinhas. Rode no <code>irb</code>: <code>7 / 2</code>, depois <code>7.0 / 2</code>. E <code>puts 'Olá #{1+1}'</code> com
   aspas simples. São 30 segundos e economizam um bug cada.</li>
 </ul>
-<h3 id="0227-pratica-2-ruby-no-irb-50">02:27 — Prática 2: Ruby no <code>irb</code> (50)</h3>
+<h3 id="0227-pratica-2-ruby-no-irb-50">02:27 · Prática 2: Ruby no <code>irb</code> (50)</h3>
 <p>Dez minutos no <code>irb</code>, e é a <strong>única vez</strong> na capacitação em que eles mexem em Ruby sem Rails no
 caminho. Não corte, mesmo atrasado.</p>
 <p>Os oito passos estão na apostila (Prática 2). Os dois que fixam, e que valem cobrar em voz alta:</p>
@@ -291,7 +291,7 @@ caminho. Não corte, mesmo atrasado.</p>
 </code></pre>
 <p>Quem terminar rápido: o item (h), escrever um módulo e incluir numa classe — é a Aula 2 chegando
 mais cedo.</p>
-<h3 id="0237-rails-5161">02:37 — Rails (51–61)</h3>
+<h3 id="0237-rails-5161">02:37 · Rails (51–61)</h3>
 <ul>
 <li><strong>52</strong> é a ideia central: você não configura o óbvio, você segue o combinado.</li>
 <li><strong>55</strong> (Django × Rails) — pergunte quem já usou Django ou Flask e ancore neles.</li>
@@ -300,7 +300,7 @@ mais cedo.</p>
 <li><strong>64</strong> (<code>DOIS DIRETÓRIOS</code>) — <strong>não corte</strong>. É onde fica claro que o repositório da capacitação é
   gabarito e que o projeto é deles. Sem isso, metade da turma vai editar o repo errado.</li>
 </ul>
-<h3 id="0259-praticas-3-a-7-o-projeto-no-ar-62-65-67">02:59 — Práticas 3 a 7: o projeto no ar (62, 65, 67)</h3>
+<h3 id="0259-praticas-3-a-7-o-projeto-no-ar-62-65-67">02:59 · Práticas 3 a 7: o projeto no ar (62, 65, 67)</h3>
 <p>A entrega da aula, em três blocos separados por slides curtos. <strong>Ninguém sai sem os 200 na tela e
 sem o projeto no GitHub deles.</strong></p>
 <p><strong>Prática 3 e 4 (slide 62, ~25 min)</strong> — criar o projeto, subir banco e aplicação:</p>
@@ -343,7 +343,7 @@ propósito</strong> (<code>"ok"</code> → <code>"OK"</code>): são 30 segundos,
 <p>Quem travar em qualquer uma: projete o arquivo do gabarito (<code>~/capacitacao-gabarito</code>, branch
 <code>aula-01</code>) e deixe a pessoa digitar. <strong>Não mande copiar e colar</strong> — o exercício inteiro são 20
 linhas.</p>
-<h3 id="0412-fecho-66-6869">04:12 — Fecho (66, 68–69)</h3>
+<h3 id="0412-fecho-66-6869">04:12 · Fecho (66, 68–69)</h3>
 <p>Recapitule em cinco frases (slide 68) e feche com o que vem: <em>"na próxima, a API ganha memória."</em></p>
 <hr>
 <h2 id="perguntas-que-vao-aparecer">Perguntas que vão aparecer</h2>

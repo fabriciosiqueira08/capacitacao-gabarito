@@ -57,7 +57,7 @@ echo $DB_PORT                # bate com a porta publicada?
 <ol>
 <li>um <code>Rails.cache</code> compartilhado (o <code>test_helper</code> troca por <code>MemoryStore</code> a cada teste);</li>
 <li><code>ActionMailer::Base.deliveries</code> não limpo;</li>
-<li>dependência de ordem — o Minitest embaralha de propósito, e isso é uma qualidade.</li>
+<li>dependência de ordem: o Minitest embaralha de propósito, e isso é uma qualidade.</li>
 </ol>
 <p>Rode com a mesma semente para reproduzir: <code>bin/rails test --seed 1234</code>.</p>
 <h3 id="o-teste-de-logout-passa-mas-a-revogacao-nao-funciona">O teste de logout passa mas a revogação não funciona</h3>
@@ -74,9 +74,9 @@ recoloque o <code>setup</code>.</p>
 <ol>
 <li>o cabeçalho é exatamente <code>Authorization: Bearer &lt;token&gt;</code>, com o espaço;</li>
 <li>o token não foi revogado (você fez logout com ele?);</li>
-<li>o <code>token_version</code> do banco bate com o <code>ver</code> do token — trocar a senha incrementa a versão;</li>
+<li>o <code>token_version</code> do banco bate com o <code>ver</code> do token: trocar a senha incrementa a versão;</li>
 <li>o <code>JWT_SECRET</code> é o mesmo que emitiu o token. Reiniciar o app em dev sem <code>JWT_SECRET</code> definido
-   usa o <code>secret_key_base</code>, que é estável — mas em produção um segredo diferente invalida tudo.</li>
+   usa o <code>secret_key_base</code>, que é estável, mas em produção um segredo diferente invalida tudo.</li>
 </ol>
 <p>Decodifique o token em <a href="https://jwt.io">jwt.io</a> e olhe o <code>exp</code> e o <code>ver</code>.</p>
 <h3 id="o-e-mail-nao-chega-em-desenvolvimento">O e-mail não chega em desenvolvimento</h3>
@@ -93,9 +93,9 @@ JSON e o <code>Content-Type: application/json</code>.</p>
 <p>O <code>rails new</code> já cria um <code>.github/workflows/ci.yml</code>, e ele roda sozinho a cada push. Nas Aulas 1 e 2
 ele deve passar. Se ficar vermelho, abra o log em <strong>Actions</strong> e veja qual dos três jobs quebrou:</p>
 <ul>
-<li><strong>lint</strong> — é o RuboCop. Rode <code>bin/rubocop -a</code> para corrigir o que dá sozinho.</li>
-<li><strong>test</strong> — rode <code>bin/rails test</code> na sua máquina; o erro é o mesmo.</li>
-<li><strong>scan_ruby</strong> — Brakeman ou uma gem com CVE. <code>bin/brakeman --no-pager</code> mostra o motivo.</li>
+<li><strong>lint</strong>: é o RuboCop. Rode <code>bin/rubocop -a</code> para corrigir o que dá sozinho.</li>
+<li><strong>test</strong>: rode <code>bin/rails test</code> na sua máquina; o erro é o mesmo.</li>
+<li><strong>scan_ruby</strong>: Brakeman ou uma gem com CVE. <code>bin/brakeman --no-pager</code> mostra o motivo.</li>
 </ul>
 <p>Na Aula 4 esse arquivo é substituído pelo nosso, que roda os testes contra um Postgres de verdade.</p>
 <h3 id="gh-command-not-found"><code>gh: command not found</code></h3>
@@ -109,16 +109,16 @@ gh auth login      # se não estiver
 <h3 id="o-wsl2-nao-alcanca-a-vm-do-multipass">O WSL2 não alcança a VM do Multipass</h3>
 <p>O sintoma: <code>multipass info</code> mostra o IP, mas de dentro do WSL2 o <code>ping</code> e o <code>ssh</code> dão timeout.</p>
 <p>O Multipass roda no Windows e o WSL2 é outra máquina virtual. Por padrão, uma não enxerga a outra.</p>
-<p>Rode o diagnóstico — ele identifica o caso e imprime a saída:</p>
+<p>Rode o diagnóstico. Ele identifica o caso e imprime a saída:</p>
 <pre><code class="language-bash">./scripts/checar-servidor.sh &lt;IP-da-VM&gt;
 </code></pre>
-<p><strong>Saída 1 — rede espelhada</strong> (Windows 11 22H2+). Crie ou edite
+<p><strong>Saída 1: rede espelhada</strong> (Windows 11 22H2+). Crie ou edite
 <code>C:\Users\&lt;seu-usuario&gt;\.wslconfig</code>:</p>
 <pre><code>[wsl2]
 networkingMode=mirrored
 </code></pre>
 <p>E no PowerShell: <code>wsl --shutdown</code>.</p>
-<p><strong>Saída 2 — encaminhamento de porta</strong> (qualquer Windows, inclusive o 10). O Windows leva o tráfego
+<p><strong>Saída 2: encaminhamento de porta</strong> (qualquer Windows, inclusive o 10). O Windows leva o tráfego
 até a VM. No PowerShell <strong>como administrador</strong>:</p>
 <pre><code class="language-powershell">$vm = &quot;SEU_IP_DA_VM&quot;
 netsh interface portproxy add v4tov4 listenport=2222 listenaddress=0.0.0.0 connectport=22  connectaddress=$vm
@@ -143,7 +143,7 @@ isso.</p>
 </code></pre>
 <p>Se estiverem e ainda assim não passa, é o firewall do Windows: a regra
 <code>New-NetFirewallRule</code> acima precisa existir. E lembre que o <code>connectaddress</code> é o IP <strong>da VM</strong>, que
-muda depois de um <code>multipass stop</code>/<code>start</code> — nesse caso apague e recrie:</p>
+muda depois de um <code>multipass stop</code>/<code>start</code>. Nesse caso, apague e recrie:</p>
 <pre><code class="language-powershell">netsh interface portproxy reset
 </code></pre>
 <h3 id="multipass-launch-falha-com-erro-de-virtualizacao"><code>multipass launch</code> falha com erro de virtualização</h3>
@@ -171,10 +171,10 @@ conteúdo de <code>~/.ssh/capacita.pub</code>, e não o caminho do arquivo.</p>
 <pre><code class="language-bash">multipass exec servidor -- cat /home/ubuntu/.ssh/authorized_keys
 </code></pre>
 <h3 id="perdi-o-acesso-depois-de-mexer-no-sshd">Perdi o acesso depois de mexer no sshd</h3>
-<p>Se você seguiu o guia, tinha uma sessão aberta — desfaça por ela. Se não:</p>
+<p>Se você seguiu o guia, tinha uma sessão aberta. Desfaça por ela. Se não:</p>
 <pre><code class="language-bash">multipass shell servidor
 </code></pre>
-<p>Ele entra sem passar pelo <code>sshd</code>. <strong>Numa VPS essa porta não existe</strong> — por isso o guia insiste em
+<p>Ele entra sem passar pelo <code>sshd</code>. <strong>Numa VPS essa porta não existe</strong>: por isso o guia insiste em
 <code>sudo sshd -t</code> antes do <code>reload</code>, e em testar num segundo terminal.</p>
 <hr>
 <h2 id="deploy">Deploy</h2>
@@ -185,7 +185,7 @@ conteúdo de <code>~/.ssh/capacita.pub</code>, e não o caminho do arquivo.</p>
 <h3 id="denied-ou-unauthorized-ao-empurrar-a-imagem-para-o-ghcrio"><code>denied</code> ou <code>unauthorized</code> ao empurrar a imagem para o ghcr.io</h3>
 <p>O <code>KAMAL_REGISTRY_PASSWORD</code> tem que ser um PAT (classic) com <strong><code>write:packages</code></strong> e
 <strong><code>read:packages</code></strong>. Um token de granularidade fina (<em>fine-grained</em>) não serve para o ghcr.io.</p>
-<p>E o <code>GHCR_USER</code> é o seu usuário do GitHub, em minúsculas — o registry não aceita maiúscula no nome
+<p>E o <code>GHCR_USER</code> é o seu usuário do GitHub, em minúsculas: o registry não aceita maiúscula no nome
 da imagem.</p>
 <h3 id="exec-format-error-ao-subir-o-container"><code>exec format error</code> ao subir o container</h3>
 <p>Arquitetura errada: você buildou para <code>amd64</code> e a VM é <code>arm64</code> (ou o contrário).</p>
@@ -200,7 +200,7 @@ da imagem.</p>
 <p><code>kamal deploy</code> <strong>não</strong> sobe accessories.</p>
 <pre><code class="language-bash">kamal accessory boot db
 </code></pre>
-<p>Depois de mudar env de accessory, <code>boot</code> não basta — é <code>kamal accessory reboot db</code>.</p>
+<p>Depois de mudar env de accessory, <code>boot</code> não basta: é <code>kamal accessory reboot db</code>.</p>
 <h3 id="curl-diz-self-signed-certificate"><code>curl</code> diz <code>self signed certificate</code></h3>
 <p><strong>Isso é o esperado</strong>, e é o exercício G da apostila. O túnel TLS subiu; o que faltou foi confiança.</p>
 <pre><code class="language-bash">curl --cacert tls/capacita-cert.pem https://seunome.test/api/v1/status
@@ -220,7 +220,7 @@ roteia pelo cabeçalho <code>Host</code>: se o certificado é para <code>seunome
 </code></pre>
 <p>O <code>kamal-proxy</code> está na lista? A 443 está liberada no <code>ufw</code>?</p>
 <h3 id="smtp-da-timeout-na-vm">SMTP dá timeout na VM</h3>
-<p>Da VM local, a saída costuma funcionar — se não funcionar, é o firewall da sua rede (algumas redes
+<p>Da VM local, a saída costuma funcionar: se não funcionar, é o firewall da sua rede (algumas redes
 universitárias bloqueiam a 587).</p>
 <p>Numa VPS é mais comum: vários provedores de nuvem bloqueiam a saída na porta 25, e alguns na 587.
 Teste a alternativa do seu provedor de e-mail (o Resend aceita 2587) e ajuste <code>SMTP_PORT</code> no
@@ -284,6 +284,6 @@ Apague na mão:</p>
 </ul>
 <h3 id="lets-encrypt-falha-atras-do-cloudflare">Let's Encrypt falha atrás do Cloudflare</h3>
 <p>Esperado. Com o DNS proxied, o desafio HTTP-01 não chega como o Let's Encrypt espera. Use o
-certificado Origin CA — é a razão de ele existir.</p>
+certificado Origin CA: é a razão de ele existir.</p>
 </main></body>
 </html>

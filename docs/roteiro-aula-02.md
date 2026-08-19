@@ -1,4 +1,4 @@
-# Roteiro — Aula 2: banco, ActiveRecord e o model `User`
+# Roteiro da Aula 2: banco, ActiveRecord e o model `User`
 
 **Deck**: `slides/build/aula-02-banco-de-dados-e-activerecord.pptx` (54 slides, sendo 8 de prática)
 **Apostila da turma**: [`02-activerecord.md`](02-activerecord.md) · **Checkpoint**: `aula-02`
@@ -67,12 +67,12 @@ Cortando de 1 a 4, fecha em **3h48**. Cortando os sete, **3h02**.
 
 ## Bloco a bloco
 
-### 00:00 — Retomada (1–3)
+### 00:00 · Retomada (1–3)
 
 O slide 3 é a ponte: *"temos uma API que responde. Ela não guarda nada. Reiniciou, esqueceu tudo.
 Hoje ela ganha memória."*
 
-### 00:06 — Banco (4–9)
+### 00:06 · Banco (4–9)
 
 **Transação (6–7) é o slide que eles vão precisar na Aula 3.** Use o exemplo do dinheiro: debitar de
 um e creditar no outro têm que ser a mesma operação; debitar sozinho é dinheiro que sumiu.
@@ -82,7 +82,7 @@ devolve `false` em silêncio e a transação seguiria feliz gravando metade.
 
 No 8, a frase: *"desenvolver no mesmo banco da produção elimina uma categoria inteira de bug."*
 
-### 00:29 — ActiveRecord (11–16)
+### 00:29 · ActiveRecord (11–16)
 
 O slide 13 é o que causa espanto em quem vem de Django: **a classe não declara nada**.
 
@@ -105,7 +105,7 @@ nil.blank?     # true
 E a pegadinha que vem de Python: em Ruby, `if 0` executa. `if ""` executa. Só `nil` e `false` são
 falsos.
 
-### 00:44 — Migrations (17–20)
+### 00:44 · Migrations (17–20)
 
 Gere uma migration ao vivo:
 
@@ -121,7 +121,7 @@ duas não acham ninguém — mas só uma vence o índice.
 
 No 19, a regra: **nunca edite migration que já rodou em produção.** Crie outra.
 
-### 01:29 — Senha (22–27)
+### 01:29 · Senha (22–27)
 
 O bloco mais importante da aula inteira.
 
@@ -140,12 +140,12 @@ BCrypt::Password.create("senha123")   # rode DE NOVO
 
 **São diferentes.** É o salt. Pergunte por que, antes de responder.
 
-### 01:57 — Validações (29–32)
+### 01:57 · Validações (29–32)
 
 O 29 (normalizar antes de validar) fecha com o 18: se você não normaliza, o índice único não serve
 para nada, porque o banco acha que `Ana@UFOP.br` e `ana@ufop.br` são valores diferentes.
 
-### 02:46 — Associações (34–40)
+### 02:46 · Associações (34–40)
 
 Bloco novo, e é o que eles mais vão usar no primeiro projeto de verdade.
 
@@ -170,7 +170,7 @@ User.includes(:login_events).each { |u| puts u.login_events.count }
 
 A diferença no log é o argumento. Nenhum slide convence tanto.
 
-### 03:21 — Concerns (42–45)
+### 03:21 · Concerns (42–45)
 
 A ponte com a Aula 1: *"lembram do módulo que se inclui numa classe? Isto aqui é ele, com nome de
 Rails."*
@@ -178,7 +178,7 @@ Rails."*
 O slide 40 tem as três decisões — a que mais rende é a terceira: `email_verified_at` é data, não
 booleano, porque um dia alguém vai abrir chamado perguntando *quando* a conta foi ativada.
 
-### 03:55 — Console e testes (47–51)
+### 03:55 · Console e testes (47–51)
 
 O slide 51 (`authenticate_by_email`) merece atenção: o ataque de temporização. Se a resposta volta
 em 1ms quando o e-mail não existe e em 100ms quando existe, dá para descobrir quem tem conta

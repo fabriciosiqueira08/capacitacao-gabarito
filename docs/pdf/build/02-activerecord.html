@@ -7,8 +7,8 @@
 <style>@page { @bottom-left { content: "Capacitação Back-end · Automic Jr."; } }</style>
 </head>
 <body><main>
-<h1 id="aula-2-banco-de-dados-activerecord-e-o-model-user">Aula 2 — Banco de dados, ActiveRecord e o model <code>User</code></h1>
-<p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: um <code>User</code> com validações e senha hasheada, testado.
+<h1 id="aula-2-banco-de-dados-activerecord-e-o-model-user">Aula 2: Banco de dados, ActiveRecord e o model <code>User</code></h1>
+<p><strong>Você sai daqui com</strong>: um <code>User</code> com validações e senha hasheada, testado.
 <strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-02</code></p>
 <hr>
 <h2 id="de-onde-viemos-e-para-onde-vamos-hoje">De onde viemos, e para onde vamos hoje</h2>
@@ -17,24 +17,24 @@ desligou o servidor, acabou.</p>
 <p><strong>Hoje ela ganha memória.</strong> Você vai criar as tabelas, escrever o model <code>User</code>, guardar senha do
 jeito certo (que não é guardar senha) e ligar duas tabelas uma na outra. No fim, um usuário criado
 no console continua lá depois de você reiniciar tudo.</p>
-<p>É a aula em que você mais escreve código nas quatro — e é a base da Aula 3, em que esse <code>User</code> vira
+<p>É a aula em que você mais escreve código nas quatro, e é a base da Aula 3, em que esse <code>User</code> vira
 cadastro, login e recuperação de senha de verdade.</p>
 <blockquote>
 <p>Travou? A tabela <strong>Se der errado</strong> no fim de cada prática cobre os erros que realmente acontecem.
-Consulte antes de chamar — e chame se não resolver em dez minutos.</p>
+Consulte antes de chamar, e chame se não resolver em dez minutos.</p>
 </blockquote>
 <hr>
 <h2 id="1-por-que-postgres-e-nao-sqlite">1. Por que Postgres, e não SQLite</h2>
 <p>SQLite é um arquivo. Funciona muito bem para um app de celular ou um script. Para um servidor com
-várias requisições ao mesmo tempo, ele trava — só uma escrita por vez no banco inteiro.</p>
+várias requisições ao mesmo tempo, ele trava: só uma escrita por vez no banco inteiro.</p>
 <p>Postgres é um servidor: aguenta concorrência, tem tipos ricos (<code>jsonb</code>, arrays, intervalos de
 tempo), índices parciais e transações de verdade. É o que o <code>seem-backend</code> usa em produção, então é
-o que usamos aqui — <strong>desenvolver no mesmo banco da produção evita a categoria inteira de bug que
+o que usamos aqui: <strong>desenvolver no mesmo banco da produção evita a categoria inteira de bug que
 só aparece no deploy.</strong></p>
 <hr>
 <h3 id="transacao">Transação</h3>
 <p>Um bloco de operações que acontece <strong>inteiro ou não acontece</strong>. Deu erro no meio, o banco desfaz
-tudo — isso se chama <em>rollback</em>.</p>
+tudo: isso se chama <em>rollback</em>.</p>
 <p>O exemplo clássico é transferir dinheiro: debitar de um e creditar no outro têm que ser a mesma
 operação. Debitar sozinho é dinheiro que sumiu.</p>
 <pre><code class="language-ruby">User.transaction do
@@ -80,14 +80,14 @@ e a transação seguiria feliz, gravando metade.</p>
 </tbody>
 </table>
 <p>A diferença de filosofia: no Django você declara os campos na classe. <strong>No Rails a classe não
-declara nada</strong> — ela lê as colunas do banco em tempo de execução. A fonte da verdade é a migration.</p>
+declara nada</strong>: ela lê as colunas do banco em tempo de execução. A fonte da verdade é a migration.</p>
 <pre><code class="language-ruby">class User &lt; ApplicationRecord
 end
 </code></pre>
-<p>Isso já tem <code>name</code>, <code>email</code>, <code>id</code>, <code>created_at</code> — tudo que existir na tabela <code>users</code>.</p>
+<p>Isso já tem <code>name</code>, <code>email</code>, <code>id</code>, <code>created_at</code>: tudo que existir na tabela <code>users</code>.</p>
 <hr>
 <h3 id="activesupport-os-metodos-que-o-rails-inventou">ActiveSupport: os métodos que o Rails inventou</h3>
-<p>O Rails adiciona métodos às classes do próprio Ruby. Isso é a gem <code>activesupport</code>, não Ruby puro —
+<p>O Rails adiciona métodos às classes do próprio Ruby. Isso é a gem <code>activesupport</code>, não Ruby puro,
 fora do Rails esses métodos somem.</p>
 <pre><code class="language-ruby">15.minutes
 1.day.ago
@@ -113,7 +113,7 @@ executa. <code>if ""</code> executa. É justamente por isso que <code>blank?</co
 todas as máquinas: a sua, a do colega e o servidor.</p>
 <pre><code class="language-bash">bin/rails generate migration CreateUsers
 </code></pre>
-<p>Isso cria <code>db/migrate/20260803142949_create_users.rb</code>. O número é a data e hora — é ele que define
+<p>Isso cria <code>db/migrate/20260803142949_create_users.rb</code>. O número é a data e hora: é ele que define
 a ordem.</p>
 <pre><code class="language-ruby">class CreateUsers &lt; ActiveRecord::Migration[8.1]
   def change
@@ -144,7 +144,7 @@ end
   bonita; índice é para garantir.</strong></li>
 </ul>
 <h3 id="schemarb"><code>schema.rb</code></h3>
-<p>Depois de migrar, o Rails reescreve <code>db/schema.rb</code> — o retrato atual do banco. É ele que <code>db:prepare</code>
+<p>Depois de migrar, o Rails reescreve <code>db/schema.rb</code>: o retrato atual do banco. É ele que <code>db:prepare</code>
 usa para criar o banco de teste, e por isso <strong>vai versionado</strong>. Você nunca edita esse arquivo à mão.</p>
 <h3 id="migrations-sao-incrementais">Migrations são incrementais</h3>
 <p>Neste projeto a tabela <code>users</code> nasceu em três migrations, porque as funcionalidades chegaram em
@@ -153,17 +153,17 @@ momentos diferentes:</p>
 20260803142950_add_email_verification_to_users.rb # confirmação de e-mail
 20260803142951_add_password_reset_to_users.rb     # recuperação de senha
 </code></pre>
-<p>É assim que acontece na vida real. Nunca edite uma migration que já rodou em produção — crie outra.</p>
+<p>É assim que acontece na vida real. Nunca edite uma migration que já rodou em produção: crie outra.</p>
 <hr>
 <h2 id="4-senha-o-que-nunca-fazer">4. Senha: o que nunca fazer</h2>
-<p><strong>Nunca guarde senha em texto.</strong> Se o banco vazar — e bancos vazam — você entregou a senha de
+<p><strong>Nunca guarde senha em texto.</strong> Se o banco vazar, e bancos vazam, você entregou a senha de
 todos. E como as pessoas repetem senha, você entregou o e-mail e o banco delas junto.</p>
 <h3 id="hash-nao-e-criptografia">Hash não é criptografia</h3>
-<p>Criptografia tem volta (com a chave). <strong>Hash não tem volta</strong>: é um caminho só. Você não guarda a
+<p>Criptografia tem volta: basta ter a chave. <strong>Hash não tem volta</strong>, é um caminho só. Você não guarda a
 senha; guarda o resultado de passar a senha pela função. Na hora do login, passa de novo e compara
 os resultados.</p>
 <h3 id="por-que-bcrypt-e-nao-sha-256">Por que bcrypt e não SHA-256</h3>
-<p>SHA-256 é rápido — <strong>e isso é o problema</strong>. Uma GPU testa bilhões de SHA-256 por segundo. bcrypt foi
+<p>SHA-256 é rápido: <strong>e isso é o problema</strong>. Uma GPU testa bilhões de SHA-256 por segundo. bcrypt foi
 feito para ser <strong>lento de propósito</strong> e tem um fator de custo ajustável: quando o hardware melhora,
 você aumenta o custo.</p>
 <p>bcrypt também gera um <strong>salt</strong> aleatório por senha. Sem salt, duas pessoas com a mesma senha teriam
@@ -183,9 +183,9 @@ end
 </code></pre>
 <p>Isso dá ao model:</p>
 <ul>
-<li><code>user.password = "..."</code> — recebe a senha em texto e grava o digest em <code>password_digest</code></li>
-<li><code>user.authenticate("...")</code> — devolve o usuário se bater, <code>false</code> se não</li>
-<li><code>user.password_confirmation</code> — a confirmação, se você usar</li>
+<li><code>user.password = "..."</code>: recebe a senha em texto e grava o digest em <code>password_digest</code></li>
+<li><code>user.authenticate("...")</code>: devolve o usuário se bater, <code>false</code> se não</li>
+<li><code>user.password_confirmation</code>: a confirmação, se você usar</li>
 </ul>
 <p>A senha em texto <strong>nunca toca o banco</strong>. Ela vive na memória durante a requisição e some.</p>
 <blockquote>
@@ -205,7 +205,7 @@ validate  :password_meets_policy, if: -&gt; { password.present? }
 </code></pre>
 <ul>
 <li><code>validates</code> (plural) usa um validador pronto. <code>validate</code> (singular) chama um método seu.</li>
-<li><code>on: :create</code> só valida na criação — os termos são aceitos uma vez.</li>
+<li><code>on: :create</code> só valida na criação: os termos são aceitos uma vez.</li>
 <li><code>if:</code> recebe um lambda. Só valida a senha quando ela foi informada (na edição de perfil ela não é).</li>
 </ul>
 <p>No console:</p>
@@ -253,7 +253,7 @@ add_index :login_events, [ :user_id, :occurred_at ]
 </code></pre>
 <ul>
 <li><strong><code>t.references :user</code></strong> cria a coluna <code>user_id</code>, o índice <strong>e</strong> a chave estrangeira.</li>
-<li><strong><code>foreign_key: true</code></strong> faz o <strong>banco</strong> recusar uma linha órfã — não é só validação de model.</li>
+<li><strong><code>foreign_key: true</code></strong> faz o <strong>banco</strong> recusar uma linha órfã: não é só validação de model.</li>
 <li>O índice composto tem <code>user_id</code> primeiro porque a consulta é sempre "os últimos logins <strong>deste</strong>
   usuário". Num índice composto, <strong>a ordem das colunas importa</strong>: primeiro o que filtra.</li>
 </ul>
@@ -269,7 +269,7 @@ class LoginEvent &lt; ApplicationRecord
 end
 </code></pre>
 <ul>
-<li><strong><code>dependent: :delete_all</code></strong> — apagar o usuário apaga o histórico junto. Sem isso sobram linhas
+<li><strong><code>dependent: :delete_all</code></strong>: apagar o usuário apaga o histórico junto. Sem isso sobram linhas
   apontando para um <code>id</code> que não existe mais.</li>
 <li><strong><code>belongs_to</code> já exige presença</strong> desde o Rails 5: <code>LoginEvent</code> sem <code>user</code> é inválido.</li>
 <li><strong><code>scope</code></strong> é uma consulta com nome, e ela encadeia.</li>
@@ -293,7 +293,7 @@ histórico de cada um. É o problema de performance número 1 de aplicação Rai
 <p>Duas consultas, sempre. O <code>seem-backend</code> usa a gem <strong>Bullet</strong>, que estoura um erro em
 desenvolvimento quando você escreve um N+1 sem perceber.</p>
 <hr>
-<h2 id="7-concerns-o-mixin-da-aula-1-na-pratica">7. Concerns — o mixin da Aula 1, na prática</h2>
+<h2 id="7-concerns-o-mixin-da-aula-1-na-pratica">7. Concerns: o mixin da Aula 1, na prática</h2>
 <p>O <code>User</code> vai ganhar confirmação de e-mail e recuperação de senha. São dois assuntos que não
 conversam entre si. Jogar os dois no <code>user.rb</code> produz um arquivo de 800 linhas que ninguém abre com
 vontade.</p>
@@ -342,7 +342,7 @@ não pode confirmar a conta de ninguém.</p>
 <p><strong>2. O código em texto só existe no retorno do método.</strong> <code>issue_email_verification_code!</code> devolve o
 código para o service mandar por e-mail, e depois ele some. Não fica em coluna, nem em log.</p>
 <p><strong>3. <code>email_verified_at</code> é data, não booleano.</strong> Um booleano responde "sim". Uma data responde "sim,
-em 12 de agosto às 14h" — e isso você vai querer saber quando alguém abrir um chamado.</p>
+em 12 de agosto às 14h", e isso você vai querer saber quando alguém abrir um chamado.</p>
 <hr>
 <h2 id="8-o-console">8. O console</h2>
 <pre><code class="language-bash">bin/rails console
@@ -379,7 +379,7 @@ u.email_verified?
 <pre><code class="language-bash">bin/rails db:seed
 </code></pre>
 <p><strong>Fixtures</strong> são os dados dos testes, em <code>test/fixtures/users.yml</code>. O Rails carrega antes de cada
-teste e limpa depois — todo teste começa do mesmo estado.</p>
+teste e limpa depois: todo teste começa do mesmo estado.</p>
 <pre><code class="language-yaml">ana:
   name: Ana Souza
   email: ana@aluno.ufop.edu.br
@@ -418,13 +418,13 @@ end
 <p>Por que esse <code>DUMMY_PASSWORD_DIGEST</code>?</p>
 <p>O jeito ingênuo seria <code>return nil unless user</code>. Só que bcrypt é lento <strong>de propósito</strong>. Se o e-mail
 não existe, a resposta volta em 1ms; se existe e a senha está errada, volta em 100ms. Cronometrando
-as respostas, dá para descobrir quem tem conta no sistema — é um <strong>ataque de temporização</strong>.</p>
+as respostas, dá para descobrir quem tem conta no sistema: é um <strong>ataque de temporização</strong>.</p>
 <p>Rodando o bcrypt sempre, com um digest descartável quando não há usuário, as duas respostas custam
 o mesmo. Vamos usar esse método na Aula 3.</p>
 <hr>
 <h2 id="as-praticas-da-aula">As práticas da aula</h2>
-<p>Oito práticas, cada uma logo depois do bloco que a explica. <strong>Nenhuma passa de 20 minutos</strong>, e cada
-uma termina com uma conferência: não siga em frente com ela vermelha.</p>
+<p>Oito práticas, cada uma logo depois do bloco que a explica. Todas terminam com uma conferência: não
+siga em frente com ela vermelha.</p>
 <table>
 <thead>
 <tr>
@@ -480,9 +480,9 @@ uma termina com uma conferência: não siga em frente com ela vermelha.</p>
 <p>No <strong>seu</strong> projeto (<code>~/automic_auth_api</code>), continuando de onde a Aula 1 parou.</p>
 </blockquote>
 <hr>
-<h3 id="pratica-1-a-gem-do-bcrypt-e-o-banco-de-pe">Prática 1 — A gem do bcrypt, e o banco de pé</h3>
+<h3 id="pratica-1-a-gem-do-bcrypt-e-o-banco-de-pe">Prática 1: A gem do bcrypt, e o banco de pé</h3>
 <blockquote>
-<p><strong>~5 minutos.</strong> Aquecimento, e garante que o ambiente da Aula 1 continua funcionando.</p>
+<p>Aquecimento, e garante que o ambiente da Aula 1 continua funcionando.</p>
 </blockquote>
 <pre><code class="language-bash">cd ~/automic_auth_api
 docker compose up -d
@@ -496,7 +496,7 @@ docker compose ps           # healthy
 <p><strong>Confere</strong>:</p>
 <pre><code class="language-bash">bin/rails runner 'puts BCrypt::Password.create(&quot;teste&quot;)[0, 7]'
 </code></pre>
-<p>Sai algo como <code>$2a$12$</code>. Esse prefixo é o algoritmo e o custo — você vai entender os dois na
+<p>Sai algo como <code>$2a$12$</code>. Esse prefixo é o algoritmo e o custo: você vai entender os dois na
 seção 4.</p>
 <p><strong>Se der errado</strong></p>
 <table>
@@ -531,9 +531,9 @@ seção 4.</p>
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-2-as-tres-migrations-da-tabela-users">Prática 2 — As três migrations da tabela <code>users</code></h3>
+<h3 id="pratica-2-as-tres-migrations-da-tabela-users">Prática 2: As três migrations da tabela <code>users</code></h3>
 <blockquote>
-<p><strong>~20 minutos.</strong> A prática mais longa do dia. Faça uma migration por vez e migre entre elas.</p>
+<p>A prática mais longa do dia. Faça uma migration por vez, e migre entre elas.</p>
 </blockquote>
 <pre><code class="language-bash">bin/rails generate migration CreateUsers
 bin/rails generate migration AddEmailVerificationToUsers
@@ -561,7 +561,7 @@ sed -n '/create_table &quot;users&quot;/,/^  end/p' db/schema.rb | grep -c &quot
 <p>Abra o <code>db/schema.rb</code> e leia: ele é o retrato do banco <strong>agora</strong>, montado sozinho pelas migrations.</p>
 <p><strong>Se der errado</strong></p>
 <blockquote>
-<p>Migration que falha no meio dá uma mensagem enorme e assustadora. <strong>Ignore a primeira linha</strong> —
+<p>Migration que falha no meio dá uma mensagem enorme e assustadora. <strong>Ignore a primeira linha</strong>,
 ela só diz que a migration parou. A resposta está na <strong>linha seguinte</strong>, e costuma ser bem
 específica. Esse hábito sozinho economiza horas ao longo de uma carreira.</p>
 <p>E nesta fase do projeto, <code>db:drop db:create db:migrate</code> é sempre uma saída legítima: não há dado
@@ -599,7 +599,7 @@ nenhum para perder. Não tenha dó.</p>
 <tr>
 <td>o <code>schema.rb</code> não mudou</td>
 <td>a migration não rodou</td>
-<td><code>bin/rails db:migrate:status</code> — a sua está <code>down</code>?</td>
+<td><code>bin/rails db:migrate:status</code>: a sua está <code>down</code>?</td>
 </tr>
 <tr>
 <td>saiu 16 em vez de 17</td>
@@ -614,15 +614,15 @@ nenhum para perder. Não tenha dó.</p>
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-3-senha-no-console-veja-o-bcrypt-trabalhar">Prática 3 — Senha no console: veja o bcrypt trabalhar</h3>
+<h3 id="pratica-3-senha-no-console-vendo-o-bcrypt-trabalhar">Prática 3: senha no console, vendo o bcrypt trabalhar</h3>
 <blockquote>
-<p><strong>~10 minutos.</strong> Sem escrever arquivo nenhum. É a prática que faz a seção 4 parar de ser teoria.</p>
+<p>Sem escrever arquivo nenhum. É a prática que faz a seção 4 parar de ser teoria.</p>
 </blockquote>
 <pre><code class="language-bash">bin/rails console
 </code></pre>
 <blockquote>
 <p><strong>Antes de rodar, aposte</strong>: a mesma senha, hasheada duas vezes, dá o mesmo resultado ou resultados
-diferentes? Decida agora — a graça do exercício está em você errar essa aposta.</p>
+diferentes? Decida agora: a graça do exercício está em você errar essa aposta.</p>
 </blockquote>
 <pre><code class="language-ruby"># a) o mesmo texto, dois digests diferentes
 BCrypt::Password.create(&quot;Automic@2026&quot;)
@@ -675,9 +675,9 @@ por que a lentidão é uma <em>característica</em> e não um defeito.</p>
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-4-o-validador-de-senha">Prática 4 — O validador de senha</h3>
+<h3 id="pratica-4-o-validador-de-senha">Prática 4: O validador de senha</h3>
 <blockquote>
-<p><strong>~15 minutos.</strong> O primeiro arquivo Ruby seu, do zero, nesta capacitação.</p>
+<p>O primeiro arquivo Ruby seu, do zero, nesta capacitação.</p>
 </blockquote>
 <p>Crie <code>app/validators/password_policy_validator.rb</code>:</p>
 <pre><code class="language-ruby">class PasswordPolicyValidator
@@ -736,7 +736,7 @@ estourar. Descubra qual linha do código garante isso.</p>
 <tr>
 <td><code>uninitialized constant PasswordPolicyValidator</code></td>
 <td>caminho ou nome do arquivo errado</td>
-<td>tem que ser <code>app/validators/password_policy_validator.rb</code> — Zeitwerk de novo</td>
+<td>tem que ser <code>app/validators/password_policy_validator.rb</code>: Zeitwerk de novo</td>
 </tr>
 <tr>
 <td><code>NoMethodError: undefined method 'length' for nil</code></td>
@@ -761,10 +761,7 @@ estourar. Descubra qual linha do código garante isso.</p>
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-5-o-model-user">Prática 5 — O model <code>User</code></h3>
-<blockquote>
-<p><strong>~20 minutos.</strong></p>
-</blockquote>
+<h3 id="pratica-5-o-model-user">Prática 5: O model <code>User</code></h3>
 <p>Crie <code>app/models/user.rb</code> com <code>has_secure_password validations: false</code>, as seis validações, os três
 normalizadores e o <code>authenticate_by_email</code> (seções <strong>4</strong>, <strong>5</strong> e <strong>11</strong>).</p>
 <p><strong>Confere</strong>:</p>
@@ -802,7 +799,7 @@ puts u.password_digest[0, 20]
 <tr>
 <td><code>valid?</code> devolve <code>false</code> e você não sabe por quê</td>
 <td>as mensagens estão no objeto</td>
-<td><code>p u.errors.full_messages</code> — sempre</td>
+<td><code>p u.errors.full_messages</code>: sempre</td>
 </tr>
 <tr>
 <td><code>valid?</code> devolve <code>true</code> com e-mail inválido</td>
@@ -822,9 +819,9 @@ puts u.password_digest[0, 20]
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-6-a-segunda-tabela-e-a-associacao">Prática 6 — A segunda tabela e a associação</h3>
+<h3 id="pratica-6-a-segunda-tabela-e-a-associacao">Prática 6: A segunda tabela e a associação</h3>
 <blockquote>
-<p><strong>~15 minutos.</strong> É aqui que o banco deixa de ser uma tabela e vira um <em>modelo de dados</em>.</p>
+<p>É aqui que o banco deixa de ser uma tabela e vira um <em>modelo de dados</em>.</p>
 </blockquote>
 <pre><code class="language-bash">bin/rails generate migration CreateLoginEvents
 </code></pre>
@@ -889,9 +886,9 @@ LoginEvent.count      # 0  &lt;- é o dependent: :delete_all
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-7-os-dois-concerns">Prática 7 — Os dois concerns</h3>
+<h3 id="pratica-7-os-dois-concerns">Prática 7: Os dois concerns</h3>
 <blockquote>
-<p><strong>~20 minutos.</strong> O momento em que os módulos da Aula 1 deixam de ser teoria.</p>
+<p>O momento em que os módulos da Aula 1 deixam de ser teoria.</p>
 </blockquote>
 <p>Crie <code>app/models/concerns/email_verifiable.rb</code> e <code>app/models/concerns/password_resettable.rb</code>. O
 primeiro está inteiro na seção <strong>7. Concerns</strong>; o segundo é o mesmo desenho, trocando
@@ -984,11 +981,11 @@ u.email_verified?               # true
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-8-fixtures-testes-e-commit">Prática 8 — Fixtures, testes e commit</h3>
+<h3 id="pratica-8-fixtures-testes-e-commit">Prática 8: Fixtures, testes e commit</h3>
 <blockquote>
-<p><strong>~25 minutos.</strong> Fecha o dia, e é o que a Aula 3 vai usar de base.</p>
+<p>Fecha o dia, e é o que a Aula 3 vai usar de base.</p>
 </blockquote>
-<p>Crie <code>test/fixtures/users.yml</code> com dois usuários — um verificado, outro não:</p>
+<p>Crie <code>test/fixtures/users.yml</code> com dois usuários: um verificado, outro não:</p>
 <pre><code class="language-yaml">ana:
   name: Ana Souza
   email: ana@aluno.ufop.edu.br
@@ -1071,7 +1068,7 @@ User.includes(:login_events).each { |u| puts u.login_events.count }   # duas, no
 pelas validações, e veja o Postgres recusar:</p>
 <pre><code class="language-ruby">User.new(email: User.first.email, ...).save!(validate: false)
 </code></pre>
-<p>O erro que vem é <code>PG::UniqueViolation</code> — e é por isso que a restrição vive no banco, e não só no
+<p>O erro que vem é <code>PG::UniqueViolation</code>, e é por isso que a restrição vive no banco, e não só no
 model.</p>
 <p><strong>Travou em qualquer prática?</strong> Compare arquivo por arquivo com o gabarito:</p>
 <pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-02

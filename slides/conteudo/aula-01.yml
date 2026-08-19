@@ -335,7 +335,7 @@ slides:
       app React Native e o painel admin. É o que vamos construir aqui.
 
   - tipo: pratica
-    titulo: "PRÁTICA 1 — HTTP NA MÃO"
+    titulo: "PRÁTICA 1: HTTP NA MÃO"
     bullets:
       - "curl -i https://api.seemxxiii.tech/api/v1/status"
       - "Troque o -i por -v. Ache o que VOCÊ mandou e o que ele respondeu."
@@ -599,7 +599,7 @@ slides:
       servidor rodam exatamente as mesmas versões.
 
   - tipo: pratica
-    titulo: "PRÁTICA 2 — RUBY NO IRB"
+    titulo: "PRÁTICA 2: RUBY NO IRB"
     bullets:
       - "irb. Descubra o tipo de tudo com .class"
       - "puts \"entrou\" if 0    <- entra! Só nil e false são falsos."
@@ -737,7 +737,7 @@ slides:
       usuário, rodar query e testar método sem escrever um arquivo.
 
   - tipo: pratica
-    titulo: "PRÁTICA 3 E 4 — O PROJETO NO AR"
+    titulo: "PRÁTICA 3 E 4: O PROJETO NO AR"
     bullets:
       - "rails new automic_auth_api --api -d postgresql (mais as flags)"
       - "Escreva o compose.yaml e ajuste o config/database.yml."
@@ -781,7 +781,7 @@ slides:
       - "Não dá para apontar para o meu repositório."
 
   - tipo: pratica
-    titulo: "PRÁTICA 5 — A SUA PRIMEIRA ROTA"
+    titulo: "PRÁTICA 5: A SUA PRIMEIRA ROTA"
     bullets:
       - "namespace :api do  namespace :v1 do  get \"status\" ..."
       - "app/controllers/api/v1/status_controller.rb — o caminho é obrigatório."
@@ -806,7 +806,7 @@ slides:
       - "Na Aula 4, é o push que dispara o deploy. Literalmente."
 
   - tipo: pratica
-    titulo: "PRÁTICAS 6 E 7 — TESTE E COMMIT"
+    titulo: "PRÁTICAS 6 E 7: TESTE E COMMIT"
     bullets:
       - "Escreva o teste da rota e rode bin/rails test."
       - "Agora QUEBRE de propósito: troque \"ok\" por \"OK\" e rode de novo."

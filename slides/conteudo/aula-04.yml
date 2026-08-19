@@ -193,7 +193,7 @@ slides:
       ./scripts/checar-servidor.sh SEU_IP
 
   - tipo: pratica
-    titulo: "PRÁTICA 1 — SUBIR A VM E ENTRAR NELA"
+    titulo: "PRÁTICA 1: SUBIR A VM E ENTRAR NELA"
     bullets:
       - "ssh-keygen -t ed25519 -f ~/.ssh/capacita  ·  chmod 600"
       - "Escreva o cloud-init.yaml com a sua chave PÚBLICA."
@@ -312,7 +312,7 @@ slides:
       Aqui existe o multipass shell como rede de segurança. Numa VPS, não.
 
   - tipo: pratica
-    titulo: "PRÁTICA 2 — FIREWALL, DOCKER, SWAP, SSH"
+    titulo: "PRÁTICA 2: FIREWALL, DOCKER, SWAP, SSH"
     bullets:
       - "ufw: deny incoming, e libere 22, 80 e 443. Depois ufw enable."
       - "Docker do repositório oficial, e usermod -aG docker ubuntu."
@@ -387,7 +387,7 @@ slides:
       - "Mac M1/M2/M3/M4: SERVER_ARCH=arm64"
 
   - tipo: pratica
-    titulo: "PRÁTICA 3 — ARQUIVOS DE DEPLOY E O TOKEN"
+    titulo: "PRÁTICA 3: ARQUIVOS DE DEPLOY E O TOKEN"
     bullets:
       - "rsync -aR do gabarito aula-04. O -R não é detalhe."
       - "- sem ele, deploy.yml vai para a raiz e o Kamal não acha nada."
@@ -416,7 +416,7 @@ slides:
       - "Falhou o health check? Não troca. O antigo continua servindo."
 
   - tipo: codigo
-    titulo: "DEPLOY.YML — SERVIDOR E IMAGEM"
+    titulo: "DEPLOY.YML: SERVIDOR E IMAGEM"
     codigo: |
       service: automic-auth-api
       image: <%= ENV.fetch("GHCR_USER") %>/automic-auth-api
@@ -433,7 +433,7 @@ slides:
       # e o MESMO na VM local e numa VPS. Muda a variável.
 
   - tipo: codigo
-    titulo: "DEPLOY.YML — ENV"
+    titulo: "DEPLOY.YML: ENV"
     codigo: |
       env:
         clear:
@@ -505,7 +505,7 @@ slides:
       - "O seu .env junta tudo. E ele é o arquivo que não pode vazar."
 
   - tipo: pratica
-    titulo: "PRÁTICA 4 — O .ENV"
+    titulo: "PRÁTICA 4: O .ENV"
     bullets:
       - "cp .env.example .env, preencha tudo, e source .env"
       - "SERVER_ARCH: rode dpkg --print-architecture na VM e use o que sair."
@@ -612,7 +612,7 @@ slides:
       inteiro com a chave dele na lista.
 
   - tipo: pratica
-    titulo: "PRÁTICA 5 — CERTIFICADO E /ETC/HOSTS"
+    titulo: "PRÁTICA 5: CERTIFICADO E /ETC/HOSTS"
     bullets:
       - "openssl req -x509 ... -addext \"subjectAltName=DNS:seunome.test\""
       - "O subjectAltName NÃO é opcional. Sem ele, nenhum cliente aceita."
@@ -683,7 +683,7 @@ slides:
       - "Backup que nunca foi restaurado não é backup, é esperança."
 
   - tipo: pratica
-    titulo: "PRÁTICA 6 — O PRIMEIRO DEPLOY"
+    titulo: "PRÁTICA 6: O PRIMEIRO DEPLOY"
     bullets:
       - "source .env  ·  bundle exec kamal config  (valida sem tocar em nada)"
       - "bundle exec kamal setup   — só na primeira vez."
@@ -698,7 +698,7 @@ slides:
       proxy TLS, com um Postgres com volume. Isto é produção.
 
   - tipo: pratica
-    titulo: "PRÁTICA 7 — O CERTIFICADO, COM OS OLHOS"
+    titulo: "PRÁTICA 7: O CERTIFICADO, COM OS OLHOS"
     bullets:
       - "curl https://seunome.test/...   ->  FALHA: self signed certificate"
       - "Isso é o TLS funcionando. O que falhou foi a CONFIANÇA."
@@ -755,7 +755,7 @@ slides:
       Students.
 
   - tipo: pratica
-    titulo: "PRÁTICA 8 — O SISTEMA INTEIRO, E O BACKUP"
+    titulo: "PRÁTICA 8: O SISTEMA INTEIRO, E O BACKUP"
     bullets:
       - "Refaça o fluxo da Aula 3 contra a SUA API em produção."
       - "- e desta vez o e-mail chega na sua caixa de entrada de verdade."

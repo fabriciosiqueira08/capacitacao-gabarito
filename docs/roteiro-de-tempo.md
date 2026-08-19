@@ -1,4 +1,4 @@
-# Roteiros — índice para quem apresenta
+# Roteiros: o índice para quem apresenta
 
 Um runbook por encontro, com cronograma, o que falar em cada bloco, as demos ao vivo, as perguntas
 que a turma faz e o plano B:

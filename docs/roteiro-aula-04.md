@@ -1,4 +1,4 @@
-# Roteiro — Aula 4: Servidor, Docker, Kamal e deploy
+# Roteiro da Aula 4: Servidor, Docker, Kamal e deploy
 
 **Deck**: `slides/build/aula-04-servidor-docker-kamal-e-deploy.pptx` (71 slides, sendo 8 de prática)
 **Apostila da turma**: [`04-deploy.md`](04-deploy.md) · **Checkpoint**: `aula-04`
@@ -146,7 +146,7 @@ respondendo ao SSH, pare de esperar. Projete o percurso do começo ao fim.
 
 ## Bloco a bloco
 
-### 00:06 — O servidor (4–10)
+### 00:06 · O servidor (4–10)
 
 A frase que abre e fecha a aula está no slide 4, e vale repetir três vezes ao longo do dia:
 
@@ -159,7 +159,7 @@ firewall, `systemd` nem `sshd` — que é metade da aula.
 O slide 10 é o que dá credibilidade: admita o custo. Uma VM é ponto único de falha, volume não é
 backup, o Postgres não é gerenciado.
 
-### 00:22 — A máquina (11–17), e a Prática 1 (18)
+### 00:22 · A máquina (11–17), e a Prática 1 (18)
 
 **Primeira coisa, antes de qualquer slide deste bloco**: mande todo mundo rodar o `multipass launch`
 (slide 17, projete-o já). Deixe baixando. Depois volte ao 10 e dê a teoria.
@@ -173,7 +173,7 @@ backup, o Postgres não é gerenciado.
 
 > ⚠️ **Ponto de decisão às 00:56**: se menos da metade conectou por SSH, aplique o plano B2.
 
-### 00:56 — Ubuntu (19–27), e a Prática 2 (28)
+### 00:56 · Ubuntu (19–27), e a Prática 2 (28)
 
 - **21–22** — o firewall. O slide 22 é o mais importante do bloco, e o mais desconfortável: **diga
   que o `ufw` não está protegendo eles de nada hoje.** Turma percebe quando a gente finge que um
@@ -185,7 +185,7 @@ backup, o Postgres não é gerenciado.
   outro terminal."* E logo depois: *"aqui vocês têm o `multipass shell` como rede de segurança.
   Numa máquina alugada, essa porta não existe — por isso o hábito é agora."*
 
-### 02:00 — Docker (29–34), e a Prática 3 (35)
+### 02:00 · Docker (29–34), e a Prática 3 (35)
 
 Conceitual e rápido. Imagem é receita, container é bolo.
 
@@ -200,7 +200,7 @@ O **34** é operacional: PAT com `write:packages`, e a arquitetura. **Circule pe
 quem tem Mac com chip M precisa de `arm64`, e quem errar isso só descobre no meio do `kamal setup`,
 com uma mensagem que não diz "arquitetura".
 
-### 02:31 — Kamal (36–44), e a Prática 4 (45)
+### 02:31 · Kamal (36–44), e a Prática 4 (45)
 
 Abra o `config/deploy.yml` projetado e percorra junto com os slides.
 
@@ -213,7 +213,7 @@ a linha que conecta com o apêndice: *"quando isso virar um pipeline, só a prim
 No **44**, pare no `.env`: **`git status` não pode mostrar esse arquivo.** Mande todo mundo rodar,
 ali, na frente de você.
 
-### 03:08 — TLS (46–53), e as Práticas 5 a 7 (54, 60–61)
+### 03:08 · TLS (46–53), e as Práticas 5 a 7 (54, 60–61)
 
 O melhor bloco da aula nova. Antes era teoria sobre Cloudflare; agora eles veem acontecer.
 
@@ -238,7 +238,7 @@ confiar. Uma CA é isso, e só isso: alguém em quem o seu sistema já decidiu c
 Depois abra no navegador e leia o aviso vermelho junto com eles. **É o mesmo fato, dito para um
 humano.**
 
-### 03:45 — CI, deploy e operação (55–59)
+### 03:45 · CI, deploy e operação (55–59)
 
 ```bash
 source .env && bundle exec kamal config
@@ -259,7 +259,7 @@ Diga o que está na frente deles, porque nem todo mundo percebe sozinho: *"o có
 rodando num container, dentro de um Ubuntu que vocês provisionaram, atrás de um proxy TLS, com um
 Postgres com volume. Isto é produção. Só falta o IP ser público."*
 
-### 04:34 — A nuvem, demo (62–65)
+### 04:34 · A nuvem, demo (62–65)
 
 **Quinze minutos, projetado, sem ninguém acompanhando no teclado.** Diga isso antes de começar, ou
 metade da turma vai tentar criar conta na Azure e perder o fim da aula.
@@ -276,7 +276,7 @@ execução."*
 Feche apontando o apêndice: **`docs/apendice-azure.md`, e a Azure for Students dá US$100 sem
 cartão.** Quem quiser, faz em casa e me chama.
 
-### 04:49 — Prática 8 e fecho (66–71)
+### 04:49 · Prática 8 e fecho (66–71)
 
 O slide 68 (`O QUE O SEEM-BACKEND TEM A MAIS`) é o convite: *"nada disso é difícil depois do que
 vocês viram hoje. O código está lá, e agora vocês conseguem ler."*

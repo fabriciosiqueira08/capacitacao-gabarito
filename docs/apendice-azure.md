@@ -1,11 +1,11 @@
-# Apêndice — o mesmo servidor, na nuvem
+# Apêndice: o mesmo servidor, na nuvem
 
 **Para quem**: você terminou a Aula 4, tem a API rodando na VM do seu notebook, e quer colocá-la num
 IP público, com domínio, certificado de CA pública e deploy automático a cada push.
 
 **Quanto tempo**: ~2h na primeira vez, quase tudo clicando em portal.
 
-**Quanto custa**: nada, com a [Azure for Students](https://azure.microsoft.com/free/students/) —
+**Quanto custa**: nada, com a [Azure for Students](https://azure.microsoft.com/free/students/),
 US$100 de crédito, sem cartão de crédito, mediante e-mail institucional. A verificação acadêmica
 **pode demorar dias**; comece por ela.
 
@@ -64,7 +64,7 @@ O caminho certo:
 | Grupo de recursos | Novo: `rg-capacita-<seunome>` |
 | Nome | `vm-capacita-<seunome>` |
 | Região | uma com cota disponível |
-| Imagem | Ubuntu Server 24.04 LTS — x64 Gen2 |
+| Imagem | Ubuntu Server 24.04 LTS: x64 Gen2 |
 | Tamanho | `Standard_B1s` (1 vCPU, 1 GiB) ou maior, se houver crédito |
 | Autenticação | Chave pública SSH |
 | Usuário | `azureuser` |
@@ -79,7 +79,7 @@ Rede:
 
 - VNet e sub-rede: aceite os padrões
 - IP público: Standard
-- NSG: avançado (é o firewall — vamos mexer nele)
+- NSG: avançado (é o firewall. Vamos mexer nele)
 
 Marque tudo com tags (`ambiente=capacitacao`, `dono=<seunome>`): é assim que você acha recurso órfão
 consumindo crédito depois.
@@ -125,7 +125,7 @@ O `/32` significa "exatamente este endereço". Precisa também de:
 > Internet de casa troca de IP. Quando o SSH parar de conectar do nada, é isso: atualize a regra.
 
 **Este é o firewall que a sua VM local não tinha.** O `ufw` continua valendo dentro da máquina, e é
-uma segunda camada — mas o NSG é o que faz o pacote nem chegar.
+uma segunda camada, mas o NSG é o que faz o pacote nem chegar.
 
 ### Primeiro acesso, e o resto
 
@@ -149,7 +149,7 @@ ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'sudo bash -s' < scripts/server-sw
 ### Por que uma CA pública
 
 Na Aula 4 o certificado era autoassinado, e o `curl` reclamava até você passar `--cacert`. Aqui você
-tem um domínio de verdade — dá para **provar** que ele é seu, e é isso que uma CA pública exige em
+tem um domínio de verdade: dá para **provar** que ele é seu, e é isso que uma CA pública exige em
 troca de um certificado em que o mundo já confia.
 
 ### DNS
@@ -164,7 +164,7 @@ No Cloudflare, no seu domínio:
 | Proxy | **Proxied** (nuvem laranja) |
 
 **Proxied** significa que o tráfego passa pelo Cloudflare antes de chegar na sua VM. Você ganha
-cache, proteção contra DDoS e — o principal aqui — o IP real da sua máquina não aparece no DNS.
+cache, proteção contra DDoS e, o principal aqui, o IP real da sua máquina não aparece no DNS.
 
 Agora há **dois** proxies reversos no caminho:
 
@@ -178,7 +178,7 @@ navegador → Cloudflare → kamal-proxy (na sua VM) → Rails
 SSL/TLS → **Origin Server** → Create Certificate. O Cloudflare gera o par e mostra **uma vez**.
 
 Ele protege o trecho **Cloudflare → sua VM**. O certificado que o *usuário* vê é o público do
-Cloudflare — o Origin CA nunca aparece para o navegador, e por isso não precisa ser confiável por
+Cloudflare: o Origin CA nunca aparece para o navegador, e por isso não precisa ser confiável por
 ele.
 
 É o mesmo lugar do `.env` que o autoassinado ocupava:
@@ -194,7 +194,7 @@ SSL/TLS → Overview → **Full (strict)**.
 
 | Modo | Cloudflare → sua VM |
 |---|---|
-| Flexible | **em texto puro** — não use |
+| Flexible | **em texto puro**: não use |
 | Full | criptografado, mas aceita certificado inválido |
 | **Full (strict)** | criptografado e o certificado é validado |
 
@@ -220,7 +220,7 @@ proxy:
 
 ---
 
-## 3. OIDC — deploy sem senha
+## 3. OIDC: deploy sem senha
 
 O jeito comum seria criar um *client secret* na Azure e guardar como secret do GitHub. Problemas: ele
 é longo, vale por meses, e quem tiver acesso ao repositório tem acesso à sua Azure.
@@ -232,7 +232,7 @@ O jeito comum seria criar um *client secret* na Azure e guardar como secret do G
 
 ### Criando
 
-**1. Registro de aplicativo** — Microsoft Entra ID → Registros de aplicativo → Novo registro:
+**1. Registro de aplicativo.** Em Microsoft Entra ID → Registros de aplicativo → Novo registro:
 
 - nome: `github-capacita-<seunome>`
 - contas: somente este diretório
@@ -241,7 +241,7 @@ O jeito comum seria criar um *client secret* na Azure e guardar como secret do G
 
 Anote: Application (client) ID, Directory (tenant) ID, Subscription ID.
 
-**2. Credencial federada** — no app criado, Certificados e segredos → Credenciais federadas →
+**2. Credencial federada**: no app criado, Certificados e segredos → Credenciais federadas →
 Adicionar → cenário **GitHub Actions**:
 
 | Campo | Valor |
@@ -258,15 +258,15 @@ repo:SEU-USUARIO/SEU-REPO:ref:refs/heads/main
 ```
 
 > Precisa bater **caractere por caractere** com o que o GitHub emite. Erro de maiúscula, de nome ou
-> de branch dá `AADSTS700213` — e a mensagem não ajuda.
+> de branch dá `AADSTS700213`, e a mensagem não ajuda.
 
-**3. Permissão mínima** — no **NSG** (não na assinatura), IAM → Adicionar atribuição de função →
+**3. Permissão mínima**: no **NSG** (não na assinatura), IAM → Adicionar atribuição de função →
 **Colaborador de Rede** → o app criado.
 
 Escopo no NSG e não na assinatura: se a credencial vazar, o estrago se limita a regras de firewall
 daquela máquina.
 
-**4. Chave SSH de deploy** — separada da sua chave pessoal:
+**4. Chave SSH de deploy.** Separada da sua chave pessoal:
 
 ```bash
 ssh-keygen -t ed25519 -f ~/.ssh/capacita-github -C "github-actions" -N ""
@@ -282,7 +282,7 @@ Chave separada dá para revogar o acesso do CI sem trocar o seu.
 ## 4. O workflow de deploy
 
 `.github/workflows/deploy.yml` roda a cada push na `main`. O ponto delicado é o SSH: a porta 22 está
-fechada para a internet, e o runner do GitHub tem IP diferente a cada execução — não dá para liberar
+fechada para a internet, e o runner do GitHub tem IP diferente a cada execução: não dá para liberar
 antes.
 
 ```
@@ -296,7 +296,7 @@ antes.
 O passo 5 tem `if: always()`. **Deixar a 22 aberta é o erro que transforma um deploy ruim num
 incidente de segurança.**
 
-E aqui o build volta a acontecer no runner, não no seu notebook — que é o que você quer: o deploy
+E aqui o build volta a acontecer no runner, e não no seu notebook. É o que você quer: o deploy
 deixa de depender da sua máquina estar ligada.
 
 ### Cadastrando no GitHub
@@ -348,7 +348,7 @@ gh variable set APP_HOST
 
 **Actions → Deploy (Kamal) → Run workflow → command: `setup`**
 
-`setup` instala o Docker se faltar, sobe os accessories e faz o primeiro deploy. Só na primeira vez —
+`setup` instala o Docker se faltar, sobe os accessories e faz o primeiro deploy. Só na primeira vez,
 depois é `deploy`, e ele acontece sozinho a cada push.
 
 ```bash
@@ -380,13 +380,13 @@ Não pode ter `allow-github-actions-deploy-ssh` na lista.
 
 ## Recapitulando
 
-- O trabalho é o mesmo. O que a nuvem acrescenta é **exposição** — e cada peça nova aqui existe por
+- O trabalho é o mesmo. O que a nuvem acrescenta é **exposição**, e cada peça nova aqui existe por
   causa dela.
 - O firewall do provedor vem antes do `ufw`: o pacote nem chega.
 - CA pública exige prova de domínio. É a única diferença real entre ela e o seu `openssl`.
 - Full (strict), sempre. `Flexible` mente para o usuário.
 - OIDC troca segredo de longa duração por token de curta. Prefira sempre.
-- A porta 22 abre por um minuto e fecha — inclusive quando dá errado.
+- A porta 22 abre por um minuto e fecha: inclusive quando dá errado.
 
 Os erros que realmente acontecem neste percurso estão em
 [`troubleshooting.md`](troubleshooting.md#apêndice-nuvem-azure-e-cloudflare).
