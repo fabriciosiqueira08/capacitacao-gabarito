@@ -27,7 +27,8 @@ ALUNOS = [
     ("01-fundamentos.md", "Aula 1 — Back-end, Ruby e o primeiro Rails"),
     ("02-activerecord.md", "Aula 2 — Banco, ActiveRecord e o model User"),
     ("03-autenticacao.md", "Aula 3 — As rotas de autenticação"),
-    ("04-deploy.md", "Aula 4 — VPS, Docker, Kamal e deploy"),
+    ("04-deploy.md", "Aula 4 — Servidor, Docker, Kamal e deploy"),
+    ("apendice-azure.md", "Apêndice — o mesmo servidor, na nuvem"),
     ("ruby-para-pythonistas.md", "Ruby para quem sabe Python"),
     ("glossario.md", "Glossário"),
     ("troubleshooting.md", "Troubleshooting"),
@@ -35,6 +36,7 @@ ALUNOS = [
 
 # O que é só de quem apresenta.
 INSTRUTOR = [
+    ("guia-do-instrutor.md", "Guia do instrutor — conduzir, não apresentar"),
     ("roteiro-de-tempo.md", "Roteiros — índice"),
     ("roteiro-aula-01.md", "Roteiro — Aula 1"),
     ("roteiro-aula-02.md", "Roteiro — Aula 2"),

@@ -105,32 +105,152 @@ ele deve passar. Se ficar vermelho, abra o log em <strong>Actions</strong> e vej
 gh auth login      # se não estiver
 </code></pre>
 <hr>
-<h2 id="azure-e-vm">Azure e VM</h2>
+<h2 id="a-vm-do-multipass">A VM do Multipass</h2>
+<h3 id="o-wsl2-nao-alcanca-a-vm-do-multipass">O WSL2 não alcança a VM do Multipass</h3>
+<p>O sintoma: <code>multipass info</code> mostra o IP, mas de dentro do WSL2 o <code>ping</code> e o <code>ssh</code> dão timeout.</p>
+<p>O Multipass roda no Windows e o WSL2 é outra máquina virtual. Por padrão, uma não enxerga a outra.</p>
+<p>Rode o diagnóstico — ele identifica o caso e imprime a saída:</p>
+<pre><code class="language-bash">./scripts/checar-servidor.sh &lt;IP-da-VM&gt;
+</code></pre>
+<p><strong>Saída 1 — rede espelhada</strong> (Windows 11 22H2+). Crie ou edite
+<code>C:\Users\&lt;seu-usuario&gt;\.wslconfig</code>:</p>
+<pre><code>[wsl2]
+networkingMode=mirrored
+</code></pre>
+<p>E no PowerShell: <code>wsl --shutdown</code>.</p>
+<p><strong>Saída 2 — encaminhamento de porta</strong> (qualquer Windows, inclusive o 10). O Windows leva o tráfego
+até a VM. No PowerShell <strong>como administrador</strong>:</p>
+<pre><code class="language-powershell">$vm = &quot;SEU_IP_DA_VM&quot;
+netsh interface portproxy add v4tov4 listenport=2222 listenaddress=0.0.0.0 connectport=22  connectaddress=$vm
+netsh interface portproxy add v4tov4 listenport=443  listenaddress=0.0.0.0 connectport=443 connectaddress=$vm
+netsh interface portproxy add v4tov4 listenport=80   listenaddress=0.0.0.0 connectport=80  connectaddress=$vm
+New-NetFirewallRule -DisplayName &quot;Capacita VM&quot; -Direction Inbound `
+  -Action Allow -Protocol TCP -LocalPort 2222,443,80
+</code></pre>
+<p>No WSL2, o endereço da VM passa a ser o do Windows, e o SSH muda de porta:</p>
+<pre><code class="language-bash">ip route show default | awk '{print $3}'    # este vira o SERVER_IP e a linha do /etc/hosts
+echo 'export SSH_PORT=2222' &gt;&gt; .env
+</code></pre>
+<p>O <code>deploy.yml</code> já lê <code>SSH_PORT</code>, então o Kamal funciona sem mais nenhuma mudança. Os comandos <code>ssh</code>
+da apostila precisam de <code>-p 2222</code>.</p>
+<blockquote>
+<p>O endereço do Windows muda a cada <code>wsl --shutdown</code>. Quando o SSH parar de conectar do nada, é
+isso.</p>
+</blockquote>
+<h3 id="netsh-portproxy-configurado-mas-ainda-nao-conecta"><code>netsh portproxy</code> configurado, mas ainda não conecta</h3>
+<p>Confira, no PowerShell:</p>
+<pre><code class="language-powershell">netsh interface portproxy show all      # as três linhas estão lá?
+</code></pre>
+<p>Se estiverem e ainda assim não passa, é o firewall do Windows: a regra
+<code>New-NetFirewallRule</code> acima precisa existir. E lembre que o <code>connectaddress</code> é o IP <strong>da VM</strong>, que
+muda depois de um <code>multipass stop</code>/<code>start</code> — nesse caso apague e recrie:</p>
+<pre><code class="language-powershell">netsh interface portproxy reset
+</code></pre>
+<h3 id="multipass-launch-falha-com-erro-de-virtualizacao"><code>multipass launch</code> falha com erro de virtualização</h3>
+<p>Virtualização desabilitada na BIOS/UEFI. Procure por <code>VT-x</code> (Intel), <code>AMD-V</code> ou <code>SVM</code> e ligue.</p>
+<p>No Windows, confira também se o Hyper-V está habilitado (Recursos do Windows → Plataforma do
+Hipervisor do Windows).</p>
+<h3 id="multipass-launch-parado-em-retrieving-image"><code>multipass launch</code> parado em "Retrieving image"</h3>
+<p>Ele está baixando ~500 MB. Numa rede lenta demora. Se travar de vez:</p>
+<pre><code class="language-bash">multipass delete servidor &amp;&amp; multipass purge
+multipass launch 24.04 --name servidor --cloud-init cloud-init.yaml
+</code></pre>
+<h3 id="o-ip-da-vm-mudou">O IP da VM mudou</h3>
+<p>Acontece depois de um <code>multipass stop</code> / <code>start</code>, ou de reiniciar o notebook.</p>
+<pre><code class="language-bash">multipass info servidor
+</code></pre>
+<p>Atualize em <strong>dois</strong> lugares: <code>SERVER_IP</code> no <code>.env</code> e a linha do <code>/etc/hosts</code>.</p>
+<h3 id="permission-denied-publickey"><code>Permission denied (publickey)</code></h3>
+<pre><code class="language-bash">chmod 600 ~/.ssh/capacita
+ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes ubuntu@SEU_IP
+</code></pre>
+<p>O <code>IdentitiesOnly=yes</code> importa: sem ele o SSH tenta todas as chaves do agente, o servidor recusa
+depois de algumas e você leva <code>Too many authentication failures</code> com a chave certa na mão.</p>
+<p>Se persistir, a chave pública não entrou na VM. Confira o <code>cloud-init.yaml</code>: ele tem que ter o
+conteúdo de <code>~/.ssh/capacita.pub</code>, e não o caminho do arquivo.</p>
+<pre><code class="language-bash">multipass exec servidor -- cat /home/ubuntu/.ssh/authorized_keys
+</code></pre>
+<h3 id="perdi-o-acesso-depois-de-mexer-no-sshd">Perdi o acesso depois de mexer no sshd</h3>
+<p>Se você seguiu o guia, tinha uma sessão aberta — desfaça por ela. Se não:</p>
+<pre><code class="language-bash">multipass shell servidor
+</code></pre>
+<p>Ele entra sem passar pelo <code>sshd</code>. <strong>Numa VPS essa porta não existe</strong> — por isso o guia insiste em
+<code>sudo sshd -t</code> antes do <code>reload</code>, e em testar num segundo terminal.</p>
+<hr>
+<h2 id="deploy">Deploy</h2>
+<h3 id="kamal-config-reclama-de-variavel-faltando"><code>kamal config</code> reclama de variável faltando</h3>
+<p>Você esqueceu o <code>source .env</code>. Ele diz exatamente qual variável.</p>
+<pre><code class="language-bash">source .env &amp;&amp; bundle exec kamal config
+</code></pre>
+<h3 id="denied-ou-unauthorized-ao-empurrar-a-imagem-para-o-ghcrio"><code>denied</code> ou <code>unauthorized</code> ao empurrar a imagem para o ghcr.io</h3>
+<p>O <code>KAMAL_REGISTRY_PASSWORD</code> tem que ser um PAT (classic) com <strong><code>write:packages</code></strong> e
+<strong><code>read:packages</code></strong>. Um token de granularidade fina (<em>fine-grained</em>) não serve para o ghcr.io.</p>
+<p>E o <code>GHCR_USER</code> é o seu usuário do GitHub, em minúsculas — o registry não aceita maiúscula no nome
+da imagem.</p>
+<h3 id="exec-format-error-ao-subir-o-container"><code>exec format error</code> ao subir o container</h3>
+<p>Arquitetura errada: você buildou para <code>amd64</code> e a VM é <code>arm64</code> (ou o contrário).</p>
+<pre><code class="language-bash">ssh -i ~/.ssh/capacita ubuntu@SEU_IP 'dpkg --print-architecture'
+</code></pre>
+<p>Ajuste <code>SERVER_ARCH</code> no <code>.env</code>, <code>source .env</code> de novo, e refaça o deploy.</p>
+<h3 id="kamal-docker-is-not-installed">Kamal: <code>Docker is not installed</code></h3>
+<p>O primeiro deploy precisa ser <code>setup</code>, não <code>deploy</code>:</p>
+<pre><code class="language-bash">source .env &amp;&amp; bundle exec kamal setup
+</code></pre>
+<h3 id="a-aplicacao-sobe-mas-nao-acha-o-banco">A aplicação sobe mas não acha o banco</h3>
+<p><code>kamal deploy</code> <strong>não</strong> sobe accessories.</p>
+<pre><code class="language-bash">kamal accessory boot db
+</code></pre>
+<p>Depois de mudar env de accessory, <code>boot</code> não basta — é <code>kamal accessory reboot db</code>.</p>
+<h3 id="curl-diz-self-signed-certificate"><code>curl</code> diz <code>self signed certificate</code></h3>
+<p><strong>Isso é o esperado</strong>, e é o exercício G da apostila. O túnel TLS subiu; o que faltou foi confiança.</p>
+<pre><code class="language-bash">curl --cacert tls/capacita-cert.pem https://seunome.test/api/v1/status
+</code></pre>
+<h3 id="curl-diz-could-not-resolve-host-seunometest"><code>curl</code> diz <code>Could not resolve host: seunome.test</code></h3>
+<p>Falta a linha no <code>/etc/hosts</code>:</p>
+<pre><code class="language-bash">echo &quot;SEU_IP  seunome.test&quot; | sudo tee -a /etc/hosts
+getent hosts seunome.test
+</code></pre>
+<p>No Windows, o navegador consulta <code>C:\Windows\System32\drivers\etc\hosts</code>, não o do WSL2.</p>
+<h3 id="curl-conecta-mas-devolve-404-do-proxy"><code>curl</code> conecta mas devolve 404 do proxy</h3>
+<p>O <code>APP_HOST</code> do <code>.env</code> tem que ser <strong>exatamente</strong> o nome que você está chamando. O <code>kamal-proxy</code>
+roteia pelo cabeçalho <code>Host</code>: se o certificado é para <code>seunome.test</code> e o <code>APP_HOST</code> está
+<code>outro.test</code>, ele não entrega a ninguém.</p>
+<h3 id="curl-da-connection-refused-na-443"><code>curl</code> dá <code>Connection refused</code> na 443</h3>
+<pre><code class="language-bash">ssh -i ~/.ssh/capacita ubuntu@SEU_IP 'docker ps &amp;&amp; sudo ufw status'
+</code></pre>
+<p>O <code>kamal-proxy</code> está na lista? A 443 está liberada no <code>ufw</code>?</p>
+<h3 id="smtp-da-timeout-na-vm">SMTP dá timeout na VM</h3>
+<p>Da VM local, a saída costuma funcionar — se não funcionar, é o firewall da sua rede (algumas redes
+universitárias bloqueiam a 587).</p>
+<p>Numa VPS é mais comum: vários provedores de nuvem bloqueiam a saída na porta 25, e alguns na 587.
+Teste a alternativa do seu provedor de e-mail (o Resend aceita 2587) e ajuste <code>SMTP_PORT</code> no
+<code>env.clear</code>.</p>
+<h3 id="o-deploy-passa-mas-o-site-responde-500">O deploy passa mas o site responde 500</h3>
+<pre><code class="language-bash">source .env &amp;&amp; kamal app logs -f
+</code></pre>
+<p>Suspeitos comuns: migration pendente (<code>kamal app exec "bin/rails db:migrate"</code>), <code>RAILS_MASTER_KEY</code>
+errada, ou um <code>ENV.fetch</code> sem default para uma variável que ninguém cadastrou.</p>
+<h3 id="preciso-voltar-atras-agora">Preciso voltar atrás agora</h3>
+<pre><code class="language-bash">source .env &amp;&amp; kamal rollback
+</code></pre>
+<p>Volta para a versão anterior da imagem, que ainda está na VM.</p>
+<hr>
+<h2 id="apendice-nuvem-azure-e-cloudflare">Apêndice: nuvem (Azure e Cloudflare)</h2>
+<p>Estes só acontecem no percurso de <strong><code>apendice-azure.md</code></strong>.</p>
 <h3 id="notavailableforsubscription-ao-criar-a-vm"><code>NotAvailableForSubscription</code> ao criar a VM</h3>
 <p>O tamanho escolhido não está habilitado para a sua assinatura naquela região.</p>
-<p><strong>Assinaturas → Uso + cotas → filtre por Compute</strong> e escolha outra região ou outro tamanho.
-Pedir aumento de cota <strong>não</strong> resolve quando a oferta não está habilitada.</p>
-<h3 id="ssh-da-timeout">SSH dá timeout</h3>
+<p><strong>Assinaturas → Uso + cotas → filtre por Compute</strong> e escolha outra região ou outro tamanho. Pedir
+aumento de cota <strong>não</strong> resolve quando a oferta não está habilitada.</p>
+<h3 id="ssh-da-timeout-na-vm-da-azure">SSH dá timeout na VM da Azure</h3>
 <p>Quase sempre é o NSG:</p>
 <ol>
 <li>o seu IP mudou? <code>curl -4 ifconfig.me</code> e compare com a regra;</li>
 <li>a regra libera a porta 22, protocolo TCP, direção Entrada?</li>
 <li>a prioridade da regra de permissão é <strong>menor</strong> que a de alguma negação?</li>
 </ol>
-<h3 id="permission-denied-publickey"><code>Permission denied (publickey)</code></h3>
-<pre><code class="language-bash">chmod 600 ~/.ssh/azure-capacita
-ssh -i ~/.ssh/azure-capacita -o IdentitiesOnly=yes azureuser@SEU_IP
-</code></pre>
-<p>O <code>IdentitiesOnly=yes</code> importa: sem ele o SSH tenta todas as chaves do agente, o servidor recusa
-depois de algumas e você leva <code>Too many authentication failures</code> com a chave certa na mão.</p>
-<h3 id="perdi-o-acesso-depois-de-mexer-no-sshd">Perdi o acesso depois de mexer no sshd</h3>
-<p>Se você seguiu o guia, tinha uma sessão aberta — desfaça por ela. Se não, sobrou o <strong>Serial
-Console</strong> do portal da Azure (menu da VM → Suporte + solução de problemas → Console Serial), que
-não passa pelo SSH.</p>
-<p>Da próxima vez: <code>sudo sshd -t</code> antes de <code>reload</code>, e teste em outro terminal antes de fechar o
-primeiro.</p>
-<hr>
-<h2 id="deploy">Deploy</h2>
+<h3 id="perdi-o-acesso-depois-de-mexer-no-sshd-e-nao-tenho-sessao-aberta">Perdi o acesso depois de mexer no sshd, e não tenho sessão aberta</h3>
+<p>Sobrou o <strong>Serial Console</strong> do portal da Azure (menu da VM → Suporte + solução de problemas →
+Console Serial), que não passa pelo SSH.</p>
 <h3 id="oidc-aadsts700213">OIDC: <code>AADSTS700213</code></h3>
 <p>O <em>subject</em> da credencial federada não bate com o que o GitHub emite. Ele precisa ser, caractere por
 caractere:</p>
@@ -147,15 +267,6 @@ Apague na mão:</p>
   --name allow-github-actions-deploy-ssh
 </code></pre>
 <p>E confira depois de todo deploy que falhou de forma estranha.</p>
-<h3 id="kamal-docker-is-not-installed">Kamal: <code>Docker is not installed</code></h3>
-<p>O primeiro deploy precisa ser <code>setup</code>, não <code>deploy</code>. Rode o workflow por
-<strong>Actions → Run workflow → command: setup</strong>.</p>
-<h3 id="a-aplicacao-sobe-mas-nao-acha-o-banco">A aplicação sobe mas não acha o banco</h3>
-<p><code>kamal deploy</code> <strong>não</strong> sobe accessories. O workflow tem um passo <code>kamal accessory boot db</code>, mas se
-você rodou o Kamal à mão:</p>
-<pre><code class="language-bash">kamal accessory boot db
-</code></pre>
-<p>Depois de mudar env de accessory, <code>boot</code> não basta — é <code>kamal accessory reboot db</code>.</p>
 <h3 id="cloudflare-521-522">Cloudflare 521 / 522</h3>
 <p>O Cloudflare não conseguiu falar com o seu servidor.</p>
 <ul>
@@ -174,17 +285,5 @@ você rodou o Kamal à mão:</p>
 <h3 id="lets-encrypt-falha-atras-do-cloudflare">Let's Encrypt falha atrás do Cloudflare</h3>
 <p>Esperado. Com o DNS proxied, o desafio HTTP-01 não chega como o Let's Encrypt espera. Use o
 certificado Origin CA — é a razão de ele existir.</p>
-<h3 id="smtp-da-timeout-na-vm">SMTP dá timeout na VM</h3>
-<p>Vários provedores de nuvem bloqueiam a saída na porta 25, e alguns na 587. Teste a alternativa do
-seu provedor de e-mail (o Resend aceita 2587) e ajuste <code>SMTP_PORT</code> no <code>env.clear</code>.</p>
-<h3 id="o-deploy-passa-mas-o-site-responde-500">O deploy passa mas o site responde 500</h3>
-<pre><code class="language-bash">kamal app logs -f
-</code></pre>
-<p>Suspeitos comuns: migration pendente (<code>kamal app exec "bin/rails db:migrate"</code>), <code>RAILS_MASTER_KEY</code>
-errada, ou um <code>ENV.fetch</code> sem default para uma variável que ninguém cadastrou.</p>
-<h3 id="preciso-voltar-atras-agora">Preciso voltar atrás agora</h3>
-<pre><code class="language-bash">kamal rollback
-</code></pre>
-<p>Volta para a versão anterior da imagem, que ainda está na VM.</p>
 </main></body>
 </html>

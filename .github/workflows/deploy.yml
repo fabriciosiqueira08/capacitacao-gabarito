@@ -1,11 +1,18 @@
-# Deploy com Kamal, disparado por push na main.
+# Deploy com Kamal na NUVEM, disparado por push na main.
+#
+# Este workflow NÃO é usado na Aula 4: lá o servidor é uma VM no seu notebook, e
+# o runner do GitHub não alcança um IP privado. Na Aula 4 o deploy é
+# `source .env && kamal deploy`, do seu terminal.
+#
+# Ele é o passo seguinte, para quando a máquina tiver IP público. O passo a passo
+# de como configurá-lo está em docs/apendice-azure.md.
 #
 # O ponto delicado deste workflow é o SSH: a porta 22 da VM fica FECHADA para a
 # internet. O runner do GitHub abre uma regra no firewall (NSG) só para o
 # próprio IP, faz o deploy, e fecha a regra ao final — inclusive se falhar.
 #
 # Para autenticar na Azure não usamos senha nem client secret: usamos OIDC.
-# Ver docs/04-deploy.md, seção "OIDC".
+# Ver docs/apendice-azure.md, seção "OIDC".
 name: Deploy (Kamal)
 
 on:
@@ -46,7 +53,9 @@ jobs:
 
       # Variables (não são segredo): mesma tela, aba Variables
       GHCR_USER: ${{ vars.GHCR_USER }}
-      AZURE_VM_IP: ${{ vars.AZURE_VM_IP }}
+      SERVER_IP: ${{ vars.SERVER_IP }}
+      KAMAL_SSH_USER: ${{ vars.KAMAL_SSH_USER }}
+      SERVER_ARCH: ${{ vars.SERVER_ARCH }}
       APP_HOST: ${{ vars.APP_HOST }}
       CORS_ORIGINS: ${{ vars.CORS_ORIGINS }}
       MAILER_FROM: ${{ vars.MAILER_FROM }}
@@ -70,7 +79,8 @@ jobs:
         run: |
           set -euo pipefail
           : "${GHCR_USER:?Falta a variable GHCR_USER}"
-          : "${AZURE_VM_IP:?Falta a variable AZURE_VM_IP}"
+          : "${SERVER_IP:?Falta a variable SERVER_IP}"
+          : "${KAMAL_SSH_USER:?Falta a variable KAMAL_SSH_USER}"
           : "${APP_HOST:?Falta a variable APP_HOST}"
           : "${AZURE_RESOURCE_GROUP:?Falta a variable AZURE_RESOURCE_GROUP}"
           : "${AZURE_NSG_NAME:?Falta a variable AZURE_NSG_NAME}"
@@ -118,9 +128,9 @@ jobs:
           install -d -m 700 ~/.ssh
 
           for tentativa in {1..12}; do
-            if ssh-keyscan -T 5 "${AZURE_VM_IP}" > /tmp/known_hosts 2>/dev/null && [[ -s /tmp/known_hosts ]]; then
+            if ssh-keyscan -T 5 "${SERVER_IP}" > /tmp/known_hosts 2>/dev/null && [[ -s /tmp/known_hosts ]]; then
               install -m 600 /tmp/known_hosts ~/.ssh/known_hosts
-              printf 'Host %s\n  StrictHostKeyChecking yes\n' "${AZURE_VM_IP}" > ~/.ssh/config
+              printf 'Host %s\n  StrictHostKeyChecking yes\n' "${SERVER_IP}" > ~/.ssh/config
               exit 0
             fi
             echo "Esperando a regra do NSG propagar (${tentativa}/12)..."

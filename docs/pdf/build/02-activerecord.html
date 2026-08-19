@@ -11,6 +11,19 @@
 <p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: um <code>User</code> com validações e senha hasheada, testado.
 <strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-02</code></p>
 <hr>
+<h2 id="de-onde-viemos-e-para-onde-vamos-hoje">De onde viemos, e para onde vamos hoje</h2>
+<p>Na Aula 1 você subiu uma API que responde <code>GET /api/v1/status</code>. Ela funciona, e não guarda nada:
+desligou o servidor, acabou.</p>
+<p><strong>Hoje ela ganha memória.</strong> Você vai criar as tabelas, escrever o model <code>User</code>, guardar senha do
+jeito certo (que não é guardar senha) e ligar duas tabelas uma na outra. No fim, um usuário criado
+no console continua lá depois de você reiniciar tudo.</p>
+<p>É a aula em que você mais escreve código nas quatro — e é a base da Aula 3, em que esse <code>User</code> vira
+cadastro, login e recuperação de senha de verdade.</p>
+<blockquote>
+<p>Travou? A tabela <strong>Se der errado</strong> no fim de cada prática cobre os erros que realmente acontecem.
+Consulte antes de chamar — e chame se não resolver em dez minutos.</p>
+</blockquote>
+<hr>
 <h2 id="1-por-que-postgres-e-nao-sqlite">1. Por que Postgres, e não SQLite</h2>
 <p>SQLite é um arquivo. Funciona muito bem para um app de celular ou um script. Para um servidor com
 várias requisições ao mesmo tempo, ele trava — só uma escrita por vez no banco inteiro.</p>
@@ -409,23 +422,124 @@ as respostas, dá para descobrir quem tem conta no sistema — é um <strong>ata
 <p>Rodando o bcrypt sempre, com um digest descartável quando não há usuário, as duas respostas custam
 o mesmo. Vamos usar esse método na Aula 3.</p>
 <hr>
-<h2 id="exercicio-da-aula">Exercício da aula</h2>
+<h2 id="as-praticas-da-aula">As práticas da aula</h2>
+<p>Oito práticas, cada uma logo depois do bloco que a explica. <strong>Nenhuma passa de 20 minutos</strong>, e cada
+uma termina com uma conferência: não siga em frente com ela vermelha.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>O que</th>
+<th>Depois de</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>A gem do bcrypt, e o banco de pé</td>
+<td>seção 1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>As três migrations da tabela <code>users</code></td>
+<td>seção 3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Senha no console: veja o bcrypt trabalhar</td>
+<td>seção 4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>O validador de senha</td>
+<td>seção 5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>O model <code>User</code></td>
+<td>seção 5</td>
+</tr>
+<tr>
+<td>6</td>
+<td>A segunda tabela e a associação</td>
+<td>seção 6</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Os dois concerns</td>
+<td>seção 7</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Fixtures, testes e commit</td>
+<td>seção 10</td>
+</tr>
+</tbody>
+</table>
 <blockquote>
-<p>No <strong>seu</strong> projeto (<code>~/automic_auth_api</code>), continuando de onde a Aula 1 parou.
-Cada bloco termina com um comando de conferência: <strong>não siga em frente com ele vermelho.</strong></p>
+<p>No <strong>seu</strong> projeto (<code>~/automic_auth_api</code>), continuando de onde a Aula 1 parou.</p>
 </blockquote>
-<h3 id="1-a-gem-do-bcrypt">1. A gem do bcrypt</h3>
+<hr>
+<h3 id="pratica-1-a-gem-do-bcrypt-e-o-banco-de-pe">Prática 1 — A gem do bcrypt, e o banco de pé</h3>
+<blockquote>
+<p><strong>~5 minutos.</strong> Aquecimento, e garante que o ambiente da Aula 1 continua funcionando.</p>
+</blockquote>
+<pre><code class="language-bash">cd ~/automic_auth_api
+docker compose up -d
+docker compose ps           # healthy
+</code></pre>
 <p>No <code>Gemfile</code>, descomente (ou acrescente) a linha:</p>
 <pre><code class="language-ruby">gem &quot;bcrypt&quot;, &quot;~&gt; 3.1.7&quot;
 </code></pre>
 <pre><code class="language-bash">bundle install
 </code></pre>
-<h3 id="2-as-tres-migrations-da-tabela-users">2. As três migrations da tabela <code>users</code></h3>
+<p><strong>Confere</strong>:</p>
+<pre><code class="language-bash">bin/rails runner 'puts BCrypt::Password.create(&quot;teste&quot;)[0, 7]'
+</code></pre>
+<p>Sai algo como <code>$2a$12$</code>. Esse prefixo é o algoritmo e o custo — você vai entender os dois na
+seção 4.</p>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Could not find gem 'bcrypt'</code></td>
+<td>esqueceu o <code>bundle install</code></td>
+<td>rode-o</td>
+</tr>
+<tr>
+<td><code>An error occurred while installing bcrypt</code></td>
+<td>falta compilador ou headers</td>
+<td>Linux: <code>sudo apt install build-essential</code>; macOS: <code>xcode-select --install</code></td>
+</tr>
+<tr>
+<td><code>uninitialized constant BCrypt</code></td>
+<td>a linha ficou comentada no <code>Gemfile</code></td>
+<td>tire o <code>#</code> do começo</td>
+</tr>
+<tr>
+<td><code>PG::ConnectionBad</code></td>
+<td>o container não subiu</td>
+<td><code>docker compose up -d</code> e confira o <code>ps</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-2-as-tres-migrations-da-tabela-users">Prática 2 — As três migrations da tabela <code>users</code></h3>
+<blockquote>
+<p><strong>~20 minutos.</strong> A prática mais longa do dia. Faça uma migration por vez e migre entre elas.</p>
+</blockquote>
 <pre><code class="language-bash">bin/rails generate migration CreateUsers
 bin/rails generate migration AddEmailVerificationToUsers
 bin/rails generate migration AddPasswordResetToUsers
 </code></pre>
-<p>O conteúdo de cada uma está na seção <strong>3. Migrations</strong> desta apostila (a primeira) e abaixo:</p>
+<p>O conteúdo da primeira está na seção <strong>3. Migrations</strong>. As outras duas:</p>
 <pre><code class="language-ruby"># add_email_verification_to_users.rb
 add_column :users, :email_verification_code_digest, :string
 add_column :users, :email_verification_expires_at, :datetime
@@ -438,10 +552,133 @@ add_column :users, :password_reset_expires_at, :datetime
 add_column :users, :password_reset_sent_at, :datetime
 </code></pre>
 <pre><code class="language-bash">bin/rails db:migrate
+</code></pre>
+<p><strong>Confere</strong>:</p>
+<pre><code class="language-bash">bin/rails db:migrate:status                      # três linhas &quot;up&quot;
 sed -n '/create_table &quot;users&quot;/,/^  end/p' db/schema.rb | grep -c &quot;^    t\.&quot;
 </code></pre>
-<p><strong>Confira</strong>: tem que sair <strong>17</strong> (as 16 colunas mais o <code>id</code>).</p>
-<h3 id="3-o-validador-de-senha">3. O validador de senha</h3>
+<p>O segundo comando tem que sair <strong>17</strong> (as 16 colunas mais o <code>id</code>).</p>
+<p>Abra o <code>db/schema.rb</code> e leia: ele é o retrato do banco <strong>agora</strong>, montado sozinho pelas migrations.</p>
+<p><strong>Se der errado</strong></p>
+<blockquote>
+<p>Migration que falha no meio dá uma mensagem enorme e assustadora. <strong>Ignore a primeira linha</strong> —
+ela só diz que a migration parou. A resposta está na <strong>linha seguinte</strong>, e costuma ser bem
+específica. Esse hábito sozinho economiza horas ao longo de uma carreira.</p>
+<p>E nesta fase do projeto, <code>db:drop db:create db:migrate</code> é sempre uma saída legítima: não há dado
+nenhum para perder. Não tenha dó.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PG::DuplicateTable: relation "users" already exists</code></td>
+<td>você rodou a migration duas vezes, ou criou a tabela na mão</td>
+<td><code>bin/rails db:drop db:create db:migrate</code> (perde os dados, e tudo bem agora)</td>
+</tr>
+<tr>
+<td><code>PG::DuplicateColumn</code></td>
+<td>mesma coisa, com coluna</td>
+<td>idem</td>
+</tr>
+<tr>
+<td><code>An error has occurred, this and all later migrations canceled</code></td>
+<td>uma migration falhou no meio</td>
+<td><strong>leia a linha seguinte</strong>: é ela que diz o motivo. Conserte o arquivo e rode de novo</td>
+</tr>
+<tr>
+<td><code>ActiveRecord::IrreversibleMigration</code> ao fazer <code>rollback</code></td>
+<td>a migration usou <code>change</code> com algo que não sabe desfazer</td>
+<td>troque por <code>up</code>/<code>down</code>, ou refaça com <code>db:drop</code></td>
+</tr>
+<tr>
+<td>o <code>schema.rb</code> não mudou</td>
+<td>a migration não rodou</td>
+<td><code>bin/rails db:migrate:status</code> — a sua está <code>down</code>?</td>
+</tr>
+<tr>
+<td>saiu 16 em vez de 17</td>
+<td>falta uma coluna</td>
+<td>compare com o gabarito: <code>git -C ~/capacitacao-gabarito show aula-02:db/schema.rb</code></td>
+</tr>
+<tr>
+<td><code>Multiple migrations have the name ...</code></td>
+<td>você gerou duas com o mesmo nome</td>
+<td>apague a duplicada em <code>db/migrate/</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-3-senha-no-console-veja-o-bcrypt-trabalhar">Prática 3 — Senha no console: veja o bcrypt trabalhar</h3>
+<blockquote>
+<p><strong>~10 minutos.</strong> Sem escrever arquivo nenhum. É a prática que faz a seção 4 parar de ser teoria.</p>
+</blockquote>
+<pre><code class="language-bash">bin/rails console
+</code></pre>
+<blockquote>
+<p><strong>Antes de rodar, aposte</strong>: a mesma senha, hasheada duas vezes, dá o mesmo resultado ou resultados
+diferentes? Decida agora — a graça do exercício está em você errar essa aposta.</p>
+</blockquote>
+<pre><code class="language-ruby"># a) o mesmo texto, dois digests diferentes
+BCrypt::Password.create(&quot;Automic@2026&quot;)
+BCrypt::Password.create(&quot;Automic@2026&quot;)
+</code></pre>
+<p>Rodou duas vezes e deu <strong>diferente</strong>? Esse é o <em>salt</em>, e é ele que impede alguém de descobrir que
+dois usuários têm a mesma senha.</p>
+<pre><code class="language-ruby"># b) mas os dois conferem
+digest = BCrypt::Password.create(&quot;Automic@2026&quot;)
+BCrypt::Password.new(digest) == &quot;Automic@2026&quot;    # true
+BCrypt::Password.new(digest) == &quot;errada&quot;          # false
+</code></pre>
+<pre><code class="language-ruby"># c) por que é lento de propósito
+require &quot;benchmark&quot;
+Benchmark.realtime { BCrypt::Password.create(&quot;Automic@2026&quot;) }
+Benchmark.realtime { Digest::SHA256.hexdigest(&quot;Automic@2026&quot;) }
+</code></pre>
+<p><strong>Confere</strong>: o bcrypt levou centenas de milissegundos; o SHA-256, microssegundos. Diga em voz alta
+por que a lentidão é uma <em>característica</em> e não um defeito.</p>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uninitialized constant BCrypt</code></td>
+<td>a gem não entrou</td>
+<td>volte para a Prática 1</td>
+</tr>
+<tr>
+<td><code>uninitialized constant Digest</code></td>
+<td>não carregou</td>
+<td><code>require "digest"</code> antes</td>
+</tr>
+<tr>
+<td>o console não abre, erro de banco</td>
+<td>container caiu</td>
+<td><code>docker compose up -d</code></td>
+</tr>
+<tr>
+<td>você fechou o console sem querer</td>
+<td><code>exit</code> ou <code>Ctrl+D</code></td>
+<td>é só reabrir; nada foi perdido</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-4-o-validador-de-senha">Prática 4 — O validador de senha</h3>
+<blockquote>
+<p><strong>~15 minutos.</strong> O primeiro arquivo Ruby seu, do zero, nesta capacitação.</p>
+</blockquote>
 <p>Crie <code>app/validators/password_policy_validator.rb</code>:</p>
 <pre><code class="language-ruby">class PasswordPolicyValidator
   SPECIAL_CHARACTERS = %r{[!@#$%^&amp;*(),.?&quot;:{}|&lt;&gt;]}
@@ -474,16 +711,190 @@ sed -n '/create_table &quot;users&quot;/,/^  end/p' db/schema.rb | grep -c &quot
   end
 end
 </code></pre>
+<p>Repare em três coisas da Aula 1: o <code>self.validate</code> que instancia e chama, o <code>@password</code> de instância,
+e o <code>private</code> valendo da linha em diante.</p>
 <p>Ele fica fora do model porque o cadastro precisa validar a senha <strong>antes</strong> de existir um <code>User</code>
 (Aula 3), e a recuperação de senha valida de novo na hora de trocar.</p>
+<p><strong>Confere</strong>:</p>
 <pre><code class="language-bash">bin/rails runner 'p PasswordPolicyValidator.validate(&quot;abc&quot;)'
-# tem que sair a lista de erros
+# a lista de erros
 bin/rails runner 'p PasswordPolicyValidator.validate(&quot;Automic@2026&quot;)'
-# tem que sair []
+# []
 </code></pre>
-<h3 id="4-os-dois-concerns">4. Os dois concerns</h3>
-<p>Crie <code>app/models/concerns/email_verifiable.rb</code> e <code>app/models/concerns/password_resettable.rb</code>.
-O primeiro está inteiro na seção <strong>7. Concerns</strong>; o segundo é o mesmo desenho, trocando
+<p><strong>Avançado</strong>: <code>PasswordPolicyValidator.validate(nil)</code> também tem que devolver a lista de erros, sem
+estourar. Descubra qual linha do código garante isso.</p>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uninitialized constant PasswordPolicyValidator</code></td>
+<td>caminho ou nome do arquivo errado</td>
+<td>tem que ser <code>app/validators/password_policy_validator.rb</code> — Zeitwerk de novo</td>
+</tr>
+<tr>
+<td><code>NoMethodError: undefined method 'length' for nil</code></td>
+<td>você tirou o <code>.to_s</code> do <code>initialize</code></td>
+<td>é ele que transforma <code>nil</code> em <code>""</code></td>
+</tr>
+<tr>
+<td><code>undefined method 'validate' for an instance of Class</code></td>
+<td>escreveu <code>def validate</code> onde queria <code>def self.validate</code></td>
+<td>o <code>self.</code> faz o método ser da classe</td>
+</tr>
+<tr>
+<td>a senha boa devolve erro de caractere especial</td>
+<td>a regex saiu com escape errado</td>
+<td>copie a linha do <code>SPECIAL_CHARACTERS</code> inteira</td>
+</tr>
+<tr>
+<td><code>syntax error, unexpected end</code></td>
+<td>faltou ou sobrou um <code>end</code></td>
+<td>conte: <code>class</code>, <code>def</code> ×4, <code>if</code>…</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-5-o-model-user">Prática 5 — O model <code>User</code></h3>
+<blockquote>
+<p><strong>~20 minutos.</strong></p>
+</blockquote>
+<p>Crie <code>app/models/user.rb</code> com <code>has_secure_password validations: false</code>, as seis validações, os três
+normalizadores e o <code>authenticate_by_email</code> (seções <strong>4</strong>, <strong>5</strong> e <strong>11</strong>).</p>
+<p><strong>Confere</strong>:</p>
+<pre><code class="language-bash">bin/rails runner '
+u = User.new(name: &quot;Ana&quot;, email: &quot;ana@ufop.br&quot;, password: &quot;Automic@2026&quot;,
+             course: &quot;Automação&quot;, matricula: &quot;2011234&quot;, terms_accepted_at: Time.current)
+puts u.valid?
+puts u.password_digest[0, 20]
+'
+</code></pre>
+<p>Tem que sair <code>true</code> e um digest começando em <code>$2a$12$</code>.</p>
+<p>Agora <strong>quebre de propósito</strong> e leia a mensagem:</p>
+<pre><code class="language-bash">bin/rails runner 'u = User.new(email: &quot;NAO-E-EMAIL&quot;); u.valid?; p u.errors.full_messages'
+</code></pre>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NoMethodError: undefined method 'password='</code></td>
+<td>falta o <code>has_secure_password</code></td>
+<td>acrescente-o no topo da classe</td>
+</tr>
+<tr>
+<td><code>PG::UndefinedColumn: column "password_digest" does not exist</code></td>
+<td>a migration não rodou</td>
+<td><code>bin/rails db:migrate</code></td>
+</tr>
+<tr>
+<td><code>valid?</code> devolve <code>false</code> e você não sabe por quê</td>
+<td>as mensagens estão no objeto</td>
+<td><code>p u.errors.full_messages</code> — sempre</td>
+</tr>
+<tr>
+<td><code>valid?</code> devolve <code>true</code> com e-mail inválido</td>
+<td>falta a validação de formato</td>
+<td>releia a seção 5</td>
+</tr>
+<tr>
+<td>o e-mail salvou com maiúscula</td>
+<td>o normalizador não rodou</td>
+<td><code>normalizes :email, with: -&gt; (e) { e.strip.downcase }</code></td>
+</tr>
+<tr>
+<td><code>ArgumentError: wrong number of arguments</code></td>
+<td>passou posicional onde é nomeado</td>
+<td><code>User.new(name: ..., email: ...)</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-6-a-segunda-tabela-e-a-associacao">Prática 6 — A segunda tabela e a associação</h3>
+<blockquote>
+<p><strong>~15 minutos.</strong> É aqui que o banco deixa de ser uma tabela e vira um <em>modelo de dados</em>.</p>
+</blockquote>
+<pre><code class="language-bash">bin/rails generate migration CreateLoginEvents
+</code></pre>
+<p>O conteúdo está na seção <strong>6. Associações</strong>. Depois crie <code>app/models/login_event.rb</code> com o
+<code>belongs_to :user</code> e o <code>scope :recentes</code>, e acrescente no <code>User</code>:</p>
+<pre><code class="language-ruby">has_many :login_events, dependent: :delete_all
+</code></pre>
+<pre><code class="language-bash">bin/rails db:migrate
+</code></pre>
+<p><strong>Confere</strong>, no console:</p>
+<pre><code class="language-ruby">u = User.first || User.create!(name: &quot;Ana&quot;, email: &quot;ana@ufop.br&quot;, password: &quot;Automic@2026&quot;,
+      course: &quot;Automação&quot;, matricula: &quot;2011234&quot;, terms_accepted_at: Time.current)
+u.login_events.create!(client: &quot;mobile&quot;, occurred_at: Time.current)
+u.login_events.count                      # 1
+u.login_events.recentes.first.user.name   # navega para o outro lado
+</code></pre>
+<p><strong>Avançado</strong>: apague o usuário e confirme que o histórico foi junto.</p>
+<pre><code class="language-ruby">LoginEvent.count      # 1
+u.destroy
+LoginEvent.count      # 0  &lt;- é o dependent: :delete_all
+</code></pre>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PG::ForeignKeyViolation</code></td>
+<td>você criou um <code>login_event</code> com <code>user_id</code> que não existe</td>
+<td>crie sempre a partir do usuário: <code>u.login_events.create!</code></td>
+</tr>
+<tr>
+<td><code>NameError: uninitialized constant User::LoginEvent</code></td>
+<td>o model não existe ou está no caminho errado</td>
+<td><code>app/models/login_event.rb</code></td>
+</tr>
+<tr>
+<td><code>ActiveRecord::RecordInvalid: Validation failed: User must exist</code></td>
+<td>o <code>belongs_to</code> é obrigatório por padrão no Rails 5+</td>
+<td>é isso mesmo; passe o usuário</td>
+</tr>
+<tr>
+<td><code>undefined method 'recentes'</code></td>
+<td>o scope não foi declarado</td>
+<td><code>scope :recentes, -&gt; { order(occurred_at: :desc) }</code></td>
+</tr>
+<tr>
+<td>apagou o usuário e sobraram os eventos</td>
+<td>falta o <code>dependent:</code></td>
+<td>acrescente no <code>has_many</code></td>
+</tr>
+<tr>
+<td><code>unknown attribute 'occurred_at'</code></td>
+<td>a migration não tem a coluna</td>
+<td>confira o <code>schema.rb</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-7-os-dois-concerns">Prática 7 — Os dois concerns</h3>
+<blockquote>
+<p><strong>~20 minutos.</strong> O momento em que os módulos da Aula 1 deixam de ser teoria.</p>
+</blockquote>
+<p>Crie <code>app/models/concerns/email_verifiable.rb</code> e <code>app/models/concerns/password_resettable.rb</code>. O
+primeiro está inteiro na seção <strong>7. Concerns</strong>; o segundo é o mesmo desenho, trocando
 <code>email_verification_*</code> por <code>password_reset_*</code> e sem o <code>email_verified_at</code>.</p>
 <p>Métodos que cada um precisa ter:</p>
 <table>
@@ -520,27 +931,63 @@ O primeiro está inteiro na seção <strong>7. Concerns</strong>; o segundo é o
 </tr>
 </tbody>
 </table>
-<h3 id="5-o-model-user">5. O model <code>User</code></h3>
-<p>Crie <code>app/models/user.rb</code> com <code>has_secure_password validations: false</code>, as seis validações, os três
-normalizadores e o <code>authenticate_by_email</code> (seções <strong>4</strong>, <strong>5</strong> e <strong>11</strong>).</p>
-<pre><code class="language-bash">bin/rails runner '
-u = User.new(name: &quot;Ana&quot;, email: &quot;ana@ufop.br&quot;, password: &quot;Automic@2026&quot;,
-             course: &quot;Automação&quot;, matricula: &quot;2011234&quot;, terms_accepted_at: Time.current)
-puts u.valid?
-puts u.password_digest[0, 20]
-'
+<p><strong>Confere</strong>, no console:</p>
+<pre><code class="language-ruby">u = User.first
+codigo = u.issue_email_verification_code!
+codigo                          # 6 dígitos
+u.email_verification_code_digest # o hash, NUNCA o código
+u.verify_email_code!(codigo)    # true
+u.verify_email_code!(codigo)    # false — só vale uma vez
+u.email_verified?               # true
 </code></pre>
-<p>Tem que sair <code>true</code> e um digest começando em <code>$2a$12$</code>.</p>
-<h3 id="6-a-segunda-tabela-login_events">6. A segunda tabela: <code>login_events</code></h3>
-<pre><code class="language-bash">bin/rails generate migration CreateLoginEvents
-</code></pre>
-<p>O conteúdo está na seção <strong>6. Associações</strong>. Depois crie <code>app/models/login_event.rb</code> com o
-<code>belongs_to :user</code> e o <code>scope :recentes</code>, e acrescente no <code>User</code>:</p>
-<pre><code class="language-ruby">has_many :login_events, dependent: :delete_all
-</code></pre>
-<pre><code class="language-bash">bin/rails db:migrate
-</code></pre>
-<h3 id="7-fixtures-e-testes">7. Fixtures e testes</h3>
+<p>Repare: o banco guarda o <strong>digest</strong> do código, não o código. Mesma lição da senha.</p>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>undefined method 'issue_email_verification_code!'</code></td>
+<td>faltou o <code>include EmailVerifiable</code> no <code>User</code></td>
+<td>acrescente</td>
+</tr>
+<tr>
+<td><code>NameError: uninitialized constant EmailVerifiable</code></td>
+<td>o arquivo está fora de <code>app/models/concerns/</code></td>
+<td>mova</td>
+</tr>
+<tr>
+<td><code>undefined method 'extend' / 'included'</code></td>
+<td>faltou <code>extend ActiveSupport::Concern</code> no topo do módulo</td>
+<td>acrescente</td>
+</tr>
+<tr>
+<td><code>verify_email_code!</code> devolve <code>true</code> duas vezes</td>
+<td>o método não limpa o digest depois de usar</td>
+<td>é a segunda linha do <code>verify_*</code>: apague o código usado</td>
+</tr>
+<tr>
+<td><code>verify_email_code!</code> devolve <code>false</code> com o código certo</td>
+<td>você comparou o código com o digest</td>
+<td>compare com <code>BCrypt::Password.new(digest) == codigo</code></td>
+</tr>
+<tr>
+<td>o código expira na hora</td>
+<td><code>expires_at</code> está no passado</td>
+<td><code>15.minutes.from_now</code>, não <code>.ago</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-8-fixtures-testes-e-commit">Prática 8 — Fixtures, testes e commit</h3>
+<blockquote>
+<p><strong>~25 minutos.</strong> Fecha o dia, e é o que a Aula 3 vai usar de base.</p>
+</blockquote>
 <p>Crie <code>test/fixtures/users.yml</code> com dois usuários — um verificado, outro não:</p>
 <pre><code class="language-yaml">ana:
   name: Ana Souza
@@ -560,39 +1007,73 @@ bruno:
   terms_accepted_at: &lt;%= 1.day.ago.to_fs(:db) %&gt;
   email_verified_at:
 </code></pre>
-<p>Depois escreva os testes de <code>user_test.rb</code>, dos dois concerns, do validador e do <code>login_event_test.rb</code>.
-Comece pelo que está na seção <strong>10. Testando o model</strong>.</p>
+<p>Depois escreva os testes de <code>user_test.rb</code>, dos dois concerns, do validador e do
+<code>login_event_test.rb</code>. Comece pelo que está na seção <strong>10. Testando o model</strong>.</p>
 <pre><code class="language-bash">bin/rails test
-</code></pre>
-<p><strong>Meta: 30 testes verdes.</strong> O gabarito tem exatamente esse número.</p>
-<h3 id="8-console-veja-funcionando">8. Console: veja funcionando</h3>
-<pre><code class="language-bash">bin/rails db:seed          # depois de escrever o db/seeds.rb
-bin/rails console
-</code></pre>
-<pre><code class="language-ruby">u = User.first
-u.password_digest                       # o hash, nunca a senha
-u.authenticate(&quot;Automic@2026&quot;)          # devolve o user
-u.authenticate(&quot;errada&quot;)                # false
-
-codigo = u.issue_email_verification_code!
-u.verify_email_code!(codigo)            # true
-u.verify_email_code!(codigo)            # false — o código só vale uma vez
-
-u.login_events.create!(client: &quot;mobile&quot;, occurred_at: Time.current)
-u.login_events.recentes.first.user.name # navega para o outro lado
-</code></pre>
-<h3 id="9-commit">9. Commit</h3>
-<pre><code class="language-bash">bin/rubocop
+bin/rubocop
 git add -A &amp;&amp; git commit -m &quot;Model User, concerns e associações&quot; &amp;&amp; git push
 </code></pre>
+<p><strong>Confere</strong>: <strong>30 testes verdes.</strong> O gabarito tem exatamente esse número.</p>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ActiveRecord::Fixture::FixtureError: table "users" has no column named X</code></td>
+<td>a fixture tem um campo que a tabela não tem</td>
+<td>compare com o <code>schema.rb</code></td>
+</tr>
+<tr>
+<td><code>ActiveRecord::RecordNotUnique</code> nas fixtures</td>
+<td>dois usuários com o mesmo e-mail ou matrícula</td>
+<td>troque um deles</td>
+</tr>
+<tr>
+<td><code>NoMethodError: undefined method 'to_fs'</code></td>
+<td>Rails antigo</td>
+<td>este material é Rails 8; confira <code>bin/rails -v</code></td>
+</tr>
+<tr>
+<td>um teste passa sozinho e falha junto com os outros</td>
+<td>vazamento de estado entre testes</td>
+<td>não use <code>User.first</code> no teste: use <code>users(:ana)</code></td>
+</tr>
+<tr>
+<td><code>PendingMigrationError</code> só no teste</td>
+<td>banco de teste atrasado</td>
+<td><code>bin/rails db:test:prepare</code></td>
+</tr>
+<tr>
+<td><code>bin/rubocop</code> reclama de dezenas de coisas</td>
+<td>estilo</td>
+<td><code>bin/rubocop -a</code> conserta a maioria sozinho; leia o que sobrar</td>
+</tr>
+<tr>
+<td>menos de 30 testes</td>
+<td>falta cobrir algum caso</td>
+<td>veja quais arquivos o gabarito tem em <code>test/</code></td>
+</tr>
+</tbody>
+</table>
 <hr>
-<p><strong>Bônus 1</strong>: apague um usuário que tenha <code>login_events</code> e confirme que o histórico foi junto
-(<code>dependent: :delete_all</code>).</p>
-<p><strong>Bônus 2</strong>: escreva o N+1 de propósito e conte as consultas no log:</p>
-<pre><code class="language-ruby">User.all.each { |u| puts u.login_events.count }              # N+1
-User.includes(:login_events).each { |u| puts u.login_events.count }
+<h3 id="bonus-se-sobrou-tempo">Bônus, se sobrou tempo</h3>
+<p><strong>1. Veja o N+1 acontecer.</strong> Com o log do Rails aberto:</p>
+<pre><code class="language-ruby">User.all.each { |u| puts u.login_events.count }               # uma consulta por usuário
+User.includes(:login_events).each { |u| puts u.login_events.count }   # duas, no total
 </code></pre>
-<p><strong>Travou?</strong> Compare arquivo por arquivo com o gabarito:</p>
+<p><strong>2. Tente furar o índice único.</strong> Crie dois usuários com o mesmo e-mail direto no banco, sem passar
+pelas validações, e veja o Postgres recusar:</p>
+<pre><code class="language-ruby">User.new(email: User.first.email, ...).save!(validate: false)
+</code></pre>
+<p>O erro que vem é <code>PG::UniqueViolation</code> — e é por isso que a restrição vive no banco, e não só no
+model.</p>
+<p><strong>Travou em qualquer prática?</strong> Compare arquivo por arquivo com o gabarito:</p>
 <pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-02
 cat app/models/user.rb
 </code></pre>

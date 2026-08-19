@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Cria 2 GiB de swap na VM. Idempotente: rodar duas vezes não faz mal.
 #
-# Uma VM pequena roda Rails + Postgres + build no mesmo 1 GiB de RAM. Sem swap,
-# o kernel mata o processo que estiver na frente (OOM killer) e o deploy falha
-# com uma mensagem que não explica nada.
+# Uma VM pequena roda Rails e Postgres na mesma RAM. Sem swap, o kernel mata o
+# processo que estiver na frente (OOM killer) e o deploy falha com uma mensagem
+# que não explica nada.
 #
 # Uso, da sua máquina:
-#   ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'sudo bash -s' < scripts/server-swap.sh
+#   ssh -i ~/.ssh/capacita ubuntu@SEU_IP 'sudo bash -s' < scripts/server-swap.sh
 
 set -euo pipefail
 

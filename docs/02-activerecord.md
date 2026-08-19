@@ -5,6 +5,23 @@
 
 ---
 
+## De onde viemos, e para onde vamos hoje
+
+Na Aula 1 você subiu uma API que responde `GET /api/v1/status`. Ela funciona, e não guarda nada:
+desligou o servidor, acabou.
+
+**Hoje ela ganha memória.** Você vai criar as tabelas, escrever o model `User`, guardar senha do
+jeito certo (que não é guardar senha) e ligar duas tabelas uma na outra. No fim, um usuário criado
+no console continua lá depois de você reiniciar tudo.
+
+É a aula em que você mais escreve código nas quatro — e é a base da Aula 3, em que esse `User` vira
+cadastro, login e recuperação de senha de verdade.
+
+> Travou? A tabela **Se der errado** no fim de cada prática cobre os erros que realmente acontecem.
+> Consulte antes de chamar — e chame se não resolver em dez minutos.
+
+---
+
 ## 1. Por que Postgres, e não SQLite
 
 SQLite é um arquivo. Funciona muito bem para um app de celular ou um script. Para um servidor com
@@ -508,12 +525,35 @@ o mesmo. Vamos usar esse método na Aula 3.
 
 ---
 
-## Exercício da aula
+## As práticas da aula
+
+Oito práticas, cada uma logo depois do bloco que a explica. **Nenhuma passa de 20 minutos**, e cada
+uma termina com uma conferência: não siga em frente com ela vermelha.
+
+| # | O que | Depois de |
+|---|---|---|
+| 1 | A gem do bcrypt, e o banco de pé | seção 1 |
+| 2 | As três migrations da tabela `users` | seção 3 |
+| 3 | Senha no console: veja o bcrypt trabalhar | seção 4 |
+| 4 | O validador de senha | seção 5 |
+| 5 | O model `User` | seção 5 |
+| 6 | A segunda tabela e a associação | seção 6 |
+| 7 | Os dois concerns | seção 7 |
+| 8 | Fixtures, testes e commit | seção 10 |
 
 > No **seu** projeto (`~/automic_auth_api`), continuando de onde a Aula 1 parou.
-> Cada bloco termina com um comando de conferência: **não siga em frente com ele vermelho.**
 
-### 1. A gem do bcrypt
+---
+
+### Prática 1 — A gem do bcrypt, e o banco de pé
+
+> **~5 minutos.** Aquecimento, e garante que o ambiente da Aula 1 continua funcionando.
+
+```bash
+cd ~/automic_auth_api
+docker compose up -d
+docker compose ps           # healthy
+```
 
 No `Gemfile`, descomente (ou acrescente) a linha:
 
@@ -525,7 +565,29 @@ gem "bcrypt", "~> 3.1.7"
 bundle install
 ```
 
-### 2. As três migrations da tabela `users`
+**Confere**:
+
+```bash
+bin/rails runner 'puts BCrypt::Password.create("teste")[0, 7]'
+```
+
+Sai algo como `$2a$12$`. Esse prefixo é o algoritmo e o custo — você vai entender os dois na
+seção 4.
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `Could not find gem 'bcrypt'` | esqueceu o `bundle install` | rode-o |
+| `An error occurred while installing bcrypt` | falta compilador ou headers | Linux: `sudo apt install build-essential`; macOS: `xcode-select --install` |
+| `uninitialized constant BCrypt` | a linha ficou comentada no `Gemfile` | tire o `#` do começo |
+| `PG::ConnectionBad` | o container não subiu | `docker compose up -d` e confira o `ps` |
+
+---
+
+### Prática 2 — As três migrations da tabela `users`
+
+> **~20 minutos.** A prática mais longa do dia. Faça uma migration por vez e migre entre elas.
 
 ```bash
 bin/rails generate migration CreateUsers
@@ -533,7 +595,7 @@ bin/rails generate migration AddEmailVerificationToUsers
 bin/rails generate migration AddPasswordResetToUsers
 ```
 
-O conteúdo de cada uma está na seção **3. Migrations** desta apostila (a primeira) e abaixo:
+O conteúdo da primeira está na seção **3. Migrations**. As outras duas:
 
 ```ruby
 # add_email_verification_to_users.rb
@@ -550,12 +612,91 @@ add_column :users, :password_reset_sent_at, :datetime
 
 ```bash
 bin/rails db:migrate
+```
+
+**Confere**:
+
+```bash
+bin/rails db:migrate:status                      # três linhas "up"
 sed -n '/create_table "users"/,/^  end/p' db/schema.rb | grep -c "^    t\."
 ```
 
-**Confira**: tem que sair **17** (as 16 colunas mais o `id`).
+O segundo comando tem que sair **17** (as 16 colunas mais o `id`).
 
-### 3. O validador de senha
+Abra o `db/schema.rb` e leia: ele é o retrato do banco **agora**, montado sozinho pelas migrations.
+
+**Se der errado**
+
+> Migration que falha no meio dá uma mensagem enorme e assustadora. **Ignore a primeira linha** —
+> ela só diz que a migration parou. A resposta está na **linha seguinte**, e costuma ser bem
+> específica. Esse hábito sozinho economiza horas ao longo de uma carreira.
+>
+> E nesta fase do projeto, `db:drop db:create db:migrate` é sempre uma saída legítima: não há dado
+> nenhum para perder. Não tenha dó.
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `PG::DuplicateTable: relation "users" already exists` | você rodou a migration duas vezes, ou criou a tabela na mão | `bin/rails db:drop db:create db:migrate` (perde os dados, e tudo bem agora) |
+| `PG::DuplicateColumn` | mesma coisa, com coluna | idem |
+| `An error has occurred, this and all later migrations canceled` | uma migration falhou no meio | **leia a linha seguinte**: é ela que diz o motivo. Conserte o arquivo e rode de novo |
+| `ActiveRecord::IrreversibleMigration` ao fazer `rollback` | a migration usou `change` com algo que não sabe desfazer | troque por `up`/`down`, ou refaça com `db:drop` |
+| o `schema.rb` não mudou | a migration não rodou | `bin/rails db:migrate:status` — a sua está `down`? |
+| saiu 16 em vez de 17 | falta uma coluna | compare com o gabarito: `git -C ~/capacitacao-gabarito show aula-02:db/schema.rb` |
+| `Multiple migrations have the name ...` | você gerou duas com o mesmo nome | apague a duplicada em `db/migrate/` |
+
+---
+
+### Prática 3 — Senha no console: veja o bcrypt trabalhar
+
+> **~10 minutos.** Sem escrever arquivo nenhum. É a prática que faz a seção 4 parar de ser teoria.
+
+```bash
+bin/rails console
+```
+
+> **Antes de rodar, aposte**: a mesma senha, hasheada duas vezes, dá o mesmo resultado ou resultados
+> diferentes? Decida agora — a graça do exercício está em você errar essa aposta.
+
+```ruby
+# a) o mesmo texto, dois digests diferentes
+BCrypt::Password.create("Automic@2026")
+BCrypt::Password.create("Automic@2026")
+```
+
+Rodou duas vezes e deu **diferente**? Esse é o *salt*, e é ele que impede alguém de descobrir que
+dois usuários têm a mesma senha.
+
+```ruby
+# b) mas os dois conferem
+digest = BCrypt::Password.create("Automic@2026")
+BCrypt::Password.new(digest) == "Automic@2026"    # true
+BCrypt::Password.new(digest) == "errada"          # false
+```
+
+```ruby
+# c) por que é lento de propósito
+require "benchmark"
+Benchmark.realtime { BCrypt::Password.create("Automic@2026") }
+Benchmark.realtime { Digest::SHA256.hexdigest("Automic@2026") }
+```
+
+**Confere**: o bcrypt levou centenas de milissegundos; o SHA-256, microssegundos. Diga em voz alta
+por que a lentidão é uma *característica* e não um defeito.
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `uninitialized constant BCrypt` | a gem não entrou | volte para a Prática 1 |
+| `uninitialized constant Digest` | não carregou | `require "digest"` antes |
+| o console não abre, erro de banco | container caiu | `docker compose up -d` |
+| você fechou o console sem querer | `exit` ou `Ctrl+D` | é só reabrir; nada foi perdido |
+
+---
+
+### Prática 4 — O validador de senha
+
+> **~15 minutos.** O primeiro arquivo Ruby seu, do zero, nesta capacitação.
 
 Crie `app/validators/password_policy_validator.rb`:
 
@@ -592,37 +733,44 @@ class PasswordPolicyValidator
 end
 ```
 
+Repare em três coisas da Aula 1: o `self.validate` que instancia e chama, o `@password` de instância,
+e o `private` valendo da linha em diante.
+
 Ele fica fora do model porque o cadastro precisa validar a senha **antes** de existir um `User`
 (Aula 3), e a recuperação de senha valida de novo na hora de trocar.
 
+**Confere**:
+
 ```bash
 bin/rails runner 'p PasswordPolicyValidator.validate("abc")'
-# tem que sair a lista de erros
+# a lista de erros
 bin/rails runner 'p PasswordPolicyValidator.validate("Automic@2026")'
-# tem que sair []
+# []
 ```
 
-### 4. Os dois concerns
+**Avançado**: `PasswordPolicyValidator.validate(nil)` também tem que devolver a lista de erros, sem
+estourar. Descubra qual linha do código garante isso.
 
-Crie `app/models/concerns/email_verifiable.rb` e `app/models/concerns/password_resettable.rb`.
-O primeiro está inteiro na seção **7. Concerns**; o segundo é o mesmo desenho, trocando
-`email_verification_*` por `password_reset_*` e sem o `email_verified_at`.
+**Se der errado**
 
-Métodos que cada um precisa ter:
+| Erro | Causa | Saída |
+|---|---|---|
+| `uninitialized constant PasswordPolicyValidator` | caminho ou nome do arquivo errado | tem que ser `app/validators/password_policy_validator.rb` — Zeitwerk de novo |
+| `NoMethodError: undefined method 'length' for nil` | você tirou o `.to_s` do `initialize` | é ele que transforma `nil` em `""` |
+| `undefined method 'validate' for an instance of Class` | escreveu `def validate` onde queria `def self.validate` | o `self.` faz o método ser da classe |
+| a senha boa devolve erro de caractere especial | a regex saiu com escape errado | copie a linha do `SPECIAL_CHARACTERS` inteira |
+| `syntax error, unexpected end` | faltou ou sobrou um `end` | conte: `class`, `def` ×4, `if`… |
 
-| `EmailVerifiable` | `PasswordResettable` |
-|---|---|
-| `email_verified?` | — |
-| `issue_email_verification_code!` | `issue_password_reset_code!` |
-| `verify_email_code!` | `verify_password_reset_code!` |
-| `verification_expired?` | `password_reset_expired?` |
-| `resend_verification_allowed?` | `password_reset_request_allowed?` |
-| — | `clear_password_reset_code!` |
+---
 
-### 5. O model `User`
+### Prática 5 — O model `User`
+
+> **~20 minutos.**
 
 Crie `app/models/user.rb` com `has_secure_password validations: false`, as seis validações, os três
 normalizadores e o `authenticate_by_email` (seções **4**, **5** e **11**).
+
+**Confere**:
 
 ```bash
 bin/rails runner '
@@ -635,7 +783,28 @@ puts u.password_digest[0, 20]
 
 Tem que sair `true` e um digest começando em `$2a$12$`.
 
-### 6. A segunda tabela: `login_events`
+Agora **quebre de propósito** e leia a mensagem:
+
+```bash
+bin/rails runner 'u = User.new(email: "NAO-E-EMAIL"); u.valid?; p u.errors.full_messages'
+```
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `NoMethodError: undefined method 'password='` | falta o `has_secure_password` | acrescente-o no topo da classe |
+| `PG::UndefinedColumn: column "password_digest" does not exist` | a migration não rodou | `bin/rails db:migrate` |
+| `valid?` devolve `false` e você não sabe por quê | as mensagens estão no objeto | `p u.errors.full_messages` — sempre |
+| `valid?` devolve `true` com e-mail inválido | falta a validação de formato | releia a seção 5 |
+| o e-mail salvou com maiúscula | o normalizador não rodou | `normalizes :email, with: -> (e) { e.strip.downcase }` |
+| `ArgumentError: wrong number of arguments` | passou posicional onde é nomeado | `User.new(name: ..., email: ...)` |
+
+---
+
+### Prática 6 — A segunda tabela e a associação
+
+> **~15 minutos.** É aqui que o banco deixa de ser uma tabela e vira um *modelo de dados*.
 
 ```bash
 bin/rails generate migration CreateLoginEvents
@@ -652,7 +821,86 @@ has_many :login_events, dependent: :delete_all
 bin/rails db:migrate
 ```
 
-### 7. Fixtures e testes
+**Confere**, no console:
+
+```ruby
+u = User.first || User.create!(name: "Ana", email: "ana@ufop.br", password: "Automic@2026",
+      course: "Automação", matricula: "2011234", terms_accepted_at: Time.current)
+u.login_events.create!(client: "mobile", occurred_at: Time.current)
+u.login_events.count                      # 1
+u.login_events.recentes.first.user.name   # navega para o outro lado
+```
+
+**Avançado**: apague o usuário e confirme que o histórico foi junto.
+
+```ruby
+LoginEvent.count      # 1
+u.destroy
+LoginEvent.count      # 0  <- é o dependent: :delete_all
+```
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `PG::ForeignKeyViolation` | você criou um `login_event` com `user_id` que não existe | crie sempre a partir do usuário: `u.login_events.create!` |
+| `NameError: uninitialized constant User::LoginEvent` | o model não existe ou está no caminho errado | `app/models/login_event.rb` |
+| `ActiveRecord::RecordInvalid: Validation failed: User must exist` | o `belongs_to` é obrigatório por padrão no Rails 5+ | é isso mesmo; passe o usuário |
+| `undefined method 'recentes'` | o scope não foi declarado | `scope :recentes, -> { order(occurred_at: :desc) }` |
+| apagou o usuário e sobraram os eventos | falta o `dependent:` | acrescente no `has_many` |
+| `unknown attribute 'occurred_at'` | a migration não tem a coluna | confira o `schema.rb` |
+
+---
+
+### Prática 7 — Os dois concerns
+
+> **~20 minutos.** O momento em que os módulos da Aula 1 deixam de ser teoria.
+
+Crie `app/models/concerns/email_verifiable.rb` e `app/models/concerns/password_resettable.rb`. O
+primeiro está inteiro na seção **7. Concerns**; o segundo é o mesmo desenho, trocando
+`email_verification_*` por `password_reset_*` e sem o `email_verified_at`.
+
+Métodos que cada um precisa ter:
+
+| `EmailVerifiable` | `PasswordResettable` |
+|---|---|
+| `email_verified?` | — |
+| `issue_email_verification_code!` | `issue_password_reset_code!` |
+| `verify_email_code!` | `verify_password_reset_code!` |
+| `verification_expired?` | `password_reset_expired?` |
+| `resend_verification_allowed?` | `password_reset_request_allowed?` |
+| — | `clear_password_reset_code!` |
+
+**Confere**, no console:
+
+```ruby
+u = User.first
+codigo = u.issue_email_verification_code!
+codigo                          # 6 dígitos
+u.email_verification_code_digest # o hash, NUNCA o código
+u.verify_email_code!(codigo)    # true
+u.verify_email_code!(codigo)    # false — só vale uma vez
+u.email_verified?               # true
+```
+
+Repare: o banco guarda o **digest** do código, não o código. Mesma lição da senha.
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `undefined method 'issue_email_verification_code!'` | faltou o `include EmailVerifiable` no `User` | acrescente |
+| `NameError: uninitialized constant EmailVerifiable` | o arquivo está fora de `app/models/concerns/` | mova |
+| `undefined method 'extend' / 'included'` | faltou `extend ActiveSupport::Concern` no topo do módulo | acrescente |
+| `verify_email_code!` devolve `true` duas vezes | o método não limpa o digest depois de usar | é a segunda linha do `verify_*`: apague o código usado |
+| `verify_email_code!` devolve `false` com o código certo | você comparou o código com o digest | compare com `BCrypt::Password.new(digest) == codigo` |
+| o código expira na hora | `expires_at` está no passado | `15.minutes.from_now`, não `.ago` |
+
+---
+
+### Prática 8 — Fixtures, testes e commit
+
+> **~25 minutos.** Fecha o dia, e é o que a Aula 3 vai usar de base.
 
 Crie `test/fixtures/users.yml` com dois usuários — um verificado, outro não:
 
@@ -676,56 +924,51 @@ bruno:
   email_verified_at:
 ```
 
-Depois escreva os testes de `user_test.rb`, dos dois concerns, do validador e do `login_event_test.rb`.
-Comece pelo que está na seção **10. Testando o model**.
+Depois escreva os testes de `user_test.rb`, dos dois concerns, do validador e do
+`login_event_test.rb`. Comece pelo que está na seção **10. Testando o model**.
 
 ```bash
 bin/rails test
-```
-
-**Meta: 30 testes verdes.** O gabarito tem exatamente esse número.
-
-### 8. Console: veja funcionando
-
-```bash
-bin/rails db:seed          # depois de escrever o db/seeds.rb
-bin/rails console
-```
-
-```ruby
-u = User.first
-u.password_digest                       # o hash, nunca a senha
-u.authenticate("Automic@2026")          # devolve o user
-u.authenticate("errada")                # false
-
-codigo = u.issue_email_verification_code!
-u.verify_email_code!(codigo)            # true
-u.verify_email_code!(codigo)            # false — o código só vale uma vez
-
-u.login_events.create!(client: "mobile", occurred_at: Time.current)
-u.login_events.recentes.first.user.name # navega para o outro lado
-```
-
-### 9. Commit
-
-```bash
 bin/rubocop
 git add -A && git commit -m "Model User, concerns e associações" && git push
 ```
 
+**Confere**: **30 testes verdes.** O gabarito tem exatamente esse número.
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `ActiveRecord::Fixture::FixtureError: table "users" has no column named X` | a fixture tem um campo que a tabela não tem | compare com o `schema.rb` |
+| `ActiveRecord::RecordNotUnique` nas fixtures | dois usuários com o mesmo e-mail ou matrícula | troque um deles |
+| `NoMethodError: undefined method 'to_fs'` | Rails antigo | este material é Rails 8; confira `bin/rails -v` |
+| um teste passa sozinho e falha junto com os outros | vazamento de estado entre testes | não use `User.first` no teste: use `users(:ana)` |
+| `PendingMigrationError` só no teste | banco de teste atrasado | `bin/rails db:test:prepare` |
+| `bin/rubocop` reclama de dezenas de coisas | estilo | `bin/rubocop -a` conserta a maioria sozinho; leia o que sobrar |
+| menos de 30 testes | falta cobrir algum caso | veja quais arquivos o gabarito tem em `test/` |
+
 ---
 
-**Bônus 1**: apague um usuário que tenha `login_events` e confirme que o histórico foi junto
-(`dependent: :delete_all`).
+### Bônus, se sobrou tempo
 
-**Bônus 2**: escreva o N+1 de propósito e conte as consultas no log:
+**1. Veja o N+1 acontecer.** Com o log do Rails aberto:
 
 ```ruby
-User.all.each { |u| puts u.login_events.count }              # N+1
-User.includes(:login_events).each { |u| puts u.login_events.count }
+User.all.each { |u| puts u.login_events.count }               # uma consulta por usuário
+User.includes(:login_events).each { |u| puts u.login_events.count }   # duas, no total
 ```
 
-**Travou?** Compare arquivo por arquivo com o gabarito:
+**2. Tente furar o índice único.** Crie dois usuários com o mesmo e-mail direto no banco, sem passar
+pelas validações, e veja o Postgres recusar:
+
+```ruby
+User.new(email: User.first.email, ...).save!(validate: false)
+```
+
+O erro que vem é `PG::UniqueViolation` — e é por isso que a restrição vive no banco, e não só no
+model.
+
+**Travou em qualquer prática?** Compare arquivo por arquivo com o gabarito:
 
 ```bash
 cd ~/capacitacao-gabarito && git checkout aula-02

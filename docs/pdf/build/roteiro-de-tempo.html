@@ -10,64 +10,99 @@
 <h1 id="roteiros-indice-para-quem-apresenta">Roteiros — índice para quem apresenta</h1>
 <p>Um runbook por encontro, com cronograma, o que falar em cada bloco, as demos ao vivo, as perguntas
 que a turma faz e o plano B:</p>
+<blockquote>
+<p><strong>Antes de qualquer roteiro, leia o </strong>guia do instrutor<strong>.</strong> Ele não é sobre
+conteúdo: é sobre conduzir uma sala por três horas — os três primeiros minutos, o que fazer quando
+você não souber a resposta, onde a energia da turma cai, e o que dizer quando alguém travar.</p>
+</blockquote>
 <table>
 <thead>
 <tr>
 <th></th>
 <th>Roteiro</th>
-<th>Slides</th>
-<th>Estimado</th>
-<th>Disponível</th>
+<th style="text-align: right;">Slides</th>
+<th style="text-align: right;">Práticas</th>
+<th style="text-align: right;">Sem cortes</th>
+<th style="text-align: right;">Com o plano de corte</th>
+<th style="text-align: right;">Disponível</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>1</td>
 <td><strong>Back-end, Ruby e o primeiro Rails</strong></td>
-<td>65</td>
-<td>3h32</td>
-<td>3h</td>
+<td style="text-align: right;">69</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">4h17</td>
+<td style="text-align: right;"><strong>3h21</strong></td>
+<td style="text-align: right;">3h</td>
 </tr>
 <tr>
 <td>2</td>
 <td><strong>Banco, ActiveRecord e o model <code>User</code></strong></td>
-<td>48</td>
-<td>3h20</td>
-<td>3h</td>
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">4h39</td>
+<td style="text-align: right;"><strong>3h02</strong></td>
+<td style="text-align: right;">3h</td>
 </tr>
 <tr>
 <td>3</td>
 <td><strong>As rotas de autenticação</strong></td>
-<td>57</td>
-<td>3h30 *</td>
-<td>3h</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">5h06</td>
+<td style="text-align: right;"><strong>3h19</strong></td>
+<td style="text-align: right;">3h</td>
 </tr>
 <tr>
 <td>4</td>
-<td><strong>VPS, Docker, Kamal e deploy</strong></td>
-<td>61</td>
-<td>4h02 *</td>
-<td>3h</td>
+<td><strong>Servidor, Docker, Kamal e deploy</strong></td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">5h17</td>
+<td style="text-align: right;"><strong>3h48</strong></td>
+<td style="text-align: right;">3h</td>
 </tr>
 </tbody>
 </table>
-<p>* já contando o plano recomendado. Digitando todo o código da Aula 3 seriam ~6h30; fazendo o
-pipeline OIDC completo na Aula 4, ~4h45.</p>
 <hr>
 <h2 id="o-numero-honesto">O número honesto</h2>
-<p><strong>São ~14h de conteúdo em 12h de encontro.</strong> Cada roteiro traz os cortes específicos, em ordem de
-prioridade, e um <strong>ponto de decisão</strong> com relógio: se às tantas horas a turma não estiver em tal
-lugar, faça tal coisa.</p>
-<p>As duas decisões que resolvem a maior parte do problema:</p>
+<p><strong>São ~19h20 de conteúdo em 12h de encontro</strong>, e ~13h30 depois dos planos de corte. Cada roteiro traz
+os cortes específicos, numerados em ordem de prioridade, e um <strong>ponto de decisão</strong> com relógio: se às
+tantas horas a turma não estiver em tal lugar, faça tal coisa.</p>
+<p>Não tente caber tudo. <strong>Decida os cortes na véspera</strong>, não no meio da aula.</p>
+<p>E guarde o parágrafo que mais importa para você: <strong>se a turma sair com a coisa funcionando, a aula
+foi ótima — mesmo que você tenha entregue 70% do que planejou.</strong> Há mais conteúdo do que cabe, de
+propósito, para você escolher o que serve àquela turma.</p>
+<hr>
+<h2 id="a-regra-que-organiza-o-dia">A regra que organiza o dia</h2>
+<blockquote>
+<p>Quando atrasar, corte <strong>conteúdo</strong>, nunca <strong>prática</strong>. Uma turma que viu 40 slides e fez a coisa
+funcionar aprendeu mais que uma que viu 68 e foi embora com o erro na tela.</p>
+</blockquote>
+<p>Os quatro decks são construídos em cima disso: <strong>cada bloco de conteúdo termina numa prática</strong>, e a
+prática está marcada em negrito no cronograma.</p>
+<pre><code>explica  →  faz  →  explica  →  faz  →  ...
+</code></pre>
+<p>Não é enfeite de estrutura. Antes, as aulas 2 e 3 tinham <strong>uma</strong> prática, no penúltimo slide: três
+horas ouvindo, e "agora façam tudo". Agora são 8 práticas de 5 a 35 minutos, e ninguém passa mais
+que ~25 min sem pôr a mão.</p>
+<h3 id="como-conduzir-uma-pratica">Como conduzir uma prática</h3>
 <ol>
-<li><strong>Aula 3 — não digitem o código.</strong> Eles copiam o gabarito para o próprio projeto com um
-   <code>rsync</code>, conferem com <code>bin/rails test</code>, e você faz a leitura guiada dos arquivos projetados.
-   A prática vira modificar o que existe. <strong>Economiza ~3h30.</strong></li>
-<li><strong>Aula 4 — prepare o que não ensina.</strong> Registros DNS e um certificado Origin CA wildcard, feitos
-   na véspera. <strong>Economiza ~40 min.</strong> Se ainda assim não couber, o roteiro traz dois planos B.</li>
+<li><strong>Projete o slide da prática</strong> e leia os itens em voz alta. São 30 segundos.</li>
+<li><strong>Mande abrir a apostila</strong> na prática correspondente — os comandos, a conferência e a tabela de
+   erros estão lá. Não dite comando.</li>
+<li><strong>Circule.</strong> As notas do slide dizem quais são os dois ou três erros que vão aparecer.</li>
+<li><strong>Cobre a conferência</strong> antes de seguir. Toda prática tem uma linha "Confere".</li>
 </ol>
-<p>Base do cálculo: slide a ~2 min, digitação guiada a ~5 linhas/min, cliques em portal cronometrados
-no percurso real.</p>
+<p>Cada prática tem, no fim, um item <strong>avançado</strong> para quem terminar antes. Use-o: é o que evita que
+metade da turma fique parada esperando a outra metade.</p>
+<h3 id="as-tabelas-de-erro">As tabelas de erro</h3>
+<p>Toda prática da apostila termina com uma tabela <code>Se der errado</code>, no formato
+<strong>erro → causa → saída</strong>. Elas cobrem os erros que acontecem de verdade, e existem para você não ser
+o único caminho de desbloqueio numa sala de 12 pessoas.</p>
+<p>Quando alguém travar, a primeira pergunta é <em>"o que a tabela da sua prática diz?"</em>.</p>
 <hr>
 <h2 id="as-marcacoes-nos-slides">As marcações nos slides</h2>
 <table>
@@ -91,12 +126,11 @@ no percurso real.</p>
 <pre><code class="language-bash">grep -n &quot;CORTÁVEL\|EXTRA&quot; slides/conteudo/aula-0*.yml
 </code></pre>
 <p>Cortar todos os <code># EXTRA</code> devolve ~45 slides, uns 90 minutos no total das quatro aulas.
-<strong>A recomendação é o contrário</strong>: mantenha os <code># EXTRA</code> e economize no código, com a decisão 1 acima.</p>
+<strong>A recomendação é o contrário</strong>: mantenha os <code># EXTRA</code>, e siga o plano de corte de cada roteiro.</p>
 <hr>
-<h2 id="regra-geral-para-o-dia">Regra geral para o dia</h2>
-<blockquote>
-<p>Quando atrasar, corte <strong>conteúdo</strong>, nunca <strong>prática</strong>. Uma turma que viu 40 slides e fez a coisa
-funcionar aprendeu mais que uma que viu 60 e foi embora com o erro na tela.</p>
-</blockquote>
+<h2 id="base-do-calculo">Base do cálculo</h2>
+<p>Slide a ~2 min; digitação guiada a ~5 linhas/min; prática cronometrada no percurso real, incluindo
+o tempo de quem erra uma vez. Os tempos de download (<code>multipass launch</code>, <code>bundle install</code>, build da
+imagem) estão contados pelo pior caso de wi-fi compartilhado.</p>
 </main></body>
 </html>

@@ -1,14 +1,18 @@
 # Kamal — deploy da automic-auth-api. Docs: https://kamal-deploy.org
 #
-# Este arquivo é IGUAL para todo mundo da turma. O que muda vem de variáveis do
-# GitHub Actions (Settings → Secrets and variables → Actions → Variables):
+# Este arquivo é IGUAL para todo mundo da turma, e é o MESMO na VM local da
+# Aula 4 e numa VPS alugada. O que muda vem de variáveis de ambiente:
 #
-#   GHCR_USER   seu usuário do GitHub (dono da imagem no ghcr.io)
-#   AZURE_VM_IP   o IP público da sua VM
-#   APP_HOST      seu subdomínio, ex.: seunome.capacita.exemplo.tech
+#   GHCR_USER          seu usuário do GitHub (dono da imagem no ghcr.io)
+#   SERVER_IP          o IP do servidor (multipass info servidor, ou o IP público da VPS)
+#   APP_HOST           o hostname servido, ex.: seunome.test
+#   KAMAL_SSH_USER     usuário do SSH no servidor (padrão: ubuntu)
+#   SSH_PORT           porta do SSH (padrão: 22; 2222 no plano B do Windows)
+#   SERVER_ARCH        amd64 (Intel/AMD) ou arm64 (Mac M1/M2/M3/M4)
 #
-# O build e o deploy rodam no GitHub Actions (.github/workflows/deploy.yml).
-# Primeiro deploy: rode o workflow uma vez com `kamal setup` (ver docs/04-deploy.md).
+# Na Aula 4 você preenche isso num .env e roda `source .env` antes do Kamal.
+# No pipeline da nuvem, vem das Variables do GitHub Actions (ver apendice-azure.md).
+# Primeiro deploy: `kamal setup`, uma vez só. Depois é sempre `kamal deploy`.
 
 service: automic-auth-api
 
@@ -16,28 +20,34 @@ service: automic-auth-api
 # ghcr.io/<seu-usuario>/automic-auth-api.
 image: <%= ENV.fetch("GHCR_USER") %>/automic-auth-api
 
-# A VM da Azure bloqueia login como root. O Docker já está liberado para azureuser.
+# Sem login root: o Docker já está liberado para o usuário comum.
 ssh:
-  user: azureuser
+  user: <%= ENV.fetch("KAMAL_SSH_USER", "ubuntu") %>
+  # 22 quase sempre. Só muda quem alcança a VM por um encaminhamento de porta
+  # (ver o plano B do Windows em docs/00-preparacao.md).
+  port: <%= ENV.fetch("SSH_PORT", "22") %>
   forward_agent: false
 
 # Onde o Kamal grava locks, auditoria e arquivos de ambiente no servidor.
-run_directory: /home/azureuser/.kamal
+run_directory: /home/<%= ENV.fetch("KAMAL_SSH_USER", "ubuntu") %>/.kamal
 
 servers:
   web:
     hosts:
-      - <%= ENV.fetch("AZURE_VM_IP") %>
+      - <%= ENV.fetch("SERVER_IP") %>
 
-# O tráfego público entra pelo Cloudflare. O certificado Origin CA protege o
-# trecho Cloudflare → Azure. Os PEM vêm dos Secrets do Actions e nunca entram
-# no container do Rails.
+# O kamal-proxy termina o TLS e repassa para o Rails em HTTP interno.
+#
+# Na Aula 4 os PEM são de um certificado autoassinado que você gerou com openssl
+# (o navegador reclama, e essa reclamação é a aula sobre CA). Numa VPS atrás do
+# Cloudflare, são o certificado Origin CA. Em nenhum dos casos eles entram no
+# container do Rails.
 proxy:
   ssl:
     certificate_pem: KAMAL_PROXY_SSL_CERTIFICATE
     private_key_pem: KAMAL_PROXY_SSL_PRIVATE_KEY
   host: <%= ENV.fetch("APP_HOST") %>
-  # Preserva o X-Forwarded-For/Proto que vem do Cloudflare, que é confiável.
+  # Preserva o X-Forwarded-For/Proto que vem de um proxy anterior confiável.
   forward_headers: true
 
 registry:
@@ -46,9 +56,10 @@ registry:
   password:
     - KAMAL_REGISTRY_PASSWORD
 
-# A VM da Azure é x86_64.
+# A imagem é buildada no seu notebook e roda no servidor: as duas arquiteturas
+# precisam bater. Como a VM da Aula 4 roda no seu próprio hardware, é a sua.
 builder:
-  arch: amd64
+  arch: <%= ENV.fetch("SERVER_ARCH", "amd64") %>
 
 env:
   clear:
@@ -79,7 +90,7 @@ env:
 accessories:
   db:
     image: postgres:16
-    host: <%= ENV.fetch("AZURE_VM_IP") %>
+    host: <%= ENV.fetch("SERVER_IP") %>
     env:
       clear:
         POSTGRES_USER: automic_auth_api

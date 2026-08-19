@@ -11,6 +11,22 @@
 <p><strong>Duração</strong>: ~3h · <strong>Você sai daqui com</strong>: cadastro, ativação, login, logout e recuperação de senha.
 <strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03</code></p>
 <hr>
+<h2 id="de-onde-viemos-e-o-combinado-de-hoje">De onde viemos, e o combinado de hoje</h2>
+<p>Você já tem uma API (Aula 1) e um <code>User</code> que sabe guardar senha (Aula 2). <strong>Hoje as duas coisas
+viram um sistema de autenticação que funciona de verdade</strong> — o mesmo que roda no <code>seem-backend</code>.</p>
+<p><strong>O combinado desta aula é diferente das outras</strong>, e é importante entender antes de começar: são
+1400 linhas em 37 arquivos, e <strong>ninguém digita isso em três horas</strong>. Você vai trazer o código pronto
+do gabarito e passar a aula <strong>operando, quebrando de propósito e entendendo por quê</strong>.</p>
+<p>Isso não é preguiça nem atalho. É o que um desenvolvedor faz na maior parte do tempo real: ler
+código que já existe, descobrir por que foi feito assim, e mexer com segurança. Digitar 1400 linhas
+copiando ensinaria menos que as oito práticas de hoje.</p>
+<p>O que você tem que sair sabendo é <strong>por que cada peça existe</strong> — e é isso que as práticas cobram.</p>
+<blockquote>
+<p>A prática 8 pede que você quebre a verificação de assinatura do token e entre como outra pessoa.
+É proposital, é o exercício que mais marca, e tem um passo explícito para desfazer. <strong>Não pule o
+desfazer.</strong></p>
+</blockquote>
+<hr>
 <h2 id="1-o-caminho-de-uma-requisicao">1. O caminho de uma requisição</h2>
 <pre><code>requisição → rota → controller → service → model → banco
                         ↓
@@ -461,12 +477,69 @@ curl -X DELETE $API/sessions -H &quot;Authorization: Bearer $TOKEN&quot;
 curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;          # 401
 </code></pre>
 <hr>
-<h2 id="exercicio-da-aula">Exercício da aula</h2>
+<h2 id="as-praticas-da-aula">As práticas da aula</h2>
 <blockquote>
 <p>São 1400 linhas em 37 arquivos. <strong>Ninguém digita isso em três horas</strong> — e não é esse o objetivo.
-O que você tem que sair sabendo é <em>por que</em> cada peça existe.</p>
+Aqui você <strong>traz o código pronto</strong> e passa a aula fazendo o sistema funcionar, quebrando de
+propósito e entendendo <em>por que</em> cada peça existe.</p>
 </blockquote>
-<h3 id="1-traga-o-codigo-para-o-seu-projeto">1. Traga o código para o seu projeto</h3>
+<p>Oito práticas. As sete primeiras são o fluxo real, na ordem em que um usuário o vive.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>O que</th>
+<th>Depois de</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Traga o código e leia a arquitetura</td>
+<td>seção 2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Cadastro, no terminal e no Insomnia</td>
+<td>seção 3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>O e-mail e a confirmação da conta</td>
+<td>seção 5</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Login, e o token na mão</td>
+<td>seção 7</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Logout que revoga de verdade</td>
+<td>seção 8</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Recuperação de senha, e as sessões que caem</td>
+<td>seção 9</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Testes e qualidade</td>
+<td>seção 10</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Avançado: quebre a assinatura do token</td>
+<td>fim</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-1-traga-o-codigo-e-leia-a-arquitetura">Prática 1 — Traga o código e leia a arquitetura</h3>
+<blockquote>
+<p><strong>~20 minutos</strong>: 5 de comando, 15 de leitura. A leitura é a parte que conta.</p>
+</blockquote>
 <pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03
 rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
 
@@ -475,13 +548,13 @@ bundle install
 bin/rails db:migrate
 bin/rails test
 </code></pre>
-<p><strong>Meta: 71 testes verdes.</strong> Se não deram, pare aqui e resolva antes de seguir.</p>
+<p><strong>Confere</strong>: <strong>71 testes verdes.</strong> Se não deram, pare aqui e resolva antes de seguir — todas as
+práticas seguintes dependem disso.</p>
 <blockquote>
 <p>O <code>Gemfile</code> vai junto porque esta aula acrescenta <code>jwt</code>, <code>rack-cors</code> e <code>letter_opener</code>. Sem ele a
-aplicação nem sobe: você recebe <code>uninitialized constant Rack::Cors</code>.</p>
+aplicação nem sobe.</p>
 </blockquote>
-<h3 id="2-leia-os-cinco-arquivos-que-importam">2. Leia os cinco arquivos que importam</h3>
-<p>Nesta ordem, e <strong>abrindo cada um no editor</strong>:</p>
+<p>Agora leia cinco arquivos, <strong>nesta ordem, abrindo cada um no editor</strong>:</p>
 <table>
 <thead>
 <tr>
@@ -512,8 +585,78 @@ aplicação nem sobe: você recebe <code>uninitialized constant Rack::Cors</code
 </tr>
 </tbody>
 </table>
-<h3 id="3-monte-a-colecao-no-insomnia">3. Monte a coleção no Insomnia</h3>
-<p>Uma requisição para cada rota. Todas com <code>Content-Type: application/json</code>.</p>
+<p>Em cada um, ache o <code>Struct</code> de retorno e os argumentos nomeados da Aula 1. <strong>Eles estão em todos.</strong></p>
+<p><strong>Se der errado</strong></p>
+<blockquote>
+<p>Se os 71 testes não passarem de primeira, quase sempre é o <code>Gemfile</code> que ficou para trás no
+<code>rsync</code> — e o erro que aparece (<code>uninitialized constant Rack::Cors</code>) não diz isso em lugar nenhum.
+É um caso clássico de mensagem de erro que aponta para o sintoma e não para a causa. Você vai ver
+muitos assim.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uninitialized constant Rack::Cors</code></td>
+<td>o <code>Gemfile</code> não veio junto no <code>rsync</code></td>
+<td>refaça o <code>rsync</code> incluindo <code>Gemfile Gemfile.lock</code>, e <code>bundle install</code></td>
+</tr>
+<tr>
+<td><code>Could not find gem 'jwt'</code></td>
+<td>idem</td>
+<td><code>bundle install</code></td>
+</tr>
+<tr>
+<td><code>PendingMigrationError</code></td>
+<td>as migrations novas não rodaram</td>
+<td><code>bin/rails db:migrate</code></td>
+</tr>
+<tr>
+<td>menos de 71 testes</td>
+<td>o <code>rsync</code> não trouxe <code>test/</code></td>
+<td>confira que <code>test/</code> estava na lista</td>
+</tr>
+<tr>
+<td><code>rsync: command not found</code></td>
+<td>não instalado</td>
+<td><code>sudo apt install rsync</code> / <code>brew install rsync</code></td>
+</tr>
+<tr>
+<td>o <code>rsync</code> jogou tudo na raiz do projeto</td>
+<td>você usou caminho errado</td>
+<td>os caminhos são relativos e a barra final importa; refaça exatamente como está escrito</td>
+</tr>
+<tr>
+<td>conflito com arquivos seus da Aula 2</td>
+<td>o <code>rsync</code> sobrescreveu</td>
+<td>é o esperado: a partir daqui o gabarito é a base</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-2-cadastro-no-terminal-e-no-insomnia">Prática 2 — Cadastro, no terminal e no Insomnia</h3>
+<blockquote>
+<p><strong>~20 minutos.</strong> A primeira rota que cria alguma coisa.</p>
+</blockquote>
+<p>Com o servidor rodando (<code>bin/rails server</code>), num segundo terminal:</p>
+<pre><code class="language-bash">API=localhost:3000/api/v1
+EMAIL=voce@aluno.ufop.edu.br
+
+curl -i -X POST $API/registrations -H 'Content-Type: application/json' -d &quot;{
+  \&quot;name\&quot;:\&quot;Seu Nome\&quot;,\&quot;email\&quot;:\&quot;$EMAIL\&quot;,
+  \&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;confirm_password\&quot;:\&quot;Automic@2026\&quot;,
+  \&quot;course\&quot;:\&quot;Engenharia\&quot;,\&quot;matricula\&quot;:\&quot;2013333\&quot;,\&quot;check_terms_use\&quot;:true}&quot;
+</code></pre>
+<p><strong>Confere</strong>: <code>201</code>, e o e-mail abriu numa aba do navegador (é o <code>letter_opener</code>). <strong>Anote o código de
+6 dígitos.</strong></p>
+<p>Agora monte a mesma requisição no <strong>Insomnia</strong>, e aproveite para criar a coleção inteira — você vai
+usá-la o resto da aula. Todas com <code>Content-Type: application/json</code>:</p>
 <pre><code>POST   /api/v1/registrations
 POST   /api/v1/email_verifications/confirm
 POST   /api/v1/email_verifications/resend
@@ -523,76 +666,393 @@ POST   /api/v1/password_resets/request
 POST   /api/v1/password_resets/confirm
 GET    /api/v1/me
 </code></pre>
-<h3 id="4-percorra-o-fluxo-inteiro">4. Percorra o fluxo inteiro</h3>
-<p>Com o servidor rodando (<code>bin/rails server</code>):</p>
-<pre><code class="language-bash">API=localhost:3000/api/v1
-EMAIL=voce@aluno.ufop.edu.br
-
-# cadastro
-curl -X POST $API/registrations -H 'Content-Type: application/json' -d &quot;{
-  \&quot;name\&quot;:\&quot;Seu Nome\&quot;,\&quot;email\&quot;:\&quot;$EMAIL\&quot;,
-  \&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;confirm_password\&quot;:\&quot;Automic@2026\&quot;,
-  \&quot;course\&quot;:\&quot;Engenharia\&quot;,\&quot;matricula\&quot;:\&quot;2013333\&quot;,\&quot;check_terms_use\&quot;:true}&quot;
-</code></pre>
-<p><strong>Confira</strong>: <code>201</code>, e o e-mail abriu no navegador (letter_opener). Anote o código de 6 dígitos.</p>
-<pre><code class="language-bash"># login antes de confirmar
+<p><strong>Avançado</strong>: mande o cadastro de novo, com o mesmo e-mail. Que status vem? E que mensagem? Ela
+entrega ao atacante que aquele e-mail já existe?</p>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>400 param is missing</code></td>
+<td>faltou um campo obrigatório no JSON</td>
+<td>a mensagem diz qual; o <code>params.expect</code> é rígido de propósito</td>
+</tr>
+<tr>
+<td><code>422</code> com lista de erros</td>
+<td>as validações da Aula 2 recusaram</td>
+<td>leia a lista: senha fraca, e-mail inválido, termos não aceitos</td>
+</tr>
+<tr>
+<td><code>415 Unsupported Media Type</code></td>
+<td>faltou o <code>-H 'Content-Type: application/json'</code></td>
+<td>acrescente</td>
+</tr>
+<tr>
+<td>o e-mail não abriu no navegador</td>
+<td><code>letter_opener</code> só funciona com o servidor rodando no seu desktop</td>
+<td>veja em <code>tmp/letter_opener/</code> ou no log do <code>rails server</code></td>
+</tr>
+<tr>
+<td><code>Connection refused</code></td>
+<td>o <code>rails server</code> não está de pé</td>
+<td>suba-o no outro terminal</td>
+</tr>
+<tr>
+<td>a resposta veio em HTML de erro</td>
+<td>exceção não tratada</td>
+<td>leia o log do <code>rails server</code>, não o <code>curl</code></td>
+</tr>
+<tr>
+<td>aspas quebrando no shell</td>
+<td>o JSON tem aspas dentro de aspas</td>
+<td>use o Insomnia, ou salve o JSON num arquivo e use <code>-d @arquivo.json</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-3-o-e-mail-e-a-confirmacao-da-conta">Prática 3 — O e-mail e a confirmação da conta</h3>
+<blockquote>
+<p><strong>~15 minutos.</strong> É aqui que fica claro por que existe conta "não ativada".</p>
+</blockquote>
+<pre><code class="language-bash"># tente entrar ANTES de confirmar
 curl -i -X POST $API/sessions -H 'Content-Type: application/json' \
   -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;client\&quot;:\&quot;mobile\&quot;}&quot;
 </code></pre>
-<p><strong>Confira</strong>: <code>403 email_unverified</code>. É a conta ainda não ativada.</p>
-<pre><code class="language-bash"># confirma
-curl -X POST $API/email_verifications/confirm -H 'Content-Type: application/json' \
+<p><strong>Confere</strong>: <code>403 email_unverified</code>. A senha está certa — o que falta é a conta estar ativa.</p>
+<pre><code class="language-bash">curl -i -X POST $API/email_verifications/confirm -H 'Content-Type: application/json' \
   -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;code\&quot;:\&quot;COLE_O_CODIGO\&quot;}&quot;
-
-# login de novo, guardando o token do cabeçalho
-TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
+</code></pre>
+<p><strong>Avançado</strong>: mande o <strong>mesmo código</strong> de novo. Ele funciona duas vezes? Por quê? (Volte à Prática 7
+da Aula 2 se precisar.)</p>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>422 invalid_code</code> com o código certo</td>
+<td>você colou com espaço, ou o código já foi usado</td>
+<td>peça outro com <code>/email_verifications/resend</code></td>
+</tr>
+<tr>
+<td><code>422 code_expired</code></td>
+<td>passaram os 15 minutos</td>
+<td><code>/email_verifications/resend</code></td>
+</tr>
+<tr>
+<td><code>429</code> ou "aguarde" no resend</td>
+<td>há um intervalo mínimo entre reenvios</td>
+<td>espere o tempo indicado — é proteção contra abuso</td>
+</tr>
+<tr>
+<td><code>403 email_unverified</code> mesmo depois de confirmar</td>
+<td>você confirmou outro e-mail</td>
+<td>confira o <code>$EMAIL</code> do shell</td>
+</tr>
+<tr>
+<td>não acho o código</td>
+<td>a aba do <code>letter_opener</code> fechou</td>
+<td><code>ls tmp/letter_opener/</code> e abra o mais recente</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-4-login-e-o-token-na-mao">Prática 4 — Login, e o token na mão</h3>
+<blockquote>
+<p><strong>~20 minutos.</strong> O núcleo da aula.</p>
+</blockquote>
+<pre><code class="language-bash">TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
   -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;client\&quot;:\&quot;mobile\&quot;}&quot; \
   | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
 echo $TOKEN
 
-curl $API/me -H &quot;Authorization: Bearer $TOKEN&quot;        # 200
-curl -X DELETE $API/sessions -H &quot;Authorization: Bearer $TOKEN&quot;
-curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;     # 401
+curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;        # 200
 </code></pre>
-<p><strong>Confira</strong>: o último tem que ser <code>401</code>. Sem a denylist, seria <code>200</code> — é este assert que prova que o
-logout serve para alguma coisa.</p>
-<h3 id="5-recuperacao-de-senha-e-o-token-que-morre">5. Recuperação de senha, e o token que morre</h3>
+<p><strong>Confere</strong>: <code>200</code>, com os seus dados. Repare que o servidor <strong>não guardou sessão nenhuma</strong> — ele
+descobriu quem é você lendo o token.</p>
+<p>Agora <strong>leia o seu próprio token</strong>: cole o <code>$TOKEN</code> em <a href="https://jwt.io">jwt.io</a>. Ache o <code>sub</code>, o
+<code>jti</code>, o <code>ver</code> e o <code>exp</code>. Converta o <code>exp</code> para data e confirme que é daqui a 24 horas.</p>
+<p><strong>Avançado</strong>: troque um caractere do token e chame <code>/me</code> de novo. Que status vem, e por quê?</p>
+<pre><code class="language-bash">curl -i $API/me -H &quot;Authorization: Bearer ${TOKEN}x&quot;
+</code></pre>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$TOKEN</code> saiu vazio</td>
+<td>o <code>grep</code> não achou o cabeçalho</td>
+<td>rode o <code>curl -i</code> sozinho e veja se o <code>Authorization:</code> está na resposta</td>
+</tr>
+<tr>
+<td><code>401</code> logo depois do login</td>
+<td>o token não foi copiado inteiro</td>
+<td><code>echo $TOKEN \| wc -c</code> — tem que ter centenas de caracteres</td>
+</tr>
+<tr>
+<td><code>401 invalid_token</code></td>
+<td>você colou com quebra de linha</td>
+<td>o <code>tr -d '\r\n'</code> do comando existe para isso</td>
+</tr>
+<tr>
+<td><code>403</code> em vez de <code>200</code></td>
+<td>a conta não está verificada</td>
+<td>volte à Prática 3</td>
+</tr>
+<tr>
+<td><code>401 invalid_credentials</code></td>
+<td>senha errada — <strong>ou e-mail que não existe</strong></td>
+<td>é a mesma mensagem de propósito; veja a seção 7</td>
+</tr>
+<tr>
+<td>jwt.io diz "invalid signature"</td>
+<td>esperado: ele não tem o seu segredo</td>
+<td>você só quer ler o payload, não validar</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-5-logout-que-revoga-de-verdade">Prática 5 — Logout que revoga de verdade</h3>
+<blockquote>
+<p><strong>~15 minutos.</strong> A prática que mostra a diferença entre "apagar no cliente" e "revogar no
+servidor".</p>
+<p><strong>Antes de rodar, decida</strong>: aquele token continua matematicamente válido e ainda não expirou. O
+segundo comando vai responder <code>200</code> ou <code>401</code>? A resposta é o assunto inteiro da seção 8.</p>
+</blockquote>
+<pre><code class="language-bash">curl -i -X DELETE $API/sessions -H &quot;Authorization: Bearer $TOKEN&quot;
+curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;
+</code></pre>
+<p><strong>Confere</strong>: o segundo comando tem que dar <strong><code>401</code></strong>. O token ainda é válido e ainda não expirou —
+mas está na denylist.</p>
+<p>Sem a denylist, esse <code>curl</code> responderia <code>200</code> até o <code>exp</code> chegar. <strong>É este teste que prova que o
+logout serve para alguma coisa.</strong></p>
+<p><strong>Avançado</strong>: veja a denylist por dentro, no console:</p>
+<pre><code class="language-ruby">Rails.cache.read(&quot;denylist:#{jti_do_seu_token}&quot;)
+</code></pre>
+<p>Pegue o <code>jti</code> no jwt.io. Por que a entrada tem TTL, e por que o TTL é exatamente o que restava do
+token?</p>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>o segundo <code>curl</code> respondeu <code>200</code></td>
+<td>o <code>DELETE</code> falhou antes</td>
+<td>rode-o com <code>-i</code> e leia o status</td>
+</tr>
+<tr>
+<td><code>401</code> já no <code>DELETE</code></td>
+<td>o token expirou ou já foi revogado</td>
+<td>faça login de novo e refaça</td>
+</tr>
+<tr>
+<td>a denylist não persiste entre reinícios</td>
+<td>o cache em dev é em memória</td>
+<td>é o esperado em desenvolvimento; em produção é o Solid Cache no Postgres</td>
+</tr>
+<tr>
+<td><code>Rails.cache.read</code> devolve <code>nil</code></td>
+<td><code>jti</code> errado, ou cache diferente</td>
+<td>copie o <code>jti</code> exato do jwt.io</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-6-recuperacao-de-senha-e-as-sessoes-que-caem">Prática 6 — Recuperação de senha, e as sessões que caem</h3>
+<blockquote>
+<p><strong>~20 minutos.</strong> O fluxo mais completo do sistema, e o que tem a decisão de segurança mais sutil.</p>
+</blockquote>
+<p>Faça login de novo para ter um token válido:</p>
 <pre><code class="language-bash">TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
   -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;client\&quot;:\&quot;mobile\&quot;}&quot; \
   | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
 
-curl -X POST $API/password_resets/request -H 'Content-Type: application/json' -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;}&quot;
+curl -X POST $API/password_resets/request -H 'Content-Type: application/json' \
+  -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;}&quot;
 # pegue o código no navegador
-curl -X POST $API/password_resets/confirm -H 'Content-Type: application/json' -d &quot;{
+
+curl -i -X POST $API/password_resets/confirm -H 'Content-Type: application/json' -d &quot;{
   \&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;code\&quot;:\&quot;COLE\&quot;,
   \&quot;password\&quot;:\&quot;NovaSenha@9\&quot;,\&quot;confirm_password\&quot;:\&quot;NovaSenha@9\&quot;}&quot;
 
-curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;     # 401 — invalidate_sessions!
+curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;
 </code></pre>
-<p><strong>Confira também</strong>: <code>curl -X POST $API/password_resets/request -d '{"email":"ninguem@ufop.br"}'</code>
-responde exatamente a mesma coisa. É a resistência a enumeração.</p>
-<h3 id="6-leia-o-seu-proprio-token">6. Leia o seu próprio token</h3>
-<p>Cole o <code>$TOKEN</code> em <a href="https://jwt.io">jwt.io</a>. Ache o <code>sub</code>, o <code>jti</code> e o <code>exp</code>. Converta o <code>exp</code> para
-data e confira que é daqui a 24 horas.</p>
-<h3 id="7-qualidade-e-commit">7. Qualidade e commit</h3>
-<pre><code class="language-bash">bin/rails test          # 71 verdes
+<p><strong>Confere</strong>: o último dá <code>401</code>. Trocar a senha <strong>derrubou todas as sessões abertas</strong> — é o
+<code>token_version</code> sendo incrementado. Se alguém tinha roubado o seu token, acabou de perdê-lo.</p>
+<p><strong>Confere também, e é o ponto mais importante da prática:</strong></p>
+<pre><code class="language-bash">curl -i -X POST $API/password_resets/request -H 'Content-Type: application/json' \
+  -d '{&quot;email&quot;:&quot;ninguem-existe@ufop.br&quot;}'
+</code></pre>
+<p>Responde <strong>exatamente a mesma coisa</strong> do e-mail que existe. É a resistência a enumeração: um
+atacante não consegue usar esta rota para descobrir quem tem conta.</p>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>o <code>/me</code> final respondeu <code>200</code></td>
+<td>o <code>confirm</code> falhou</td>
+<td>rode o <code>confirm</code> com <code>-i</code> e leia o status</td>
+</tr>
+<tr>
+<td><code>422</code> no <code>confirm</code></td>
+<td>senha nova não passa na política, ou não bate com a confirmação</td>
+<td>leia a lista de erros</td>
+</tr>
+<tr>
+<td><code>422 invalid_code</code></td>
+<td>código errado, expirado, ou já usado</td>
+<td>peça outro com <code>/password_resets/request</code></td>
+</tr>
+<tr>
+<td>não veio e-mail para o endereço inexistente</td>
+<td>correto!</td>
+<td>é justamente o que se espera: resposta igual, e-mail nenhum</td>
+</tr>
+<tr>
+<td>esqueceu a senha nova</td>
+<td>você trocou para <code>NovaSenha@9</code></td>
+<td>use ela nos próximos logins</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="pratica-7-testes-e-qualidade">Prática 7 — Testes e qualidade</h3>
+<blockquote>
+<p><strong>~15 minutos.</strong></p>
+</blockquote>
+<pre><code class="language-bash">bin/rails test
 bin/rubocop
 bin/brakeman --no-pager
-git add -A &amp;&amp; git commit -m &quot;Rotas de autenticação&quot; &amp;&amp; git push
 </code></pre>
+<p><strong>Confere</strong>: 71 testes verdes, RuboCop limpo, Brakeman sem aviso.</p>
+<p>Agora <strong>quebre um teste de propósito</strong> para ver a rede de segurança funcionando. Em
+<code>app/controllers/concerns/api/v1/authentication.rb</code>, comente a linha que consulta a denylist. Rode
+<code>bin/rails test</code> e veja <strong>qual</strong> teste fica vermelho. Depois desfaça.</p>
+<pre><code class="language-bash">git add -A &amp;&amp; git commit -m &quot;Rotas de autenticação&quot; &amp;&amp; git push
+</code></pre>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>testes vermelhos depois de você mexer</td>
+<td>é o objetivo do exercício</td>
+<td><code>git checkout .</code> desfaz tudo o que não foi commitado</td>
+</tr>
+<tr>
+<td><code>bin/rubocop</code> com dezenas de ofensas</td>
+<td>estilo</td>
+<td><code>bin/rubocop -a</code> conserta a maioria; leia o que sobrar</td>
+</tr>
+<tr>
+<td><code>bin/brakeman</code> acusa</td>
+<td>pode ser falso positivo</td>
+<td>leia a explicação; ele diz o arquivo e a linha</td>
+</tr>
+<tr>
+<td><code>bin/brakeman: command not found</code></td>
+<td>a gem não veio</td>
+<td><code>bundle install</code></td>
+</tr>
+<tr>
+<td>o push foi recusado</td>
+<td>o remoto tem commits novos</td>
+<td><code>git pull --rebase origin main</code></td>
+</tr>
+</tbody>
+</table>
 <hr>
-<p><strong>Bônus 1</strong>: crie <code>PATCH /api/v1/me</code> para o usuário editar o próprio <code>name</code>, <strong>e só o <code>name</code></strong>.
-Tente mandar <code>"role": "admin"</code> junto e confirme que o <code>params.expect</code> recusa.</p>
-<p><strong>Bônus 2</strong>: em <code>app/services/auth/decode_token.rb</code>, troque o <code>true</code> por <code>false</code>:</p>
+<h3 id="pratica-8-avancado-quebre-a-assinatura-do-token">Prática 8 — Avançado: quebre a assinatura do token</h3>
+<blockquote>
+<p><strong>~15 minutos, se sobrou tempo.</strong> É o exercício que faz entender o que uma assinatura garante.</p>
+</blockquote>
+<p>Em <code>app/services/auth/decode_token.rb</code>, troque o <code>true</code> por <code>false</code>:</p>
 <pre><code class="language-ruby">JWT.decode(@token, TokenSecret.call, false, { algorithm: &quot;HS256&quot; })
 </code></pre>
-<p>Depois forje um token assinado com outro segredo e chame <code>/me</code>:</p>
+<p>Esse terceiro parâmetro é "verifique a assinatura?". Agora forje um token assinado com <strong>outro
+segredo</strong>:</p>
 <pre><code class="language-bash">bin/rails runner 'puts JWT.encode({sub: User.first.id, ver: 0, jti: &quot;x&quot;,
   exp: 1.hour.from_now.to_i}, &quot;segredo-do-atacante&quot;, &quot;HS256&quot;)'
 </code></pre>
-<p>Ele vai responder <code>200</code>. <strong>Desfaça em seguida</strong> e rode <code>bin/rails test</code> para ver o teste
-"recusa token assinado com outro segredo" pegar o problema.</p>
-<p><strong>Travou?</strong> O gabarito é o mesmo código: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03</code>.</p>
+<pre><code class="language-bash">curl -i $API/me -H &quot;Authorization: Bearer &lt;o-token-forjado&gt;&quot;
+</code></pre>
+<p><strong>Confere</strong>: responde <code>200</code>. Você acabou de entrar como outra pessoa, sem saber a senha dela.</p>
+<p><strong>Desfaça em seguida</strong> (volte o <code>true</code>) e rode <code>bin/rails test</code>: o teste "recusa token assinado com
+outro segredo" fica vermelho enquanto o <code>false</code> estiver lá. <strong>Era esse teste que estava te
+protegendo.</strong></p>
+<pre><code class="language-bash">git checkout app/services/auth/decode_token.rb
+bin/rails test
+</code></pre>
+<p><strong>Se der errado</strong></p>
+<table>
+<thead>
+<tr>
+<th>Erro</th>
+<th>Causa</th>
+<th>Saída</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>o token forjado deu <code>401</code> mesmo com <code>false</code></td>
+<td>o <code>ver</code> não bate com o <code>token_version</code> do usuário</td>
+<td>use <code>ver: User.first.token_version</code></td>
+</tr>
+<tr>
+<td><code>JWT::DecodeError</code></td>
+<td>o token foi colado quebrado</td>
+<td>copie a linha inteira, sem quebra</td>
+</tr>
+<tr>
+<td>esqueceu de desfazer</td>
+<td>perigoso: é uma falha de autenticação</td>
+<td><code>git checkout app/services/auth/decode_token.rb</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="bonus">Bônus</h3>
+<p><strong><code>PATCH /api/v1/me</code></strong> para o usuário editar o próprio <code>name</code>, <strong>e só o <code>name</code></strong>. Tente mandar
+<code>"role": "admin"</code> junto e confirme que o <code>params.expect</code> recusa. É <em>mass assignment</em>, e é uma das
+falhas mais comuns em API.</p>
+<p><strong>Travou em qualquer prática?</strong> O gabarito é o mesmo código:
+<code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03</code>.</p>
 <hr>
 <h2 id="recapitulando">Recapitulando</h2>
 <ul>

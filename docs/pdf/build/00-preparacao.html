@@ -152,39 +152,100 @@ gh auth status         # tem que dizer &quot;Logged in to github.com&quot;
 gh ssh-key add ~/.ssh/id_ed25519.pub --title &quot;meu-notebook&quot;
 ssh -T git@github.com                        # tem que cumprimentar você pelo nome
 </code></pre>
-<h3 id="azure-for-students-faca-isso-com-antecedencia">Azure for Students — <strong>faça isso com antecedência</strong></h3>
-<p>Na Aula 4 cada um vai subir a própria máquina virtual na nuvem. Usaremos o
-<a href="https://azure.microsoft.com/free/students/">Azure for Students</a>: <strong>US$ 100 de crédito, sem cartão
-de crédito</strong>, mediante e-mail institucional.</p>
-<ol>
-<li>Acesse o link e clique em <strong>Comece gratuitamente</strong>.</li>
-<li>Entre com seu e-mail institucional (<code>@aluno.ufop.edu.br</code>).</li>
-<li>Confirme a verificação acadêmica.</li>
-<li>Entre no <a href="https://portal.azure.com">portal.azure.com</a> e confirme que o crédito aparece.</li>
-</ol>
+<h3 id="multipass-teste-isso-com-antecedencia">Multipass — <strong>teste isso com antecedência</strong></h3>
+<p>Na Aula 4 cada um vai subir o próprio servidor Linux: uma <strong>máquina virtual</strong>, rodando no seu
+notebook, com Ubuntu Server, IP próprio e acesso por SSH. Quem cria essa VM é o
+<a href="https://canonical.com/multipass">Multipass</a>, da Canonical.</p>
+<pre><code class="language-bash"># Linux
+sudo snap install multipass
+
+# macOS
+brew install --cask multipass
+
+# Windows (PowerShell como administrador)
+winget install Canonical.Multipass
+</code></pre>
+<p>Teste <strong>agora</strong>, não na véspera. Uma VM de teste, que você apaga em seguida:</p>
+<pre><code class="language-bash">multipass launch 24.04 --name teste
+multipass info teste          # tem que mostrar State: Running e um IPv4
+multipass delete teste &amp;&amp; multipass purge
+</code></pre>
 <blockquote>
-<p>A verificação <strong>pode demorar dias</strong>. Faça agora, não na véspera da Aula 4.</p>
+<p>O primeiro <code>launch</code> baixa ~500 MB da imagem do Ubuntu. Faça no wi-fi de casa.</p>
 </blockquote>
+<h4 id="confira-que-voce-alcanca-a-vm">Confira que você alcança a VM</h4>
+<p>Subir a VM é metade. A outra metade é <strong>alcançá-la de onde você programa</strong> — e é aí que mora o único
+problema chato desta capacitação.</p>
+<p>O diagnóstico está no repositório da capacitação. Clone-o agora (você vai usá-lo o curso inteiro):</p>
+<pre><code class="language-bash">git clone &lt;url-do-repositório&gt; ~/capacitacao-gabarito
+</code></pre>
+<p>E, com a VM de teste rodando:</p>
+<pre><code class="language-bash">cd ~/capacitacao-gabarito
+./scripts/checar-servidor.sh &lt;IP-que-o-multipass-info-mostrou&gt;
+</code></pre>
+<p>Ele responde "está tudo pronto para a Aula 4" ou diz exatamente o que fazer. <strong>Mande o resultado no
+grupo.</strong> Dez minutos hoje valem a aula inteira.</p>
+<h4 id="se-voce-usa-windows-leia-isto-e-obrigatorio">Se você usa Windows: <strong>leia isto, é obrigatório</strong></h4>
+<p>O Multipass roda no Windows, e o seu Rails roda dentro do WSL2. São duas máquinas virtuais
+diferentes, e <strong>por padrão uma não enxerga a outra</strong> — o <code>ssh</code> do WSL2 não alcança o IP da VM, e sem
+isso nada da Aula 4 funciona.</p>
+<p>Duas saídas. Tente a primeira; se o seu Windows for antigo, a segunda resolve sempre.</p>
+<p><strong>1. Rede espelhada</strong> (Windows 11 22H2 ou mais novo). Um arquivo, e acabou.</p>
+<p>Crie (ou edite) <code>C:\Users\&lt;seu-usuario&gt;\.wslconfig</code>:</p>
+<pre><code>[wsl2]
+networkingMode=mirrored
+</code></pre>
+<p>E no PowerShell:</p>
+<pre><code class="language-powershell">wsl --shutdown
+</code></pre>
+<p><strong>2. Encaminhamento de porta</strong> (funciona em qualquer Windows, inclusive o 10). Em vez de o WSL2
+alcançar a VM, o Windows leva o tráfego até ela. No PowerShell <strong>como administrador</strong>, trocando o IP
+pelo da sua VM:</p>
+<pre><code class="language-powershell">$vm = &quot;SEU_IP_DA_VM&quot;
+netsh interface portproxy add v4tov4 listenport=2222 listenaddress=0.0.0.0 connectport=22  connectaddress=$vm
+netsh interface portproxy add v4tov4 listenport=443  listenaddress=0.0.0.0 connectport=443 connectaddress=$vm
+netsh interface portproxy add v4tov4 listenport=80   listenaddress=0.0.0.0 connectport=80  connectaddress=$vm
+New-NetFirewallRule -DisplayName &quot;Capacita VM&quot; -Direction Inbound `
+  -Action Allow -Protocol TCP -LocalPort 2222,443,80
+</code></pre>
+<p>Agora, para o WSL2, o endereço da VM passa a ser o <strong>do Windows</strong>:</p>
+<pre><code class="language-bash">ip route show default | awk '{print $3}'
+</code></pre>
+<p>É esse o seu <code>SERVER_IP</code>, e é ele que vai no <code>/etc/hosts</code>. E como o SSH mudou de porta, o seu <code>.env</code>
+leva também:</p>
+<pre><code class="language-bash">export SSH_PORT=2222
+</code></pre>
+<p>Confira:</p>
+<pre><code class="language-bash">./scripts/checar-servidor.sh $(ip route show default | awk '{print $3}') 2222
+</code></pre>
+<blockquote>
+<p>O endereço do Windows muda a cada <code>wsl --shutdown</code>. Quando o SSH parar de conectar do nada, é
+isso: rode o <code>ip route</code> de novo e atualize o <code>.env</code> e o <code>/etc/hosts</code>.</p>
+</blockquote>
+<p><strong>Se nenhuma das duas funcionar, avise no grupo antes da Aula 4</strong> — dá para resolver, mas não em
+cima da hora.</p>
 <hr>
 <h2 id="checagem-final">Checagem final</h2>
-<p>Cole os quatro comandos no terminal. Se todos responderem, você está pronto:</p>
-<pre><code class="language-bash">ruby -v          # ruby 3.4.9
-rails -v         # Rails 8.1.3
-docker -v        # Docker version 2x.x.x
+<p>Cole os comandos no terminal. Se todos responderem, você está pronto:</p>
+<pre><code class="language-bash">ruby -v             # ruby 3.4.9
+rails -v            # Rails 8.1.3
+docker -v           # Docker version 2x.x.x
 git --version
-gh auth status   # Logged in to github.com
+gh auth status      # Logged in to github.com
+multipass version   # multipass 1.x.x
 </code></pre>
 <h2 id="como-a-capacitacao-funciona">Como a capacitação funciona</h2>
 <p>Você vai trabalhar em <strong>dois diretórios</strong>:</p>
 <pre><code>~/capacitacao-gabarito/    ← o repositório da capacitação. Só leitura.
 ~/automic_auth_api/        ← o SEU projeto. Criado na Aula 1, é onde você escreve.
 </code></pre>
-<p>Clone o gabarito já:</p>
-<pre><code class="language-bash">git clone &lt;url-do-repositório&gt; ~/capacitacao-gabarito
+<p>O gabarito você já clonou, no passo do Multipass:</p>
+<pre><code class="language-bash">ls ~/capacitacao-gabarito     # se não existir:
+# git clone &lt;url-do-repositório&gt; ~/capacitacao-gabarito
 </code></pre>
 <p>O seu projeto você cria no primeiro encontro, com o passo a passo de
-<strong><code>01-fundamentos.md</code></strong>. Ele precisa ficar no <strong>seu</strong> GitHub: na Aula 4, a
-credencial que autoriza o deploy é emitida para <code>repo:SEU-USUARIO/SEU-REPO</code>.</p>
+<strong><code>01-fundamentos.md</code></strong>. Ele precisa ficar no <strong>seu</strong> GitHub: na Aula 4 é de lá que
+o CI roda e é para a sua conta que a imagem Docker vai.</p>
 <hr>
 <h2 id="se-algo-deu-errado">Se algo deu errado</h2>
 <table>
@@ -210,6 +271,10 @@ credencial que autoriza o deploy é emitida para <code>repo:SEU-USUARIO/SEU-REPO
 <tr>
 <td>No Windows, o <code>docker</code> não aparece dentro do Ubuntu</td>
 <td>Docker Desktop → Settings → Resources → WSL Integration → habilite a distro <code>Ubuntu-24.04</code>.</td>
+</tr>
+<tr>
+<td><code>multipass launch</code> falha com erro de virtualização</td>
+<td>Virtualização desabilitada na BIOS/UEFI (procure por <code>VT-x</code>, <code>AMD-V</code> ou <code>SVM</code>), ou o Hyper-V desligado no Windows.</td>
 </tr>
 <tr>
 <td><code>gem install rails</code> reclama de permissão</td>

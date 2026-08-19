@@ -161,16 +161,246 @@ gh auth login      # se não estiver
 
 ---
 
-## Azure e VM
+## A VM do Multipass
+
+### O WSL2 não alcança a VM do Multipass
+
+O sintoma: `multipass info` mostra o IP, mas de dentro do WSL2 o `ping` e o `ssh` dão timeout.
+
+O Multipass roda no Windows e o WSL2 é outra máquina virtual. Por padrão, uma não enxerga a outra.
+
+Rode o diagnóstico — ele identifica o caso e imprime a saída:
+
+```bash
+./scripts/checar-servidor.sh <IP-da-VM>
+```
+
+**Saída 1 — rede espelhada** (Windows 11 22H2+). Crie ou edite
+`C:\Users\<seu-usuario>\.wslconfig`:
+
+```
+[wsl2]
+networkingMode=mirrored
+```
+
+E no PowerShell: `wsl --shutdown`.
+
+**Saída 2 — encaminhamento de porta** (qualquer Windows, inclusive o 10). O Windows leva o tráfego
+até a VM. No PowerShell **como administrador**:
+
+```powershell
+$vm = "SEU_IP_DA_VM"
+netsh interface portproxy add v4tov4 listenport=2222 listenaddress=0.0.0.0 connectport=22  connectaddress=$vm
+netsh interface portproxy add v4tov4 listenport=443  listenaddress=0.0.0.0 connectport=443 connectaddress=$vm
+netsh interface portproxy add v4tov4 listenport=80   listenaddress=0.0.0.0 connectport=80  connectaddress=$vm
+New-NetFirewallRule -DisplayName "Capacita VM" -Direction Inbound `
+  -Action Allow -Protocol TCP -LocalPort 2222,443,80
+```
+
+No WSL2, o endereço da VM passa a ser o do Windows, e o SSH muda de porta:
+
+```bash
+ip route show default | awk '{print $3}'    # este vira o SERVER_IP e a linha do /etc/hosts
+echo 'export SSH_PORT=2222' >> .env
+```
+
+O `deploy.yml` já lê `SSH_PORT`, então o Kamal funciona sem mais nenhuma mudança. Os comandos `ssh`
+da apostila precisam de `-p 2222`.
+
+> O endereço do Windows muda a cada `wsl --shutdown`. Quando o SSH parar de conectar do nada, é
+> isso.
+
+### `netsh portproxy` configurado, mas ainda não conecta
+
+Confira, no PowerShell:
+
+```powershell
+netsh interface portproxy show all      # as três linhas estão lá?
+```
+
+Se estiverem e ainda assim não passa, é o firewall do Windows: a regra
+`New-NetFirewallRule` acima precisa existir. E lembre que o `connectaddress` é o IP **da VM**, que
+muda depois de um `multipass stop`/`start` — nesse caso apague e recrie:
+
+```powershell
+netsh interface portproxy reset
+```
+
+### `multipass launch` falha com erro de virtualização
+
+Virtualização desabilitada na BIOS/UEFI. Procure por `VT-x` (Intel), `AMD-V` ou `SVM` e ligue.
+
+No Windows, confira também se o Hyper-V está habilitado (Recursos do Windows → Plataforma do
+Hipervisor do Windows).
+
+### `multipass launch` parado em "Retrieving image"
+
+Ele está baixando ~500 MB. Numa rede lenta demora. Se travar de vez:
+
+```bash
+multipass delete servidor && multipass purge
+multipass launch 24.04 --name servidor --cloud-init cloud-init.yaml
+```
+
+### O IP da VM mudou
+
+Acontece depois de um `multipass stop` / `start`, ou de reiniciar o notebook.
+
+```bash
+multipass info servidor
+```
+
+Atualize em **dois** lugares: `SERVER_IP` no `.env` e a linha do `/etc/hosts`.
+
+### `Permission denied (publickey)`
+
+```bash
+chmod 600 ~/.ssh/capacita
+ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes ubuntu@SEU_IP
+```
+
+O `IdentitiesOnly=yes` importa: sem ele o SSH tenta todas as chaves do agente, o servidor recusa
+depois de algumas e você leva `Too many authentication failures` com a chave certa na mão.
+
+Se persistir, a chave pública não entrou na VM. Confira o `cloud-init.yaml`: ele tem que ter o
+conteúdo de `~/.ssh/capacita.pub`, e não o caminho do arquivo.
+
+```bash
+multipass exec servidor -- cat /home/ubuntu/.ssh/authorized_keys
+```
+
+### Perdi o acesso depois de mexer no sshd
+
+Se você seguiu o guia, tinha uma sessão aberta — desfaça por ela. Se não:
+
+```bash
+multipass shell servidor
+```
+
+Ele entra sem passar pelo `sshd`. **Numa VPS essa porta não existe** — por isso o guia insiste em
+`sudo sshd -t` antes do `reload`, e em testar num segundo terminal.
+
+---
+
+## Deploy
+
+### `kamal config` reclama de variável faltando
+
+Você esqueceu o `source .env`. Ele diz exatamente qual variável.
+
+```bash
+source .env && bundle exec kamal config
+```
+
+### `denied` ou `unauthorized` ao empurrar a imagem para o ghcr.io
+
+O `KAMAL_REGISTRY_PASSWORD` tem que ser um PAT (classic) com **`write:packages`** e
+**`read:packages`**. Um token de granularidade fina (*fine-grained*) não serve para o ghcr.io.
+
+E o `GHCR_USER` é o seu usuário do GitHub, em minúsculas — o registry não aceita maiúscula no nome
+da imagem.
+
+### `exec format error` ao subir o container
+
+Arquitetura errada: você buildou para `amd64` e a VM é `arm64` (ou o contrário).
+
+```bash
+ssh -i ~/.ssh/capacita ubuntu@SEU_IP 'dpkg --print-architecture'
+```
+
+Ajuste `SERVER_ARCH` no `.env`, `source .env` de novo, e refaça o deploy.
+
+### Kamal: `Docker is not installed`
+
+O primeiro deploy precisa ser `setup`, não `deploy`:
+
+```bash
+source .env && bundle exec kamal setup
+```
+
+### A aplicação sobe mas não acha o banco
+
+`kamal deploy` **não** sobe accessories.
+
+```bash
+kamal accessory boot db
+```
+
+Depois de mudar env de accessory, `boot` não basta — é `kamal accessory reboot db`.
+
+### `curl` diz `self signed certificate`
+
+**Isso é o esperado**, e é o exercício G da apostila. O túnel TLS subiu; o que faltou foi confiança.
+
+```bash
+curl --cacert tls/capacita-cert.pem https://seunome.test/api/v1/status
+```
+
+### `curl` diz `Could not resolve host: seunome.test`
+
+Falta a linha no `/etc/hosts`:
+
+```bash
+echo "SEU_IP  seunome.test" | sudo tee -a /etc/hosts
+getent hosts seunome.test
+```
+
+No Windows, o navegador consulta `C:\Windows\System32\drivers\etc\hosts`, não o do WSL2.
+
+### `curl` conecta mas devolve 404 do proxy
+
+O `APP_HOST` do `.env` tem que ser **exatamente** o nome que você está chamando. O `kamal-proxy`
+roteia pelo cabeçalho `Host`: se o certificado é para `seunome.test` e o `APP_HOST` está
+`outro.test`, ele não entrega a ninguém.
+
+### `curl` dá `Connection refused` na 443
+
+```bash
+ssh -i ~/.ssh/capacita ubuntu@SEU_IP 'docker ps && sudo ufw status'
+```
+
+O `kamal-proxy` está na lista? A 443 está liberada no `ufw`?
+
+### SMTP dá timeout na VM
+
+Da VM local, a saída costuma funcionar — se não funcionar, é o firewall da sua rede (algumas redes
+universitárias bloqueiam a 587).
+
+Numa VPS é mais comum: vários provedores de nuvem bloqueiam a saída na porta 25, e alguns na 587.
+Teste a alternativa do seu provedor de e-mail (o Resend aceita 2587) e ajuste `SMTP_PORT` no
+`env.clear`.
+
+### O deploy passa mas o site responde 500
+
+```bash
+source .env && kamal app logs -f
+```
+
+Suspeitos comuns: migration pendente (`kamal app exec "bin/rails db:migrate"`), `RAILS_MASTER_KEY`
+errada, ou um `ENV.fetch` sem default para uma variável que ninguém cadastrou.
+
+### Preciso voltar atrás agora
+
+```bash
+source .env && kamal rollback
+```
+
+Volta para a versão anterior da imagem, que ainda está na VM.
+
+---
+
+## Apêndice: nuvem (Azure e Cloudflare)
+
+Estes só acontecem no percurso de [`apendice-azure.md`](apendice-azure.md).
 
 ### `NotAvailableForSubscription` ao criar a VM
 
 O tamanho escolhido não está habilitado para a sua assinatura naquela região.
 
-**Assinaturas → Uso + cotas → filtre por Compute** e escolha outra região ou outro tamanho.
-Pedir aumento de cota **não** resolve quando a oferta não está habilitada.
+**Assinaturas → Uso + cotas → filtre por Compute** e escolha outra região ou outro tamanho. Pedir
+aumento de cota **não** resolve quando a oferta não está habilitada.
 
-### SSH dá timeout
+### SSH dá timeout na VM da Azure
 
 Quase sempre é o NSG:
 
@@ -178,28 +408,10 @@ Quase sempre é o NSG:
 2. a regra libera a porta 22, protocolo TCP, direção Entrada?
 3. a prioridade da regra de permissão é **menor** que a de alguma negação?
 
-### `Permission denied (publickey)`
+### Perdi o acesso depois de mexer no sshd, e não tenho sessão aberta
 
-```bash
-chmod 600 ~/.ssh/azure-capacita
-ssh -i ~/.ssh/azure-capacita -o IdentitiesOnly=yes azureuser@SEU_IP
-```
-
-O `IdentitiesOnly=yes` importa: sem ele o SSH tenta todas as chaves do agente, o servidor recusa
-depois de algumas e você leva `Too many authentication failures` com a chave certa na mão.
-
-### Perdi o acesso depois de mexer no sshd
-
-Se você seguiu o guia, tinha uma sessão aberta — desfaça por ela. Se não, sobrou o **Serial
-Console** do portal da Azure (menu da VM → Suporte + solução de problemas → Console Serial), que
-não passa pelo SSH.
-
-Da próxima vez: `sudo sshd -t` antes de `reload`, e teste em outro terminal antes de fechar o
-primeiro.
-
----
-
-## Deploy
+Sobrou o **Serial Console** do portal da Azure (menu da VM → Suporte + solução de problemas →
+Console Serial), que não passa pelo SSH.
 
 ### OIDC: `AADSTS700213`
 
@@ -229,22 +441,6 @@ az network nsg rule delete \
 
 E confira depois de todo deploy que falhou de forma estranha.
 
-### Kamal: `Docker is not installed`
-
-O primeiro deploy precisa ser `setup`, não `deploy`. Rode o workflow por
-**Actions → Run workflow → command: setup**.
-
-### A aplicação sobe mas não acha o banco
-
-`kamal deploy` **não** sobe accessories. O workflow tem um passo `kamal accessory boot db`, mas se
-você rodou o Kamal à mão:
-
-```bash
-kamal accessory boot db
-```
-
-Depois de mudar env de accessory, `boot` não basta — é `kamal accessory reboot db`.
-
 ### Cloudflare 521 / 522
 
 O Cloudflare não conseguiu falar com o seu servidor.
@@ -266,25 +462,3 @@ Falha no handshake TLS entre Cloudflare e a sua VM.
 
 Esperado. Com o DNS proxied, o desafio HTTP-01 não chega como o Let's Encrypt espera. Use o
 certificado Origin CA — é a razão de ele existir.
-
-### SMTP dá timeout na VM
-
-Vários provedores de nuvem bloqueiam a saída na porta 25, e alguns na 587. Teste a alternativa do
-seu provedor de e-mail (o Resend aceita 2587) e ajuste `SMTP_PORT` no `env.clear`.
-
-### O deploy passa mas o site responde 500
-
-```bash
-kamal app logs -f
-```
-
-Suspeitos comuns: migration pendente (`kamal app exec "bin/rails db:migrate"`), `RAILS_MASTER_KEY`
-errada, ou um `ENV.fetch` sem default para uma variável que ninguém cadastrou.
-
-### Preciso voltar atrás agora
-
-```bash
-kamal rollback
-```
-
-Volta para a versão anterior da imagem, que ainda está na VM.

@@ -1,8 +1,8 @@
 # Capacitação Back-end — Automic Jr.
 
 Material da capacitação de back-end da Automic: **4 encontros de ~3h** em que a turma constrói, do
-zero, uma API de autenticação em Ruby on Rails e a coloca no ar numa VPS própria, com HTTPS e
-deploy automático.
+zero, uma API de autenticação em Ruby on Rails e a coloca no ar num servidor Linux que cada um sobe
+no próprio notebook, com HTTPS e Kamal.
 
 O app construído aqui é um recorte do [`seem-backend`](https://github.com/fabriciosiqueira08/seem-backend)
 — o back-end real da XXIII Semana de Estudos da Escola de Minas (SEEM). As decisões, os padrões e a
@@ -14,7 +14,8 @@ infraestrutura são os mesmos; o que muda é o tamanho.
 
 ## O que a turma vai ter no fim
 
-Uma API rodando em `https://<seu-nome>.capacita.<dominio>` com quatro rotas de autenticação:
+Uma API rodando em `https://<seu-nome>.test`, dentro de uma máquina virtual Ubuntu que eles mesmos
+provisionaram, com quatro rotas de autenticação:
 
 | Método | Rota | O que faz |
 |---|---|---|
@@ -37,7 +38,7 @@ login só liberar depois que a conta é ativada, e duas rotas autenticadas: `GET
 | **1** | O que é back-end, Ruby (para quem sabe Python) e o primeiro Rails | `GET /api/v1/status` respondendo JSON |
 | **2** | Banco de dados, ActiveRecord e o model `User` | `User` com validações e senha hasheada, testado no console |
 | **3** | As rotas de autenticação | Os cinco fluxos rodando e testados |
-| **4** | VPS, Docker, Kamal e deploy | O app de cada um no ar, com HTTPS e deploy automático |
+| **4** | Servidor Linux, Docker, Kamal e deploy | O app de cada um no ar, na própria VM, com HTTPS |
 
 ---
 
@@ -47,8 +48,8 @@ login só liberar depois que a conta é ativada, e duas rotas autenticadas: `GET
 travar ou quando quiser comparar com o seu.
 
 Na Aula 1 você cria o **seu próprio projeto**, e é nele que você trabalha nos quatro encontros. Isso
-não é preciosismo: na Aula 4, o deploy automático precisa de um repositório **seu** no GitHub — a
-credencial da Azure é emitida para `repo:SEU-USUARIO/SEU-REPO`, e não dá para apontar para o meu.
+não é preciosismo: na Aula 4 o CI roda no **seu** repositório e a imagem Docker vai para a **sua**
+conta do GitHub Container Registry.
 
 ```
 ~/capacitacao-gabarito/    ← este repo. Só leitura.
@@ -101,12 +102,34 @@ O `Gemfile` vai junto de propósito: a Aula 3 acrescenta as gems `jwt`, `rack-co
 | `aula-01` | App gerado + rota de status |
 | `aula-02` | + migrations, `User`, concerns, associações, validador de senha |
 | `aula-03` | + rotas, services, mailer, serializer, testes |
-| `aula-04` | + Dockerfile, Kamal, GitHub Actions |
+| `aula-04` | + Dockerfile, Kamal, `.env.example`, GitHub Actions |
 | `main` | Tudo, mais os slides, os PDFs e os roteiros |
 
 Cada checkpoint carrega **o código daquele ponto e as apostilas até aquela aula** — nada além
 disso. Slides, PDFs e roteiros do instrutor são gerados e vivem só na `main`, para não ficarem
 desatualizados em quatro lugares a cada regeração.
+
+---
+
+## Como as aulas são construídas
+
+Cada bloco de conteúdo termina numa **prática**: explica, faz, explica, faz. São **31 práticas** nos
+quatro encontros, de 5 a 35 minutos, todas com um item avançado para quem terminar antes.
+
+Na apostila, cada prática traz os comandos, uma linha **Confere** e uma tabela **Se der errado**, no
+formato *erro → causa → saída* — com os erros que acontecem de verdade, não os hipotéticos.
+
+| Aula | Práticas | Da mais básica à mais avançada |
+|---|--:|---|
+| 1 | 7 | `curl` na mão → Ruby no `irb` → projeto no ar → rota → teste → GitHub |
+| 2 | 8 | banco de pé → migrations → bcrypt no console → validador → model → associação → concerns → testes |
+| 3 | 8 | ler a arquitetura → cadastro → confirmação → token na mão → logout → recuperação → qualidade → forjar um token |
+| 4 | 8 | subir a VM → firewall e Docker → registry → `.env` → certificado → deploy → TLS com os olhos → produção |
+
+A sintaxe de Ruby que o projeto usa está na
+[seção 5 da Aula 1](docs/01-fundamentos.md), organizada como referência: cada construção diz **onde
+no projeto ela aparece**. O comparativo completo com Python fica em
+[`ruby-para-pythonistas.md`](docs/ruby-para-pythonistas.md).
 
 ---
 
@@ -119,11 +142,13 @@ desatualizados em quatro lugares a cada regeração.
 | [`docs/02-activerecord.md`](docs/02-activerecord.md) | Apostila da Aula 2 |
 | [`docs/03-autenticacao.md`](docs/03-autenticacao.md) | Apostila da Aula 3 |
 | [`docs/04-deploy.md`](docs/04-deploy.md) | Apostila da Aula 4 |
+| [`docs/apendice-azure.md`](docs/apendice-azure.md) | O mesmo servidor na nuvem: Azure, Cloudflare, OIDC e deploy automático |
 | [`docs/ruby-para-pythonistas.md`](docs/ruby-para-pythonistas.md) | Cheat sheet Python ↔ Ruby, lado a lado |
 | [`docs/PREENCHER.md`](docs/PREENCHER.md) | **Leia primeiro**: o que ainda falta preencher antes de usar o material |
+| [`docs/guia-do-instrutor.md`](docs/guia-do-instrutor.md) | **Para quem apresenta, leia primeiro**: conduzir a sala, os três primeiros minutos, a curva de energia, o "não sei" |
 | [`docs/roteiro-de-tempo.md`](docs/roteiro-de-tempo.md) | **Para quem apresenta**: índice dos quatro roteiros de aula |
 | `docs/roteiro-aula-0N.md` | Runbook de cada encontro: cronograma, falas, demos, perguntas e plano B |
-| [`docs/glossario.md`](docs/glossario.md) | VPS, NSG, OIDC, JWT, OTP, ORM, CI/CD… |
+| [`docs/glossario.md`](docs/glossario.md) | VM, VPS, ufw, CA, JWT, OTP, ORM, CI/CD… |
 | [`docs/troubleshooting.md`](docs/troubleshooting.md) | Erros que realmente acontecem, e a saída de cada um |
 
 ## Slides

@@ -30,8 +30,14 @@ action não é chamada.</p>
 redirect aberto e afins.</p>
 <p><strong>Bundler</strong> — O gerenciador de dependências do Ruby. Lê o <code>Gemfile</code>, resolve versões e escreve o
 <code>Gemfile.lock</code>.</p>
+<p><strong>Autoassinado</strong> — Certificado que você mesmo assinou. Criptografa igual a qualquer outro; o que
+falta é alguém em quem o cliente já confie tendo assinado. É por isso que o navegador reclama.</p>
 <p><strong>CA (Autoridade Certificadora)</strong> — Quem assina certificados. O navegador nasce com uma lista de CAs
-em que confia; confiar na CA é confiar em quem ela assinou.</p>
+em que confia; confiar na CA é confiar em quem ela assinou. Para uma CA pública assinar, você tem
+que provar que o domínio é seu.</p>
+<p><strong>cloud-init</strong> — Padrão que quase todo provedor de nuvem usa para configurar uma VM no primeiro
+boot: usuários, chaves SSH, pacotes. É como a sua chave pública entra na máquina antes de ela
+existir.</p>
 <p><strong>Certificado</strong> — Documento que afirma "esta chave pública pertence a este domínio", assinado por
 uma CA.</p>
 <p><strong>Chave estrangeira</strong> — Coluna que aponta para o <code>id</code> de outra tabela (<code>login_events.user_id</code>). Com
@@ -66,6 +72,8 @@ quem tem conta no sistema. Combatido com respostas idênticas e tempo constante.
 <p><strong>Fixture</strong> — Dados de teste em YAML, carregados antes de cada teste e limpos depois.</p>
 <p><strong>Gem</strong> — Biblioteca Ruby. O equivalente do pacote do pip.</p>
 <p><strong>ghcr.io</strong> — GitHub Container Registry. Onde a imagem Docker fica hospedada.</p>
+<p><strong><code>/etc/hosts</code></strong> — Arquivo que mapeia nome para IP na sua máquina. O sistema consulta ele <strong>antes</strong>
+do DNS. É como <code>seunome.test</code> acha a VM sem existir em DNS nenhum.</p>
 <p><strong>Handshake (TLS)</strong> — A negociação inicial: o servidor apresenta o certificado, o cliente valida a
 cadeia, e os dois combinam uma chave temporária.</p>
 <p><strong>Health check</strong> — Rota que responde 200 se a aplicação está de pé. A nossa é <code>/up</code>. O Kamal só
@@ -83,20 +91,24 @@ agente na máquina.</p>
 rate limit moram aí. <code>bin/rails middleware</code> lista a pilha.</p>
 <p><strong>Migration</strong> — Mudança no banco, versionada em código, que roda uma vez em cada máquina.</p>
 <p><strong>Minitest</strong> — O framework de teste que vem com o Rails.</p>
+<p><strong>Multipass</strong> — Ferramenta da Canonical que cria VMs Ubuntu com um comando. É o que sobe o servidor
+da Aula 4.</p>
 <p><strong>mise</strong> — Gerenciador de versões de runtime. O <code>pyenv</code> do mundo Ruby.</p>
 <p><strong>MVC</strong> — <em>Model-View-Controller</em>. Model = dados e regras; View = a saída (aqui, JSON); Controller =
 recebe a requisição e decide.</p>
 <p><strong>N+1</strong> — Carregar uma lista e depois consultar o banco item a item. 100 registros viram 101
 consultas. Resolve-se com <code>includes</code>.</p>
-<p><strong>NSG</strong> — <em>Network Security Group</em>. O firewall da Azure, com regras de entrada e saída por porta e
-origem.</p>
-<p><strong>OIDC</strong> — <em>OpenID Connect</em>. Permite o GitHub Actions autenticar na Azure com um token de curta
-duração, sem guardar segredo de longa duração.</p>
+<p><strong>NSG</strong> — <em>Network Security Group</em>. O firewall da Azure, fora da máquina, com regras de entrada e
+saída por porta e origem. É o equivalente na nuvem do <code>ufw</code>, e vem antes dele: o pacote nem chega.</p>
+<p><strong>OIDC</strong> — <em>OpenID Connect</em>. Permite o GitHub Actions autenticar na nuvem com um token de curta
+duração, sem guardar segredo de longa duração. Aparece no apêndice de nuvem.</p>
 <p><strong>OOM killer</strong> — O mecanismo do kernel Linux que mata processos quando a RAM acaba. É por isso que
 a VM tem swap.</p>
 <p><strong>Origin CA</strong> — Certificado emitido pelo Cloudflare para o trecho Cloudflare → seu servidor.
 Navegador não confia nele diretamente, e não precisa: o usuário vê o certificado público do
 Cloudflare.</p>
+<p><strong>PAT</strong> — <em>Personal Access Token</em>. Token do GitHub que substitui a senha em ferramentas de linha de
+comando. O do curso tem só <code>write:packages</code> e <code>read:packages</code>, para o <code>ghcr.io</code>.</p>
 <p><strong>ORM</strong> — <em>Object-Relational Mapping</em>. Traduz objetos em linhas de tabela.</p>
 <p><strong>OTP</strong> — <em>One-Time Password</em>. O código de 6 dígitos, válido por 15 minutos e uma vez só.</p>
 <p><strong>Payload</strong> — O miolo do JWT, onde ficam <code>sub</code>, <code>exp</code>, <code>jti</code>. Público.</p>
@@ -133,6 +145,8 @@ do logout usa o cache.</p>
 <p><strong>sub</strong> — <em>Subject</em>. O claim do JWT que diz de quem é o token — no nosso caso, o <code>user.id</code>.</p>
 <p><strong>Swap</strong> — Área em disco usada como extensão da RAM. Lenta, mas evita que o OOM killer mate a
 aplicação.</p>
+<p><strong><code>.test</code></strong> — Domínio de topo reservado para testes por RFC. Ninguém consegue registrar, então
+nunca colide com um site de verdade.</p>
 <p><strong>TLS</strong> — O túnel criptografado que embrulha o HTTP e o transforma em HTTPS. Mesmo protocolo, só que
 fechado.</p>
 <p><strong>Token version</strong> — Contador no <code>User</code> que vai dentro do JWT. Incrementar invalida todos os tokens
@@ -144,7 +158,11 @@ entradas da denylist têm o TTL do que restava do token.</p>
 É como configuração e segredo entram sem passar pelo código.</p>
 <p><strong>Volume (Docker)</strong> — Área de disco que sobrevive ao container. É o que faz o banco não sumir a cada
 deploy. <strong>Não é backup.</strong></p>
-<p><strong>VPS</strong> — <em>Virtual Private Server</em>. Um computador virtual que é seu, com acesso root.</p>
+<p><strong>ufw</strong> — <em>Uncomplicated Firewall</em>. A casca amigável do firewall do Ubuntu. <code>ufw allow 22/tcp</code>.</p>
+<p><strong>VM</strong> — <em>Virtual Machine</em>. Um computador inteiro simulado em software: kernel, disco, rede,
+usuários. É o que o Multipass cria no seu notebook, e é o que uma VPS é do outro lado.</p>
+<p><strong>VPS</strong> — <em>Virtual Private Server</em>. Uma VM alugada, num datacenter, com IP público. Mesma coisa que
+a VM da Aula 4 — só que exposta ao mundo e cobrada por hora ligada.</p>
 <p><strong>WSL2</strong> — <em>Windows Subsystem for Linux</em>. Um Linux de verdade dentro do Windows. Obrigatório para
 quem desenvolve Rails no Windows.</p>
 <p><strong>XSS</strong> — <em>Cross-Site Scripting</em>. O atacante roda JavaScript dentro da sua página, geralmente porque

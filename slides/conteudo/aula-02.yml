@@ -82,6 +82,18 @@ slides:
       - "Já tem Postgres na máquina ocupando a 5432?"
       - "- DB_PORT=5433 docker compose up -d"
 
+  - tipo: pratica
+    titulo: "PRÁTICA 1 — O BANCO DE PÉ, E O BCRYPT"
+    bullets:
+      - "docker compose up -d  ->  o status tem que ser healthy."
+      - "No Gemfile: gem \"bcrypt\", \"~> 3.1.7\"  e  bundle install"
+      - "Confere: bin/rails runner 'puts BCrypt::Password.create(\"teste\")[0,7]'"
+      - "Tem que sair $2a$12$ — o algoritmo e o custo."
+      - "Apostila: Prática 1."
+    notas: |
+      ~5 minutos. Aquecimento, e garante que o ambiente da Aula 1 sobreviveu
+      à semana. Quem não subir o banco aqui vai travar em tudo depois.
+
   - tipo: secao
     titulo: "ACTIVERECORD"
 
@@ -203,6 +215,22 @@ slides:
       - "Você nunca edita esse arquivo à mão."
       - "Nunca edite migration que já rodou em produção. Crie outra."
 
+  - tipo: pratica
+    titulo: "PRÁTICA 2 — AS TRÊS MIGRATIONS"
+    bullets:
+      - "generate migration CreateUsers / AddEmailVerification / AddPasswordReset"
+      - "Uma de cada vez, e db:migrate entre elas."
+      - "Confere: bin/rails db:migrate:status  ->  três linhas \"up\""
+      - "Abra o db/schema.rb e leia. Ele é o retrato do banco AGORA."
+      - "Confere: a tabela users tem 17 colunas (16 mais o id)."
+      - "Apostila: Prática 2."
+    notas: |
+      ~20 minutos, a prática mais longa do dia.
+      Erro campeão: PG::DuplicateTable, de quem rodou duas vezes. A saída é
+      db:drop db:create db:migrate — perde dados, e tudo bem agora.
+      Insista: quando uma migration falha, a resposta está na LINHA SEGUINTE
+      do erro, não na primeira.
+
   - tipo: secao
     titulo: "SENHA"
 
@@ -257,6 +285,22 @@ slides:
       #
       # A senha em texto NUNCA toca o banco.
 
+  - tipo: pratica
+    titulo: "PRÁTICA 3 — O BCRYPT NO CONSOLE"
+    bullets:
+      - "BCrypt::Password.create(\"Automic@2026\") duas vezes. Deu diferente?"
+      - "Isso é o salt. Ninguém descobre que dois usuários têm a mesma senha."
+      - "BCrypt::Password.new(digest) == \"Automic@2026\"  ->  true"
+      - "Compare o tempo com Digest::SHA256, usando Benchmark.realtime."
+      - "Avançado: diga em voz alta por que a lentidão é uma CARACTERÍSTICA."
+      - "Apostila: Prática 3."
+    notas: |
+      ~10 minutos, sem escrever arquivo nenhum. É o que faz a seção de senha
+      parar de ser teoria.
+      A comparação de tempo é o argumento: bcrypt em centenas de ms, SHA-256
+      em microssegundos. Quem rouba um banco testa bilhões de senhas por
+      segundo com SHA-256, e algumas dezenas com bcrypt.
+
   - tipo: secao
     titulo: "VALIDAÇÕES"
 
@@ -291,6 +335,22 @@ slides:
       - "normalize_matricula: só os dígitos"
       - "Sem isso o índice único não serve para nada:"
       - "- o banco acha que são valores diferentes."
+
+  - tipo: pratica
+    titulo: "PRÁTICAS 4 E 5 — O VALIDADOR E O MODEL"
+    bullets:
+      - "app/validators/password_policy_validator.rb — o seu primeiro arquivo Ruby."
+      - "Confere: validate(\"abc\") devolve a lista; validate(\"Automic@2026\") devolve []"
+      - "Depois o app/models/user.rb: has_secure_password, validações, normalizes."
+      - "Confere: um User novo é valid? e tem digest começando em $2a$12$"
+      - "Agora QUEBRE: User.new(email: \"NAO-E-EMAIL\").valid? e leia errors.full_messages"
+      - "Apostila: Práticas 4 e 5."
+    notas: |
+      ~35 minutos somando as duas. É o bloco em que eles mais escrevem hoje.
+      Repare no validator com eles: tem o self.validate que instancia, o @ de
+      instância e o private valendo da linha em diante. É a Aula 1 aparecendo.
+      Quando valid? der false e ninguém souber por quê, a resposta é sempre
+      p u.errors.full_messages. Ensine o reflexo.
 
   - tipo: secao  # EXTRA
     titulo: "ASSOCIAÇÕES"
@@ -371,6 +431,21 @@ slides:
       - "Aí são 2 consultas, sempre."
       - "É o problema de performance nº 1 de app Rails. E o mais fácil de achar."
 
+  - tipo: pratica
+    titulo: "PRÁTICA 6 — A SEGUNDA TABELA"
+    bullets:
+      - "generate migration CreateLoginEvents, e o model LoginEvent."
+      - "belongs_to :user de um lado, has_many :login_events do outro."
+      - "u.login_events.create!(client: \"mobile\", occurred_at: Time.current)"
+      - "u.login_events.recentes.first.user.name  ->  navega para o outro lado."
+      - "Avançado: apague o usuário e confira que os eventos foram junto."
+      - "Apostila: Prática 6."
+    notas: |
+      ~15 minutos. É aqui que o banco deixa de ser uma tabela e vira um
+      modelo de dados.
+      O dependent: :delete_all é o exercício avançado, e vale fazer ao vivo:
+      LoginEvent.count antes e depois do destroy.
+
   - tipo: secao
     titulo: "CONCERNS"
 
@@ -418,6 +493,21 @@ slides:
       - "- vai para o e-mail e some. Não fica em coluna nem em log."
       - "email_verified_at é data, não booleano."
       - "- booleano responde 'sim'; data responde 'sim, dia 12 às 14h'."
+
+  - tipo: pratica
+    titulo: "PRÁTICA 7 — OS DOIS CONCERNS"
+    bullets:
+      - "app/models/concerns/email_verifiable.rb e password_resettable.rb"
+      - "include os dois no User."
+      - "codigo = u.issue_email_verification_code!  ->  6 dígitos"
+      - "u.email_verification_code_digest  ->  o HASH, nunca o código."
+      - "u.verify_email_code!(codigo) duas vezes: true, depois false."
+      - "Apostila: Prática 7."
+    notas: |
+      ~20 minutos. O momento em que o módulo da Aula 1 deixa de ser teoria.
+      O ponto a martelar: o banco guarda o digest do código, não o código.
+      Mesma lição da senha, aplicada a outra coisa. Se alguém vazar o banco,
+      não consegue confirmar a conta de ninguém.
 
   - tipo: secao
     titulo: "CONSOLE"
@@ -477,15 +567,19 @@ slides:
       Guardar esse método: ele é usado na Aula 3, no login.
 
   - tipo: pratica
-    titulo: "PRÁTICA"
+    titulo: "PRÁTICA 8 — FIXTURES, TESTES E COMMIT"
     bullets:
-      - "Crie as três migrations e rode db:migrate."
-      - "Abra db/schema.rb e confira as colunas."
-      - "Escreva o User com has_secure_password e as validações."
-      - "Crie os dois concerns e inclua no User."
-      - "No console: crie usuário, veja o digest, teste authenticate."
-      - "Emita um código, confirme, e tente confirmar de novo. Tem que recusar."
-      - "Escreva os testes e rode bin/rails test."
+      - "test/fixtures/users.yml com dois usuários: um verificado, outro não."
+      - "Escreva os testes do User, dos concerns, do validador e do LoginEvent."
+      - "bin/rails test  ->  meta: 30 verdes."
+      - "bin/rubocop  (o -a conserta a maioria sozinho)"
+      - "git commit e push."
+      - "Apostila: Prática 8, com a tabela de erros de fixture."
+    notas: |
+      ~25 minutos. Fecha o dia e é a base da Aula 3.
+      Erro campeão: teste que passa sozinho e falha junto com os outros. É
+      quase sempre User.first no teste em vez de users(:ana).
+
 
   - tipo: bullets
     titulo: "RECAPITULANDO"
