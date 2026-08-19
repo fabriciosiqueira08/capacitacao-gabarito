@@ -184,8 +184,9 @@ da imagem.</p>
 <pre><code class="language-bash">kamal accessory boot db
 </code></pre>
 <p>Depois de mudar env de accessory, <code>boot</code> não basta: é <code>kamal accessory reboot db</code>.</p>
-<h3 id="curl-diz-self-signed-certificate"><code>curl</code> diz <code>self signed certificate</code></h3>
-<p><strong>Isso é o esperado</strong>, e é o exercício G da apostila. O túnel TLS subiu; o que faltou foi confiança.</p>
+<h3 id="o-curl-recusa-o-certificado-com-o-erro-60">O <code>curl</code> recusa o certificado, com o erro 60</h3>
+<p><strong>Isso é o esperado</strong>, e é a Prática 6 da apostila. A frase exata muda com a versão do <code>curl</code>;
+o que não muda é o número 60 e a expressão <em>self-signed</em>. O túnel TLS subiu; o que faltou foi confiança.</p>
 <pre><code class="language-bash">curl --cacert tls/capacita-cert.pem https://seunome.test/api/v1/status
 </code></pre>
 <h3 id="curl-diz-could-not-resolve-host-seunometest"><code>curl</code> diz <code>Could not resolve host: seunome.test</code></h3>

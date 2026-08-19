@@ -509,8 +509,13 @@ por causa da criptografia ou por outra coisa?</p>
 </blockquote>
 <pre><code class="language-bash">curl https://seunome.test/api/v1/status
 </code></pre>
-<pre><code>curl: (60) SSL certificate problem: self signed certificate
+<pre><code>curl: (60) SSL certificate problem: self-signed certificate
 </code></pre>
+<blockquote>
+<p>A frase exata muda com a versão do <code>curl</code>: umas dizem <code>SSL certificate problem</code>, outras
+<code>SSL certificate OpenSSL verify result</code>, e as mais antigas escrevem <code>self signed</code> sem hífen. O que
+é sempre igual, e é o que importa, é o número <strong>60</strong> e a expressão <em>self-signed</em>.</p>
+</blockquote>
 <p><strong>Isso é o TLS funcionando, não falhando.</strong> O túnel subiu; o que falhou foi a <em>confiança</em>. O cliente
 não conhece quem assinou.</p>
 <pre><code class="language-bash">curl -k https://seunome.test/api/v1/status
@@ -1071,7 +1076,8 @@ por causa da criptografia ou por outra coisa?</p>
 </blockquote>
 <pre><code class="language-bash">curl https://seunome.test/api/v1/status
 </code></pre>
-<p>Tem que <strong>falhar</strong>, com <code>self signed certificate</code>. <strong>Isso é o TLS funcionando, não falhando</strong>: o
+<p>Tem que <strong>falhar</strong>, com o erro <strong>60</strong> e a expressão <em>self-signed</em>. <strong>Isso é o TLS funcionando, não
+falhando</strong>: o
 túnel subiu, e o que faltou foi a confiança.</p>
 <pre><code class="language-bash">curl -k https://seunome.test/api/v1/status
 </code></pre>

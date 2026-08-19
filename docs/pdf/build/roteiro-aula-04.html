@@ -344,7 +344,7 @@ ali, na frente de você.</p>
 termina TLS, com um Postgres que tem volume. Vocês não estão mais rodando <code>bin/rails server</code>."</em></p>
 </blockquote>
 <p>Na Prática 6, os três <code>curl</code> respondem, um a um, o que TLS é e o que CA é:</p>
-<pre><code class="language-bash">curl  https://seunome.test/...              # falha: self signed certificate
+<pre><code class="language-bash">curl  https://seunome.test/...              # falha: erro 60, self-signed
 curl -k https://seunome.test/...            # funciona, sem conferir nada
 curl --cacert tls/capacita-cert.pem ...     # funciona, CONFERINDO
 </code></pre>

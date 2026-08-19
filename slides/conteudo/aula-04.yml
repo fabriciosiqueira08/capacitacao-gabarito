@@ -24,12 +24,11 @@ slides:
     titulo: "DE ONDE PARAMOS, E O ÚLTIMO DIA"
     bullets:
       - "Vocês têm uma API com cinco fluxos de autenticação, testada."
-      - "Ela roda na máquina de vocês. Hoje ela SAI de lá."
-      - "Hoje é a aula mais diferente das quatro: vocês não escrevem Ruby."
-      - "Vocês operam uma máquina: firewall, Docker, chave SSH, HTTPS."
+      - "Ela roda com bin/rails server. Hoje ela vira um sistema publicado."
+      - "Hoje é a aula mais diferente das quatro: vocês quase não escrevem Ruby."
+      - "Vocês operam: chave SSH, imagem Docker, registry, proxy, HTTPS."
       - "É vocabulário novo em três horas. É normal se sentir mais perdido hoje."
-      - "E uma dica que resolve metade da confusão: OLHE EM QUAL MÁQUINA VOCÊ ESTÁ."
-      - "- o prompt diz: voce@notebook ou ubuntu@servidor"
+      - "E cada ferramenta vem com o problema que ela resolve, na ordem."
     notas: |
       A frase sobre se sentir mais perdido é importante e é verdade. Diga
       com naturalidade — ela impede que alguém conclua sozinho que "não leva
@@ -256,7 +255,7 @@ slides:
     bullets:
       - "É o 'GitHub das imagens'. Usamos o ghcr.io."
       - "O fluxo: o seu notebook builda, empurra pro ghcr.io,"
-      - "- e a VM puxa de lá e roda."
+      - "- e o servidor puxa de lá e roda."
       - "A imagem não viaja pela sua rede local: sobe pro GitHub e desce."
       - "É o que aconteceria com uma VPS do outro lado do mundo."
       - "- e é o que faz o mesmo deploy.yml servir nos dois casos"
@@ -296,7 +295,7 @@ slides:
     bullets:
       - "Feito pela mesma turma do Rails. Deploy com Docker, via SSH."
       - "Sem agente na máquina, sem painel."
-      - "Ele conecta na sua VM e roda docker."
+      - "Ele conecta na máquina que serve e roda docker."
       - "Zero-downtime: sobe o novo AO LADO do antigo."
       - "Espera o health check passar, aí troca o tráfego."
       - "Falhou o health check? Não troca. O antigo continua servindo."
@@ -316,7 +315,7 @@ slides:
             - <%= ENV.fetch("SERVER_IP") %>
 
       # O arquivo é ERB. Por isso ele é IGUAL para toda a turma,
-      # e o MESMO na VM local e numa VPS. Muda a variável.
+      # e o MESMO na sua máquina e num servidor alugado.
 
   - tipo: codigo
     titulo: "DEPLOY.YML: ENV"
@@ -395,7 +394,7 @@ slides:
     bullets:
       - "cp .env.example .env, preencha tudo, e source .env"
       - "SERVER_IP e KAMAL_SSH_USER já vêm prontos: é a sua máquina e o seu login."
-      - "SERVER_ARCH: rode uname -m e traduza (x86_64 = amd64, aarch64 = arm64)."
+      - "SERVER_ARCH: o uname -m da prática anterior (x86_64 = amd64, aarch64 = arm64)."
       - "RAILS_MASTER_KEY é o CONTEÚDO de config/master.key."
       - "Confere: git status NÃO pode mostrar o .env."
       - "Confere: bundle exec kamal config roda sem erro."
@@ -447,7 +446,7 @@ slides:
       - "Proxy comum fica na frente do CLIENTE. Reverso fica na frente do SERVIDOR."
       - "Recebe tudo na 443, termina o TLS, e repassa para a app em HTTP interno."
       - "Assim o Rails não precisa saber nada de certificado."
-      - "É o kamal-proxy, rodando na sua VM."
+      - "É o kamal-proxy, rodando na máquina que serve."
       - "Por isso config.assume_ssl: avisa o Rails que o 'http' que chegou"
       - "- já veio de um https lá fora."
 
@@ -483,7 +482,7 @@ slides:
     titulo: "AUTOASSINADO, NA PRÁTICA"
     codigo: |
       curl https://seunome.test/api/v1/status
-      # curl: (60) SSL certificate problem: self signed certificate
+      # curl: (60) ... self-signed certificate
       # O TÚNEL SUBIU. O que falhou foi a CONFIANÇA.
 
       curl -k https://seunome.test/api/v1/status
@@ -557,15 +556,16 @@ slides:
       kamal accessory reboot db
       kamal rollback
 
-      multipass stop servidor    # libera RAM do notebook
+      kamal app stop             # para o app
+      kamal accessory stop db    # para o banco
 
   - tipo: bullets
     titulo: "BACKUP"
     bullets:
-      - "Volume Docker NÃO é backup. Se a VM sumir, o volume some junto."
-      - "E aqui a VM some com um multipass delete."
-      - "- demonstração barata de um susto caro"
-      - "pg_dump pela SSH, compactado, guardado fora da máquina."
+      - "Volume Docker NÃO é backup."
+      - "Um docker volume rm sem querer leva tudo junto."
+      - "- e a máquina que morre leva também"
+      - "Backup é a cópia que vive FORA dali: pg_dump, compactado, em outro lugar."
       - "E o que quase ninguém faz: restaure num banco de teste."
       - "Backup que nunca foi restaurado não é backup, é esperança."
 
@@ -587,7 +587,7 @@ slides:
   - tipo: pratica
     titulo: "PRÁTICA 6: O CERTIFICADO, COM OS OLHOS"
     bullets:
-      - "curl https://seunome.test/...   ->  FALHA: self signed certificate"
+      - "curl https://seunome.test/...   ->  FALHA: erro 60, self-signed"
       - "Isso é o TLS funcionando. O que falhou foi a CONFIANÇA."
       - "curl -k ...   ->  funciona, sem conferir nada."
       - "curl --cacert tls/capacita-cert.pem ...   ->  funciona, CONFERINDO."
@@ -649,14 +649,15 @@ slides:
       - "- e desta vez o e-mail chega na sua caixa de entrada de verdade."
       - "Mude a rota de status, commite, dê push (o CI roda) e kamal deploy."
       - "kamal app logs -f enquanto acontece: veja o novo subir AO LADO."
-      - "Faça um pg_dump pela SSH e confira que o arquivo não está vazio."
-      - "multipass stop servidor antes de ir embora."
+      - "docker exec ... pg_dump ... | gzip: e confira que o arquivo não está vazio."
+      - "kamal app stop e kamal accessory stop db liberam a máquina depois."
       - "Apostila: Prática 7."
     notas: |
-      ~20 minutos. Fecha a capacitação: o que eles construíram nas Aulas 2 e
-      3, rodando em produção.
-      O backup é o fecho honesto da aula: volume não é backup, e aqui a VM
-      some com um multipass delete. Demonstração barata de um susto caro.
+      Fecha a capacitação: o que eles construíram nas Aulas 2 e 3, rodando em
+      produção.
+      O backup é o fecho honesto da aula. Volume Docker não é backup: um
+      docker volume rm sem querer leva tudo, e backup é a cópia que vive
+      FORA dali. Vale perguntar quem já perdeu alguma coisa assim.
 
 
   - tipo: bullets

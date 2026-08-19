@@ -213,7 +213,7 @@ E então, o momento da aula. Diga o que está na frente deles, porque nem todo m
 Na Prática 6, os três `curl` respondem, um a um, o que TLS é e o que CA é:
 
 ```bash
-curl  https://seunome.test/...              # falha: self signed certificate
+curl  https://seunome.test/...              # falha: erro 60, self-signed
 curl -k https://seunome.test/...            # funciona, sem conferir nada
 curl --cacert tls/capacita-cert.pem ...     # funciona, CONFERINDO
 ```

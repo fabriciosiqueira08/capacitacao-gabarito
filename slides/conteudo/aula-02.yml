@@ -291,15 +291,15 @@ slides:
       - "BCrypt::Password.create(\"Automic@2026\") duas vezes. Deu diferente?"
       - "Isso é o salt. Ninguém descobre que dois usuários têm a mesma senha."
       - "BCrypt::Password.new(digest) == \"Automic@2026\"  ->  true"
-      - "Compare o tempo com Digest::SHA256, usando Benchmark.realtime."
+      - "Compare: UM bcrypt contra MIL SHA-256, com Benchmark.realtime."
       - "Avançado: diga em voz alta por que a lentidão é uma CARACTERÍSTICA."
       - "Apostila: Prática 3."
     notas: |
       ~10 minutos, sem escrever arquivo nenhum. É o que faz a seção de senha
       parar de ser teoria.
-      A comparação de tempo é o argumento: bcrypt em centenas de ms, SHA-256
-      em microssegundos. Quem rouba um banco testa bilhões de senhas por
-      segundo com SHA-256, e algumas dezenas com bcrypt.
+      A comparação é o argumento, e o comando é feito para não depender da
+      máquina: mil SHA-256 terminam muito antes de UM bcrypt. Quem rouba um
+      banco testa senha em lote, e é isso que o bcrypt inviabiliza.
 
   - tipo: secao
     titulo: "VALIDAÇÕES"

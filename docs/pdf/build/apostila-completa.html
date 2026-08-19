@@ -459,7 +459,7 @@
 <li><a href="#exec-format-error-ao-subir-o-container">exec format error ao subir o container</a></li>
 <li><a href="#kamal-docker-is-not-installed">Kamal: Docker is not installed</a></li>
 <li><a href="#a-aplicacao-sobe-mas-nao-acha-o-banco">A aplicação sobe mas não acha o banco</a></li>
-<li><a href="#curl-diz-self-signed-certificate">curl diz self signed certificate</a></li>
+<li><a href="#o-curl-recusa-o-certificado-com-o-erro-60">O curl recusa o certificado, com o erro 60</a></li>
 <li><a href="#curl-diz-could-not-resolve-host-seunometest">curl diz Could not resolve host: seunome.test</a></li>
 <li><a href="#curl-conecta-mas-devolve-404-do-proxy">curl conecta mas devolve 404 do proxy</a></li>
 <li><a href="#curl-da-connection-refused-na-443">curl dá Connection refused na 443</a></li>
@@ -2892,11 +2892,15 @@ BCrypt::Password.new(digest) == &quot;errada&quot;          # false
 </code></pre>
 <pre><code class="language-ruby"># c) por que é lento de propósito
 require &quot;benchmark&quot;
-Benchmark.realtime { BCrypt::Password.create(&quot;Automic@2026&quot;) }
-Benchmark.realtime { Digest::SHA256.hexdigest(&quot;Automic@2026&quot;) }
+
+Benchmark.realtime { BCrypt::Password.create(&quot;Automic@2026&quot;) }                  # UM bcrypt
+Benchmark.realtime { 1000.times { Digest::SHA256.hexdigest(&quot;Automic@2026&quot;) } }  # MIL SHA-256
 </code></pre>
-<p><strong>Confere</strong>: o bcrypt levou centenas de milissegundos; o SHA-256, microssegundos. Diga em voz alta
-por que a lentidão é uma <em>característica</em> e não um defeito.</p>
+<p><strong>Confere</strong>: o segundo comando fez <strong>mil</strong> hashes de SHA-256 e mesmo assim terminou muito antes do
+primeiro, que fez <strong>um</strong> bcrypt.</p>
+<p>É essa diferença que protege o seu banco. Quem rouba a tabela de usuários testa senha em lote: com
+SHA-256 ele testa bilhões por segundo, e com bcrypt, algumas dezenas. Diga em voz alta por que a
+lentidão aqui é uma <em>característica</em> e não um defeito.</p>
 <p><strong>Se der errado</strong></p>
 <table>
 <thead>
@@ -4901,8 +4905,13 @@ por causa da criptografia ou por outra coisa?</p>
 </blockquote>
 <pre><code class="language-bash">curl https://seunome.test/api/v1/status
 </code></pre>
-<pre><code>curl: (60) SSL certificate problem: self signed certificate
+<pre><code>curl: (60) SSL certificate problem: self-signed certificate
 </code></pre>
+<blockquote>
+<p>A frase exata muda com a versão do <code>curl</code>: umas dizem <code>SSL certificate problem</code>, outras
+<code>SSL certificate OpenSSL verify result</code>, e as mais antigas escrevem <code>self signed</code> sem hífen. O que
+é sempre igual, e é o que importa, é o número <strong>60</strong> e a expressão <em>self-signed</em>.</p>
+</blockquote>
 <p><strong>Isso é o TLS funcionando, não falhando.</strong> O túnel subiu; o que falhou foi a <em>confiança</em>. O cliente
 não conhece quem assinou.</p>
 <pre><code class="language-bash">curl -k https://seunome.test/api/v1/status
@@ -5463,7 +5472,8 @@ por causa da criptografia ou por outra coisa?</p>
 </blockquote>
 <pre><code class="language-bash">curl https://seunome.test/api/v1/status
 </code></pre>
-<p>Tem que <strong>falhar</strong>, com <code>self signed certificate</code>. <strong>Isso é o TLS funcionando, não falhando</strong>: o
+<p>Tem que <strong>falhar</strong>, com o erro <strong>60</strong> e a expressão <em>self-signed</em>. <strong>Isso é o TLS funcionando, não
+falhando</strong>: o
 túnel subiu, e o que faltou foi a confiança.</p>
 <pre><code class="language-bash">curl -k https://seunome.test/api/v1/status
 </code></pre>
@@ -7592,8 +7602,9 @@ da imagem.</p>
 <pre><code class="language-bash">kamal accessory boot db
 </code></pre>
 <p>Depois de mudar env de accessory, <code>boot</code> não basta: é <code>kamal accessory reboot db</code>.</p>
-<h3 id="curl-diz-self-signed-certificate"><code>curl</code> diz <code>self signed certificate</code></h3>
-<p><strong>Isso é o esperado</strong>, e é o exercício G da apostila. O túnel TLS subiu; o que faltou foi confiança.</p>
+<h3 id="o-curl-recusa-o-certificado-com-o-erro-60">O <code>curl</code> recusa o certificado, com o erro 60</h3>
+<p><strong>Isso é o esperado</strong>, e é a Prática 6 da apostila. A frase exata muda com a versão do <code>curl</code>;
+o que não muda é o número 60 e a expressão <em>self-signed</em>. O túnel TLS subiu; o que faltou foi confiança.</p>
 <pre><code class="language-bash">curl --cacert tls/capacita-cert.pem https://seunome.test/api/v1/status
 </code></pre>
 <h3 id="curl-diz-could-not-resolve-host-seunometest"><code>curl</code> diz <code>Could not resolve host: seunome.test</code></h3>

@@ -825,7 +825,7 @@ linhas.</p>
 <div class='quebra'></div>
 
 <h1 id="roteiro-da-aula-2-banco-activerecord-e-o-model-user">Roteiro da Aula 2: banco, ActiveRecord e o model <code>User</code></h1>
-<p><strong>Deck</strong>: <code>slides/build/aula-02-banco-de-dados-e-activerecord.pptx</code> (54 slides, sendo 8 de prática)
+<p><strong>Deck</strong>: <code>slides/build/aula-02-banco-de-dados-e-activerecord.pptx</code> (54 slides, sendo 7 de prática, que cobrem as 8 da apostila)
 <strong>Apostila da turma</strong>: <strong><code>02-activerecord.md</code></strong> · <strong>Checkpoint</strong>: <code>aula-02</code>
 <strong>Antes de tudo</strong>: <strong><code>guia-do-instrutor.md</code></strong> — conduzir a sala, não o conteúdo</p>
 <blockquote>
@@ -1108,7 +1108,7 @@ abrir a apostila na prática correspondente — não dite os comandos.</p>
 <tr>
 <td style="text-align: left;">2</td>
 <td style="text-align: left;">21</td>
-<td style="text-align: left;">Uma migration por vez, e <code>db:migrate</code> entre elas. A conferência é o <strong>17</strong></td>
+<td style="text-align: left;">Uma migration por vez, e <code>db:migrate</code> entre elas. A conferência é o <strong>16</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;">3</td>
@@ -1945,7 +1945,7 @@ ali, na frente de você.</p>
 termina TLS, com um Postgres que tem volume. Vocês não estão mais rodando <code>bin/rails server</code>."</em></p>
 </blockquote>
 <p>Na Prática 6, os três <code>curl</code> respondem, um a um, o que TLS é e o que CA é:</p>
-<pre><code class="language-bash">curl  https://seunome.test/...              # falha: self signed certificate
+<pre><code class="language-bash">curl  https://seunome.test/...              # falha: erro 60, self-signed
 curl -k https://seunome.test/...            # funciona, sem conferir nada
 curl --cacert tls/capacita-cert.pem ...     # funciona, CONFERINDO
 </code></pre>
