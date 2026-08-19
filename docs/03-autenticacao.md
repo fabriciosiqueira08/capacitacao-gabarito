@@ -5,6 +5,27 @@
 
 ---
 
+## De onde viemos, e o combinado de hoje
+
+Você já tem uma API (Aula 1) e um `User` que sabe guardar senha (Aula 2). **Hoje as duas coisas
+viram um sistema de autenticação que funciona de verdade** — o mesmo que roda no `seem-backend`.
+
+**O combinado desta aula é diferente das outras**, e é importante entender antes de começar: são
+1400 linhas em 37 arquivos, e **ninguém digita isso em três horas**. Você vai trazer o código pronto
+do gabarito e passar a aula **operando, quebrando de propósito e entendendo por quê**.
+
+Isso não é preguiça nem atalho. É o que um desenvolvedor faz na maior parte do tempo real: ler
+código que já existe, descobrir por que foi feito assim, e mexer com segurança. Digitar 1400 linhas
+copiando ensinaria menos que as oito práticas de hoje.
+
+O que você tem que sair sabendo é **por que cada peça existe** — e é isso que as práticas cobram.
+
+> A prática 8 pede que você quebre a verificação de assinatura do token e entre como outra pessoa.
+> É proposital, é o exercício que mais marca, e tem um passo explícito para desfazer. **Não pule o
+> desfazer.**
+
+---
+
 ## 1. O caminho de uma requisição
 
 ```
@@ -592,21 +613,367 @@ curl $API/me -H "Authorization: Bearer $TOKEN"          # 401
 
 ---
 
-## Exercício da aula
+## As práticas da aula
 
-1. Monte as cinco rotas.
-2. No Insomnia, crie uma coleção com uma requisição para cada uma.
-3. Percorra o fluxo inteiro: cadastro → e-mail → confirmação → login → `/me` → logout → `/me` (401).
-4. Peça recuperação de senha, troque a senha e confira que **o token antigo parou de funcionar**.
-5. Cole o seu token em [jwt.io](https://jwt.io) e leia o payload. Ache o `sub`, o `jti` e o `exp`.
-6. Rode `bin/rails test`, `bin/rubocop` e `bin/brakeman`.
+> São 1400 linhas em 37 arquivos. **Ninguém digita isso em três horas** — e não é esse o objetivo.
+> Aqui você **traz o código pronto** e passa a aula fazendo o sistema funcionar, quebrando de
+> propósito e entendendo *por que* cada peça existe.
 
-**Bônus 1**: crie `PATCH /api/v1/me` para o usuário editar o próprio `name` — e só o `name`.
+Oito práticas. As sete primeiras são o fluxo real, na ordem em que um usuário o vive.
 
-**Bônus 2**: descubra o que acontece se você trocar o `true` do `JWT.decode` por `false` e chamar
-`/me` com um token forjado. Depois desfaça.
+| # | O que | Depois de |
+|---|---|---|
+| 1 | Traga o código e leia a arquitetura | seção 2 |
+| 2 | Cadastro, no terminal e no Insomnia | seção 3 |
+| 3 | O e-mail e a confirmação da conta | seção 5 |
+| 4 | Login, e o token na mão | seção 7 |
+| 5 | Logout que revoga de verdade | seção 8 |
+| 6 | Recuperação de senha, e as sessões que caem | seção 9 |
+| 7 | Testes e qualidade | seção 10 |
+| 8 | Avançado: quebre a assinatura do token | fim |
 
-Travou? Compare com o gabarito: `cd ~/capacitacao-gabarito && git checkout aula-03`.
+---
+
+### Prática 1 — Traga o código e leia a arquitetura
+
+> **~20 minutos**: 5 de comando, 15 de leitura. A leitura é a parte que conta.
+
+```bash
+cd ~/capacitacao-gabarito && git checkout aula-03
+rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
+
+cd ~/automic_auth_api
+bundle install
+bin/rails db:migrate
+bin/rails test
+```
+
+**Confere**: **71 testes verdes.** Se não deram, pare aqui e resolva antes de seguir — todas as
+práticas seguintes dependem disso.
+
+> O `Gemfile` vai junto porque esta aula acrescenta `jwt`, `rack-cors` e `letter_opener`. Sem ele a
+> aplicação nem sobe.
+
+Agora leia cinco arquivos, **nesta ordem, abrindo cada um no editor**:
+
+| Arquivo | A pergunta que ele responde |
+|---|---|
+| `app/services/users/register.rb` | Por que a regra não fica no controller? |
+| `app/services/auth/issue_token.rb` | O que exatamente vai dentro do token? |
+| `app/controllers/concerns/api/v1/authentication.rb` | Como o servidor sabe quem está chamando? |
+| `app/services/auth/token_denylist.rb` | Como um JWT deixa de valer antes de expirar? |
+| `app/services/users/complete_password_reset.rb` | Por que tudo numa transação? |
+
+Em cada um, ache o `Struct` de retorno e os argumentos nomeados da Aula 1. **Eles estão em todos.**
+
+**Se der errado**
+
+> Se os 71 testes não passarem de primeira, quase sempre é o `Gemfile` que ficou para trás no
+> `rsync` — e o erro que aparece (`uninitialized constant Rack::Cors`) não diz isso em lugar nenhum.
+> É um caso clássico de mensagem de erro que aponta para o sintoma e não para a causa. Você vai ver
+> muitos assim.
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `uninitialized constant Rack::Cors` | o `Gemfile` não veio junto no `rsync` | refaça o `rsync` incluindo `Gemfile Gemfile.lock`, e `bundle install` |
+| `Could not find gem 'jwt'` | idem | `bundle install` |
+| `PendingMigrationError` | as migrations novas não rodaram | `bin/rails db:migrate` |
+| menos de 71 testes | o `rsync` não trouxe `test/` | confira que `test/` estava na lista |
+| `rsync: command not found` | não instalado | `sudo apt install rsync` / `brew install rsync` |
+| o `rsync` jogou tudo na raiz do projeto | você usou caminho errado | os caminhos são relativos e a barra final importa; refaça exatamente como está escrito |
+| conflito com arquivos seus da Aula 2 | o `rsync` sobrescreveu | é o esperado: a partir daqui o gabarito é a base |
+
+---
+
+### Prática 2 — Cadastro, no terminal e no Insomnia
+
+> **~20 minutos.** A primeira rota que cria alguma coisa.
+
+Com o servidor rodando (`bin/rails server`), num segundo terminal:
+
+```bash
+API=localhost:3000/api/v1
+EMAIL=voce@aluno.ufop.edu.br
+
+curl -i -X POST $API/registrations -H 'Content-Type: application/json' -d "{
+  \"name\":\"Seu Nome\",\"email\":\"$EMAIL\",
+  \"password\":\"Automic@2026\",\"confirm_password\":\"Automic@2026\",
+  \"course\":\"Engenharia\",\"matricula\":\"2013333\",\"check_terms_use\":true}"
+```
+
+**Confere**: `201`, e o e-mail abriu numa aba do navegador (é o `letter_opener`). **Anote o código de
+6 dígitos.**
+
+Agora monte a mesma requisição no **Insomnia**, e aproveite para criar a coleção inteira — você vai
+usá-la o resto da aula. Todas com `Content-Type: application/json`:
+
+```
+POST   /api/v1/registrations
+POST   /api/v1/email_verifications/confirm
+POST   /api/v1/email_verifications/resend
+POST   /api/v1/sessions
+DELETE /api/v1/sessions
+POST   /api/v1/password_resets/request
+POST   /api/v1/password_resets/confirm
+GET    /api/v1/me
+```
+
+**Avançado**: mande o cadastro de novo, com o mesmo e-mail. Que status vem? E que mensagem? Ela
+entrega ao atacante que aquele e-mail já existe?
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `400 param is missing` | faltou um campo obrigatório no JSON | a mensagem diz qual; o `params.expect` é rígido de propósito |
+| `422` com lista de erros | as validações da Aula 2 recusaram | leia a lista: senha fraca, e-mail inválido, termos não aceitos |
+| `415 Unsupported Media Type` | faltou o `-H 'Content-Type: application/json'` | acrescente |
+| o e-mail não abriu no navegador | `letter_opener` só funciona com o servidor rodando no seu desktop | veja em `tmp/letter_opener/` ou no log do `rails server` |
+| `Connection refused` | o `rails server` não está de pé | suba-o no outro terminal |
+| a resposta veio em HTML de erro | exceção não tratada | leia o log do `rails server`, não o `curl` |
+| aspas quebrando no shell | o JSON tem aspas dentro de aspas | use o Insomnia, ou salve o JSON num arquivo e use `-d @arquivo.json` |
+
+---
+
+### Prática 3 — O e-mail e a confirmação da conta
+
+> **~15 minutos.** É aqui que fica claro por que existe conta "não ativada".
+
+```bash
+# tente entrar ANTES de confirmar
+curl -i -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}"
+```
+
+**Confere**: `403 email_unverified`. A senha está certa — o que falta é a conta estar ativa.
+
+```bash
+curl -i -X POST $API/email_verifications/confirm -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\",\"code\":\"COLE_O_CODIGO\"}"
+```
+
+**Avançado**: mande o **mesmo código** de novo. Ele funciona duas vezes? Por quê? (Volte à Prática 7
+da Aula 2 se precisar.)
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `422 invalid_code` com o código certo | você colou com espaço, ou o código já foi usado | peça outro com `/email_verifications/resend` |
+| `422 code_expired` | passaram os 15 minutos | `/email_verifications/resend` |
+| `429` ou "aguarde" no resend | há um intervalo mínimo entre reenvios | espere o tempo indicado — é proteção contra abuso |
+| `403 email_unverified` mesmo depois de confirmar | você confirmou outro e-mail | confira o `$EMAIL` do shell |
+| não acho o código | a aba do `letter_opener` fechou | `ls tmp/letter_opener/` e abra o mais recente |
+
+---
+
+### Prática 4 — Login, e o token na mão
+
+> **~20 minutos.** O núcleo da aula.
+
+```bash
+TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}" \
+  | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
+echo $TOKEN
+
+curl -i $API/me -H "Authorization: Bearer $TOKEN"        # 200
+```
+
+**Confere**: `200`, com os seus dados. Repare que o servidor **não guardou sessão nenhuma** — ele
+descobriu quem é você lendo o token.
+
+Agora **leia o seu próprio token**: cole o `$TOKEN` em [jwt.io](https://jwt.io). Ache o `sub`, o
+`jti`, o `ver` e o `exp`. Converta o `exp` para data e confirme que é daqui a 24 horas.
+
+**Avançado**: troque um caractere do token e chame `/me` de novo. Que status vem, e por quê?
+
+```bash
+curl -i $API/me -H "Authorization: Bearer ${TOKEN}x"
+```
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| `$TOKEN` saiu vazio | o `grep` não achou o cabeçalho | rode o `curl -i` sozinho e veja se o `Authorization:` está na resposta |
+| `401` logo depois do login | o token não foi copiado inteiro | `echo $TOKEN \| wc -c` — tem que ter centenas de caracteres |
+| `401 invalid_token` | você colou com quebra de linha | o `tr -d '\r\n'` do comando existe para isso |
+| `403` em vez de `200` | a conta não está verificada | volte à Prática 3 |
+| `401 invalid_credentials` | senha errada — **ou e-mail que não existe** | é a mesma mensagem de propósito; veja a seção 7 |
+| jwt.io diz "invalid signature" | esperado: ele não tem o seu segredo | você só quer ler o payload, não validar |
+
+---
+
+### Prática 5 — Logout que revoga de verdade
+
+> **~15 minutos.** A prática que mostra a diferença entre "apagar no cliente" e "revogar no
+> servidor".
+
+> **Antes de rodar, decida**: aquele token continua matematicamente válido e ainda não expirou. O
+> segundo comando vai responder `200` ou `401`? A resposta é o assunto inteiro da seção 8.
+
+```bash
+curl -i -X DELETE $API/sessions -H "Authorization: Bearer $TOKEN"
+curl -i $API/me -H "Authorization: Bearer $TOKEN"
+```
+
+**Confere**: o segundo comando tem que dar **`401`**. O token ainda é válido e ainda não expirou —
+mas está na denylist.
+
+Sem a denylist, esse `curl` responderia `200` até o `exp` chegar. **É este teste que prova que o
+logout serve para alguma coisa.**
+
+**Avançado**: veja a denylist por dentro, no console:
+
+```ruby
+Rails.cache.read("denylist:#{jti_do_seu_token}")
+```
+
+Pegue o `jti` no jwt.io. Por que a entrada tem TTL, e por que o TTL é exatamente o que restava do
+token?
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| o segundo `curl` respondeu `200` | o `DELETE` falhou antes | rode-o com `-i` e leia o status |
+| `401` já no `DELETE` | o token expirou ou já foi revogado | faça login de novo e refaça |
+| a denylist não persiste entre reinícios | o cache em dev é em memória | é o esperado em desenvolvimento; em produção é o Solid Cache no Postgres |
+| `Rails.cache.read` devolve `nil` | `jti` errado, ou cache diferente | copie o `jti` exato do jwt.io |
+
+---
+
+### Prática 6 — Recuperação de senha, e as sessões que caem
+
+> **~20 minutos.** O fluxo mais completo do sistema, e o que tem a decisão de segurança mais sutil.
+
+Faça login de novo para ter um token válido:
+
+```bash
+TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}" \
+  | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
+
+curl -X POST $API/password_resets/request -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\"}"
+# pegue o código no navegador
+
+curl -i -X POST $API/password_resets/confirm -H 'Content-Type: application/json' -d "{
+  \"email\":\"$EMAIL\",\"code\":\"COLE\",
+  \"password\":\"NovaSenha@9\",\"confirm_password\":\"NovaSenha@9\"}"
+
+curl -i $API/me -H "Authorization: Bearer $TOKEN"
+```
+
+**Confere**: o último dá `401`. Trocar a senha **derrubou todas as sessões abertas** — é o
+`token_version` sendo incrementado. Se alguém tinha roubado o seu token, acabou de perdê-lo.
+
+**Confere também, e é o ponto mais importante da prática:**
+
+```bash
+curl -i -X POST $API/password_resets/request -H 'Content-Type: application/json' \
+  -d '{"email":"ninguem-existe@ufop.br"}'
+```
+
+Responde **exatamente a mesma coisa** do e-mail que existe. É a resistência a enumeração: um
+atacante não consegue usar esta rota para descobrir quem tem conta.
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| o `/me` final respondeu `200` | o `confirm` falhou | rode o `confirm` com `-i` e leia o status |
+| `422` no `confirm` | senha nova não passa na política, ou não bate com a confirmação | leia a lista de erros |
+| `422 invalid_code` | código errado, expirado, ou já usado | peça outro com `/password_resets/request` |
+| não veio e-mail para o endereço inexistente | correto! | é justamente o que se espera: resposta igual, e-mail nenhum |
+| esqueceu a senha nova | você trocou para `NovaSenha@9` | use ela nos próximos logins |
+
+---
+
+### Prática 7 — Testes e qualidade
+
+> **~15 minutos.**
+
+```bash
+bin/rails test
+bin/rubocop
+bin/brakeman --no-pager
+```
+
+**Confere**: 71 testes verdes, RuboCop limpo, Brakeman sem aviso.
+
+Agora **quebre um teste de propósito** para ver a rede de segurança funcionando. Em
+`app/controllers/concerns/api/v1/authentication.rb`, comente a linha que consulta a denylist. Rode
+`bin/rails test` e veja **qual** teste fica vermelho. Depois desfaça.
+
+```bash
+git add -A && git commit -m "Rotas de autenticação" && git push
+```
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| testes vermelhos depois de você mexer | é o objetivo do exercício | `git checkout .` desfaz tudo o que não foi commitado |
+| `bin/rubocop` com dezenas de ofensas | estilo | `bin/rubocop -a` conserta a maioria; leia o que sobrar |
+| `bin/brakeman` acusa | pode ser falso positivo | leia a explicação; ele diz o arquivo e a linha |
+| `bin/brakeman: command not found` | a gem não veio | `bundle install` |
+| o push foi recusado | o remoto tem commits novos | `git pull --rebase origin main` |
+
+---
+
+### Prática 8 — Avançado: quebre a assinatura do token
+
+> **~15 minutos, se sobrou tempo.** É o exercício que faz entender o que uma assinatura garante.
+
+Em `app/services/auth/decode_token.rb`, troque o `true` por `false`:
+
+```ruby
+JWT.decode(@token, TokenSecret.call, false, { algorithm: "HS256" })
+```
+
+Esse terceiro parâmetro é "verifique a assinatura?". Agora forje um token assinado com **outro
+segredo**:
+
+```bash
+bin/rails runner 'puts JWT.encode({sub: User.first.id, ver: 0, jti: "x",
+  exp: 1.hour.from_now.to_i}, "segredo-do-atacante", "HS256")'
+```
+
+```bash
+curl -i $API/me -H "Authorization: Bearer <o-token-forjado>"
+```
+
+**Confere**: responde `200`. Você acabou de entrar como outra pessoa, sem saber a senha dela.
+
+**Desfaça em seguida** (volte o `true`) e rode `bin/rails test`: o teste "recusa token assinado com
+outro segredo" fica vermelho enquanto o `false` estiver lá. **Era esse teste que estava te
+protegendo.**
+
+```bash
+git checkout app/services/auth/decode_token.rb
+bin/rails test
+```
+
+**Se der errado**
+
+| Erro | Causa | Saída |
+|---|---|---|
+| o token forjado deu `401` mesmo com `false` | o `ver` não bate com o `token_version` do usuário | use `ver: User.first.token_version` |
+| `JWT::DecodeError` | o token foi colado quebrado | copie a linha inteira, sem quebra |
+| esqueceu de desfazer | perigoso: é uma falha de autenticação | `git checkout app/services/auth/decode_token.rb` |
+
+---
+
+### Bônus
+
+**`PATCH /api/v1/me`** para o usuário editar o próprio `name`, **e só o `name`**. Tente mandar
+`"role": "admin"` junto e confirme que o `params.expect` recusa. É *mass assignment*, e é uma das
+falhas mais comuns em API.
+
+**Travou em qualquer prática?** O gabarito é o mesmo código:
+`cd ~/capacitacao-gabarito && git checkout aula-03`.
 
 ---
 
