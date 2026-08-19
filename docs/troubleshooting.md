@@ -88,7 +88,7 @@ Vazamento de estado entre testes. Suspeitos, em ordem:
 
 1. um `Rails.cache` compartilhado (o `test_helper` troca por `MemoryStore` a cada teste);
 2. `ActionMailer::Base.deliveries` não limpo;
-3. dependência de ordem — o Minitest embaralha de propósito, e isso é uma qualidade.
+3. dependência de ordem: o Minitest embaralha de propósito, e isso é uma qualidade.
 
 Rode com a mesma semente para reproduzir: `bin/rails test --seed 1234`.
 
@@ -113,9 +113,9 @@ Cheque, nesta ordem:
 
 1. o cabeçalho é exatamente `Authorization: Bearer <token>`, com o espaço;
 2. o token não foi revogado (você fez logout com ele?);
-3. o `token_version` do banco bate com o `ver` do token — trocar a senha incrementa a versão;
+3. o `token_version` do banco bate com o `ver` do token: trocar a senha incrementa a versão;
 4. o `JWT_SECRET` é o mesmo que emitiu o token. Reiniciar o app em dev sem `JWT_SECRET` definido
-   usa o `secret_key_base`, que é estável — mas em produção um segredo diferente invalida tudo.
+   usa o `secret_key_base`, que é estável, mas em produção um segredo diferente invalida tudo.
 
 Decodifique o token em [jwt.io](https://jwt.io) e olhe o `exp` e o `ver`.
 
@@ -142,9 +142,9 @@ Olhe `error.details` na resposta: cada item tem `field` e `message`.
 O `rails new` já cria um `.github/workflows/ci.yml`, e ele roda sozinho a cada push. Nas Aulas 1 e 2
 ele deve passar. Se ficar vermelho, abra o log em **Actions** e veja qual dos três jobs quebrou:
 
-- **lint** — é o RuboCop. Rode `bin/rubocop -a` para corrigir o que dá sozinho.
-- **test** — rode `bin/rails test` na sua máquina; o erro é o mesmo.
-- **scan_ruby** — Brakeman ou uma gem com CVE. `bin/brakeman --no-pager` mostra o motivo.
+- **lint**: é o RuboCop. Rode `bin/rubocop -a` para corrigir o que dá sozinho.
+- **test**: rode `bin/rails test` na sua máquina; o erro é o mesmo.
+- **scan_ruby**: Brakeman ou uma gem com CVE. `bin/brakeman --no-pager` mostra o motivo.
 
 Na Aula 4 esse arquivo é substituído pelo nosso, que roda os testes contra um Postgres de verdade.
 
@@ -169,13 +169,13 @@ O sintoma: `multipass info` mostra o IP, mas de dentro do WSL2 o `ping` e o `ssh
 
 O Multipass roda no Windows e o WSL2 é outra máquina virtual. Por padrão, uma não enxerga a outra.
 
-Rode o diagnóstico — ele identifica o caso e imprime a saída:
+Rode o diagnóstico. Ele identifica o caso e imprime a saída:
 
 ```bash
 ./scripts/checar-servidor.sh <IP-da-VM>
 ```
 
-**Saída 1 — rede espelhada** (Windows 11 22H2+). Crie ou edite
+**Saída 1: rede espelhada** (Windows 11 22H2+). Crie ou edite
 `C:\Users\<seu-usuario>\.wslconfig`:
 
 ```
@@ -185,7 +185,7 @@ networkingMode=mirrored
 
 E no PowerShell: `wsl --shutdown`.
 
-**Saída 2 — encaminhamento de porta** (qualquer Windows, inclusive o 10). O Windows leva o tráfego
+**Saída 2: encaminhamento de porta** (qualquer Windows, inclusive o 10). O Windows leva o tráfego
 até a VM. No PowerShell **como administrador**:
 
 ```powershell
@@ -220,7 +220,7 @@ netsh interface portproxy show all      # as três linhas estão lá?
 
 Se estiverem e ainda assim não passa, é o firewall do Windows: a regra
 `New-NetFirewallRule` acima precisa existir. E lembre que o `connectaddress` é o IP **da VM**, que
-muda depois de um `multipass stop`/`start` — nesse caso apague e recrie:
+muda depois de um `multipass stop`/`start`. Nesse caso, apague e recrie:
 
 ```powershell
 netsh interface portproxy reset
@@ -271,13 +271,13 @@ multipass exec servidor -- cat /home/ubuntu/.ssh/authorized_keys
 
 ### Perdi o acesso depois de mexer no sshd
 
-Se você seguiu o guia, tinha uma sessão aberta — desfaça por ela. Se não:
+Se você seguiu o guia, tinha uma sessão aberta. Desfaça por ela. Se não:
 
 ```bash
 multipass shell servidor
 ```
 
-Ele entra sem passar pelo `sshd`. **Numa VPS essa porta não existe** — por isso o guia insiste em
+Ele entra sem passar pelo `sshd`. **Numa VPS essa porta não existe**: por isso o guia insiste em
 `sudo sshd -t` antes do `reload`, e em testar num segundo terminal.
 
 ---
@@ -297,7 +297,7 @@ source .env && bundle exec kamal config
 O `KAMAL_REGISTRY_PASSWORD` tem que ser um PAT (classic) com **`write:packages`** e
 **`read:packages`**. Um token de granularidade fina (*fine-grained*) não serve para o ghcr.io.
 
-E o `GHCR_USER` é o seu usuário do GitHub, em minúsculas — o registry não aceita maiúscula no nome
+E o `GHCR_USER` é o seu usuário do GitHub, em minúsculas: o registry não aceita maiúscula no nome
 da imagem.
 
 ### `exec format error` ao subir o container
@@ -326,7 +326,7 @@ source .env && bundle exec kamal setup
 kamal accessory boot db
 ```
 
-Depois de mudar env de accessory, `boot` não basta — é `kamal accessory reboot db`.
+Depois de mudar env de accessory, `boot` não basta: é `kamal accessory reboot db`.
 
 ### `curl` diz `self signed certificate`
 
@@ -363,7 +363,7 @@ O `kamal-proxy` está na lista? A 443 está liberada no `ufw`?
 
 ### SMTP dá timeout na VM
 
-Da VM local, a saída costuma funcionar — se não funcionar, é o firewall da sua rede (algumas redes
+Da VM local, a saída costuma funcionar: se não funcionar, é o firewall da sua rede (algumas redes
 universitárias bloqueiam a 587).
 
 Numa VPS é mais comum: vários provedores de nuvem bloqueiam a saída na porta 25, e alguns na 587.
@@ -461,4 +461,4 @@ Falha no handshake TLS entre Cloudflare e a sua VM.
 ### Let's Encrypt falha atrás do Cloudflare
 
 Esperado. Com o DNS proxied, o desafio HTTP-01 não chega como o Let's Encrypt espera. Use o
-certificado Origin CA — é a razão de ele existir.
+certificado Origin CA: é a razão de ele existir.

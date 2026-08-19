@@ -1,7 +1,7 @@
-# Aula 0 — Preparação
+# Aula 0: Preparação
 
 > **Faça isso antes do primeiro encontro.** Instalar Ruby, Docker e criar contas leva tempo, e é o
-> que mais atrasa capacitação. Se travar em algum passo, manda mensagem no grupo — não espere o dia.
+> que mais atrasa capacitação. Se travar em algum passo, manda mensagem no grupo: não espere o dia.
 
 Ao final você deve conseguir rodar os quatro comandos da seção [Checagem final](#checagem-final).
 
@@ -18,7 +18,7 @@ No PowerShell **como administrador**:
 wsl --install -d Ubuntu-24.04
 ```
 
-Reinicie o computador. Ao abrir o Ubuntu pela primeira vez, ele pede um usuário e uma senha —
+Reinicie o computador. Ao abrir o Ubuntu pela primeira vez, ele pede um usuário e uma senha,
 anote a senha, ela é o seu `sudo`.
 
 A partir daqui, "terminal" significa **o terminal do Ubuntu (WSL2)**.
@@ -37,7 +37,7 @@ sudo apt update && sudo apt install -y git curl build-essential
 xcode-select --install
 ```
 
-Configure seu nome e e-mail — eles vão em todo commit que você fizer:
+Configure seu nome e e-mail. Eles vão em todo commit que você fizer:
 
 ```bash
 git config --global user.name "Seu Nome"
@@ -83,7 +83,7 @@ brew install openssl@3 readline libyaml gmp libpq vips
 mise use --global ruby@3.4.9
 ```
 
-Isso compila o Ruby do zero — leva de **5 a 15 minutos**. É normal.
+Isso compila o Ruby do zero: leva de **5 a 15 minutos**. É normal.
 
 ```bash
 ruby -v      # ruby 3.4.9 ...
@@ -122,7 +122,7 @@ Se aparecer "Hello from Docker!", está pronto.
 ## 5. VS Code e extensões
 
 Baixe em [code.visualstudio.com](https://code.visualstudio.com). No Windows, instale no **Windows**
-(não dentro do WSL) — ele se conecta ao WSL sozinho.
+(não dentro do WSL): ele se conecta ao WSL sozinho.
 
 Extensões (Ctrl+Shift+X e busque pelo nome):
 
@@ -131,7 +131,7 @@ Extensões (Ctrl+Shift+X e busque pelo nome):
 | **Ruby LSP** (Shopify) | Autocomplete, ir para definição, erros em tempo real |
 | **Ruby Rails** (Aki) | Navegação entre model/controller/view |
 | **Docker** (Microsoft) | Ver e gerenciar containers pela barra lateral |
-| **WSL** (Microsoft) | *Só Windows* — abrir projetos do Ubuntu no VS Code |
+| **WSL** (Microsoft) | *Só Windows*: abrir projetos do Ubuntu no VS Code |
 | **GitLens** | Ver quem escreveu cada linha e quando |
 | **vscode-icons** | Ícones por tipo de arquivo (a mesma da capacitação de front) |
 
@@ -139,7 +139,7 @@ Extensões (Ctrl+Shift+X e busque pelo nome):
 
 ## 6. Insomnia (ou Postman)
 
-Nossa API não tem tela — ela responde JSON. Para chamar as rotas, usaremos um cliente HTTP.
+Nossa API não tem tela: ela responde JSON. Para chamar as rotas, usaremos um cliente HTTP.
 Baixe o [Insomnia](https://insomnia.rest/download) (mais simples) ou o
 [Postman](https://www.postman.com/downloads/), o que preferir.
 
@@ -150,7 +150,7 @@ Baixe o [Insomnia](https://insomnia.rest/download) (mais simples) ou o
 ### GitHub
 
 Crie em [github.com](https://github.com) se ainda não tem. Depois **ative o GitHub Student Pack**
-em [education.github.com](https://education.github.com/pack) com seu e-mail `@aluno.ufop.edu.br` —
+em [education.github.com](https://education.github.com/pack) com seu e-mail `@aluno.ufop.edu.br`,
 a aprovação pode levar alguns dias, e você ganha créditos e ferramentas de graça.
 
 Instale o **GitHub CLI**, que na Aula 1 publica o seu projeto num comando e na Aula 4 cadastra os
@@ -174,7 +174,7 @@ gh ssh-key add ~/.ssh/id_ed25519.pub --title "meu-notebook"
 ssh -T git@github.com                        # tem que cumprimentar você pelo nome
 ```
 
-### Multipass — **teste isso com antecedência**
+### Multipass: **teste isso com antecedência**
 
 Na Aula 4 cada um vai subir o próprio servidor Linux: uma **máquina virtual**, rodando no seu
 notebook, com Ubuntu Server, IP próprio e acesso por SSH. Quem cria essa VM é o
@@ -203,7 +203,7 @@ multipass delete teste && multipass purge
 
 #### Confira que você alcança a VM
 
-Subir a VM é metade. A outra metade é **alcançá-la de onde você programa** — e é aí que mora o único
+Subir a VM é metade. A outra metade é **alcançá-la de onde você programa**, e é aí que mora o único
 problema chato desta capacitação.
 
 O diagnóstico está no repositório da capacitação. Clone-o agora (você vai usá-lo o curso inteiro):
@@ -225,7 +225,7 @@ grupo.** Dez minutos hoje valem a aula inteira.
 #### Se você usa Windows: **leia isto, é obrigatório**
 
 O Multipass roda no Windows, e o seu Rails roda dentro do WSL2. São duas máquinas virtuais
-diferentes, e **por padrão uma não enxerga a outra** — o `ssh` do WSL2 não alcança o IP da VM, e sem
+diferentes, e **por padrão uma não enxerga a outra**: o `ssh` do WSL2 não alcança o IP da VM, e sem
 isso nada da Aula 4 funciona.
 
 Duas saídas. Tente a primeira; se o seu Windows for antigo, a segunda resolve sempre.
@@ -280,7 +280,7 @@ Confira:
 > O endereço do Windows muda a cada `wsl --shutdown`. Quando o SSH parar de conectar do nada, é
 > isso: rode o `ip route` de novo e atualize o `.env` e o `/etc/hosts`.
 
-**Se nenhuma das duas funcionar, avise no grupo antes da Aula 4** — dá para resolver, mas não em
+**Se nenhuma das duas funcionar, avise no grupo antes da Aula 4**: dá para resolver, mas não em
 cima da hora.
 
 ---
@@ -329,6 +329,6 @@ o CI roda e é para a sua conta que a imagem Docker vai.
 | `permission denied` no `docker` | Você não está no grupo `docker`. Rode `sudo usermod -aG docker $USER` e **saia e entre de novo** (só reabrir o terminal não basta). |
 | No Windows, o `docker` não aparece dentro do Ubuntu | Docker Desktop → Settings → Resources → WSL Integration → habilite a distro `Ubuntu-24.04`. |
 | `multipass launch` falha com erro de virtualização | Virtualização desabilitada na BIOS/UEFI (procure por `VT-x`, `AMD-V` ou `SVM`), ou o Hyper-V desligado no Windows. |
-| `gem install rails` reclama de permissão | Você está usando o Ruby do sistema, não o do `mise`. Confira com `which ruby` — deve apontar para dentro de `~/.local/share/mise`. |
+| `gem install rails` reclama de permissão | Você está usando o Ruby do sistema, não o do `mise`. Confira com `which ruby`: deve apontar para dentro de `~/.local/share/mise`. |
 
 Mais casos em [`troubleshooting.md`](troubleshooting.md).
