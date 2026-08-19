@@ -12,9 +12,12 @@ um servidor Linux de verdade que você mesmo subiu, com HTTPS e deploy por um co
 ## O último dia
 
 Você tem uma API com cinco fluxos de autenticação, testada, rodando com `bin/rails server`. **Hoje
-ela deixa de ser "um comando que eu rodo" e vira um sistema publicado**: empacotada numa imagem
-Docker, entregue por um registry, servida por um proxy com HTTPS, com o banco num volume que
-sobrevive a tudo.
+ela deixa de ser "um comando que eu rodo" e vira um sistema publicado**: sobe sozinha, aceita HTTPS,
+guarda os dados num lugar que sobrevive a reinício, e você consegue atualizar e voltar atrás sem
+ninguém perceber.
+
+As ferramentas que fazem isso têm nome, e você vai conhecer cada uma no caminho: Docker empacota,
+um registry distribui, o Kamal publica, e um proxy termina o HTTPS.
 
 E o servidor de hoje é **a sua própria máquina**. Não porque seja um faz de conta: é porque tudo o
 que você vai fazer aqui é idêntico ao que se faz numa máquina alugada, e num encontro de três horas
@@ -324,7 +327,8 @@ O que ele faz num `kamal deploy`:
 2. conecta no servidor por SSH
 3. puxa a imagem
 4. sobe o container novo **ao lado** do antigo
-5. espera o health check do novo passar
+5. espera o **health check** do novo passar, que é uma rota simples (a nossa é `/up`) que responde
+   200 quando a aplicação está de pé
 6. manda o tráfego para o novo e derruba o antigo
 
 Falhou o health check? Ele não troca. O antigo continua servindo.
@@ -623,7 +627,7 @@ antes.
 
 O deploy automático a cada push é o passo seguinte, e só faz sentido quando o servidor tem IP
 público: o runner do GitHub não alcança um IP dentro do seu notebook. Ele está pronto em
-`.github/workflows/deploy.yml`, e a seção **11** explica o que ele faz.
+`.github/workflows/deploy.yml`, e a seção **10** explica o que ele faz.
 
 ---
 
