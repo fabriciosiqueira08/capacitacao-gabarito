@@ -1,8 +1,8 @@
 # Capacitação Back-end: Automic Jr.
 
 Material da capacitação de back-end da Automic: **4 encontros de ~3h** em que a turma constrói, do
-zero, uma API de autenticação em Ruby on Rails e a coloca no ar num servidor Linux que cada um sobe
-no próprio notebook, com HTTPS e Kamal.
+zero, uma API de autenticação em Ruby on Rails e a publica com Docker, Kamal e HTTPS, num
+servidor que é a própria máquina de cada um.
 
 O app construído aqui é um recorte do [`seem-backend`](https://github.com/fabriciosiqueira08/seem-backend)
 — o back-end real da XXIII Semana de Estudos da Escola de Minas (SEEM). As decisões, os padrões e a
@@ -14,8 +14,8 @@ infraestrutura são os mesmos; o que muda é o tamanho.
 
 ## O que a turma vai ter no fim
 
-Uma API rodando em `https://<seu-nome>.test`, dentro de uma máquina virtual Ubuntu que eles mesmos
-provisionaram, com quatro rotas de autenticação:
+Uma API rodando em `https://<seu-nome>.test`, empacotada em Docker e publicada com Kamal, com
+quatro rotas de autenticação:
 
 | Método | Rota | O que faz |
 |---|---|---|
@@ -38,7 +38,7 @@ login só liberar depois que a conta é ativada, e duas rotas autenticadas: `GET
 | **1** | O que é back-end, Ruby (para quem sabe Python) e o primeiro Rails | `GET /api/v1/status` respondendo JSON |
 | **2** | Banco de dados, ActiveRecord e o model `User` | `User` com validações e senha hasheada, testado no console |
 | **3** | As rotas de autenticação | Os cinco fluxos rodando e testados |
-| **4** | Servidor Linux, Docker, Kamal e deploy | O app de cada um no ar, na própria VM, com HTTPS |
+| **4** | Servidor, Docker, Kamal e deploy | O app de cada um publicado, com HTTPS e rollback |
 
 ---
 
@@ -113,7 +113,7 @@ desatualizados em quatro lugares a cada regeração.
 
 ## Como as aulas são construídas
 
-Cada bloco de conteúdo termina numa **prática**: explica, faz, explica, faz. São **31 práticas** nos
+Cada bloco de conteúdo termina numa **prática**: explica, faz, explica, faz. São **30 práticas** nos
 quatro encontros, de 5 a 35 minutos, todas com um item avançado para quem terminar antes.
 
 Na apostila, cada prática traz os comandos, uma linha **Confere** e uma tabela **Se der errado**, no
@@ -124,7 +124,7 @@ formato *erro → causa → saída* — com os erros que acontecem de verdade, n
 | 1 | 7 | `curl` na mão → Ruby no `irb` → projeto no ar → rota → teste → GitHub |
 | 2 | 8 | banco de pé → migrations → bcrypt no console → validador → model → associação → concerns → testes |
 | 3 | 8 | ler a arquitetura → cadastro → confirmação → token na mão → logout → recuperação → qualidade → forjar um token |
-| 4 | 8 | subir a VM → firewall e Docker → registry → `.env` → certificado → deploy → TLS com os olhos → produção |
+| 4 | 7 | a máquina vira servidor → registry → `.env` → certificado → deploy → TLS com os olhos → produção |
 
 A sintaxe de Ruby que o projeto usa está na
 [seção 5 da Aula 1](docs/01-fundamentos.md), organizada como referência: cada construção diz **onde
@@ -142,7 +142,7 @@ no projeto ela aparece**. O comparativo completo com Python fica em
 | [`docs/02-activerecord.md`](docs/02-activerecord.md) | Apostila da Aula 2 |
 | [`docs/03-autenticacao.md`](docs/03-autenticacao.md) | Apostila da Aula 3 |
 | [`docs/04-deploy.md`](docs/04-deploy.md) | Apostila da Aula 4 |
-| [`docs/apendice-azure.md`](docs/apendice-azure.md) | O mesmo servidor na nuvem: Azure, Cloudflare, OIDC e deploy automático |
+| [`docs/apendice-azure.md`](docs/apendice-azure.md) | O mesmo deploy numa máquina alugada: provisionar o Ubuntu, Azure, Cloudflare, OIDC |
 | [`docs/ruby-para-pythonistas.md`](docs/ruby-para-pythonistas.md) | Cheat sheet Python ↔ Ruby, lado a lado |
 | [`docs/PREENCHER.md`](docs/PREENCHER.md) | **Leia primeiro**: o que ainda falta preencher antes de usar o material |
 | [`docs/guia-do-instrutor.md`](docs/guia-do-instrutor.md) | **Para quem apresenta, leia primeiro**: conduzir a sala, os três primeiros minutos, a curva de energia, o "não sei" |
