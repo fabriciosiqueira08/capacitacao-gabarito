@@ -1,4 +1,4 @@
-# Capacitação Back-end — Automic Jr.
+# Capacitação Back-end: Automic Jr.
 
 Material da capacitação de back-end da Automic: **4 encontros de ~3h** em que a turma constrói, do
 zero, uma API de autenticação em Ruby on Rails e a coloca no ar num servidor Linux que cada um sobe
