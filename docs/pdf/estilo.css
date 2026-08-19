@@ -91,21 +91,97 @@ h4 {
   break-after: page;
 }
 
+/* ---------- capa ---------- */
+
+/* A capa sangra até a borda: a margem do @page é anulada por margens
+   negativas do tamanho exato dela (18mm no topo, 16mm nos lados e embaixo). */
+/* página nomeada: a capa não leva rodapé nem número */
+@page capa {
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+
 .capa {
-  padding-top: 28vh;
-  text-align: center;
+  background: var(--azul);
+  break-after: page;
+  page: capa;
+  color: #fff;
+  height: 297mm;
+  margin: -18mm -16mm -16mm;
+  padding: 32mm 22mm 20mm;
+  position: relative;
+  width: 210mm;
+}
+
+.capa-logo {
+  display: block;
+  height: auto;
+  margin-bottom: 26mm;
+  width: 46mm;
+}
+
+.capa .selo {
+  color: var(--azul-claro);
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  margin: 0 0 6mm;
+  text-transform: uppercase;
 }
 
 .capa h1 {
   border: 0;
-  font-size: 30pt;
-  margin-bottom: 0.4em;
+  color: #fff;
+  font-size: 40pt;
+  line-height: 1.08;
+  margin: 0 0 8mm;
+  padding: 0;
 }
 
-.capa p {
-  color: var(--suave);
-  font-size: 12pt;
-  letter-spacing: 0.05em;
+.capa .linha {
+  background: var(--laranja);
+  border: 0;
+  height: 3pt;
+  margin: 0 0 8mm;
+  width: 28mm;
+}
+
+.capa code {
+  background: rgba(255, 255, 255, 0.14);
+  border: 0;
+  color: #fff;
+  padding: 0.05em 0.35em;
+}
+
+.capa .resumo {
+  color: #c6dcf5;
+  font-size: 12.5pt;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 118mm;
+}
+
+/* a assinatura fica ancorada no rodapé da capa */
+.capa .assina {
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  bottom: 26mm;
+  left: 22mm;
+  padding-top: 6mm;
+  position: absolute;
+  right: 22mm;
+}
+
+.capa .assina p {
+  color: #fff;
+  font-size: 11pt;
+  margin: 0;
+}
+
+.capa .assina .meta {
+  color: #9dc2e8;
+  font-size: 9.5pt;
+  letter-spacing: 0.12em;
+  margin-top: 2mm;
   text-transform: uppercase;
 }
 

@@ -12,8 +12,8 @@
 
 - [ ] Mandar [`00-preparacao.md`](00-preparacao.md) no grupo e cobrar resposta de quem travou.
 - [ ] Levantar quem usa Windows → WSL2 instalado **antes**.
-- [ ] Cobrar o teste do Multipass (`multipass launch 24.04 --name teste`) — é da Aula 4, mas quem
-      usa Windows precisa acertar a rede do WSL2 **antes**, e isso não se resolve em cima da hora.
+- [ ] Cobrar o teste do SSH (`ssh "$USER"@127.0.0.1 'echo ok'`): é da Aula 4, mas quem descobrir
+      só no dia perde vinte minutos instalando `openssh-server` no meio da aula.
 
 **No dia, antes de a turma chegar**
 

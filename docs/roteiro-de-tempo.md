@@ -12,13 +12,13 @@ que a turma faz e o plano B:
 | 1 | [Back-end, Ruby e o primeiro Rails](roteiro-aula-01.md) | 69 | 7 | 4h17 | **3h21** | 3h |
 | 2 | [Banco, ActiveRecord e o model `User`](roteiro-aula-02.md) | 54 | 8 | 4h39 | **3h02** | 3h |
 | 3 | [As rotas de autenticação](roteiro-aula-03.md) | 66 | 8 | 5h06 | **3h19** | 3h |
-| 4 | [Servidor, Docker, Kamal e deploy](roteiro-aula-04.md) | 71 | 8 | 5h17 | **3h48** | 3h |
+| 4 | [Servidor, Docker, Kamal e deploy](roteiro-aula-04.md) | 62 | 7 | 4h31 | **3h18** | 3h |
 
 ---
 
 ## O número honesto
 
-**São ~19h20 de conteúdo em 12h de encontro**, e ~13h30 depois dos planos de corte. Cada roteiro traz
+**São ~18h30 de conteúdo em 12h de encontro**, e ~13h depois dos planos de corte. Cada roteiro traz
 os cortes específicos, numerados em ordem de prioridade, e um **ponto de decisão** com relógio: se às
 tantas horas a turma não estiver em tal lugar, faça tal coisa.
 
@@ -43,8 +43,8 @@ explica  →  faz  →  explica  →  faz  →  ...
 ```
 
 Não é enfeite de estrutura. Antes, as aulas 2 e 3 tinham **uma** prática, no penúltimo slide: três
-horas ouvindo, e "agora façam tudo". Agora são 8 práticas de 5 a 35 minutos, e ninguém passa mais
-que ~25 min sem pôr a mão.
+horas ouvindo, e "agora façam tudo". Agora são 7 ou 8 por aula, e ninguém passa mais que ~25 min sem pôr a
+mão.
 
 ### Como conduzir uma prática
 
@@ -86,5 +86,5 @@ Cortar todos os `# EXTRA` devolve ~45 slides, uns 90 minutos no total das quatro
 ## Base do cálculo
 
 Slide a ~2 min; digitação guiada a ~5 linhas/min; prática cronometrada no percurso real, incluindo
-o tempo de quem erra uma vez. Os tempos de download (`multipass launch`, `bundle install`, build da
-imagem) estão contados pelo pior caso de wi-fi compartilhado.
+o tempo de quem erra uma vez. Os tempos de download (`bundle install`, `apt install`, build da imagem)
+estão contados pelo pior caso de wi-fi compartilhado.

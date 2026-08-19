@@ -75,13 +75,12 @@ Não é texto a trocar: é coisa a fazer antes da Aula 4. Está detalhado em
 
 | # | O que | Quando |
 |---|---|---|
-| 1 | Cobrar de cada aluno o print de `./scripts/checar-servidor.sh <IP>` | uma semana antes |
-| 2 | Resolver os que voltarem com erro (é sempre Windows, e o script diz qual das duas correções é) | uma semana antes |
-| 3 | Um SMTP (Resend ou outro) com domínio verificado, e uma key para a turma | véspera |
-| 4 | Fazer o percurso da Aula 4 do zero, com uma VM nova | véspera |
+| 1 | Cobrar de cada aluno o print de `ssh "$USER"@127.0.0.1 'echo ok'` | uma semana antes |
+| 2 | Um SMTP (Resend ou outro) com domínio verificado, e uma key para a turma | véspera |
+| 3 | Fazer o percurso da Aula 4 do zero, num usuário limpo | véspera |
 
-O item 1 é o que tira o único risco real da Aula 4 do dia da aula. O script diagnostica sozinho e
-imprime a correção; você só olha os prints.
+O item 1 é o que tira o risco da Aula 4 do dia da aula: o Kamal só precisa de SSH e Docker na
+máquina, e o SSH é o que costuma faltar.
 
 ---
 
@@ -91,7 +90,7 @@ Estes são placeholders de propósito: cada aluno preenche o seu, na hora.
 
 | Placeholder | Quem preenche |
 |---|---|
-| `SEU_IP` | o aluno, com o IP que o `multipass info` mostrar |
+| `SEU_IP` | só no apêndice de nuvem: o IP público da máquina alugada |
 | `SEU-USUARIO`, `SEU-REPO`, `seu-usuario` | o aluno, com o GitHub dele |
 | `seunome`, `seunome.test` | o aluno, no `/etc/hosts` e no certificado dele |
 | `SEU_RG`, `SEU_NSG` | o aluno, se for fazer o apêndice de nuvem |

@@ -1,14 +1,13 @@
-# Roteiro da Aula 4: Servidor, Docker, Kamal e deploy
+# Roteiro da Aula 4: servidor, Docker, Kamal e deploy
 
-**Deck**: `slides/build/aula-04-servidor-docker-kamal-e-deploy.pptx` (71 slides, sendo 8 de prática)
+**Deck**: `slides/build/aula-04-servidor-docker-kamal-e-deploy.pptx` (62 slides, sendo 7 de prática)
+**Antes de tudo**: [`guia-do-instrutor.md`](guia-do-instrutor.md), conduzir a sala, não o conteúdo
 **Apostila da turma**: [`04-deploy.md`](04-deploy.md) · **Checkpoint**: `aula-04`
-**Antes de tudo**: [`guia-do-instrutor.md`](guia-do-instrutor.md) — conduzir a sala, não o conteúdo
-**Apêndice**: [`apendice-azure.md`](apendice-azure.md) — o mesmo percurso na nuvem, para casa
+**Apêndice**: [`apendice-azure.md`](apendice-azure.md), o mesmo percurso na nuvem, para casa
 
-> Esta aula era a mais arriscada das quatro, porque o gargalo não era digitar: era clicar em portal,
-> e portal falha. **Agora o servidor é uma VM no notebook de cada um.** O risco caiu muito, e o que
-> sobrou dele está concentrado num lugar só — quem usa Windows — com duas correções conhecidas e um
-> script que descobre o caso uma semana antes.
+> Esta era a aula mais arriscada das quatro, porque o gargalo não era digitar: era clicar em portal,
+> e portal falha. **Agora o servidor é a própria máquina de cada aluno.** Não há VM para criar, nem
+> rede para configurar, nem nuvem para esperar. Sobrou o que realmente ensina.
 
 ---
 
@@ -16,215 +15,200 @@
 
 | # | O que | Quando |
 |---|---|---|
-| 1 | **Cobrar de todo mundo a saída do `checar-servidor.sh`**, com print | **uma semana antes** |
-| 2 | Resolver, um a um, os que voltarem com erro (é sempre Windows, e são dois casos) | uma semana antes |
-| 3 | Uma conta Resend (ou outro SMTP) com domínio verificado, e uma API key para a turma | véspera |
-| 4 | Fazer o percurso inteiro sozinho, do `multipass launch` ao `curl --cacert`, com uma VM nova | véspera |
+| 1 | Cobrar de todo mundo a saída de `ssh "$USER"@127.0.0.1 'echo ok'` | uma semana antes |
+| 2 | Um SMTP (Resend ou outro) com domínio verificado, e uma key para a turma | véspera |
+| 3 | Fazer o percurso inteiro sozinho, num usuário limpo, do `apt install openssh-server` ao `curl --cacert` | véspera |
 
-### O item 1 é o que tira o risco da aula
+### O item 1 é o que tira o risco do dia
 
-O Multipass roda no Windows; o Rails deles roda no WSL2. São duas máquinas virtuais diferentes, e
-**por padrão uma não enxerga a outra** — o `ssh` do WSL2 não alcança o IP da VM, e sem isso nada
-nesta aula funciona.
+O Kamal precisa de duas coisas na máquina: **SSH que aceite chave** e **Docker rodando**. O Docker
+eles têm desde a Aula 1. O SSH é o que pode faltar, e descobrir isso em aula custa vinte minutos.
 
-A boa notícia é que isso é **detectável e corrigível uma semana antes, sem você**. Peça no grupo:
+Peça no grupo, uma semana antes:
 
 ```bash
-multipass launch 24.04 --name teste
-multipass info teste                              # anote o IPv4
-cd ~/capacitacao-gabarito
-./scripts/checar-servidor.sh <IP>                 # print disto, no grupo
-multipass delete teste && multipass purge
+sudo apt install -y openssh-server && sudo service ssh start   # WSL2, Ubuntu, Debian
+ssh "$USER"@127.0.0.1 'echo FUNCIONOU'                          # print disto
 ```
 
-O script testa a porta, testa o SSH com a chave, e quando falha imprime a correção do caso dele.
-**Você só precisa olhar os prints e cobrar quem não mandou.**
+No macOS não se instala nada: **Ajustes do Sistema → Geral → Compartilhamento → Sessão remota**.
 
-As duas correções, para você reconhecer de longe:
-
-| Caso | Correção | Onde |
-|---|---|---|
-| Windows 11 22H2+ | `networkingMode=mirrored` no `.wslconfig`, depois `wsl --shutdown` | um arquivo |
-| Windows 10, ou o mirrored não pegou | `netsh interface portproxy` para 2222/443/80, mais a regra de firewall | PowerShell admin |
-
-No segundo caso o `SERVER_IP` deles vira o IP do **Windows** (`ip route show default`), e o `.env`
-ganha `SSH_PORT=2222`. **O `deploy.yml` já lê essa variável** — o Kamal funciona sem mais nenhuma
-mudança, e os comandos `ssh` da apostila só precisam de `-p 2222`.
-
-Os dois estão escritos em [`00-preparacao.md`](00-preparacao.md) e em
-[`troubleshooting.md`](troubleshooting.md#o-wsl2-não-alcança-a-vm-do-multipass). Mande o link, não
-explique você mesmo doze vezes.
-
-> **Só se as duas falharem** (raro, e você vai saber com uma semana de antecedência): dupla. Duas
-> pessoas numa máquina que funciona aprendem; uma pessoa travada na rede não aprende nada.
+**O tropeço que vai aparecer**: no WSL2 o `sshd` não sobe sozinho a cada boot do Windows. Quem
+reiniciou entre o teste e a aula vai chegar com `Connection refused`. A saída é uma linha
+(`sudo service ssh start`), e vale você avisar de véspera para ninguém perder tempo com isso.
 
 ---
 
 ## Antes de começar
 
-- [ ] Sua VM de teste **destruída** (`multipass delete servidor && multipass purge`), para você
-      fazer o percurso do zero junto com eles.
-- [ ] Dois terminais grandes, lado a lado: um é "o seu notebook", o outro é "dentro da VM". Diga
-      isso em voz alta e mantenha a divisão a aula inteira — metade da confusão do dia é aluno
-      rodando na máquina errada.
+- [ ] Dois terminais grandes. Hoje **os dois são a mesma máquina**, e vale dizer isso: um é onde
+      você edita e roda o Kamal, o outro é onde você olha `docker ps` e logs.
 - [ ] Um navegador aberto, para o momento do aviso de certificado.
 - [ ] `docs/troubleshooting.md` aberto numa aba.
 - [ ] Portal da Azure logado numa aba anônima, para a demo do fim (não vaze recursos do SEEM na
       projeção).
 - [ ] O PAT do ghcr.io: avise no grupo, na véspera, para já virem com ele criado.
+- [ ] O seu próprio percurso refeito na véspera, com o `~/.ssh/capacita` apagado, para você fazer do
+      zero junto com eles.
 
 ---
 
 ## Cronograma
 
-**As oito práticas são o esqueleto do dia.** Estão em negrito, e nesta aula elas são quase tudo: o
+**As sete práticas são o esqueleto do dia.** Estão em negrito, e nesta aula elas são quase tudo: o
 conteúdo existe para explicar o que a mão está fazendo.
 
 | Relógio | Slides | Bloco | Min |
 |:--|:--|:--|--:|
-| 00:00 | 1–3 | Abertura, e **de onde paramos** | 6 |
-| 00:06 | 4–10 | O servidor, as opções, por que não Kubernetes | 16 |
-| 00:22 | 11–17 | A máquina: chaves, `cloud-init`, `multipass` | 14 |
-| 00:36 | **18** | **Prática 1 — subir a VM e entrar nela** | 20 |
-| 00:56 | 19–27 | Ubuntu: firewall, Docker, root, swap, SSH | 24 |
-| 01:20 | **28** | **Prática 2 — firewall, Docker, swap, SSH** | 30 |
-| **01:50** | — | **Intervalo** | 10 |
-| 02:00 | 29–34 | Docker: imagem, Dockerfile, registry, arquitetura | 16 |
-| 02:16 | **35** | **Prática 3 — arquivos de deploy e o token** | 15 |
-| 02:31 | 36–44 | Kamal: `deploy.yml`, accessory, segredos | 22 |
-| 02:53 | **45** | **Prática 4 — o `.env`** | 15 |
-| 03:08 | 46–53 | TLS, certificado, CA, proxy reverso | 22 |
-| 03:30 | **54** | **Prática 5 — certificado e `/etc/hosts`** | 15 |
-| 03:45 | 55–59 | CI, o primeiro deploy, operar, backup | 14 |
-| 03:59 | **60–61** | **Práticas 6 e 7 — o deploy, e o certificado com os olhos** | 35 |
-| 04:34 | 62–65 | A nuvem de verdade: demo | 15 |
-| 04:49 | **66** | **Prática 8 — o sistema inteiro, e o backup** | 20 |
-| 05:09 | 67–71 | O que vocês fizeram, e agora, fim | 8 |
+| 00:00 | 1–3 | Abertura, e de onde paramos | 6 |
+| 00:06 | 4–10 | O problema, as opções, e por que a máquina é a sua | 18 |
+| 00:24 | 11–18 | Chaves, SSH, e autorizar a si mesmo | 20 |
+| 00:44 | **19** | **Prática 1: a sua máquina vira o servidor** | 20 |
+| 01:04 | 20–25 | Docker: imagem, Dockerfile, registry, arquitetura | 16 |
+| 01:20 | **26** | **Prática 2: arquivos de deploy e o token** | 15 |
+| **01:35** | — | **Intervalo** | 10 |
+| 01:45 | 27–35 | Kamal: `deploy.yml`, accessory, segredos | 22 |
+| 02:07 | **36** | **Prática 3: o `.env`** | 15 |
+| 02:22 | 37–44 | TLS, certificado, CA, proxy reverso | 22 |
+| 02:44 | **45** | **Prática 4: certificado e `/etc/hosts`** | 15 |
+| 02:59 | 46–50 | CI, o primeiro deploy, operar, backup | 14 |
+| 03:13 | **51–52** | **Práticas 5 e 6: o deploy, e o certificado com os olhos** | 35 |
+| 03:48 | 53–56 | Num servidor de verdade: demo | 15 |
+| 04:03 | **57** | **Prática 7: o sistema inteiro, e o backup** | 20 |
+| 04:23 | 58–62 | O que vocês fizeram, e agora, fim | 8 |
 
-**Dá 5h17 com tudo**, e é honesto dizer: esta aula tem duas horas de mão na massa que não dá para
-comprimir — o `apt`, o build da imagem e o download do Ubuntu levam o tempo que levam.
+**Dá 4h31.** Caiu ~45 minutos em relação à versão com VM, e o que saiu foi exatamente o que não
+ensinava back-end: criar máquina, esperar download de imagem e configurar rede.
 
 Corte **nesta ordem**:
 
 | # | O que cortar | Ganho |
 |:--|:--|--:|
-| 1 | **Prática 8** vira dever de casa (fluxo da Aula 3 em produção, e o backup) | −20 |
-| 2 | Slide 20 (`LINUX BÁSICO`, `# CORTÁVEL`) se a turma já usa terminal | −4 |
-| 3 | A demo de nuvem (62–65) encolhe para 6 min: só o slide 63 e o 64 | −9 |
-| 4 | Prática 2: dê o bloco do Docker num script pronto, para colarem | −12 |
-| 5 | Slides 31–32 (Dockerfile e as duas decisões) — ficam na apostila | −8 |
-| 6 | Prática 5: você gera um certificado e distribui; eles só fazem o `/etc/hosts` | −8 |
-| 7 | Slides 43–44 (credentials × ENV, três camadas) — ficam na apostila | −8 |
+| 1 | **Prática 7** vira dever de casa (fluxo da Aula 3 em produção, e o backup) | −20 |
+| 2 | A demo de servidor de verdade (53–56) encolhe para 6 min: só os slides 54 e 55 | −9 |
+| 3 | Slides 22–23 (Dockerfile e as duas decisões) ficam na apostila | −8 |
+| 4 | Slides 34–35 (credentials × ENV, três camadas) ficam na apostila | −8 |
+| 5 | Prática 4: você gera um certificado e distribui; eles só fazem o `/etc/hosts` | −8 |
+| 6 | Prática 2: mande fazer o `rsync` e o PAT **de casa**, na véspera | −12 |
 
-Cortando de 1 a 3, fecha em **4h44**. Cortando os sete, **3h48**.
+Cortando de 1 a 3, fecha em **3h54**. Cortando os seis, **3h18**.
 
-> **Nunca corte as Práticas 6 e 7.** Ver a API própria no ar e entender o aviso de certificado são
-> os dois momentos que a turma leva embora.
+> **Nunca corte as Práticas 5 e 6.** Ver a própria API no ar e entender o aviso de certificado são os
+> dois momentos que a turma leva embora.
 
 ### Onde o tempo ainda pode escapar
 
 | Risco | Sinal | O que fazer |
 |:--|:--|:--|
-| Windows sem rede para a VM | `ssh` dá timeout no aluno do Windows | Rode o `checar-servidor.sh` nele e aplique a correção que o script imprimir. Se não sair em 5 min, **dupla, e siga** — não debugue rede na frente da turma. |
-| Download da imagem do Ubuntu | `multipass launch` parado em "Retrieving image" | Wi-Fi do local. Peça para começarem o launch **no slide 11**, antes da teoria de chaves. |
-| Build da imagem Docker | `kamal setup` demorando | Normal: ~5 min no primeiro. Use o tempo para o slide de backup e para perguntas. |
-
-> **Truque que devolve 10 minutos**: mande rodar o `multipass launch` no slide 11 e deixe baixando
-> **enquanto você dá a teoria de chaves** (13–14). Quando a teoria acabar, a VM está pronta.
+| `sshd` parado | `Connection refused` na Prática 1 | `sudo service ssh start`. É uma linha, e é o erro mais comum do dia |
+| Permissão de chave | `Permission denied (publickey)` | `chmod 700 ~/.ssh` e `chmod 600` na chave e no `authorized_keys` |
+| Build da imagem | `kamal setup` demorando | Normal na primeira vez. Use o tempo para o slide de backup e para perguntas |
+| Arquitetura errada | `exec format error` no container | `uname -m`. Quem tem Mac com chip M precisa de `arm64` |
 
 ### Plano B, decidido de véspera
 
-**B1 — Cortar o TLS.** Se às 03:08 a maioria ainda não deployou, tire `proxy.ssl` do `deploy.yml`,
-suba em HTTP puro no IP da VM, e faça o bloco de TLS todo projetado, no seu. **Devolve ~20 min.**
-Eles refazem em casa com a apostila.
+**B1: cortar o TLS.** Se às 02:22 a maioria ainda não deployou, tire `proxy.ssl` do `deploy.yml`,
+suba em HTTP puro, e faça o bloco de TLS todo projetado, no seu. **Devolve ~20 min.** Eles refazem
+em casa com a apostila.
 
-**B2 — Virar demo a partir do intervalo.** Se às 01:50 não houver pelo menos metade da turma com VM
-respondendo ao SSH, pare de esperar. Projete o percurso do começo ao fim.
-**Melhor todo mundo ver funcionando do que metade travar em rede.**
+**B2: virar demo a partir do intervalo.** Se às 01:35 não houver pelo menos metade da turma com o
+`SSH_OK` na tela, pare de esperar e projete o percurso do começo ao fim.
 
 ---
 
 ## Bloco a bloco
 
-### 00:06 · O servidor (4–10)
+### 00:06 · O problema e as opções (4–10)
 
-A frase que abre e fecha a aula está no slide 4, e vale repetir três vezes ao longo do dia:
+Comece pelo slide 5, que é a pergunta honesta: **`bin/rails server` funciona enquanto o terminal
+está aberto — e daí?** As cinco necessidades listadas ali são a aula inteira, e nenhuma depende de
+onde a máquina está.
 
-> **Muda o IP e a conta no fim do mês. Não muda o que você faz.**
+O slide 9 é o que dá credibilidade: admita o custo. Uma máquina só é ponto único de falha, volume
+não é backup, o Postgres não é gerenciado.
 
-O slide 6 responde a pergunta que alguém vai fazer antes de você chegar nela ("por que não roda no
-meu Ubuntu mesmo?"): porque servidor tem que ser descartável, e porque container não tem usuário,
-firewall, `systemd` nem `sshd` — que é metade da aula.
+O **10** é o slide que define o dia:
 
-O slide 10 é o que dá credibilidade: admita o custo. Uma VM é ponto único de falha, volume não é
-backup, o Postgres não é gerenciado.
+> *"O Kamal não sabe onde a máquina está. Ele conecta por SSH e roda `docker` do outro lado. Se o
+> endereço for 127.0.0.1, ele conecta na de vocês."*
 
-### 00:22 · A máquina (11–17), e a Prática 1 (18)
+**Diga com todas as letras que não é faz de conta.** Alguém vai desconfiar, e com razão: é a mesma
+conexão SSH, o mesmo `deploy.yml`, os mesmos comandos. O que um servidor alugado acrescenta são duas
+linhas do `.env` e o trabalho de provisionar a máquina, que está no apêndice.
 
-**Primeira coisa, antes de qualquer slide deste bloco**: mande todo mundo rodar o `multipass launch`
-(slide 17, projete-o já). Deixe baixando. Depois volte ao 10 e dê a teoria.
+### 00:24 · Chaves e SSH (11–18)
 
+- **12** — o Kamal precisa de duas coisas, e uma delas eles já têm. Isso desarma a sensação de que
+  hoje é tudo novo.
 - **13–14** — chave pública e privada. É o conceito que também explica o JWT da Aula 3 e o TLS que
   vem daqui a pouco. **Não pule**, mesmo com a turma ansiosa para digitar.
-- **15** — o `chmod 600`. Diga que o SSH **recusa** usar chave com permissão frouxa, e que é a
-  primeira coisa a conferir quando der `Permission denied (publickey)`.
-- **16** — `cloud-init`. Vale uma frase: *"isto não é coisa do Multipass. É o mesmo arquivo que a
-  Azure, a AWS e a DigitalOcean leem quando criam uma máquina."*
+- **15** — instalar o `sshd`. **Avise aqui, antes de alguém apanhar**: no WSL2 ele não sobe sozinho
+  no boot.
+- **16** — autorizar a si mesmo. Vale a pausa: *"isto é literalmente o que vocês fariam num servidor
+  alugado. A mesma chave, o mesmo arquivo, o mesmo comando. Muda o endereço."*
+- **17** — o `chmod 600`. Diga que o SSH **recusa** chave com permissão frouxa, e que é a primeira
+  coisa a conferir no `Permission denied (publickey)`.
 
-> ⚠️ **Ponto de decisão às 00:56**: se menos da metade conectou por SSH, aplique o plano B2.
+> ⚠️ **Ponto de decisão às 01:04**: se menos da metade tiver o `SSH_OK`, resolva junto antes de
+> seguir. Sem isso, nada depois acontece.
 
-### 00:56 · Ubuntu (19–27), e a Prática 2 (28)
-
-- **21–22** — o firewall. O slide 22 é o mais importante do bloco, e o mais desconfortável: **diga
-  que o `ufw` não está protegendo eles de nada hoje.** Turma percebe quando a gente finge que um
-  exercício é uma proteção, e a honestidade aqui compra atenção para o resto.
-- **24** — variável de ambiente. É o conceito que sustenta o `env.clear`/`env.secret` do Kamal.
-- **26** — swap. Explique o OOM killer. Reconheça que com 2 GiB provavelmente não vai precisar hoje,
-  e que a VPS de US$5 tem 1 GiB e vai.
-- **27** — endurecer o SSH. **Fale isto em voz alta**: *"mantenham a sessão atual aberta e testem em
-  outro terminal."* E logo depois: *"aqui vocês têm o `multipass shell` como rede de segurança.
-  Numa máquina alugada, essa porta não existe — por isso o hábito é agora."*
-
-### 02:00 · Docker (29–34), e a Prática 3 (35)
+### 01:04 · Docker (20–25)
 
 Conceitual e rápido. Imagem é receita, container é bolo.
 
-No **32**, as duas decisões: multi-stage (compilador não vai para produção) e usuário não-root (*"é
+No **23**, as duas decisões: multi-stage (compilador não vai para produção) e usuário não-root (*"é
 uma linha que muda o tamanho do estrago"*).
 
-O **33** explica por que a imagem sobe para o ghcr.io em vez de ir direto para a VM ao lado: porque
-é o que aconteceria com uma VPS do outro lado do mundo, e é o que faz o mesmo `deploy.yml` servir
-nos dois casos. Sem isso, alguém vai perguntar — com razão.
+O **24** explica por que a imagem sobe para o ghcr.io se quem builda e quem roda são a mesma
+máquina. **Alguém vai perguntar, e a pergunta é boa.** A resposta: é o que aconteceria com um
+servidor do outro lado do mundo, e é o que faz o mesmo `deploy.yml` servir nos dois casos sem mudar
+uma linha.
 
-O **34** é operacional: PAT com `write:packages`, e a arquitetura. **Circule pela sala neste slide**:
-quem tem Mac com chip M precisa de `arm64`, e quem errar isso só descobre no meio do `kamal setup`,
-com uma mensagem que não diz "arquitetura".
+O **25** é operacional: PAT com `write:packages`, e a arquitetura. **Circule pela sala aqui**: quem
+tem Mac com chip M precisa de `arm64`, e quem errar isso só descobre no meio do `kamal setup`, com
+uma mensagem que não diz "arquitetura".
 
-### 02:31 · Kamal (36–44), e a Prática 4 (45)
+### 01:45 · Kamal (27–35)
 
 Abra o `config/deploy.yml` projetado e percorra junto com os slides.
 
-O slide 40 (`clear` × `secret`) tem o argumento concreto: `JWT_SECRET` no `clear` apareceria em
+O slide 30 (`clear` × `secret`) tem o argumento concreto: `JWT_SECRET` no `clear` apareceria em
 `docker inspect` e no histórico do shell. Se der, mostre um `docker inspect` de verdade.
 
-O **43** (três camadas de segredo) é o slide que amarra tudo. Deixe na tela enquanto explica, e diga
+O **34** (três camadas de segredo) é o slide que amarra tudo. Deixe na tela enquanto explica, e diga
 a linha que conecta com o apêndice: *"quando isso virar um pipeline, só a primeira camada muda."*
 
-No **44**, pare no `.env`: **`git status` não pode mostrar esse arquivo.** Mande todo mundo rodar,
+No **35**, pare no `.env`: **`git status` não pode mostrar esse arquivo.** Mande todo mundo rodar,
 ali, na frente de você.
 
-### 03:08 · TLS (46–53), e as Práticas 5 a 7 (54, 60–61)
+### 02:22 · TLS (37–44)
 
-O melhor bloco da aula nova. Antes era teoria sobre Cloudflare; agora eles veem acontecer.
+O melhor bloco da aula.
 
-- **46–49** — HTTPS é HTTP num túnel; handshake em três passos; certificado e cadeia de confiança.
-- **49** é a virada: *"para uma CA pública assinar, você tem que **provar** que o domínio é seu. E
-  vocês não têm domínio nenhum apontando para essa VM."* É daí que sai o autoassinado, como
-  consequência, e não como gambiarra.
-- **52** — `.test` e `/etc/hosts`. Vale a curiosidade: `.test` é reservado por RFC exatamente para
+- **38–41** — HTTPS é HTTP num túnel; handshake em três passos; certificado e cadeia de confiança.
+- **41** é a virada: *"para uma CA pública assinar, você tem que **provar** que o domínio é seu. E
+  vocês não têm domínio nenhum."* É daí que sai o autoassinado, como consequência e não como
+  gambiarra.
+- **43** — `.test` e `/etc/hosts`. Vale a curiosidade: `.test` é reservado por RFC exatamente para
   isso, e ninguém consegue registrar.
-- **53** — **o slide da aula.** Não passe rápido. Os três `curl` respondem, um a um, o que TLS é e o
-  que CA é:
+- **44** — **o slide da aula.** Não passe rápido.
+
+### 03:13 · O deploy, e o certificado (51–52)
+
+```bash
+source .env && bundle exec kamal config
+```
+
+Valida sem tocar em nada. **Faça isso antes**: pega variável faltando de graça.
+
+Depois `kamal setup`. Use a espera do build para o slide de backup e para perguntas.
+
+E então, o momento da aula. Diga o que está na frente deles, porque nem todo mundo percebe sozinho:
+
+> *"O código de vocês está rodando dentro de um container, em modo produção, atrás de um proxy que
+> termina TLS, com um Postgres que tem volume. Vocês não estão mais rodando `bin/rails server`."*
+
+Na Prática 6, os três `curl` respondem, um a um, o que TLS é e o que CA é:
 
 ```bash
 curl  https://seunome.test/...              # falha: self signed certificate
@@ -232,63 +216,39 @@ curl -k https://seunome.test/...            # funciona, sem conferir nada
 curl --cacert tls/capacita-cert.pem ...     # funciona, CONFERINDO
 ```
 
-A frase que fixa: *"o `-k` desliga a conferência. O `--cacert` não desliga nada — ele diz em quem
-confiar. Uma CA é isso, e só isso: alguém em quem o seu sistema já decidiu confiar, de fábrica."*
+A frase que fixa: *"o `-k` desliga a conferência. O `--cacert` não desliga nada, ele diz em quem
+confiar. Uma CA é isso e só isso: alguém em quem o seu sistema já decidiu confiar, de fábrica."*
 
 Depois abra no navegador e leia o aviso vermelho junto com eles. **É o mesmo fato, dito para um
 humano.**
 
-### 03:45 · CI, deploy e operação (55–59)
-
-```bash
-source .env && bundle exec kamal config
-```
-
-Valida sem tocar em nada. **Faça isso antes** — pega variável faltando de graça.
-
-Depois `kamal setup`. Demora ~5 minutos no primeiro build. Use o tempo para o slide de backup (59) e
-para perguntas.
-
-E então, o momento da aula:
-
-```bash
-curl --cacert tls/capacita-cert.pem https://seunome.test/api/v1/status
-```
-
-Diga o que está na frente deles, porque nem todo mundo percebe sozinho: *"o código de vocês está
-rodando num container, dentro de um Ubuntu que vocês provisionaram, atrás de um proxy TLS, com um
-Postgres com volume. Isto é produção. Só falta o IP ser público."*
-
-### 04:34 · A nuvem, demo (62–65)
+### 03:48 · Num servidor de verdade, demo (53–56)
 
 **Quinze minutos, projetado, sem ninguém acompanhando no teclado.** Diga isso antes de começar, ou
 metade da turma vai tentar criar conta na Azure e perder o fim da aula.
 
-Percorra: portal → VM → NSG com a 22 só para o seu IP → DNS no Cloudflare → Origin CA → OIDC. Não
-detalhe nenhum; o que você quer é que reconheçam as peças e saibam que o passo a passo existe.
+O slide 54 é o que importa: no `.env`, **duas linhas**. O resto do trabalho é provisionar a máquina,
+e é isso que você percorre no portal: VM → usuário → `apt upgrade` → Docker → firewall → `sshd`
+endurecido → DNS → certificado → OIDC.
 
-O slide 64 (a sequência do deploy automático) é o único que merece um minuto inteiro: abrir a 22,
-deployar, e **fechar mesmo se falhar**.
-
-E o 65, o OIDC: *"em vez de guardar uma senha que vale meses, o GitHub prova quem é a cada
-execução."*
+Não detalhe nenhum. O que você quer é que reconheçam as peças e saibam que o passo a passo existe.
 
 Feche apontando o apêndice: **`docs/apendice-azure.md`, e a Azure for Students dá US$100 sem
-cartão.** Quem quiser, faz em casa e me chama.
+cartão.**
 
-### 04:49 · Prática 8 e fecho (66–71)
+### 04:23 · Prática 7 e fecho (57–62)
 
-O slide 68 (`O QUE O SEEM-BACKEND TEM A MAIS`) é o convite: *"nada disso é difícil depois do que
+O slide 59 (`O QUE O SEEM-BACKEND TEM A MAIS`) é o convite: *"nada disso é difícil depois do que
 vocês viram hoje. O código está lá, e agora vocês conseguem ler."*
 
-E então **reserve cinco minutos de verdade para os slides 69 e 70.** Não corra.
+E então **reserve cinco minutos de verdade para os slides 60 e 61.** Não corra.
 
-O **69** (`O QUE VOCÊS FIZERAM`) é a lista do que eles construíram, e existe porque quem fez
-raramente percebe o tamanho: o esforço esconde a conquista. Leia devagar, olhando para eles.
+O **60** (`O QUE VOCÊS FIZERAM`) é a lista do que construíram, e existe porque quem fez raramente
+percebe o tamanho: o esforço esconde a conquista. Leia devagar, olhando para eles.
 
-O **70** (`E AGORA?`) deixa o canal aberto. Diga em voz alta que dúvida daqui a três semanas ainda é
-dúvida — a pergunta que chega depois costuma ser a mais importante da capacitação inteira, porque é
-a primeira que veio de um problema real deles.
+O **61** (`E AGORA?`) deixa o canal aberto. Diga em voz alta que dúvida daqui a três semanas ainda é
+dúvida: a pergunta que chega depois costuma ser a mais importante da capacitação inteira, porque é a
+primeira que veio de um problema real deles.
 
 ---
 
@@ -296,23 +256,22 @@ a primeira que veio de um problema real deles.
 
 | Pergunta | Resposta curta |
 |---|---|
-| "Isso não é 'de verdade', é só no meu computador." | É de verdade: é o mesmo Ubuntu, o mesmo Docker, o mesmo Kamal e o mesmo `deploy.yml`. O que falta é o IP ser público — e é uma variável no `.env`. |
-| "Então por que não usar a nuvem direto?" | Porque metade da aula viraria espera de portal e cota, e nada disso é back-end. O apêndice tem o caminho, e vocês já vão saber operar a máquina quando chegarem lá. |
-| "Por que não Heroku/Render/Vercel? É mais fácil." | É mesmo, e para muita coisa é a escolha certa. Aqui o objetivo é vocês entenderem o que essas plataformas fazem por vocês — e o custo delas cresce rápido. |
-| "Por que não rodar só com Docker Compose no meu Ubuntu?" | Compose sobe container. Não resolve máquina descartável, usuário, firewall, `sshd`, build remoto, zero-downtime, rollback nem segredo. |
-| "E se a VM cair?" | Cai o sistema. É o custo declarado desta arquitetura. Com backup, você sobe outra em 20 min — e aqui, em 2. |
-| "Por que o banco não é gerenciado?" | Custo. Um Postgres gerenciado custa mais que a VM inteira. Para 500 usuários numa semana, não se paga. |
-| "Meu navegador diz que o site não é seguro." | E está certo. O certificado é seu, assinado por você. É o slide 48 — e é a diferença entre criptografia e confiança. |
+| "Isso não é 'de verdade', é só na minha máquina." | É de verdade: é o mesmo Docker, o mesmo Kamal, o mesmo `deploy.yml`, a mesma conexão SSH. O que falta é o IP ser público, e são duas linhas no `.env`. |
+| "Então por que não usar a nuvem direto?" | Porque metade da aula viraria espera de portal e de cota, e nada disso é back-end. O apêndice tem o caminho, e vocês já vão saber operar quando chegarem lá. |
+| "Por que a imagem vai para o GitHub se roda aqui mesmo?" | Porque é o que aconteceria com um servidor remoto, e é o que faz o mesmo arquivo servir nos dois casos. Também é o que te dá versão e rollback de graça. |
+| "Por que não Heroku/Render/Vercel? É mais fácil." | É mesmo, e para muita coisa é a escolha certa. Aqui o objetivo é entender o que essas plataformas fazem por vocês, e o custo delas cresce rápido. |
+| "Por que não rodar só com Docker Compose?" | Compose sobe container. Não resolve registry, build versionado, zero-downtime, rollback nem gestão de segredo. É o que o Kamal acrescenta. |
+| "Meu navegador diz que o site não é seguro." | E está certo: o certificado é seu, assinado por você. É a Prática 6, e é a diferença entre criptografia e confiança. |
+| "E se eu quiser desligar isso depois?" | `kamal app stop` e `kamal accessory stop db`. Para apagar de vez, `kamal remove`. |
 | "Posso usar isso num projeto meu?" | Pode, e é a intenção. Troque o nome do serviço, o host e os segredos. O resto é igual. |
-| "Preciso pagar por um domínio?" | Só quando for para a internet. ~R$15/ano, ou grátis pelo GitHub Student Pack. |
 
 ## Depois da capacitação
 
 Mande no grupo:
 
-1. `multipass stop servidor` quando não estiverem usando — a VM parada não come RAM do notebook.
-2. [`apendice-azure.md`](apendice-azure.md), com o link da Azure for Students, para quem quiser o
-   IP público e o deploy automático.
+1. `kamal app stop` e `kamal accessory stop db` para quem não quiser os containers rodando.
+2. [`apendice-azure.md`](apendice-azure.md), com o link da Azure for Students, para quem quiser o IP
+   público e o deploy automático.
 3. O link do [`seem-backend`](https://github.com/fabriciosiqueira08/seem-backend), com o convite do
-   slide 68.
-4. `docs/troubleshooting.md` — é o que eles vão abrir quando algo quebrar sem você por perto.
+   slide 59.
+4. `docs/troubleshooting.md`, que é o que eles vão abrir quando algo quebrar sem você por perto.

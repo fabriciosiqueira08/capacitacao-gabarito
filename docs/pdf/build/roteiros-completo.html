@@ -2,13 +2,22 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>Capacitação Back-end — roteiros</title>
+<title>Roteiros<br>do instrutor</title>
 <link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
-<style>@page { @bottom-left { content: "Capacitação Back-end · roteiro do instrutor"; } }</style>
+<style>@page { @bottom-left { content: "Roteiros do instrutor · Fabrício Siqueira · Automic Jr. · 2026"; } }</style>
 </head>
 <body><main>
-<div class='capa'><h1>Capacitação Back-end — roteiros</h1><p>Automic Jr. · quatro encontros</p></div>
-<div class='quebra'></div>
+<div class="capa">
+  <img class="capa-logo" src="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/assets/automic-logo-branca.png" alt="Automic">
+  <p class="selo">Capacitação Back-end</p>
+  <h1>Roteiros<br>do instrutor</h1>
+  <hr class="linha">
+  <p class="resumo">Cronograma, o que falar em cada bloco, as demos ao vivo, as perguntas que a turma faz, e o plano B de cada encontro.</p>
+  <div class="assina">
+    <p>Fabrício Siqueira</p>
+    <p class="meta">Automic Jr. · 2026</p>
+  </div>
+</div>
 <h2>Sumário</h2>
 
 <div class="toc">
@@ -102,9 +111,9 @@
 <li><a href="#dever-de-casa_2">Dever de casa</a></li>
 </ul>
 </li>
-<li><a href="#roteiro-da-aula-4-servidor-docker-kamal-e-deploy">Roteiro da Aula 4: Servidor, Docker, Kamal e deploy</a><ul>
+<li><a href="#roteiro-da-aula-4-servidor-docker-kamal-e-deploy">Roteiro da Aula 4: servidor, Docker, Kamal e deploy</a><ul>
 <li><a href="#o-que-preparar-com-antecedencia">O que preparar com antecedência</a><ul>
-<li><a href="#o-item-1-e-o-que-tira-o-risco-da-aula">O item 1 é o que tira o risco da aula</a></li>
+<li><a href="#o-item-1-e-o-que-tira-o-risco-do-dia">O item 1 é o que tira o risco do dia</a></li>
 </ul>
 </li>
 <li><a href="#antes-de-comecar_3">Antes de começar</a></li>
@@ -114,15 +123,14 @@
 </ul>
 </li>
 <li><a href="#bloco-a-bloco_3">Bloco a bloco</a><ul>
-<li><a href="#0006-o-servidor-410">00:06 · O servidor (4–10)</a></li>
-<li><a href="#0022-a-maquina-1117-e-a-pratica-1-18">00:22 · A máquina (11–17), e a Prática 1 (18)</a></li>
-<li><a href="#0056-ubuntu-1927-e-a-pratica-2-28">00:56 · Ubuntu (19–27), e a Prática 2 (28)</a></li>
-<li><a href="#0200-docker-2934-e-a-pratica-3-35">02:00 · Docker (29–34), e a Prática 3 (35)</a></li>
-<li><a href="#0231-kamal-3644-e-a-pratica-4-45">02:31 · Kamal (36–44), e a Prática 4 (45)</a></li>
-<li><a href="#0308-tls-4653-e-as-praticas-5-a-7-54-6061">03:08 · TLS (46–53), e as Práticas 5 a 7 (54, 60–61)</a></li>
-<li><a href="#0345-ci-deploy-e-operacao-5559">03:45 · CI, deploy e operação (55–59)</a></li>
-<li><a href="#0434-a-nuvem-demo-6265">04:34 · A nuvem, demo (62–65)</a></li>
-<li><a href="#0449-pratica-8-e-fecho-6671">04:49 · Prática 8 e fecho (66–71)</a></li>
+<li><a href="#0006-o-problema-e-as-opcoes-410">00:06 · O problema e as opções (4–10)</a></li>
+<li><a href="#0024-chaves-e-ssh-1118">00:24 · Chaves e SSH (11–18)</a></li>
+<li><a href="#0104-docker-2025">01:04 · Docker (20–25)</a></li>
+<li><a href="#0145-kamal-2735">01:45 · Kamal (27–35)</a></li>
+<li><a href="#0222-tls-3744">02:22 · TLS (37–44)</a></li>
+<li><a href="#0313-o-deploy-e-o-certificado-5152">03:13 · O deploy, e o certificado (51–52)</a></li>
+<li><a href="#0348-num-servidor-de-verdade-demo-5356">03:48 · Num servidor de verdade, demo (53–56)</a></li>
+<li><a href="#0423-pratica-7-e-fecho-5762">04:23 · Prática 7 e fecho (57–62)</a></li>
 </ul>
 </li>
 <li><a href="#perguntas-que-vao-aparecer_3">Perguntas que vão aparecer</a></li>
@@ -131,6 +139,7 @@
 </li>
 </ul>
 </div>
+<div class='quebra'></div>
 <h1 id="guia-do-instrutor-conduzir-nao-apresentar">Guia do instrutor: conduzir, não apresentar</h1>
 <p>Os quatro roteiros dizem <strong>o que</strong> falar e <strong>quando</strong>. Este documento é sobre a outra metade: você,
 na frente de uma sala, por três horas, com gente que confia que você sabe.</p>
@@ -357,17 +366,17 @@ você não souber a resposta, onde a energia da turma cai, e o que dizer quando 
 <tr>
 <td>4</td>
 <td><strong>Servidor, Docker, Kamal e deploy</strong></td>
-<td style="text-align: right;">71</td>
-<td style="text-align: right;">8</td>
-<td style="text-align: right;">5h17</td>
-<td style="text-align: right;"><strong>3h48</strong></td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">4h31</td>
+<td style="text-align: right;"><strong>3h18</strong></td>
 <td style="text-align: right;">3h</td>
 </tr>
 </tbody>
 </table>
 <hr>
 <h2 id="o-numero-honesto">O número honesto</h2>
-<p><strong>São ~19h20 de conteúdo em 12h de encontro</strong>, e ~13h30 depois dos planos de corte. Cada roteiro traz
+<p><strong>São ~18h30 de conteúdo em 12h de encontro</strong>, e ~13h depois dos planos de corte. Cada roteiro traz
 os cortes específicos, numerados em ordem de prioridade, e um <strong>ponto de decisão</strong> com relógio: se às
 tantas horas a turma não estiver em tal lugar, faça tal coisa.</p>
 <p>Não tente caber tudo. <strong>Decida os cortes na véspera</strong>, não no meio da aula.</p>
@@ -385,8 +394,8 @@ prática está marcada em negrito no cronograma.</p>
 <pre><code>explica  →  faz  →  explica  →  faz  →  ...
 </code></pre>
 <p>Não é enfeite de estrutura. Antes, as aulas 2 e 3 tinham <strong>uma</strong> prática, no penúltimo slide: três
-horas ouvindo, e "agora façam tudo". Agora são 8 práticas de 5 a 35 minutos, e ninguém passa mais
-que ~25 min sem pôr a mão.</p>
+horas ouvindo, e "agora façam tudo". Agora são 7 ou 8 por aula, e ninguém passa mais que ~25 min sem pôr a
+mão.</p>
 <h3 id="como-conduzir-uma-pratica">Como conduzir uma prática</h3>
 <ol>
 <li><strong>Projete o slide da prática</strong> e leia os itens em voz alta. São 30 segundos.</li>
@@ -429,8 +438,8 @@ o único caminho de desbloqueio numa sala de 12 pessoas.</p>
 <hr>
 <h2 id="base-do-calculo">Base do cálculo</h2>
 <p>Slide a ~2 min; digitação guiada a ~5 linhas/min; prática cronometrada no percurso real, incluindo
-o tempo de quem erra uma vez. Os tempos de download (<code>multipass launch</code>, <code>bundle install</code>, build da
-imagem) estão contados pelo pior caso de wi-fi compartilhado.</p>
+o tempo de quem erra uma vez. Os tempos de download (<code>bundle install</code>, <code>apt install</code>, build da imagem)
+estão contados pelo pior caso de wi-fi compartilhado.</p>
 <div class='quebra'></div>
 
 <h1 id="roteiro-da-aula-1-back-end-ruby-e-o-primeiro-rails">Roteiro da Aula 1: back-end, Ruby e o primeiro Rails</h1>
@@ -443,8 +452,8 @@ imagem) estão contados pelo pior caso de wi-fi compartilhado.</p>
 <ul>
 <li>[ ] Mandar <strong><code>00-preparacao.md</code></strong> no grupo e cobrar resposta de quem travou.</li>
 <li>[ ] Levantar quem usa Windows → WSL2 instalado <strong>antes</strong>.</li>
-<li>[ ] Cobrar o teste do Multipass (<code>multipass launch 24.04 --name teste</code>) — é da Aula 4, mas quem
-      usa Windows precisa acertar a rede do WSL2 <strong>antes</strong>, e isso não se resolve em cima da hora.</li>
+<li>[ ] Cobrar o teste do SSH (<code>ssh "$USER"@127.0.0.1 'echo ok'</code>): é da Aula 4, mas quem descobrir
+      só no dia perde vinte minutos instalando <code>openssh-server</code> no meio da aula.</li>
 </ul>
 <p><strong>No dia, antes de a turma chegar</strong></p>
 <ul>
@@ -1599,16 +1608,15 @@ bin/rails test
 </ol>
 <div class='quebra'></div>
 
-<h1 id="roteiro-da-aula-4-servidor-docker-kamal-e-deploy">Roteiro da Aula 4: Servidor, Docker, Kamal e deploy</h1>
-<p><strong>Deck</strong>: <code>slides/build/aula-04-servidor-docker-kamal-e-deploy.pptx</code> (71 slides, sendo 8 de prática)
+<h1 id="roteiro-da-aula-4-servidor-docker-kamal-e-deploy">Roteiro da Aula 4: servidor, Docker, Kamal e deploy</h1>
+<p><strong>Deck</strong>: <code>slides/build/aula-04-servidor-docker-kamal-e-deploy.pptx</code> (62 slides, sendo 7 de prática)
+<strong>Antes de tudo</strong>: <strong><code>guia-do-instrutor.md</code></strong>, conduzir a sala, não o conteúdo
 <strong>Apostila da turma</strong>: <strong><code>04-deploy.md</code></strong> · <strong>Checkpoint</strong>: <code>aula-04</code>
-<strong>Antes de tudo</strong>: <strong><code>guia-do-instrutor.md</code></strong> — conduzir a sala, não o conteúdo
-<strong>Apêndice</strong>: <strong><code>apendice-azure.md</code></strong> — o mesmo percurso na nuvem, para casa</p>
+<strong>Apêndice</strong>: <strong><code>apendice-azure.md</code></strong>, o mesmo percurso na nuvem, para casa</p>
 <blockquote>
-<p>Esta aula era a mais arriscada das quatro, porque o gargalo não era digitar: era clicar em portal,
-e portal falha. <strong>Agora o servidor é uma VM no notebook de cada um.</strong> O risco caiu muito, e o que
-sobrou dele está concentrado num lugar só — quem usa Windows — com duas correções conhecidas e um
-script que descobre o caso uma semana antes.</p>
+<p>Esta era a aula mais arriscada das quatro, porque o gargalo não era digitar: era clicar em portal,
+e portal falha. <strong>Agora o servidor é a própria máquina de cada aluno.</strong> Não há VM para criar, nem
+rede para configurar, nem nuvem para esperar. Sobrou o que realmente ensina.</p>
 </blockquote>
 <hr>
 <h2 id="o-que-preparar-com-antecedencia">O que preparar com antecedência</h2>
@@ -1623,88 +1631,48 @@ script que descobre o caso uma semana antes.</p>
 <tbody>
 <tr>
 <td>1</td>
-<td><strong>Cobrar de todo mundo a saída do <code>checar-servidor.sh</code></strong>, com print</td>
-<td><strong>uma semana antes</strong></td>
-</tr>
-<tr>
-<td>2</td>
-<td>Resolver, um a um, os que voltarem com erro (é sempre Windows, e são dois casos)</td>
+<td>Cobrar de todo mundo a saída de <code>ssh "$USER"@127.0.0.1 'echo ok'</code></td>
 <td>uma semana antes</td>
 </tr>
 <tr>
+<td>2</td>
+<td>Um SMTP (Resend ou outro) com domínio verificado, e uma key para a turma</td>
+<td>véspera</td>
+</tr>
+<tr>
 <td>3</td>
-<td>Uma conta Resend (ou outro SMTP) com domínio verificado, e uma API key para a turma</td>
-<td>véspera</td>
-</tr>
-<tr>
-<td>4</td>
-<td>Fazer o percurso inteiro sozinho, do <code>multipass launch</code> ao <code>curl --cacert</code>, com uma VM nova</td>
+<td>Fazer o percurso inteiro sozinho, num usuário limpo, do <code>apt install openssh-server</code> ao <code>curl --cacert</code></td>
 <td>véspera</td>
 </tr>
 </tbody>
 </table>
-<h3 id="o-item-1-e-o-que-tira-o-risco-da-aula">O item 1 é o que tira o risco da aula</h3>
-<p>O Multipass roda no Windows; o Rails deles roda no WSL2. São duas máquinas virtuais diferentes, e
-<strong>por padrão uma não enxerga a outra</strong> — o <code>ssh</code> do WSL2 não alcança o IP da VM, e sem isso nada
-nesta aula funciona.</p>
-<p>A boa notícia é que isso é <strong>detectável e corrigível uma semana antes, sem você</strong>. Peça no grupo:</p>
-<pre><code class="language-bash">multipass launch 24.04 --name teste
-multipass info teste                              # anote o IPv4
-cd ~/capacitacao-gabarito
-./scripts/checar-servidor.sh &lt;IP&gt;                 # print disto, no grupo
-multipass delete teste &amp;&amp; multipass purge
+<h3 id="o-item-1-e-o-que-tira-o-risco-do-dia">O item 1 é o que tira o risco do dia</h3>
+<p>O Kamal precisa de duas coisas na máquina: <strong>SSH que aceite chave</strong> e <strong>Docker rodando</strong>. O Docker
+eles têm desde a Aula 1. O SSH é o que pode faltar, e descobrir isso em aula custa vinte minutos.</p>
+<p>Peça no grupo, uma semana antes:</p>
+<pre><code class="language-bash">sudo apt install -y openssh-server &amp;&amp; sudo service ssh start   # WSL2, Ubuntu, Debian
+ssh &quot;$USER&quot;@127.0.0.1 'echo FUNCIONOU'                          # print disto
 </code></pre>
-<p>O script testa a porta, testa o SSH com a chave, e quando falha imprime a correção do caso dele.
-<strong>Você só precisa olhar os prints e cobrar quem não mandou.</strong></p>
-<p>As duas correções, para você reconhecer de longe:</p>
-<table>
-<thead>
-<tr>
-<th>Caso</th>
-<th>Correção</th>
-<th>Onde</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Windows 11 22H2+</td>
-<td><code>networkingMode=mirrored</code> no <code>.wslconfig</code>, depois <code>wsl --shutdown</code></td>
-<td>um arquivo</td>
-</tr>
-<tr>
-<td>Windows 10, ou o mirrored não pegou</td>
-<td><code>netsh interface portproxy</code> para 2222/443/80, mais a regra de firewall</td>
-<td>PowerShell admin</td>
-</tr>
-</tbody>
-</table>
-<p>No segundo caso o <code>SERVER_IP</code> deles vira o IP do <strong>Windows</strong> (<code>ip route show default</code>), e o <code>.env</code>
-ganha <code>SSH_PORT=2222</code>. <strong>O <code>deploy.yml</code> já lê essa variável</strong> — o Kamal funciona sem mais nenhuma
-mudança, e os comandos <code>ssh</code> da apostila só precisam de <code>-p 2222</code>.</p>
-<p>Os dois estão escritos em <strong><code>00-preparacao.md</code></strong> e em
-<strong><code>troubleshooting.md</code></strong>. Mande o link, não
-explique você mesmo doze vezes.</p>
-<blockquote>
-<p><strong>Só se as duas falharem</strong> (raro, e você vai saber com uma semana de antecedência): dupla. Duas
-pessoas numa máquina que funciona aprendem; uma pessoa travada na rede não aprende nada.</p>
-</blockquote>
+<p>No macOS não se instala nada: <strong>Ajustes do Sistema → Geral → Compartilhamento → Sessão remota</strong>.</p>
+<p><strong>O tropeço que vai aparecer</strong>: no WSL2 o <code>sshd</code> não sobe sozinho a cada boot do Windows. Quem
+reiniciou entre o teste e a aula vai chegar com <code>Connection refused</code>. A saída é uma linha
+(<code>sudo service ssh start</code>), e vale você avisar de véspera para ninguém perder tempo com isso.</p>
 <hr>
 <h2 id="antes-de-comecar_3">Antes de começar</h2>
 <ul>
-<li>[ ] Sua VM de teste <strong>destruída</strong> (<code>multipass delete servidor &amp;&amp; multipass purge</code>), para você
-      fazer o percurso do zero junto com eles.</li>
-<li>[ ] Dois terminais grandes, lado a lado: um é "o seu notebook", o outro é "dentro da VM". Diga
-      isso em voz alta e mantenha a divisão a aula inteira — metade da confusão do dia é aluno
-      rodando na máquina errada.</li>
+<li>[ ] Dois terminais grandes. Hoje <strong>os dois são a mesma máquina</strong>, e vale dizer isso: um é onde
+      você edita e roda o Kamal, o outro é onde você olha <code>docker ps</code> e logs.</li>
 <li>[ ] Um navegador aberto, para o momento do aviso de certificado.</li>
 <li>[ ] <code>docs/troubleshooting.md</code> aberto numa aba.</li>
 <li>[ ] Portal da Azure logado numa aba anônima, para a demo do fim (não vaze recursos do SEEM na
       projeção).</li>
 <li>[ ] O PAT do ghcr.io: avise no grupo, na véspera, para já virem com ele criado.</li>
+<li>[ ] O seu próprio percurso refeito na véspera, com o <code>~/.ssh/capacita</code> apagado, para você fazer do
+      zero junto com eles.</li>
 </ul>
 <hr>
 <h2 id="cronograma_2">Cronograma</h2>
-<p><strong>As oito práticas são o esqueleto do dia.</strong> Estão em negrito, e nesta aula elas são quase tudo: o
+<p><strong>As sete práticas são o esqueleto do dia.</strong> Estão em negrito, e nesta aula elas são quase tudo: o
 conteúdo existe para explicar o que a mão está fazendo.</p>
 <table>
 <thead>
@@ -1719,115 +1687,103 @@ conteúdo existe para explicar o que a mão está fazendo.</p>
 <tr>
 <td style="text-align: left;">00:00</td>
 <td style="text-align: left;">1–3</td>
-<td style="text-align: left;">Abertura, e <strong>de onde paramos</strong></td>
+<td style="text-align: left;">Abertura, e de onde paramos</td>
 <td style="text-align: right;">6</td>
 </tr>
 <tr>
 <td style="text-align: left;">00:06</td>
 <td style="text-align: left;">4–10</td>
-<td style="text-align: left;">O servidor, as opções, por que não Kubernetes</td>
-<td style="text-align: right;">16</td>
+<td style="text-align: left;">O problema, as opções, e por que a máquina é a sua</td>
+<td style="text-align: right;">18</td>
 </tr>
 <tr>
-<td style="text-align: left;">00:22</td>
-<td style="text-align: left;">11–17</td>
-<td style="text-align: left;">A máquina: chaves, <code>cloud-init</code>, <code>multipass</code></td>
-<td style="text-align: right;">14</td>
-</tr>
-<tr>
-<td style="text-align: left;">00:36</td>
-<td style="text-align: left;"><strong>18</strong></td>
-<td style="text-align: left;"><strong>Prática 1 — subir a VM e entrar nela</strong></td>
+<td style="text-align: left;">00:24</td>
+<td style="text-align: left;">11–18</td>
+<td style="text-align: left;">Chaves, SSH, e autorizar a si mesmo</td>
 <td style="text-align: right;">20</td>
 </tr>
 <tr>
-<td style="text-align: left;">00:56</td>
-<td style="text-align: left;">19–27</td>
-<td style="text-align: left;">Ubuntu: firewall, Docker, root, swap, SSH</td>
-<td style="text-align: right;">24</td>
+<td style="text-align: left;">00:44</td>
+<td style="text-align: left;"><strong>19</strong></td>
+<td style="text-align: left;"><strong>Prática 1: a sua máquina vira o servidor</strong></td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td style="text-align: left;">01:04</td>
+<td style="text-align: left;">20–25</td>
+<td style="text-align: left;">Docker: imagem, Dockerfile, registry, arquitetura</td>
+<td style="text-align: right;">16</td>
 </tr>
 <tr>
 <td style="text-align: left;">01:20</td>
-<td style="text-align: left;"><strong>28</strong></td>
-<td style="text-align: left;"><strong>Prática 2 — firewall, Docker, swap, SSH</strong></td>
-<td style="text-align: right;">30</td>
+<td style="text-align: left;"><strong>26</strong></td>
+<td style="text-align: left;"><strong>Prática 2: arquivos de deploy e o token</strong></td>
+<td style="text-align: right;">15</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>01:50</strong></td>
+<td style="text-align: left;"><strong>01:35</strong></td>
 <td style="text-align: left;">—</td>
 <td style="text-align: left;"><strong>Intervalo</strong></td>
 <td style="text-align: right;">10</td>
 </tr>
 <tr>
-<td style="text-align: left;">02:00</td>
-<td style="text-align: left;">29–34</td>
-<td style="text-align: left;">Docker: imagem, Dockerfile, registry, arquitetura</td>
-<td style="text-align: right;">16</td>
-</tr>
-<tr>
-<td style="text-align: left;">02:16</td>
-<td style="text-align: left;"><strong>35</strong></td>
-<td style="text-align: left;"><strong>Prática 3 — arquivos de deploy e o token</strong></td>
-<td style="text-align: right;">15</td>
-</tr>
-<tr>
-<td style="text-align: left;">02:31</td>
-<td style="text-align: left;">36–44</td>
+<td style="text-align: left;">01:45</td>
+<td style="text-align: left;">27–35</td>
 <td style="text-align: left;">Kamal: <code>deploy.yml</code>, accessory, segredos</td>
 <td style="text-align: right;">22</td>
 </tr>
 <tr>
-<td style="text-align: left;">02:53</td>
-<td style="text-align: left;"><strong>45</strong></td>
-<td style="text-align: left;"><strong>Prática 4 — o <code>.env</code></strong></td>
+<td style="text-align: left;">02:07</td>
+<td style="text-align: left;"><strong>36</strong></td>
+<td style="text-align: left;"><strong>Prática 3: o <code>.env</code></strong></td>
 <td style="text-align: right;">15</td>
 </tr>
 <tr>
-<td style="text-align: left;">03:08</td>
-<td style="text-align: left;">46–53</td>
+<td style="text-align: left;">02:22</td>
+<td style="text-align: left;">37–44</td>
 <td style="text-align: left;">TLS, certificado, CA, proxy reverso</td>
 <td style="text-align: right;">22</td>
 </tr>
 <tr>
-<td style="text-align: left;">03:30</td>
-<td style="text-align: left;"><strong>54</strong></td>
-<td style="text-align: left;"><strong>Prática 5 — certificado e <code>/etc/hosts</code></strong></td>
+<td style="text-align: left;">02:44</td>
+<td style="text-align: left;"><strong>45</strong></td>
+<td style="text-align: left;"><strong>Prática 4: certificado e <code>/etc/hosts</code></strong></td>
 <td style="text-align: right;">15</td>
 </tr>
 <tr>
-<td style="text-align: left;">03:45</td>
-<td style="text-align: left;">55–59</td>
+<td style="text-align: left;">02:59</td>
+<td style="text-align: left;">46–50</td>
 <td style="text-align: left;">CI, o primeiro deploy, operar, backup</td>
 <td style="text-align: right;">14</td>
 </tr>
 <tr>
-<td style="text-align: left;">03:59</td>
-<td style="text-align: left;"><strong>60–61</strong></td>
-<td style="text-align: left;"><strong>Práticas 6 e 7 — o deploy, e o certificado com os olhos</strong></td>
+<td style="text-align: left;">03:13</td>
+<td style="text-align: left;"><strong>51–52</strong></td>
+<td style="text-align: left;"><strong>Práticas 5 e 6: o deploy, e o certificado com os olhos</strong></td>
 <td style="text-align: right;">35</td>
 </tr>
 <tr>
-<td style="text-align: left;">04:34</td>
-<td style="text-align: left;">62–65</td>
-<td style="text-align: left;">A nuvem de verdade: demo</td>
+<td style="text-align: left;">03:48</td>
+<td style="text-align: left;">53–56</td>
+<td style="text-align: left;">Num servidor de verdade: demo</td>
 <td style="text-align: right;">15</td>
 </tr>
 <tr>
-<td style="text-align: left;">04:49</td>
-<td style="text-align: left;"><strong>66</strong></td>
-<td style="text-align: left;"><strong>Prática 8 — o sistema inteiro, e o backup</strong></td>
+<td style="text-align: left;">04:03</td>
+<td style="text-align: left;"><strong>57</strong></td>
+<td style="text-align: left;"><strong>Prática 7: o sistema inteiro, e o backup</strong></td>
 <td style="text-align: right;">20</td>
 </tr>
 <tr>
-<td style="text-align: left;">05:09</td>
-<td style="text-align: left;">67–71</td>
+<td style="text-align: left;">04:23</td>
+<td style="text-align: left;">58–62</td>
 <td style="text-align: left;">O que vocês fizeram, e agora, fim</td>
 <td style="text-align: right;">8</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Dá 5h17 com tudo</strong>, e é honesto dizer: esta aula tem duas horas de mão na massa que não dá para
-comprimir — o <code>apt</code>, o build da imagem e o download do Ubuntu levam o tempo que levam.</p>
+<p><strong>Dá 4h31.</strong> Caiu ~45 minutos em relação à versão com VM, e o que saiu foi exatamente o que não
+ensinava back-end: criar máquina, esperar download de imagem e configurar rede.</p>
 <p>Corte <strong>nesta ordem</strong>:</p>
 <table>
 <thead>
@@ -1840,45 +1796,40 @@ comprimir — o <code>apt</code>, o build da imagem e o download do Ubuntu levam
 <tbody>
 <tr>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;"><strong>Prática 8</strong> vira dever de casa (fluxo da Aula 3 em produção, e o backup)</td>
+<td style="text-align: left;"><strong>Prática 7</strong> vira dever de casa (fluxo da Aula 3 em produção, e o backup)</td>
 <td style="text-align: right;">−20</td>
 </tr>
 <tr>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">Slide 20 (<code>LINUX BÁSICO</code>, <code># CORTÁVEL</code>) se a turma já usa terminal</td>
-<td style="text-align: right;">−4</td>
-</tr>
-<tr>
-<td style="text-align: left;">3</td>
-<td style="text-align: left;">A demo de nuvem (62–65) encolhe para 6 min: só o slide 63 e o 64</td>
+<td style="text-align: left;">A demo de servidor de verdade (53–56) encolhe para 6 min: só os slides 54 e 55</td>
 <td style="text-align: right;">−9</td>
 </tr>
 <tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Slides 22–23 (Dockerfile e as duas decisões) ficam na apostila</td>
+<td style="text-align: right;">−8</td>
+</tr>
+<tr>
 <td style="text-align: left;">4</td>
-<td style="text-align: left;">Prática 2: dê o bloco do Docker num script pronto, para colarem</td>
-<td style="text-align: right;">−12</td>
+<td style="text-align: left;">Slides 34–35 (credentials × ENV, três camadas) ficam na apostila</td>
+<td style="text-align: right;">−8</td>
 </tr>
 <tr>
 <td style="text-align: left;">5</td>
-<td style="text-align: left;">Slides 31–32 (Dockerfile e as duas decisões) — ficam na apostila</td>
+<td style="text-align: left;">Prática 4: você gera um certificado e distribui; eles só fazem o <code>/etc/hosts</code></td>
 <td style="text-align: right;">−8</td>
 </tr>
 <tr>
 <td style="text-align: left;">6</td>
-<td style="text-align: left;">Prática 5: você gera um certificado e distribui; eles só fazem o <code>/etc/hosts</code></td>
-<td style="text-align: right;">−8</td>
-</tr>
-<tr>
-<td style="text-align: left;">7</td>
-<td style="text-align: left;">Slides 43–44 (credentials × ENV, três camadas) — ficam na apostila</td>
-<td style="text-align: right;">−8</td>
+<td style="text-align: left;">Prática 2: mande fazer o <code>rsync</code> e o PAT <strong>de casa</strong>, na véspera</td>
+<td style="text-align: right;">−12</td>
 </tr>
 </tbody>
 </table>
-<p>Cortando de 1 a 3, fecha em <strong>4h44</strong>. Cortando os sete, <strong>3h48</strong>.</p>
+<p>Cortando de 1 a 3, fecha em <strong>3h54</strong>. Cortando os seis, <strong>3h18</strong>.</p>
 <blockquote>
-<p><strong>Nunca corte as Práticas 6 e 7.</strong> Ver a API própria no ar e entender o aviso de certificado são
-os dois momentos que a turma leva embora.</p>
+<p><strong>Nunca corte as Práticas 5 e 6.</strong> Ver a própria API no ar e entender o aviso de certificado são os
+dois momentos que a turma leva embora.</p>
 </blockquote>
 <h3 id="onde-o-tempo-ainda-pode-escapar">Onde o tempo ainda pode escapar</h3>
 <table>
@@ -1891,141 +1842,133 @@ os dois momentos que a turma leva embora.</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">Windows sem rede para a VM</td>
-<td style="text-align: left;"><code>ssh</code> dá timeout no aluno do Windows</td>
-<td style="text-align: left;">Rode o <code>checar-servidor.sh</code> nele e aplique a correção que o script imprimir. Se não sair em 5 min, <strong>dupla, e siga</strong> — não debugue rede na frente da turma.</td>
+<td style="text-align: left;"><code>sshd</code> parado</td>
+<td style="text-align: left;"><code>Connection refused</code> na Prática 1</td>
+<td style="text-align: left;"><code>sudo service ssh start</code>. É uma linha, e é o erro mais comum do dia</td>
 </tr>
 <tr>
-<td style="text-align: left;">Download da imagem do Ubuntu</td>
-<td style="text-align: left;"><code>multipass launch</code> parado em "Retrieving image"</td>
-<td style="text-align: left;">Wi-Fi do local. Peça para começarem o launch <strong>no slide 11</strong>, antes da teoria de chaves.</td>
+<td style="text-align: left;">Permissão de chave</td>
+<td style="text-align: left;"><code>Permission denied (publickey)</code></td>
+<td style="text-align: left;"><code>chmod 700 ~/.ssh</code> e <code>chmod 600</code> na chave e no <code>authorized_keys</code></td>
 </tr>
 <tr>
-<td style="text-align: left;">Build da imagem Docker</td>
+<td style="text-align: left;">Build da imagem</td>
 <td style="text-align: left;"><code>kamal setup</code> demorando</td>
-<td style="text-align: left;">Normal: ~5 min no primeiro. Use o tempo para o slide de backup e para perguntas.</td>
+<td style="text-align: left;">Normal na primeira vez. Use o tempo para o slide de backup e para perguntas</td>
+</tr>
+<tr>
+<td style="text-align: left;">Arquitetura errada</td>
+<td style="text-align: left;"><code>exec format error</code> no container</td>
+<td style="text-align: left;"><code>uname -m</code>. Quem tem Mac com chip M precisa de <code>arm64</code></td>
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p><strong>Truque que devolve 10 minutos</strong>: mande rodar o <code>multipass launch</code> no slide 11 e deixe baixando
-<strong>enquanto você dá a teoria de chaves</strong> (13–14). Quando a teoria acabar, a VM está pronta.</p>
-</blockquote>
 <h3 id="plano-b-decidido-de-vespera">Plano B, decidido de véspera</h3>
-<p><strong>B1 — Cortar o TLS.</strong> Se às 03:08 a maioria ainda não deployou, tire <code>proxy.ssl</code> do <code>deploy.yml</code>,
-suba em HTTP puro no IP da VM, e faça o bloco de TLS todo projetado, no seu. <strong>Devolve ~20 min.</strong>
-Eles refazem em casa com a apostila.</p>
-<p><strong>B2 — Virar demo a partir do intervalo.</strong> Se às 01:50 não houver pelo menos metade da turma com VM
-respondendo ao SSH, pare de esperar. Projete o percurso do começo ao fim.
-<strong>Melhor todo mundo ver funcionando do que metade travar em rede.</strong></p>
+<p><strong>B1: cortar o TLS.</strong> Se às 02:22 a maioria ainda não deployou, tire <code>proxy.ssl</code> do <code>deploy.yml</code>,
+suba em HTTP puro, e faça o bloco de TLS todo projetado, no seu. <strong>Devolve ~20 min.</strong> Eles refazem
+em casa com a apostila.</p>
+<p><strong>B2: virar demo a partir do intervalo.</strong> Se às 01:35 não houver pelo menos metade da turma com o
+<code>SSH_OK</code> na tela, pare de esperar e projete o percurso do começo ao fim.</p>
 <hr>
 <h2 id="bloco-a-bloco_3">Bloco a bloco</h2>
-<h3 id="0006-o-servidor-410">00:06 · O servidor (4–10)</h3>
-<p>A frase que abre e fecha a aula está no slide 4, e vale repetir três vezes ao longo do dia:</p>
+<h3 id="0006-o-problema-e-as-opcoes-410">00:06 · O problema e as opções (4–10)</h3>
+<p>Comece pelo slide 5, que é a pergunta honesta: <strong><code>bin/rails server</code> funciona enquanto o terminal
+está aberto — e daí?</strong> As cinco necessidades listadas ali são a aula inteira, e nenhuma depende de
+onde a máquina está.</p>
+<p>O slide 9 é o que dá credibilidade: admita o custo. Uma máquina só é ponto único de falha, volume
+não é backup, o Postgres não é gerenciado.</p>
+<p>O <strong>10</strong> é o slide que define o dia:</p>
 <blockquote>
-<p><strong>Muda o IP e a conta no fim do mês. Não muda o que você faz.</strong></p>
+<p><em>"O Kamal não sabe onde a máquina está. Ele conecta por SSH e roda <code>docker</code> do outro lado. Se o
+endereço for 127.0.0.1, ele conecta na de vocês."</em></p>
 </blockquote>
-<p>O slide 6 responde a pergunta que alguém vai fazer antes de você chegar nela ("por que não roda no
-meu Ubuntu mesmo?"): porque servidor tem que ser descartável, e porque container não tem usuário,
-firewall, <code>systemd</code> nem <code>sshd</code> — que é metade da aula.</p>
-<p>O slide 10 é o que dá credibilidade: admita o custo. Uma VM é ponto único de falha, volume não é
-backup, o Postgres não é gerenciado.</p>
-<h3 id="0022-a-maquina-1117-e-a-pratica-1-18">00:22 · A máquina (11–17), e a Prática 1 (18)</h3>
-<p><strong>Primeira coisa, antes de qualquer slide deste bloco</strong>: mande todo mundo rodar o <code>multipass launch</code>
-(slide 17, projete-o já). Deixe baixando. Depois volte ao 10 e dê a teoria.</p>
+<p><strong>Diga com todas as letras que não é faz de conta.</strong> Alguém vai desconfiar, e com razão: é a mesma
+conexão SSH, o mesmo <code>deploy.yml</code>, os mesmos comandos. O que um servidor alugado acrescenta são duas
+linhas do <code>.env</code> e o trabalho de provisionar a máquina, que está no apêndice.</p>
+<h3 id="0024-chaves-e-ssh-1118">00:24 · Chaves e SSH (11–18)</h3>
 <ul>
+<li><strong>12</strong> — o Kamal precisa de duas coisas, e uma delas eles já têm. Isso desarma a sensação de que
+  hoje é tudo novo.</li>
 <li><strong>13–14</strong> — chave pública e privada. É o conceito que também explica o JWT da Aula 3 e o TLS que
   vem daqui a pouco. <strong>Não pule</strong>, mesmo com a turma ansiosa para digitar.</li>
-<li><strong>15</strong> — o <code>chmod 600</code>. Diga que o SSH <strong>recusa</strong> usar chave com permissão frouxa, e que é a
-  primeira coisa a conferir quando der <code>Permission denied (publickey)</code>.</li>
-<li><strong>16</strong> — <code>cloud-init</code>. Vale uma frase: <em>"isto não é coisa do Multipass. É o mesmo arquivo que a
-  Azure, a AWS e a DigitalOcean leem quando criam uma máquina."</em></li>
+<li><strong>15</strong> — instalar o <code>sshd</code>. <strong>Avise aqui, antes de alguém apanhar</strong>: no WSL2 ele não sobe sozinho
+  no boot.</li>
+<li><strong>16</strong> — autorizar a si mesmo. Vale a pausa: <em>"isto é literalmente o que vocês fariam num servidor
+  alugado. A mesma chave, o mesmo arquivo, o mesmo comando. Muda o endereço."</em></li>
+<li><strong>17</strong> — o <code>chmod 600</code>. Diga que o SSH <strong>recusa</strong> chave com permissão frouxa, e que é a primeira
+  coisa a conferir no <code>Permission denied (publickey)</code>.</li>
 </ul>
 <blockquote>
-<p>⚠️ <strong>Ponto de decisão às 00:56</strong>: se menos da metade conectou por SSH, aplique o plano B2.</p>
+<p>⚠️ <strong>Ponto de decisão às 01:04</strong>: se menos da metade tiver o <code>SSH_OK</code>, resolva junto antes de
+seguir. Sem isso, nada depois acontece.</p>
 </blockquote>
-<h3 id="0056-ubuntu-1927-e-a-pratica-2-28">00:56 · Ubuntu (19–27), e a Prática 2 (28)</h3>
-<ul>
-<li><strong>21–22</strong> — o firewall. O slide 22 é o mais importante do bloco, e o mais desconfortável: <strong>diga
-  que o <code>ufw</code> não está protegendo eles de nada hoje.</strong> Turma percebe quando a gente finge que um
-  exercício é uma proteção, e a honestidade aqui compra atenção para o resto.</li>
-<li><strong>24</strong> — variável de ambiente. É o conceito que sustenta o <code>env.clear</code>/<code>env.secret</code> do Kamal.</li>
-<li><strong>26</strong> — swap. Explique o OOM killer. Reconheça que com 2 GiB provavelmente não vai precisar hoje,
-  e que a VPS de US$5 tem 1 GiB e vai.</li>
-<li><strong>27</strong> — endurecer o SSH. <strong>Fale isto em voz alta</strong>: <em>"mantenham a sessão atual aberta e testem em
-  outro terminal."</em> E logo depois: <em>"aqui vocês têm o <code>multipass shell</code> como rede de segurança.
-  Numa máquina alugada, essa porta não existe — por isso o hábito é agora."</em></li>
-</ul>
-<h3 id="0200-docker-2934-e-a-pratica-3-35">02:00 · Docker (29–34), e a Prática 3 (35)</h3>
+<h3 id="0104-docker-2025">01:04 · Docker (20–25)</h3>
 <p>Conceitual e rápido. Imagem é receita, container é bolo.</p>
-<p>No <strong>32</strong>, as duas decisões: multi-stage (compilador não vai para produção) e usuário não-root (<em>"é
+<p>No <strong>23</strong>, as duas decisões: multi-stage (compilador não vai para produção) e usuário não-root (<em>"é
 uma linha que muda o tamanho do estrago"</em>).</p>
-<p>O <strong>33</strong> explica por que a imagem sobe para o ghcr.io em vez de ir direto para a VM ao lado: porque
-é o que aconteceria com uma VPS do outro lado do mundo, e é o que faz o mesmo <code>deploy.yml</code> servir
-nos dois casos. Sem isso, alguém vai perguntar — com razão.</p>
-<p>O <strong>34</strong> é operacional: PAT com <code>write:packages</code>, e a arquitetura. <strong>Circule pela sala neste slide</strong>:
-quem tem Mac com chip M precisa de <code>arm64</code>, e quem errar isso só descobre no meio do <code>kamal setup</code>,
-com uma mensagem que não diz "arquitetura".</p>
-<h3 id="0231-kamal-3644-e-a-pratica-4-45">02:31 · Kamal (36–44), e a Prática 4 (45)</h3>
+<p>O <strong>24</strong> explica por que a imagem sobe para o ghcr.io se quem builda e quem roda são a mesma
+máquina. <strong>Alguém vai perguntar, e a pergunta é boa.</strong> A resposta: é o que aconteceria com um
+servidor do outro lado do mundo, e é o que faz o mesmo <code>deploy.yml</code> servir nos dois casos sem mudar
+uma linha.</p>
+<p>O <strong>25</strong> é operacional: PAT com <code>write:packages</code>, e a arquitetura. <strong>Circule pela sala aqui</strong>: quem
+tem Mac com chip M precisa de <code>arm64</code>, e quem errar isso só descobre no meio do <code>kamal setup</code>, com
+uma mensagem que não diz "arquitetura".</p>
+<h3 id="0145-kamal-2735">01:45 · Kamal (27–35)</h3>
 <p>Abra o <code>config/deploy.yml</code> projetado e percorra junto com os slides.</p>
-<p>O slide 40 (<code>clear</code> × <code>secret</code>) tem o argumento concreto: <code>JWT_SECRET</code> no <code>clear</code> apareceria em
+<p>O slide 30 (<code>clear</code> × <code>secret</code>) tem o argumento concreto: <code>JWT_SECRET</code> no <code>clear</code> apareceria em
 <code>docker inspect</code> e no histórico do shell. Se der, mostre um <code>docker inspect</code> de verdade.</p>
-<p>O <strong>43</strong> (três camadas de segredo) é o slide que amarra tudo. Deixe na tela enquanto explica, e diga
+<p>O <strong>34</strong> (três camadas de segredo) é o slide que amarra tudo. Deixe na tela enquanto explica, e diga
 a linha que conecta com o apêndice: <em>"quando isso virar um pipeline, só a primeira camada muda."</em></p>
-<p>No <strong>44</strong>, pare no <code>.env</code>: <strong><code>git status</code> não pode mostrar esse arquivo.</strong> Mande todo mundo rodar,
+<p>No <strong>35</strong>, pare no <code>.env</code>: <strong><code>git status</code> não pode mostrar esse arquivo.</strong> Mande todo mundo rodar,
 ali, na frente de você.</p>
-<h3 id="0308-tls-4653-e-as-praticas-5-a-7-54-6061">03:08 · TLS (46–53), e as Práticas 5 a 7 (54, 60–61)</h3>
-<p>O melhor bloco da aula nova. Antes era teoria sobre Cloudflare; agora eles veem acontecer.</p>
+<h3 id="0222-tls-3744">02:22 · TLS (37–44)</h3>
+<p>O melhor bloco da aula.</p>
 <ul>
-<li><strong>46–49</strong> — HTTPS é HTTP num túnel; handshake em três passos; certificado e cadeia de confiança.</li>
-<li><strong>49</strong> é a virada: <em>"para uma CA pública assinar, você tem que </em><em>provar</em><em> que o domínio é seu. E
-  vocês não têm domínio nenhum apontando para essa VM."</em> É daí que sai o autoassinado, como
-  consequência, e não como gambiarra.</li>
-<li><strong>52</strong> — <code>.test</code> e <code>/etc/hosts</code>. Vale a curiosidade: <code>.test</code> é reservado por RFC exatamente para
+<li><strong>38–41</strong> — HTTPS é HTTP num túnel; handshake em três passos; certificado e cadeia de confiança.</li>
+<li><strong>41</strong> é a virada: <em>"para uma CA pública assinar, você tem que </em><em>provar</em><em> que o domínio é seu. E
+  vocês não têm domínio nenhum."</em> É daí que sai o autoassinado, como consequência e não como
+  gambiarra.</li>
+<li><strong>43</strong> — <code>.test</code> e <code>/etc/hosts</code>. Vale a curiosidade: <code>.test</code> é reservado por RFC exatamente para
   isso, e ninguém consegue registrar.</li>
-<li><strong>53</strong> — <strong>o slide da aula.</strong> Não passe rápido. Os três <code>curl</code> respondem, um a um, o que TLS é e o
-  que CA é:</li>
+<li><strong>44</strong> — <strong>o slide da aula.</strong> Não passe rápido.</li>
 </ul>
+<h3 id="0313-o-deploy-e-o-certificado-5152">03:13 · O deploy, e o certificado (51–52)</h3>
+<pre><code class="language-bash">source .env &amp;&amp; bundle exec kamal config
+</code></pre>
+<p>Valida sem tocar em nada. <strong>Faça isso antes</strong>: pega variável faltando de graça.</p>
+<p>Depois <code>kamal setup</code>. Use a espera do build para o slide de backup e para perguntas.</p>
+<p>E então, o momento da aula. Diga o que está na frente deles, porque nem todo mundo percebe sozinho:</p>
+<blockquote>
+<p><em>"O código de vocês está rodando dentro de um container, em modo produção, atrás de um proxy que
+termina TLS, com um Postgres que tem volume. Vocês não estão mais rodando <code>bin/rails server</code>."</em></p>
+</blockquote>
+<p>Na Prática 6, os três <code>curl</code> respondem, um a um, o que TLS é e o que CA é:</p>
 <pre><code class="language-bash">curl  https://seunome.test/...              # falha: self signed certificate
 curl -k https://seunome.test/...            # funciona, sem conferir nada
 curl --cacert tls/capacita-cert.pem ...     # funciona, CONFERINDO
 </code></pre>
-<p>A frase que fixa: <em>"o <code>-k</code> desliga a conferência. O <code>--cacert</code> não desliga nada — ele diz em quem
-confiar. Uma CA é isso, e só isso: alguém em quem o seu sistema já decidiu confiar, de fábrica."</em></p>
+<p>A frase que fixa: <em>"o <code>-k</code> desliga a conferência. O <code>--cacert</code> não desliga nada, ele diz em quem
+confiar. Uma CA é isso e só isso: alguém em quem o seu sistema já decidiu confiar, de fábrica."</em></p>
 <p>Depois abra no navegador e leia o aviso vermelho junto com eles. <strong>É o mesmo fato, dito para um
 humano.</strong></p>
-<h3 id="0345-ci-deploy-e-operacao-5559">03:45 · CI, deploy e operação (55–59)</h3>
-<pre><code class="language-bash">source .env &amp;&amp; bundle exec kamal config
-</code></pre>
-<p>Valida sem tocar em nada. <strong>Faça isso antes</strong> — pega variável faltando de graça.</p>
-<p>Depois <code>kamal setup</code>. Demora ~5 minutos no primeiro build. Use o tempo para o slide de backup (59) e
-para perguntas.</p>
-<p>E então, o momento da aula:</p>
-<pre><code class="language-bash">curl --cacert tls/capacita-cert.pem https://seunome.test/api/v1/status
-</code></pre>
-<p>Diga o que está na frente deles, porque nem todo mundo percebe sozinho: <em>"o código de vocês está
-rodando num container, dentro de um Ubuntu que vocês provisionaram, atrás de um proxy TLS, com um
-Postgres com volume. Isto é produção. Só falta o IP ser público."</em></p>
-<h3 id="0434-a-nuvem-demo-6265">04:34 · A nuvem, demo (62–65)</h3>
+<h3 id="0348-num-servidor-de-verdade-demo-5356">03:48 · Num servidor de verdade, demo (53–56)</h3>
 <p><strong>Quinze minutos, projetado, sem ninguém acompanhando no teclado.</strong> Diga isso antes de começar, ou
 metade da turma vai tentar criar conta na Azure e perder o fim da aula.</p>
-<p>Percorra: portal → VM → NSG com a 22 só para o seu IP → DNS no Cloudflare → Origin CA → OIDC. Não
-detalhe nenhum; o que você quer é que reconheçam as peças e saibam que o passo a passo existe.</p>
-<p>O slide 64 (a sequência do deploy automático) é o único que merece um minuto inteiro: abrir a 22,
-deployar, e <strong>fechar mesmo se falhar</strong>.</p>
-<p>E o 65, o OIDC: <em>"em vez de guardar uma senha que vale meses, o GitHub prova quem é a cada
-execução."</em></p>
+<p>O slide 54 é o que importa: no <code>.env</code>, <strong>duas linhas</strong>. O resto do trabalho é provisionar a máquina,
+e é isso que você percorre no portal: VM → usuário → <code>apt upgrade</code> → Docker → firewall → <code>sshd</code>
+endurecido → DNS → certificado → OIDC.</p>
+<p>Não detalhe nenhum. O que você quer é que reconheçam as peças e saibam que o passo a passo existe.</p>
 <p>Feche apontando o apêndice: <strong><code>docs/apendice-azure.md</code>, e a Azure for Students dá US$100 sem
-cartão.</strong> Quem quiser, faz em casa e me chama.</p>
-<h3 id="0449-pratica-8-e-fecho-6671">04:49 · Prática 8 e fecho (66–71)</h3>
-<p>O slide 68 (<code>O QUE O SEEM-BACKEND TEM A MAIS</code>) é o convite: <em>"nada disso é difícil depois do que
+cartão.</strong></p>
+<h3 id="0423-pratica-7-e-fecho-5762">04:23 · Prática 7 e fecho (57–62)</h3>
+<p>O slide 59 (<code>O QUE O SEEM-BACKEND TEM A MAIS</code>) é o convite: <em>"nada disso é difícil depois do que
 vocês viram hoje. O código está lá, e agora vocês conseguem ler."</em></p>
-<p>E então <strong>reserve cinco minutos de verdade para os slides 69 e 70.</strong> Não corra.</p>
-<p>O <strong>69</strong> (<code>O QUE VOCÊS FIZERAM</code>) é a lista do que eles construíram, e existe porque quem fez
-raramente percebe o tamanho: o esforço esconde a conquista. Leia devagar, olhando para eles.</p>
-<p>O <strong>70</strong> (<code>E AGORA?</code>) deixa o canal aberto. Diga em voz alta que dúvida daqui a três semanas ainda é
-dúvida — a pergunta que chega depois costuma ser a mais importante da capacitação inteira, porque é
-a primeira que veio de um problema real deles.</p>
+<p>E então <strong>reserve cinco minutos de verdade para os slides 60 e 61.</strong> Não corra.</p>
+<p>O <strong>60</strong> (<code>O QUE VOCÊS FIZERAM</code>) é a lista do que construíram, e existe porque quem fez raramente
+percebe o tamanho: o esforço esconde a conquista. Leia devagar, olhando para eles.</p>
+<p>O <strong>61</strong> (<code>E AGORA?</code>) deixa o canal aberto. Diga em voz alta que dúvida daqui a três semanas ainda é
+dúvida: a pergunta que chega depois costuma ser a mais importante da capacitação inteira, porque é a
+primeira que veio de um problema real deles.</p>
 <hr>
 <h2 id="perguntas-que-vao-aparecer_3">Perguntas que vão aparecer</h2>
 <table>
@@ -2037,52 +1980,48 @@ a primeira que veio de um problema real deles.</p>
 </thead>
 <tbody>
 <tr>
-<td>"Isso não é 'de verdade', é só no meu computador."</td>
-<td>É de verdade: é o mesmo Ubuntu, o mesmo Docker, o mesmo Kamal e o mesmo <code>deploy.yml</code>. O que falta é o IP ser público — e é uma variável no <code>.env</code>.</td>
+<td>"Isso não é 'de verdade', é só na minha máquina."</td>
+<td>É de verdade: é o mesmo Docker, o mesmo Kamal, o mesmo <code>deploy.yml</code>, a mesma conexão SSH. O que falta é o IP ser público, e são duas linhas no <code>.env</code>.</td>
 </tr>
 <tr>
 <td>"Então por que não usar a nuvem direto?"</td>
-<td>Porque metade da aula viraria espera de portal e cota, e nada disso é back-end. O apêndice tem o caminho, e vocês já vão saber operar a máquina quando chegarem lá.</td>
+<td>Porque metade da aula viraria espera de portal e de cota, e nada disso é back-end. O apêndice tem o caminho, e vocês já vão saber operar quando chegarem lá.</td>
+</tr>
+<tr>
+<td>"Por que a imagem vai para o GitHub se roda aqui mesmo?"</td>
+<td>Porque é o que aconteceria com um servidor remoto, e é o que faz o mesmo arquivo servir nos dois casos. Também é o que te dá versão e rollback de graça.</td>
 </tr>
 <tr>
 <td>"Por que não Heroku/Render/Vercel? É mais fácil."</td>
-<td>É mesmo, e para muita coisa é a escolha certa. Aqui o objetivo é vocês entenderem o que essas plataformas fazem por vocês — e o custo delas cresce rápido.</td>
+<td>É mesmo, e para muita coisa é a escolha certa. Aqui o objetivo é entender o que essas plataformas fazem por vocês, e o custo delas cresce rápido.</td>
 </tr>
 <tr>
-<td>"Por que não rodar só com Docker Compose no meu Ubuntu?"</td>
-<td>Compose sobe container. Não resolve máquina descartável, usuário, firewall, <code>sshd</code>, build remoto, zero-downtime, rollback nem segredo.</td>
-</tr>
-<tr>
-<td>"E se a VM cair?"</td>
-<td>Cai o sistema. É o custo declarado desta arquitetura. Com backup, você sobe outra em 20 min — e aqui, em 2.</td>
-</tr>
-<tr>
-<td>"Por que o banco não é gerenciado?"</td>
-<td>Custo. Um Postgres gerenciado custa mais que a VM inteira. Para 500 usuários numa semana, não se paga.</td>
+<td>"Por que não rodar só com Docker Compose?"</td>
+<td>Compose sobe container. Não resolve registry, build versionado, zero-downtime, rollback nem gestão de segredo. É o que o Kamal acrescenta.</td>
 </tr>
 <tr>
 <td>"Meu navegador diz que o site não é seguro."</td>
-<td>E está certo. O certificado é seu, assinado por você. É o slide 48 — e é a diferença entre criptografia e confiança.</td>
+<td>E está certo: o certificado é seu, assinado por você. É a Prática 6, e é a diferença entre criptografia e confiança.</td>
+</tr>
+<tr>
+<td>"E se eu quiser desligar isso depois?"</td>
+<td><code>kamal app stop</code> e <code>kamal accessory stop db</code>. Para apagar de vez, <code>kamal remove</code>.</td>
 </tr>
 <tr>
 <td>"Posso usar isso num projeto meu?"</td>
 <td>Pode, e é a intenção. Troque o nome do serviço, o host e os segredos. O resto é igual.</td>
-</tr>
-<tr>
-<td>"Preciso pagar por um domínio?"</td>
-<td>Só quando for para a internet. ~R$15/ano, ou grátis pelo GitHub Student Pack.</td>
 </tr>
 </tbody>
 </table>
 <h2 id="depois-da-capacitacao">Depois da capacitação</h2>
 <p>Mande no grupo:</p>
 <ol>
-<li><code>multipass stop servidor</code> quando não estiverem usando — a VM parada não come RAM do notebook.</li>
-<li><strong><code>apendice-azure.md</code></strong>, com o link da Azure for Students, para quem quiser o
-   IP público e o deploy automático.</li>
+<li><code>kamal app stop</code> e <code>kamal accessory stop db</code> para quem não quiser os containers rodando.</li>
+<li><strong><code>apendice-azure.md</code></strong>, com o link da Azure for Students, para quem quiser o IP
+   público e o deploy automático.</li>
 <li>O link do <a href="https://github.com/fabriciosiqueira08/seem-backend"><code>seem-backend</code></a>, com o convite do
-   slide 68.</li>
-<li><code>docs/troubleshooting.md</code> — é o que eles vão abrir quando algo quebrar sem você por perto.</li>
+   slide 59.</li>
+<li><code>docs/troubleshooting.md</code>, que é o que eles vão abrir quando algo quebrar sem você por perto.</li>
 </ol>
 </main></body>
 </html>

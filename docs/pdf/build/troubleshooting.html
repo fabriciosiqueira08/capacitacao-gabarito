@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Troubleshooting</title>
 <link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
-<style>@page { @bottom-left { content: "Capacitação Back-end · Automic Jr."; } }</style>
+<style>@page { @bottom-left { content: "Capacitação Back-end · Fabrício Siqueira · Automic Jr. · 2026"; } }</style>
 </head>
 <body><main>
 <h1 id="troubleshooting">Troubleshooting</h1>
@@ -105,77 +105,51 @@ ele deve passar. Se ficar vermelho, abra o log em <strong>Actions</strong> e vej
 gh auth login      # se não estiver
 </code></pre>
 <hr>
-<h2 id="a-vm-do-multipass">A VM do Multipass</h2>
-<h3 id="o-wsl2-nao-alcanca-a-vm-do-multipass">O WSL2 não alcança a VM do Multipass</h3>
-<p>O sintoma: <code>multipass info</code> mostra o IP, mas de dentro do WSL2 o <code>ping</code> e o <code>ssh</code> dão timeout.</p>
-<p>O Multipass roda no Windows e o WSL2 é outra máquina virtual. Por padrão, uma não enxerga a outra.</p>
-<p>Rode o diagnóstico. Ele identifica o caso e imprime a saída:</p>
-<pre><code class="language-bash">./scripts/checar-servidor.sh &lt;IP-da-VM&gt;
+<h2 id="o-ssh-da-sua-maquina">O SSH da sua máquina</h2>
+<p>Na Aula 4 o servidor é a sua própria máquina, e o Kamal chega nela por SSH.</p>
+<h3 id="connection-refused-na-porta-22"><code>Connection refused</code> na porta 22</h3>
+<p>O <code>sshd</code> não está rodando.</p>
+<pre><code class="language-bash">sudo service ssh start          # Ubuntu, Debian, WSL2
+sudo systemctl start sshd       # Fedora
 </code></pre>
-<p><strong>Saída 1: rede espelhada</strong> (Windows 11 22H2+). Crie ou edite
-<code>C:\Users\&lt;seu-usuario&gt;\.wslconfig</code>:</p>
-<pre><code>[wsl2]
-networkingMode=mirrored
+<p>No macOS, ligue em <strong>Ajustes do Sistema → Geral → Compartilhamento → Sessão remota</strong>.</p>
+<p>Confira que ele está escutando:</p>
+<pre><code class="language-bash">ss -tlnp | grep :22       # Linux e WSL2
+sudo lsof -i :22          # macOS
 </code></pre>
-<p>E no PowerShell: <code>wsl --shutdown</code>.</p>
-<p><strong>Saída 2: encaminhamento de porta</strong> (qualquer Windows, inclusive o 10). O Windows leva o tráfego
-até a VM. No PowerShell <strong>como administrador</strong>:</p>
-<pre><code class="language-powershell">$vm = &quot;SEU_IP_DA_VM&quot;
-netsh interface portproxy add v4tov4 listenport=2222 listenaddress=0.0.0.0 connectport=22  connectaddress=$vm
-netsh interface portproxy add v4tov4 listenport=443  listenaddress=0.0.0.0 connectport=443 connectaddress=$vm
-netsh interface portproxy add v4tov4 listenport=80   listenaddress=0.0.0.0 connectport=80  connectaddress=$vm
-New-NetFirewallRule -DisplayName &quot;Capacita VM&quot; -Direction Inbound `
-  -Action Allow -Protocol TCP -LocalPort 2222,443,80
+<h3 id="funcionava-reiniciei-o-windows-e-parou">Funcionava, reiniciei o Windows, e parou</h3>
+<p>É o WSL2: sem o systemd habilitado, ele não sobe o <code>sshd</code> no boot.</p>
+<pre><code class="language-bash">sudo service ssh start
 </code></pre>
-<p>No WSL2, o endereço da VM passa a ser o do Windows, e o SSH muda de porta:</p>
-<pre><code class="language-bash">ip route show default | awk '{print $3}'    # este vira o SERVER_IP e a linha do /etc/hosts
-echo 'export SSH_PORT=2222' &gt;&gt; .env
+<p>Para não repetir isso toda vez, habilite o systemd em <code>/etc/wsl.conf</code>:</p>
+<pre><code>[boot]
+systemd=true
 </code></pre>
-<p>O <code>deploy.yml</code> já lê <code>SSH_PORT</code>, então o Kamal funciona sem mais nenhuma mudança. Os comandos <code>ssh</code>
-da apostila precisam de <code>-p 2222</code>.</p>
-<blockquote>
-<p>O endereço do Windows muda a cada <code>wsl --shutdown</code>. Quando o SSH parar de conectar do nada, é
-isso.</p>
-</blockquote>
-<h3 id="netsh-portproxy-configurado-mas-ainda-nao-conecta"><code>netsh portproxy</code> configurado, mas ainda não conecta</h3>
-<p>Confira, no PowerShell:</p>
-<pre><code class="language-powershell">netsh interface portproxy show all      # as três linhas estão lá?
-</code></pre>
-<p>Se estiverem e ainda assim não passa, é o firewall do Windows: a regra
-<code>New-NetFirewallRule</code> acima precisa existir. E lembre que o <code>connectaddress</code> é o IP <strong>da VM</strong>, que
-muda depois de um <code>multipass stop</code>/<code>start</code>. Nesse caso, apague e recrie:</p>
-<pre><code class="language-powershell">netsh interface portproxy reset
-</code></pre>
-<h3 id="multipass-launch-falha-com-erro-de-virtualizacao"><code>multipass launch</code> falha com erro de virtualização</h3>
-<p>Virtualização desabilitada na BIOS/UEFI. Procure por <code>VT-x</code> (Intel), <code>AMD-V</code> ou <code>SVM</code> e ligue.</p>
-<p>No Windows, confira também se o Hyper-V está habilitado (Recursos do Windows → Plataforma do
-Hipervisor do Windows).</p>
-<h3 id="multipass-launch-parado-em-retrieving-image"><code>multipass launch</code> parado em "Retrieving image"</h3>
-<p>Ele está baixando ~500 MB. Numa rede lenta demora. Se travar de vez:</p>
-<pre><code class="language-bash">multipass delete servidor &amp;&amp; multipass purge
-multipass launch 24.04 --name servidor --cloud-init cloud-init.yaml
-</code></pre>
-<h3 id="o-ip-da-vm-mudou">O IP da VM mudou</h3>
-<p>Acontece depois de um <code>multipass stop</code> / <code>start</code>, ou de reiniciar o notebook.</p>
-<pre><code class="language-bash">multipass info servidor
-</code></pre>
-<p>Atualize em <strong>dois</strong> lugares: <code>SERVER_IP</code> no <code>.env</code> e a linha do <code>/etc/hosts</code>.</p>
+<p>E depois, no PowerShell: <code>wsl --shutdown</code>.</p>
 <h3 id="permission-denied-publickey"><code>Permission denied (publickey)</code></h3>
-<pre><code class="language-bash">chmod 600 ~/.ssh/capacita
-ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes ubuntu@SEU_IP
+<pre><code class="language-bash">chmod 700 ~/.ssh
+chmod 600 ~/.ssh/capacita ~/.ssh/authorized_keys
+ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes &quot;$USER&quot;@127.0.0.1
 </code></pre>
-<p>O <code>IdentitiesOnly=yes</code> importa: sem ele o SSH tenta todas as chaves do agente, o servidor recusa
-depois de algumas e você leva <code>Too many authentication failures</code> com a chave certa na mão.</p>
-<p>Se persistir, a chave pública não entrou na VM. Confira o <code>cloud-init.yaml</code>: ele tem que ter o
-conteúdo de <code>~/.ssh/capacita.pub</code>, e não o caminho do arquivo.</p>
-<pre><code class="language-bash">multipass exec servidor -- cat /home/ubuntu/.ssh/authorized_keys
+<p>O SSH <strong>recusa</strong> usar chave com permissão frouxa, e recusa <code>authorized_keys</code> que outros possam
+escrever. Se persistir, confira que a chave pública realmente entrou:</p>
+<pre><code class="language-bash">cat ~/.ssh/authorized_keys
 </code></pre>
-<h3 id="perdi-o-acesso-depois-de-mexer-no-sshd">Perdi o acesso depois de mexer no sshd</h3>
-<p>Se você seguiu o guia, tinha uma sessão aberta. Desfaça por ela. Se não:</p>
-<pre><code class="language-bash">multipass shell servidor
+<h3 id="too-many-authentication-failures"><code>Too many authentication failures</code></h3>
+<p>O SSH ofereceu todas as chaves do seu agente e o servidor cortou antes de chegar na certa.</p>
+<pre><code class="language-bash">ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes &quot;$USER&quot;@127.0.0.1
 </code></pre>
-<p>Ele entra sem passar pelo <code>sshd</code>. <strong>Numa VPS essa porta não existe</strong>: por isso o guia insiste em
-<code>sudo sshd -t</code> antes do <code>reload</code>, e em testar num segundo terminal.</p>
+<h3 id="host-key-verification-failed"><code>Host key verification failed</code></h3>
+<p>A chave do host mudou (reinstalou o <code>sshd</code>, ou trocou de máquina).</p>
+<pre><code class="language-bash">ssh-keygen -R 127.0.0.1
+</code></pre>
+<h3 id="docker-command-not-found-so-pela-ssh"><code>docker: command not found</code> só pela SSH</h3>
+<p>Uma sessão SSH não interativa carrega um <code>PATH</code> menor que o seu terminal. Confira:</p>
+<pre><code class="language-bash">ssh -i ~/.ssh/capacita &quot;$USER&quot;@127.0.0.1 'which -a docker'
+</code></pre>
+<p>Se não achar, o Docker foi instalado de um jeito que só existe no seu shell interativo (Docker
+Desktop com integração WSL, por exemplo). Instale o pacote do sistema, ou acrescente o caminho ao
+<code>~/.profile</code> do usuário.</p>
 <hr>
 <h2 id="deploy">Deploy</h2>
 <h3 id="kamal-config-reclama-de-variavel-faltando"><code>kamal config</code> reclama de variável faltando</h3>

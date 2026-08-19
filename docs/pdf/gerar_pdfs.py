@@ -20,28 +20,33 @@ import markdown
 DOCS = Path(__file__).resolve().parent.parent
 BUILD = DOCS / "pdf" / "build"
 CSS = DOCS / "pdf" / "estilo.css"
+LOGO = DOCS / "pdf" / "assets" / "automic-logo-branca.png"
+
+AUTOR = "Fabrício Siqueira"
+ANO = "2026"
 
 # O que a turma recebe, na ordem em que faz sentido ler.
 ALUNOS = [
     ("00-preparacao.md", "Preparação"),
-    ("01-fundamentos.md", "Aula 1 — Back-end, Ruby e o primeiro Rails"),
-    ("02-activerecord.md", "Aula 2 — Banco, ActiveRecord e o model User"),
-    ("03-autenticacao.md", "Aula 3 — As rotas de autenticação"),
-    ("04-deploy.md", "Aula 4 — Servidor, Docker, Kamal e deploy"),
-    ("apendice-azure.md", "Apêndice — o mesmo servidor, na nuvem"),
+    ("01-fundamentos.md", "Aula 1: back-end, Ruby e o primeiro Rails"),
+    ("02-activerecord.md", "Aula 2: banco, ActiveRecord e o model User"),
+    ("03-autenticacao.md", "Aula 3: as rotas de autenticação"),
+    ("04-deploy.md", "Aula 4: servidor, Docker, Kamal e deploy"),
+    ("apendice-azure.md", "Apêndice: o mesmo deploy, numa máquina alugada"),
     ("ruby-para-pythonistas.md", "Ruby para quem sabe Python"),
+    ("versoes.md", "As versões que usamos"),
     ("glossario.md", "Glossário"),
     ("troubleshooting.md", "Troubleshooting"),
 ]
 
 # O que é só de quem apresenta.
 INSTRUTOR = [
-    ("guia-do-instrutor.md", "Guia do instrutor — conduzir, não apresentar"),
-    ("roteiro-de-tempo.md", "Roteiros — índice"),
-    ("roteiro-aula-01.md", "Roteiro — Aula 1"),
-    ("roteiro-aula-02.md", "Roteiro — Aula 2"),
-    ("roteiro-aula-03.md", "Roteiro — Aula 3"),
-    ("roteiro-aula-04.md", "Roteiro — Aula 4"),
+    ("guia-do-instrutor.md", "Guia do instrutor: conduzir, não apresentar"),
+    ("roteiro-de-tempo.md", "Roteiros: o índice"),
+    ("roteiro-aula-01.md", "Roteiro da Aula 1"),
+    ("roteiro-aula-02.md", "Roteiro da Aula 2"),
+    ("roteiro-aula-03.md", "Roteiro da Aula 3"),
+    ("roteiro-aula-04.md", "Roteiro da Aula 4"),
 ]
 
 EXTENSOES = ["extra", "sane_lists", "toc", "admonition"]
@@ -65,6 +70,22 @@ def para_html(md_texto, titulo, rodape):
 {corpo}
 </main></body>
 </html>
+"""
+
+
+def monta_capa(titulo, resumo):
+    """A capa do documento combinado: logo, título, e a assinatura no rodapé."""
+    return f"""<div class="capa">
+  <img class="capa-logo" src="{LOGO.as_uri()}" alt="Automic">
+  <p class="selo">Capacitação Back-end</p>
+  <h1>{titulo}</h1>
+  <hr class="linha">
+  <p class="resumo">{resumo}</p>
+  <div class="assina">
+    <p>{AUTOR}</p>
+    <p class="meta">Automic Jr. · {ANO}</p>
+  </div>
+</div>
 """
 
 
@@ -113,7 +134,7 @@ def _imprimir_com_chrome(html_path, pdf_path):
     )
 
 
-def gerar(arquivos, rodape, combinado=None, titulo_combinado=None):
+def gerar(arquivos, rodape, combinado=None, titulo_combinado=None, resumo_combinado=""):
     BUILD.mkdir(parents=True, exist_ok=True)
     partes = []
 
@@ -131,10 +152,9 @@ def gerar(arquivos, rodape, combinado=None, titulo_combinado=None):
     if combinado:
         # Capa, sumário, e cada documento começando em página nova.
         capa = (
-            f"<div class='capa'><h1>{titulo_combinado}</h1>"
-            f"<p>Automic Jr. · quatro encontros</p></div>\n"
+            monta_capa(titulo_combinado, resumo_combinado)
             # HTML cru, e não "## Sumário", para o próprio título não entrar no sumário.
-            "<div class='quebra'></div>\n<h2>Sumário</h2>\n\n[TOC]\n"
+            + "<h2>Sumário</h2>\n\n[TOC]\n<div class='quebra'></div>\n"
         )
         junto = capa + "\n\n<div class='quebra'></div>\n\n".join(partes)
         html_path = BUILD / f"{combinado}.html"
@@ -156,18 +176,27 @@ def main():
         print("Apostilas:")
         gerar(
             ALUNOS,
-            "Capacitação Back-end · Automic Jr.",
+            f"Capacitação Back-end · {AUTOR} · Automic Jr. · {ANO}",
             combinado="apostila-completa",
-            titulo_combinado="Capacitação Back-end — apostila completa",
+            titulo_combinado="Back-end,<br>do zero ao ar",
+            resumo_combinado=(
+                "Quatro encontros construindo uma API de autenticação em Ruby on "
+                "Rails: do primeiro <code>curl</code> ao deploy com Docker, Kamal "
+                "e HTTPS."
+            ),
         )
 
     if args.instrutor or tudo:
         print("Roteiros:")
         gerar(
             INSTRUTOR,
-            "Capacitação Back-end · roteiro do instrutor",
+            f"Roteiros do instrutor · {AUTOR} · Automic Jr. · {ANO}",
             combinado="roteiros-completo",
-            titulo_combinado="Capacitação Back-end — roteiros",
+            titulo_combinado="Roteiros<br>do instrutor",
+            resumo_combinado=(
+                "Cronograma, o que falar em cada bloco, as demos ao vivo, as "
+                "perguntas que a turma faz, e o plano B de cada encontro."
+            ),
         )
 
 

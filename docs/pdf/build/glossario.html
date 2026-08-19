@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Glossário</title>
 <link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
-<style>@page { @bottom-left { content: "Capacitação Back-end · Automic Jr."; } }</style>
+<style>@page { @bottom-left { content: "Capacitação Back-end · Fabrício Siqueira · Automic Jr. · 2026"; } }</style>
 </head>
 <body><main>
 <h1 id="glossario">Glossário</h1>
@@ -35,9 +35,6 @@ falta é alguém em quem o cliente já confie tendo assinado. É por isso que o 
 <p><strong>CA (Autoridade Certificadora)</strong> — Quem assina certificados. O navegador nasce com uma lista de CAs
 em que confia; confiar na CA é confiar em quem ela assinou. Para uma CA pública assinar, você tem
 que provar que o domínio é seu.</p>
-<p><strong>cloud-init</strong> — Padrão que quase todo provedor de nuvem usa para configurar uma VM no primeiro
-boot: usuários, chaves SSH, pacotes. É como a sua chave pública entra na máquina antes de ela
-existir.</p>
 <p><strong>Certificado</strong> — Documento que afirma "esta chave pública pertence a este domínio", assinado por
 uma CA.</p>
 <p><strong>Chave estrangeira</strong> — Coluna que aponta para o <code>id</code> de outra tabela (<code>login_events.user_id</code>). Com
@@ -91,8 +88,6 @@ agente na máquina.</p>
 rate limit moram aí. <code>bin/rails middleware</code> lista a pilha.</p>
 <p><strong>Migration</strong> — Mudança no banco, versionada em código, que roda uma vez em cada máquina.</p>
 <p><strong>Minitest</strong> — O framework de teste que vem com o Rails.</p>
-<p><strong>Multipass</strong> — Ferramenta da Canonical que cria VMs Ubuntu com um comando. É o que sobe o servidor
-da Aula 4.</p>
 <p><strong>mise</strong> — Gerenciador de versões de runtime. O <code>pyenv</code> do mundo Ruby.</p>
 <p><strong>MVC</strong> — <em>Model-View-Controller</em>. Model = dados e regras; View = a saída (aqui, JSON); Controller =
 recebe a requisição e decide.</p>
@@ -158,11 +153,14 @@ entradas da denylist têm o TTL do que restava do token.</p>
 É como configuração e segredo entram sem passar pelo código.</p>
 <p><strong>Volume (Docker)</strong> — Área de disco que sobrevive ao container. É o que faz o banco não sumir a cada
 deploy. <strong>Não é backup.</strong></p>
-<p><strong>ufw</strong> — <em>Uncomplicated Firewall</em>. A casca amigável do firewall do Ubuntu. <code>ufw allow 22/tcp</code>.</p>
+<p><strong>sshd</strong> — O servidor de SSH: o programa que fica escutando na porta 22 e atende quem chega. Na
+Aula 4 você instala um na sua própria máquina, e é por ele que o Kamal entra.</p>
+<p><strong>ufw</strong> — <em>Uncomplicated Firewall</em>. A casca amigável do firewall do Ubuntu. <code>ufw allow 22/tcp</code>.
+Aparece no apêndice de nuvem, onde a máquina está exposta.</p>
 <p><strong>VM</strong> — <em>Virtual Machine</em>. Um computador inteiro simulado em software: kernel, disco, rede,
-usuários. É o que o Multipass cria no seu notebook, e é o que uma VPS é do outro lado.</p>
-<p><strong>VPS</strong> — <em>Virtual Private Server</em>. Uma VM alugada, num datacenter, com IP público. Mesma coisa que
-a VM da Aula 4 — só que exposta ao mundo e cobrada por hora ligada.</p>
+usuários. Uma VPS é uma dessas, alugada.</p>
+<p><strong>VPS</strong> — <em>Virtual Private Server</em>. Uma VM alugada, num datacenter, com IP público. Você tem acesso
+root e opera tudo. É onde o <code>seem-backend</code> roda, e é o assunto do apêndice de nuvem.</p>
 <p><strong>WSL2</strong> — <em>Windows Subsystem for Linux</em>. Um Linux de verdade dentro do Windows. Obrigatório para
 quem desenvolve Rails no Windows.</p>
 <p><strong>XSS</strong> — <em>Cross-Site Scripting</em>. O atacante roda JavaScript dentro da sua página, geralmente porque

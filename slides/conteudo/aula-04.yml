@@ -40,34 +40,15 @@ slides:
     titulo: "O SERVIDOR"
 
   - tipo: bullets
-    titulo: "ONDE O SEU CÓDIGO VAI RODAR"
+    titulo: "O PROBLEMA"
     bullets:
-      - "Hoje: uma máquina virtual dentro do seu notebook."
-      - "Kernel, disco, rede, usuários. Um computador inteiro, em software."
-      - "Roda Ubuntu Server, tem IP próprio, e você entra nela por SSH."
-      - "Exatamente como entraria numa máquina alugada do outro lado do mundo."
-    notas: |
-      O ponto da aula toda: o trabalho é o mesmo. Muda o IP e a conta no
-      fim do mês, não o que você faz.
-
-  - tipo: bullets
-    titulo: "POR QUE UMA VM"
-    bullets:
-      - "Um servidor tem que ser descartável."
-      - "Você vai errar config de SSH, encher disco, instalar coisa demais."
-      - "Numa VM o conserto é multipass delete && multipass launch."
-      - "No seu notebook, o conserto é o seu sábado."
-      - "E por que não só Docker? Container compartilha o kernel do host."
-      - "- sem usuário, sem firewall, sem systemd, sem sshd"
-
-  - tipo: bullets
-    titulo: "O QUE MUDA NUMA VPS ALUGADA"
-    bullets:
-      - "IP: privado aqui, público lá. O mundo inteiro alcança."
-      - "Firewall: ufw aqui; ufw MAIS o do provedor lá."
-      - "Certificado: autoassinado aqui; de uma CA pública lá."
-      - "Quem invade: ninguém aqui; bots, o dia todo, desde o primeiro minuto."
-      - "Todo o resto é idêntico. Literalmente o mesmo deploy.yml."
+      - "bin/rails server funciona enquanto o seu terminal está aberto."
+      - "Produção precisa de mais que isso:"
+      - "- subir sozinho e continuar de pé sem ninguém olhando"
+      - "- as mesmas versões de tudo, sempre, em qualquer máquina"
+      - "- atualizar SEM SAIR DO AR, e voltar atrás quando der errado"
+      - "- guardar segredo sem vazar no histórico do shell"
+      - "Nada disso depende de ONDE a máquina está. É o assunto de hoje."
 
   - tipo: bullets
     titulo: "AS QUATRO OPÇÕES"
@@ -93,34 +74,46 @@ slides:
   - tipo: bullets
     titulo: "E O QUE ISSO CUSTA"
     bullets:
-      - "Uma VM é ponto único de falha."
+      - "Uma máquina só é ponto único de falha."
       - "Volume Docker não é backup."
       - "O Postgres não é gerenciado: quem cuida é você."
       - "Admitir o custo faz parte da decisão."
 
+  - tipo: bullets
+    titulo: "HOJE: A SUA MÁQUINA É O SERVIDOR"
+    bullets:
+      - "O Kamal não sabe onde a máquina está."
+      - "Ele conecta por SSH e roda docker do outro lado. Só isso."
+      - "Endereço 127.0.0.1? Ele conecta na sua máquina."
+      - "Endereço público? Na de lá. MESMA conexão, MESMO arquivo."
+      - "Windows: o servidor é o seu WSL2. Linux e macOS: o próprio sistema."
+      - "Você não vai instalar máquina virtual nenhuma."
+    notas: |
+      Diga isso com todas as letras: não é faz de conta e não é atalho. É a
+      mesma conexão SSH, o mesmo deploy.yml, os mesmos comandos.
+      O que um servidor alugado acrescenta são DUAS LINHAS do .env, e o
+      trabalho de provisionar a máquina — que está no apêndice.
+
+  - tipo: bullets
+    titulo: "O QUE MUDA NUM SERVIDOR ALUGADO"
+    bullets:
+      - "SERVER_IP: de 127.0.0.1 para o IP público."
+      - "KAMAL_SSH_USER: do seu login para o usuário que o provedor criou."
+      - "E o trabalho novo: provisionar a máquina, e o firewall."
+      - "Certificado: de autoassinado para uma CA pública."
+      - "Duas linhas no .env. O resto do arquivo é idêntico."
+
   - tipo: secao
     titulo: "A MÁQUINA"
 
-  - tipo: codigo
-    titulo: "MULTIPASS"
-    codigo: |
-      # Linux
-      sudo snap install multipass
-
-      # macOS
-      brew install --cask multipass
-
-      # Windows (PowerShell como administrador)
-      winget install Canonical.Multipass
-
-      multipass version
-    notas: |
-      Windows + WSL2: são duas VMs diferentes e por padrão uma não enxerga a
-      outra. Duas correções, e isto tinha que estar resolvido antes da aula:
-      networkingMode=mirrored no .wslconfig (Win11 22H2+), ou netsh portproxy
-      para 2222/443/80 (qualquer Windows). No segundo caso o SERVER_IP deles é
-      o do Windows e o .env leva SSH_PORT=2222 — o deploy.yml já lê isso.
-      Se alguém travar aqui: ./scripts/checar-servidor.sh <IP> diz o caso.
+  - tipo: bullets
+    titulo: "O KAMAL PRECISA DE DUAS COISAS"
+    bullets:
+      - "Um SSH que aceite a sua chave."
+      - "O Docker rodando."
+      - "O Docker você já tem desde a Aula 1."
+      - "Falta o SSH: você usa o CLIENTE (o comando ssh);"
+      - "- o que falta é o SERVIDOR, que escuta na porta 22 e atende."
 
   - tipo: bullets  # EXTRA
     titulo: "DUAS CHAVES, UM PAR"
@@ -142,120 +135,59 @@ slides:
       - "A senha nunca trafega. Nem existe."
       - "É por isso que perder a chave privada é perder o acesso."
     notas: |
-      Mesma matemática da assinatura do JWT da Aula 3 — lá é chave simétrica
-      (HS256), aqui é par de chaves. Vale fazer a ponte.
+      Mesma matemática da assinatura do JWT da Aula 3, onde a chave é
+      simétrica (HS256) porque quem assina e quem confere são o mesmo
+      servidor. Vale fazer a ponte.
 
   - tipo: codigo
-    titulo: "O PAR DE CHAVES"
+    titulo: "INSTALAR O SERVIDOR DE SSH"
+    codigo: |
+      # Ubuntu, Debian e WSL2
+      sudo apt update && sudo apt install -y openssh-server
+      sudo service ssh start
+
+      # Fedora
+      sudo dnf install -y openssh-server
+      sudo systemctl enable --now sshd
+
+      # macOS: não instala nada.
+      # Ajustes do Sistema -> Geral -> Compartilhamento -> Sessão remota
+
+      ss -tlnp | grep :22        # está escutando?
+    notas: |
+      WSL2: o sshd NÃO sobe sozinho a cada boot do Windows, a menos que o
+      systemd esteja habilitado. Quando alguém disser "funcionava ontem", é
+      isso, e a saída é sudo service ssh start.
+      Avise ANTES de alguém apanhar.
+
+  - tipo: codigo
+    titulo: "O PAR DE CHAVES, E AUTORIZAR A SI MESMO"
     codigo: |
       ssh-keygen -t ed25519 -f ~/.ssh/capacita \
         -C "capacita-servidor" -N ""
-
       chmod 600 ~/.ssh/capacita
 
-      # chmod 600 = só você lê.
-      # O SSH RECUSA usar chave com permissão frouxa.
-      #
-      # Uma chave por finalidade: não reaproveite a do GitHub.
+      mkdir -p ~/.ssh && chmod 700 ~/.ssh
+      cat ~/.ssh/capacita.pub >> ~/.ssh/authorized_keys
+      chmod 600 ~/.ssh/authorized_keys
+
+      ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes \
+        "$USER"@127.0.0.1
     notas: |
-      Chave privada não vai por e-mail, não vai por WhatsApp, não vai para o
-      Git. Nunca.
-
-  - tipo: codigo
-    titulo: "CLOUD-INIT: A MÁQUINA JÁ NASCE PRONTA"
-    codigo: |
-      cat > cloud-init.yaml <<EOF
-      #cloud-config
-      ssh_authorized_keys:
-        - $(cat ~/.ssh/capacita.pub)
-      EOF
-
-      # cloud-init é o padrão que TODO provedor de nuvem usa
-      # para configurar uma VM no primeiro boot.
-      #
-      # Repare: quem entra no arquivo é a chave PÚBLICA.
-
-  - tipo: codigo
-    titulo: "SUBIR A VM"
-    codigo: |
-      multipass launch 24.04 --name servidor \
-        --cpus 2 --memory 2G --disk 10G \
-        --cloud-init cloud-init.yaml
-
-      multipass info servidor
-      # IPv4:  10.161.42.87    <- o seu SERVER_IP
-
-      ssh -i ~/.ssh/capacita ubuntu@SEU_IP
-      # o prompt vira ubuntu@servidor.
-      # você está dentro de outro computador.
-
-      # não conectou?
-      ./scripts/checar-servidor.sh SEU_IP
-
-  - tipo: pratica
-    titulo: "PRÁTICA 1: SUBIR A VM E ENTRAR NELA"
-    bullets:
-      - "ssh-keygen -t ed25519 -f ~/.ssh/capacita  ·  chmod 600"
-      - "Escreva o cloud-init.yaml com a sua chave PÚBLICA."
-      - "multipass launch 24.04 --name servidor ...  e  multipass info"
-      - "ssh -i ~/.ssh/capacita ubuntu@SEU_IP"
-      - "Confere: o prompt virou ubuntu@servidor."
-      - "Não conectou? ./scripts/checar-servidor.sh SEU_IP diz o porquê."
-      - "Apostila: Prática 1."
-    notas: |
-      ~20 minutos, e boa parte é download. Mande rodar o launch AGORA e
-      deixe baixando enquanto você dá a teoria de chaves.
-      Se alguém do Windows der timeout, rode o script nele e aplique a
-      correção que ele imprimir. Se não sair em 5 min, dupla e siga.
-
-  - tipo: secao
-    titulo: "UBUNTU"
+      É exatamente o que se faria num servidor alugado: a mesma chave, o
+      mesmo authorized_keys, o mesmo comando. A diferença é o endereço.
+      O IdentitiesOnly=yes evita "Too many authentication failures" de quem
+      tem várias chaves no agente.
 
   - tipo: bullets
-    titulo: "LINUX BÁSICO"  # CORTÁVEL
+    titulo: "VOCÊ ACABOU DE ENTRAR NA SUA PRÓPRIA MÁQUINA"
     bullets:
-      - "apt update / apt install: o gerenciador de pacotes"
-      - "sudo: executar como root, uma vez"
-      - "systemctl status / restart: serviços"
-      - "journalctl -u ssh: logs de um serviço"
-      - "free -h e df -h: memória e disco"
-      - "chmod 600 arquivo: só o dono lê e escreve"
-
-  - tipo: bullets  # EXTRA
-    titulo: "ROOT E PERMISSÕES"
-    bullets:
-      - "root é o usuário que pode tudo. Não tem 'tem certeza?'."
-      - "Você trabalha como ubuntu e chama sudo quando precisa."
-      - "Todo arquivo tem dono, grupo e três permissões: ler, escrever, executar."
-      - "chmod 600 = dono lê e escreve; mais ninguém vê nada."
-      - "É o que o SSH EXIGE de uma chave privada. Senão ele recusa usar."
-      - "Nunca rode a aplicação como root. O Dockerfile já cuida disso."
-
-  - tipo: codigo
-    titulo: "FIREWALL"
-    codigo: |
-      sudo ufw default deny incoming    # nada entra...
-      sudo ufw default allow outgoing   # ...mas a máquina pode sair
-
-      sudo ufw allow 22/tcp             # SSH
-      sudo ufw allow 80/tcp             # HTTP
-      sudo ufw allow 443/tcp            # HTTPS
-
-      sudo ufw enable
-      sudo ufw status verbose
-
-  - tipo: bullets
-    titulo: "O QUE ESSE FIREWALL FAZ HOJE"
-    bullets:
-      - "Nada. A sua VM não está na internet."
-      - "Você está aprendendo o gesto."
-      - "Numa VPS, ele é o que separa a sua máquina de um scanner."
-      - "- que bate na porta 22 a cada poucos segundos, desde o minuto zero"
-      - "E lá são DOIS firewalls: o ufw dentro, e o do provedor fora."
-      - "- o de fora importa mais: o pacote nem chega"
-    notas: |
-      Ser honesto aqui compra credibilidade para o resto da aula. Eles
-      percebem quando a gente finge que um exercício é uma proteção.
+      - "Não é truque: é uma conexão de rede de verdade."
+      - "Autenticada por chave, exatamente como a que o Kamal vai abrir."
+      - "chmod 600 = só o dono lê e escreve."
+      - "O SSH RECUSA usar chave com permissão frouxa."
+      - "- e é a primeira coisa a conferir no Permission denied (publickey)"
+      - "Chave privada que outros leem não é chave privada."
 
   - tipo: bullets  # EXTRA
     titulo: "VARIÁVEL DE AMBIENTE"
@@ -264,69 +196,22 @@ slides:
       - "export JWT_SECRET=abc123 e o programa lê com ENV['JWT_SECRET']."
       - "Por que não deixar no código? Porque o código vai para o Git."
       - "Mesmo código, ambientes diferentes, valores diferentes."
-      - "É o padrão dos 12 fatores, e é como o Kamal injeta segredo no container."
-
-  - tipo: codigo
-    titulo: "DOCKER, DO REPOSITÓRIO OFICIAL"
-    codigo: |
-      # O apt install docker.io do Ubuntu instala versão velha.
-
-      sudo install -m 0755 -d /etc/apt/keyrings
-      sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-        -o /etc/apt/keyrings/docker.asc
-      sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-      # (adiciona o repositório — ver docs/04-deploy.md)
-
-      sudo apt install -y docker-ce docker-ce-cli containerd.io \
-        docker-buildx-plugin docker-compose-plugin
-
-      sudo usermod -aG docker ubuntu
-      exit   # grupo só vale em sessão nova
-
-  - tipo: bullets
-    titulo: "SWAP"
-    bullets:
-      - "scripts/server-swap.sh cria 2 GiB e persiste no boot."
-      - "Rails e Postgres juntos numa máquina pequena estouram a RAM."
-      - "O kernel mata o processo que estiver na frente. É o OOM killer."
-      - "E a mensagem de erro não explica nada."
-      - "A sua VM tem 2 GiB e talvez não precise."
-      - "- a VPS de US$5/mês tem 1 GiB, e precisa"
-
-  - tipo: codigo
-    titulo: "ENDURECER O SSH"
-    codigo: |
-      sudo tee /etc/ssh/sshd_config.d/99-hardening.conf >/dev/null <<'EOF'
-      PermitRootLogin no
-      PasswordAuthentication no
-      KbdInteractiveAuthentication no
-      PubkeyAuthentication yes
-      EOF
-
-      sudo sshd -t              # valida a sintaxe ANTES de recarregar
-      sudo systemctl reload ssh
-    notas: |
-      Mantenha a sessão atual aberta e teste em outro terminal. Errar a
-      config do SSH com uma sessão só é o jeito clássico de perder a máquina.
-      Aqui existe o multipass shell como rede de segurança. Numa VPS, não.
+      - "É o padrão dos 12 fatores, e é como o Kamal injeta segredo."
 
   - tipo: pratica
-    titulo: "PRÁTICA 2: FIREWALL, DOCKER, SWAP, SSH"
+    titulo: "PRÁTICA 1: A SUA MÁQUINA VIRA O SERVIDOR"
     bullets:
-      - "ufw: deny incoming, e libere 22, 80 e 443. Depois ufw enable."
-      - "Docker do repositório oficial, e usermod -aG docker ubuntu."
-      - "SAIA E ENTRE DE NOVO. Grupo só vale em sessão nova."
-      - "Swap, pelo scripts/server-swap.sh, do seu notebook."
-      - "Endureça o SSH — COM UMA SEGUNDA SESSÃO ABERTA para testar."
-      - "Confere: hello-world + free -h com 2,0Gi + ufw active."
-      - "Apostila: Prática 2."
+      - "Instale o openssh-server e suba com service ssh start."
+      - "Gere o par de chaves da capacitação, e chmod 600 nela."
+      - "Ponha a sua pública no seu próprio authorized_keys."
+      - "Confere, e é o que o Kamal precisa:"
+      - "ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes \"$USER\"@127.0.0.1 \\"
+      - "  'echo SSH_OK && docker -v'"
+      - "Apostila: Prática 1, com a tabela de erros."
     notas: |
-      ~30 minutos, o bloco mais longo do dia.
-      Duas armadilhas para avisar ANTES: liberar a 22 antes do ufw enable, e
-      sair/entrar depois do usermod.
-      Diga em voz alta: "aqui vocês têm o multipass shell como rede de
-      segurança; numa máquina alugada essa porta não existe."
+      Circule. Os dois erros do bloco: sshd parado (Connection refused) e
+      permissão frouxa na chave (Permission denied publickey).
+      Windows: tudo dentro do WSL2. Repita isso quantas vezes precisar.
 
   - tipo: secao
     titulo: "DOCKER"
@@ -387,7 +272,7 @@ slides:
       - "Mac M1/M2/M3/M4: SERVER_ARCH=arm64"
 
   - tipo: pratica
-    titulo: "PRÁTICA 3: ARQUIVOS DE DEPLOY E O TOKEN"
+    titulo: "PRÁTICA 2: ARQUIVOS DE DEPLOY E O TOKEN"
     bullets:
       - "rsync -aR do gabarito aula-04. O -R não é detalhe."
       - "- sem ele, deploy.yml vai para a raiz e o Kamal não acha nada."
@@ -395,6 +280,7 @@ slides:
       - "Crie o PAT (classic) no GitHub: write:packages e read:packages."
       - "Ele é mostrado UMA VEZ. Guarde agora."
       - "Confere: ls config/deploy.yml .kamal/secrets .env.example"
+      - "E uname -m para saber a sua arquitetura: x86_64 é amd64, aarch64 é arm64."
       - "Apostila: Prática 3."
     notas: |
       ~15 minutos.
@@ -505,10 +391,11 @@ slides:
       - "O seu .env junta tudo. E ele é o arquivo que não pode vazar."
 
   - tipo: pratica
-    titulo: "PRÁTICA 4: O .ENV"
+    titulo: "PRÁTICA 3: O .ENV"
     bullets:
       - "cp .env.example .env, preencha tudo, e source .env"
-      - "SERVER_ARCH: rode dpkg --print-architecture na VM e use o que sair."
+      - "SERVER_IP e KAMAL_SSH_USER já vêm prontos: é a sua máquina e o seu login."
+      - "SERVER_ARCH: rode uname -m e traduza (x86_64 = amd64, aarch64 = arm64)."
       - "RAILS_MASTER_KEY é o CONTEÚDO de config/master.key."
       - "Confere: git status NÃO pode mostrar o .env."
       - "Confere: bundle exec kamal config roda sem erro."
@@ -612,7 +499,7 @@ slides:
       inteiro com a chave dele na lista.
 
   - tipo: pratica
-    titulo: "PRÁTICA 5: CERTIFICADO E /ETC/HOSTS"
+    titulo: "PRÁTICA 4: CERTIFICADO E /ETC/HOSTS"
     bullets:
       - "openssl req -x509 ... -addext \"subjectAltName=DNS:seunome.test\""
       - "O subjectAltName NÃO é opcional. Sem ele, nenhum cliente aceita."
@@ -683,7 +570,7 @@ slides:
       - "Backup que nunca foi restaurado não é backup, é esperança."
 
   - tipo: pratica
-    titulo: "PRÁTICA 6: O PRIMEIRO DEPLOY"
+    titulo: "PRÁTICA 5: O PRIMEIRO DEPLOY"
     bullets:
       - "source .env  ·  bundle exec kamal config  (valida sem tocar em nada)"
       - "bundle exec kamal setup   — só na primeira vez."
@@ -698,7 +585,7 @@ slides:
       proxy TLS, com um Postgres com volume. Isto é produção.
 
   - tipo: pratica
-    titulo: "PRÁTICA 7: O CERTIFICADO, COM OS OLHOS"
+    titulo: "PRÁTICA 6: O CERTIFICADO, COM OS OLHOS"
     bullets:
       - "curl https://seunome.test/...   ->  FALHA: self signed certificate"
       - "Isso é o TLS funcionando. O que falhou foi a CONFIANÇA."
@@ -714,17 +601,18 @@ slides:
       o seu sistema já decidiu confiar, de fábrica.
 
   - tipo: secao
-    titulo: "E NA NUVEM DE VERDADE"
+    titulo: "NUM SERVIDOR DE VERDADE"
 
   - tipo: bullets
-    titulo: "O QUE ENTRA QUANDO O IP É PÚBLICO"
+    titulo: "O QUE ENTRA QUANDO A MÁQUINA NÃO É SUA"
     bullets:
-      - "A máquina: portal do provedor. Região, tamanho, imagem, cota."
-      - "Firewall do provedor, com a 22 aberta só para o seu IP."
-      - "DNS de verdade, num domínio seu."
-      - "Certificado de uma CA: Let's Encrypt, ou Origin CA atrás do Cloudflare."
-      - "Deploy pelo Actions, e não do seu terminal."
-      - "Tudo o mais é o que vocês acabaram de fazer."
+      - "No .env, DUAS linhas: SERVER_IP e KAMAL_SSH_USER."
+      - "E o trabalho novo, que hoje não existiu:"
+      - "- provisionar um Ubuntu cru: apt upgrade, Docker, usuário, swap"
+      - "- firewall: o ufw dentro, e o do provedor fora"
+      - "- endurecer o sshd, sem senha e sem root"
+      - "- DNS de verdade, e certificado de uma CA pública"
+      - "- deploy pelo Actions, por OIDC, sem senha guardada"
 
   - tipo: codigo
     titulo: "A SEQUÊNCIA DO DEPLOY AUTOMÁTICO"
@@ -755,7 +643,7 @@ slides:
       Students.
 
   - tipo: pratica
-    titulo: "PRÁTICA 8: O SISTEMA INTEIRO, E O BACKUP"
+    titulo: "PRÁTICA 7: O SISTEMA INTEIRO, E O BACKUP"
     bullets:
       - "Refaça o fluxo da Aula 3 contra a SUA API em produção."
       - "- e desta vez o e-mail chega na sua caixa de entrada de verdade."
