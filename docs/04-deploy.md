@@ -584,8 +584,12 @@ curl https://seunome.test/api/v1/status
 ```
 
 ```
-curl: (60) SSL certificate problem: self signed certificate
+curl: (60) SSL certificate problem: self-signed certificate
 ```
+
+> A frase exata muda com a versão do `curl`: umas dizem `SSL certificate problem`, outras
+> `SSL certificate OpenSSL verify result`, e as mais antigas escrevem `self signed` sem hífen. O que
+> é sempre igual, e é o que importa, é o número **60** e a expressão *self-signed*.
 
 **Isso é o TLS funcionando, não falhando.** O túnel subiu; o que falhou foi a *confiança*. O cliente
 não conhece quem assinou.
@@ -1001,7 +1005,8 @@ mais rodando `bin/rails server`.
 curl https://seunome.test/api/v1/status
 ```
 
-Tem que **falhar**, com `self signed certificate`. **Isso é o TLS funcionando, não falhando**: o
+Tem que **falhar**, com o erro **60** e a expressão *self-signed*. **Isso é o TLS funcionando, não
+falhando**: o
 túnel subiu, e o que faltou foi a confiança.
 
 ```bash

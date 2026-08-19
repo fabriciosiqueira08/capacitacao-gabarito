@@ -680,12 +680,17 @@ BCrypt::Password.new(digest) == "errada"          # false
 ```ruby
 # c) por que é lento de propósito
 require "benchmark"
-Benchmark.realtime { BCrypt::Password.create("Automic@2026") }
-Benchmark.realtime { Digest::SHA256.hexdigest("Automic@2026") }
+
+Benchmark.realtime { BCrypt::Password.create("Automic@2026") }                  # UM bcrypt
+Benchmark.realtime { 1000.times { Digest::SHA256.hexdigest("Automic@2026") } }  # MIL SHA-256
 ```
 
-**Confere**: o bcrypt levou centenas de milissegundos; o SHA-256, microssegundos. Diga em voz alta
-por que a lentidão é uma *característica* e não um defeito.
+**Confere**: o segundo comando fez **mil** hashes de SHA-256 e mesmo assim terminou muito antes do
+primeiro, que fez **um** bcrypt.
+
+É essa diferença que protege o seu banco. Quem rouba a tabela de usuários testa senha em lote: com
+SHA-256 ele testa bilhões por segundo, e com bcrypt, algumas dezenas. Diga em voz alta por que a
+lentidão aqui é uma *característica* e não um defeito.
 
 **Se der errado**
 
