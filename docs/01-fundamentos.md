@@ -75,8 +75,8 @@ numa VM na nuvem, é o mesmo programa.
 | 5432 | Postgres |
 | 3000 | Rails em desenvolvimento |
 
-`127.0.0.1` (o `localhost`) significa sempre "esta máquina aqui". Na Aula 4 vamos abrir e fechar
-portas na mão, no firewall de um servidor Linux.
+`127.0.0.1` (o `localhost`) significa sempre "esta máquina aqui". Na Aula 4 ele vira o endereço do
+seu servidor, e a sua API passa a atender na 443.
 
 ### DNS
 
@@ -84,7 +84,8 @@ Ninguém decora `57.156.65.151`. O **DNS** é a agenda telefônica da internet: 
 `api.seemxxiii.tech` e alguém pergunta ao DNS qual é o IP.
 
 A resposta fica em cache por um tempo: o **TTL**. É por isso que apontar um domínio para outro
-servidor não vale na hora. Na Aula 4 você vai criar um desses registros.
+servidor não vale na hora. Na Aula 4 você faz isso na mão, no `/etc/hosts`, que é o atalho local
+para a mesma ideia.
 
 ### Anatomia de uma URL
 
