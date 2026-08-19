@@ -47,7 +47,9 @@ reiniciou entre o teste e a aula vai chegar com `Connection refused`. A saída �
 - [ ] `docs/troubleshooting.md` aberto numa aba.
 - [ ] Portal da Azure logado numa aba anônima, para a demo do fim (não vaze recursos do SEEM na
       projeção).
-- [ ] O PAT do ghcr.io: avise no grupo, na véspera, para já virem com ele criado.
+- [ ] O PAT do ghcr.io: avise no grupo, na véspera, para já virem com ele criado. E avise junto que
+      o **pacote** vai ser público (o repositório continua privado): sem isso, quem tiver conta
+      grátis pode esbarrar na cota de pacote privado no meio do deploy.
 - [ ] O seu próprio percurso refeito na véspera, com o `~/.ssh/capacita` apagado, para você fazer do
       zero junto com eles.
 

@@ -284,6 +284,14 @@ token**, com os escopos `write:packages` e `read:packages`.
 
 Guarde: é o seu `KAMAL_REGISTRY_PASSWORD`. Ele é mostrado **uma vez**.
 
+> **Deixe o pacote público.** Na conta grátis do GitHub, pacote **privado** tem uma cota de
+> armazenamento pequena, e uma imagem Rails come quase toda ela. Pacote **público** é ilimitado e
+> grátis, e não expõe o seu código: o repositório continua privado, e o que fica público é só a
+> imagem já compilada.
+>
+> Depois do primeiro deploy, em **github.com/SEU-USUARIO?tab=packages → automic-auth-api →
+> Package settings → Change visibility → Public**.
+
 > Um token com escopo de pacote e nada mais. É o mesmo princípio da chave SSH separada: quando vazar
 > e um dia vaza, o estrago tem tamanho.
 
@@ -963,6 +971,7 @@ mais rodando `bin/rails server`.
 | Erro | Causa | Saída |
 |---|---|---|
 | `denied` / `unauthorized` ao empurrar a imagem | PAT sem `write:packages`, ou *fine-grained* | gere um **classic** com os dois escopos |
+| erro de cota ou de armazenamento no `push` | a conta grátis limita pacote privado | deixe o pacote público (seção 3), e apague versões antigas em Packages |
 | `GHCR_USER` recusado pelo registry | maiúscula no nome | o ghcr.io só aceita minúsculas |
 | `exec format error` no container | arquitetura errada | `uname -m` e ajuste `SERVER_ARCH` |
 | `Docker is not installed` | você rodou `deploy` em vez de `setup` | o primeiro é sempre `setup` |

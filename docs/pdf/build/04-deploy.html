@@ -273,6 +273,12 @@ do mundo, e é o que faz o mesmo <code>deploy.yml</code> servir nos dois casos s
 token</strong>, com os escopos <code>write:packages</code> e <code>read:packages</code>.</p>
 <p>Guarde: é o seu <code>KAMAL_REGISTRY_PASSWORD</code>. Ele é mostrado <strong>uma vez</strong>.</p>
 <blockquote>
+<p><strong>Deixe o pacote público.</strong> Na conta grátis do GitHub, pacote <strong>privado</strong> tem uma cota de
+armazenamento pequena, e uma imagem Rails come quase toda ela. Pacote <strong>público</strong> é ilimitado e
+grátis, e não expõe o seu código: o repositório continua privado, e o que fica público é só a
+imagem já compilada.</p>
+<p>Depois do primeiro deploy, em <strong>github.com/SEU-USUARIO?tab=packages → automic-auth-api →
+Package settings → Change visibility → Public</strong>.</p>
 <p>Um token com escopo de pacote e nada mais. É o mesmo princípio da chave SSH separada: quando vazar
 e um dia vaza, o estrago tem tamanho.</p>
 </blockquote>
@@ -994,6 +1000,11 @@ setup</code> duas vezes não estraga nada.</p>
 <td><code>denied</code> / <code>unauthorized</code> ao empurrar a imagem</td>
 <td>PAT sem <code>write:packages</code>, ou <em>fine-grained</em></td>
 <td>gere um <strong>classic</strong> com os dois escopos</td>
+</tr>
+<tr>
+<td>erro de cota ou de armazenamento no <code>push</code></td>
+<td>a conta grátis limita pacote privado</td>
+<td>deixe o pacote público (seção 3), e apague versões antigas em Packages</td>
 </tr>
 <tr>
 <td><code>GHCR_USER</code> recusado pelo registry</td>

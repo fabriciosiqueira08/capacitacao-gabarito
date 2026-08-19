@@ -156,6 +156,15 @@ Desktop com integração WSL, por exemplo). Instale o pacote do sistema, ou acre
 <p>Você esqueceu o <code>source .env</code>. Ele diz exatamente qual variável.</p>
 <pre><code class="language-bash">source .env &amp;&amp; bundle exec kamal config
 </code></pre>
+<h3 id="o-push-da-imagem-falha-por-cota-ou-armazenamento">O <code>push</code> da imagem falha por cota ou armazenamento</h3>
+<p>Na conta grátis do GitHub, <strong>pacote privado</strong> tem uma cota de armazenamento pequena, e uma imagem
+Rails ocupa quase toda ela.</p>
+<p>A saída é deixar o pacote público, o que é grátis e ilimitado. Isso <strong>não</strong> expõe o seu código: o
+repositório continua privado, e o que fica público é a imagem já compilada.</p>
+<p><strong>github.com/SEU-USUARIO?tab=packages → automic-auth-api → Package settings → Change visibility →
+Public</strong></p>
+<p>Se preferir manter privado, apague as versões antigas do pacote na mesma tela: cada deploy publica
+uma, e elas se acumulam.</p>
 <h3 id="denied-ou-unauthorized-ao-empurrar-a-imagem-para-o-ghcrio"><code>denied</code> ou <code>unauthorized</code> ao empurrar a imagem para o ghcr.io</h3>
 <p>O <code>KAMAL_REGISTRY_PASSWORD</code> tem que ser um PAT (classic) com <strong><code>write:packages</code></strong> e
 <strong><code>read:packages</code></strong>. Um token de granularidade fina (<em>fine-grained</em>) não serve para o ghcr.io.</p>

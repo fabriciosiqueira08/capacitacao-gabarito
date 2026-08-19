@@ -255,6 +255,20 @@ Você esqueceu o `source .env`. Ele diz exatamente qual variável.
 source .env && bundle exec kamal config
 ```
 
+### O `push` da imagem falha por cota ou armazenamento
+
+Na conta grátis do GitHub, **pacote privado** tem uma cota de armazenamento pequena, e uma imagem
+Rails ocupa quase toda ela.
+
+A saída é deixar o pacote público, o que é grátis e ilimitado. Isso **não** expõe o seu código: o
+repositório continua privado, e o que fica público é a imagem já compilada.
+
+**github.com/SEU-USUARIO?tab=packages → automic-auth-api → Package settings → Change visibility →
+Public**
+
+Se preferir manter privado, apague as versões antigas do pacote na mesma tela: cada deploy publica
+uma, e elas se acumulam.
+
 ### `denied` ou `unauthorized` ao empurrar a imagem para o ghcr.io
 
 O `KAMAL_REGISTRY_PASSWORD` tem que ser um PAT (classic) com **`write:packages`** e

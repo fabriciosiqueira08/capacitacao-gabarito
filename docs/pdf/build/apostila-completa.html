@@ -454,6 +454,7 @@
 </li>
 <li><a href="#deploy">Deploy</a><ul>
 <li><a href="#kamal-config-reclama-de-variavel-faltando">kamal config reclama de variável faltando</a></li>
+<li><a href="#o-push-da-imagem-falha-por-cota-ou-armazenamento">O push da imagem falha por cota ou armazenamento</a></li>
 <li><a href="#denied-ou-unauthorized-ao-empurrar-a-imagem-para-o-ghcrio">denied ou unauthorized ao empurrar a imagem para o ghcr.io</a></li>
 <li><a href="#exec-format-error-ao-subir-o-container">exec format error ao subir o container</a></li>
 <li><a href="#kamal-docker-is-not-installed">Kamal: Docker is not installed</a></li>
@@ -611,11 +612,9 @@ Baixe o <a href="https://insomnia.rest/download">Insomnia</a> (mais simples) ou 
 <hr>
 <h2 id="7-contas">7. Contas</h2>
 <h3 id="github">GitHub</h3>
-<p>Crie em <a href="https://github.com">github.com</a> se ainda não tem. Depois <strong>ative o GitHub Student Pack</strong>
-em <a href="https://education.github.com/pack">education.github.com</a> com seu e-mail <code>@aluno.ufop.edu.br</code>,
-a aprovação pode levar alguns dias, e você ganha créditos e ferramentas de graça.</p>
-<p>Instale o <strong>GitHub CLI</strong>, que na Aula 1 publica o seu projeto num comando e na Aula 4 cadastra os
-segredos do deploy:</p>
+<p>Crie uma conta em <a href="https://github.com">github.com</a> se ainda não tem. É só isso: a capacitação não
+usa nada pago do GitHub.</p>
+<p>Instale o <strong>GitHub CLI</strong>, que na Aula 1 publica o seu projeto num comando:</p>
 <pre><code class="language-bash"># Ubuntu / WSL2
 sudo apt install -y gh
 # macOS
@@ -4663,6 +4662,12 @@ do mundo, e é o que faz o mesmo <code>deploy.yml</code> servir nos dois casos s
 token</strong>, com os escopos <code>write:packages</code> e <code>read:packages</code>.</p>
 <p>Guarde: é o seu <code>KAMAL_REGISTRY_PASSWORD</code>. Ele é mostrado <strong>uma vez</strong>.</p>
 <blockquote>
+<p><strong>Deixe o pacote público.</strong> Na conta grátis do GitHub, pacote <strong>privado</strong> tem uma cota de
+armazenamento pequena, e uma imagem Rails come quase toda ela. Pacote <strong>público</strong> é ilimitado e
+grátis, e não expõe o seu código: o repositório continua privado, e o que fica público é só a
+imagem já compilada.</p>
+<p>Depois do primeiro deploy, em <strong>github.com/SEU-USUARIO?tab=packages → automic-auth-api →
+Package settings → Change visibility → Public</strong>.</p>
 <p>Um token com escopo de pacote e nada mais. É o mesmo princípio da chave SSH separada: quando vazar
 e um dia vaza, o estrago tem tamanho.</p>
 </blockquote>
@@ -5386,6 +5391,11 @@ setup</code> duas vezes não estraga nada.</p>
 <td>gere um <strong>classic</strong> com os dois escopos</td>
 </tr>
 <tr>
+<td>erro de cota ou de armazenamento no <code>push</code></td>
+<td>a conta grátis limita pacote privado</td>
+<td>deixe o pacote público (seção 3), e apague versões antigas em Packages</td>
+</tr>
+<tr>
 <td><code>GHCR_USER</code> recusado pelo registry</td>
 <td>maiúscula no nome</td>
 <td>o ghcr.io só aceita minúsculas</td>
@@ -5622,6 +5632,10 @@ IP público, com domínio, certificado de CA pública e deploy automático a cad
 <p><strong>Quanto custa</strong>: nada, com a <a href="https://azure.microsoft.com/free/students/">Azure for Students</a>,
 US$100 de crédito, sem cartão de crédito, mediante e-mail institucional. A verificação acadêmica
 <strong>pode demorar dias</strong>; comece por ela.</p>
+<p><strong>Você também vai precisar de um domínio</strong>, e é a única coisa deste apêndice que custa dinheiro:
+uns R$15 por ano. Se você é estudante, o
+<a href="https://education.github.com/pack">GitHub Student Pack</a> dá um de graça por um ano, e a aprovação
+também leva alguns dias. Vale pedir os dois na mesma tarde.</p>
 <blockquote>
 <p>Nada aqui substitui a Aula 4. O Docker, o Kamal e o <code>deploy.yml</code> são <strong>os mesmos</strong>. O que este
 apêndice acrescenta é o que só existe quando a máquina não é a sua: provisionar um Ubuntu do zero,
@@ -7544,6 +7558,15 @@ Desktop com integração WSL, por exemplo). Instale o pacote do sistema, ou acre
 <p>Você esqueceu o <code>source .env</code>. Ele diz exatamente qual variável.</p>
 <pre><code class="language-bash">source .env &amp;&amp; bundle exec kamal config
 </code></pre>
+<h3 id="o-push-da-imagem-falha-por-cota-ou-armazenamento">O <code>push</code> da imagem falha por cota ou armazenamento</h3>
+<p>Na conta grátis do GitHub, <strong>pacote privado</strong> tem uma cota de armazenamento pequena, e uma imagem
+Rails ocupa quase toda ela.</p>
+<p>A saída é deixar o pacote público, o que é grátis e ilimitado. Isso <strong>não</strong> expõe o seu código: o
+repositório continua privado, e o que fica público é a imagem já compilada.</p>
+<p><strong>github.com/SEU-USUARIO?tab=packages → automic-auth-api → Package settings → Change visibility →
+Public</strong></p>
+<p>Se preferir manter privado, apague as versões antigas do pacote na mesma tela: cada deploy publica
+uma, e elas se acumulam.</p>
 <h3 id="denied-ou-unauthorized-ao-empurrar-a-imagem-para-o-ghcrio"><code>denied</code> ou <code>unauthorized</code> ao empurrar a imagem para o ghcr.io</h3>
 <p>O <code>KAMAL_REGISTRY_PASSWORD</code> tem que ser um PAT (classic) com <strong><code>write:packages</code></strong> e
 <strong><code>read:packages</code></strong>. Um token de granularidade fina (<em>fine-grained</em>) não serve para o ghcr.io.</p>
