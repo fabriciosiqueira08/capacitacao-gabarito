@@ -110,9 +110,9 @@ A seção **10** mostra o percurso numa máquina de verdade, e o apêndice
 O Kamal precisa de duas coisas do outro lado: **um SSH que aceite a sua chave** e **o Docker
 rodando**. O Docker você já tem desde a Aula 1. Falta o SSH.
 
-> **Onde você trabalha hoje**: no mesmo lugar de sempre. Se você usa Windows, é dentro do
-> **WSL2** — é ele o seu Linux, e é ele que vai ser o servidor. Se usa Linux ou macOS, é o próprio
-> sistema. Você não vai instalar máquina virtual nenhuma.
+> **Onde você trabalha hoje**: no mesmo lugar de sempre. Se você usa Windows, é dentro do **WSL2**,
+> que é o seu Linux e vai ser o seu servidor. Se usa Linux ou macOS, é o próprio sistema. Você não
+> vai instalar máquina virtual nenhuma.
 
 ### Antes: duas chaves, um par
 
