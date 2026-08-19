@@ -10,13 +10,13 @@
 Você já tem uma API (Aula 1) e um `User` que sabe guardar senha (Aula 2). **Hoje as duas coisas
 viram um sistema de autenticação que funciona de verdade**: o mesmo que roda no `seem-backend`.
 
-**O combinado desta aula é diferente das outras**, e é importante entender antes de começar: são
-1400 linhas em 37 arquivos, e **ninguém digita isso em três horas**. Você vai trazer o código pronto
-do gabarito e passar a aula **operando, quebrando de propósito e entendendo por quê**.
+**O combinado desta aula é diferente das outras.** São 1400 linhas em 37 arquivos, e ninguém digita
+isso em três horas. Você traz o código pronto do gabarito e passa a aula operando, quebrando de
+propósito e entendendo por quê.
 
-Isso não é preguiça nem atalho. É o que um desenvolvedor faz na maior parte do tempo real: ler
-código que já existe, descobrir por que foi feito assim, e mexer com segurança. Digitar 1400 linhas
-copiando ensinaria menos que as oito práticas de hoje.
+É o que um desenvolvedor faz na maior parte do tempo real: ler código que já existe, descobrir por
+que foi feito assim, e mexer com segurança. Digitar 1400 linhas copiando ensinaria menos que as oito
+práticas de hoje.
 
 O que você tem que sair sabendo é **por que cada peça existe**, e é isso que as práticas cobram.
 
