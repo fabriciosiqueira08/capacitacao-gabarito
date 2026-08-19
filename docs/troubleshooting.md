@@ -161,124 +161,87 @@ gh auth login      # se não estiver
 
 ---
 
-## A VM do Multipass
+## O SSH da sua máquina
 
-### O WSL2 não alcança a VM do Multipass
+Na Aula 4 o servidor é a sua própria máquina, e o Kamal chega nela por SSH.
 
-O sintoma: `multipass info` mostra o IP, mas de dentro do WSL2 o `ping` e o `ssh` dão timeout.
+### `Connection refused` na porta 22
 
-O Multipass roda no Windows e o WSL2 é outra máquina virtual. Por padrão, uma não enxerga a outra.
-
-Rode o diagnóstico. Ele identifica o caso e imprime a saída:
+O `sshd` não está rodando.
 
 ```bash
-./scripts/checar-servidor.sh <IP-da-VM>
+sudo service ssh start          # Ubuntu, Debian, WSL2
+sudo systemctl start sshd       # Fedora
 ```
 
-**Saída 1: rede espelhada** (Windows 11 22H2+). Crie ou edite
-`C:\Users\<seu-usuario>\.wslconfig`:
+No macOS, ligue em **Ajustes do Sistema → Geral → Compartilhamento → Sessão remota**.
 
-```
-[wsl2]
-networkingMode=mirrored
-```
-
-E no PowerShell: `wsl --shutdown`.
-
-**Saída 2: encaminhamento de porta** (qualquer Windows, inclusive o 10). O Windows leva o tráfego
-até a VM. No PowerShell **como administrador**:
-
-```powershell
-$vm = "SEU_IP_DA_VM"
-netsh interface portproxy add v4tov4 listenport=2222 listenaddress=0.0.0.0 connectport=22  connectaddress=$vm
-netsh interface portproxy add v4tov4 listenport=443  listenaddress=0.0.0.0 connectport=443 connectaddress=$vm
-netsh interface portproxy add v4tov4 listenport=80   listenaddress=0.0.0.0 connectport=80  connectaddress=$vm
-New-NetFirewallRule -DisplayName "Capacita VM" -Direction Inbound `
-  -Action Allow -Protocol TCP -LocalPort 2222,443,80
-```
-
-No WSL2, o endereço da VM passa a ser o do Windows, e o SSH muda de porta:
+Confira que ele está escutando:
 
 ```bash
-ip route show default | awk '{print $3}'    # este vira o SERVER_IP e a linha do /etc/hosts
-echo 'export SSH_PORT=2222' >> .env
+ss -tlnp | grep :22       # Linux e WSL2
+sudo lsof -i :22          # macOS
 ```
 
-O `deploy.yml` já lê `SSH_PORT`, então o Kamal funciona sem mais nenhuma mudança. Os comandos `ssh`
-da apostila precisam de `-p 2222`.
+### Funcionava, reiniciei o Windows, e parou
 
-> O endereço do Windows muda a cada `wsl --shutdown`. Quando o SSH parar de conectar do nada, é
-> isso.
-
-### `netsh portproxy` configurado, mas ainda não conecta
-
-Confira, no PowerShell:
-
-```powershell
-netsh interface portproxy show all      # as três linhas estão lá?
-```
-
-Se estiverem e ainda assim não passa, é o firewall do Windows: a regra
-`New-NetFirewallRule` acima precisa existir. E lembre que o `connectaddress` é o IP **da VM**, que
-muda depois de um `multipass stop`/`start`. Nesse caso, apague e recrie:
-
-```powershell
-netsh interface portproxy reset
-```
-
-### `multipass launch` falha com erro de virtualização
-
-Virtualização desabilitada na BIOS/UEFI. Procure por `VT-x` (Intel), `AMD-V` ou `SVM` e ligue.
-
-No Windows, confira também se o Hyper-V está habilitado (Recursos do Windows → Plataforma do
-Hipervisor do Windows).
-
-### `multipass launch` parado em "Retrieving image"
-
-Ele está baixando ~500 MB. Numa rede lenta demora. Se travar de vez:
+É o WSL2: sem o systemd habilitado, ele não sobe o `sshd` no boot.
 
 ```bash
-multipass delete servidor && multipass purge
-multipass launch 24.04 --name servidor --cloud-init cloud-init.yaml
+sudo service ssh start
 ```
 
-### O IP da VM mudou
+Para não repetir isso toda vez, habilite o systemd em `/etc/wsl.conf`:
 
-Acontece depois de um `multipass stop` / `start`, ou de reiniciar o notebook.
-
-```bash
-multipass info servidor
+```
+[boot]
+systemd=true
 ```
 
-Atualize em **dois** lugares: `SERVER_IP` no `.env` e a linha do `/etc/hosts`.
+E depois, no PowerShell: `wsl --shutdown`.
 
 ### `Permission denied (publickey)`
 
 ```bash
-chmod 600 ~/.ssh/capacita
-ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes ubuntu@SEU_IP
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/capacita ~/.ssh/authorized_keys
+ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes "$USER"@127.0.0.1
 ```
 
-O `IdentitiesOnly=yes` importa: sem ele o SSH tenta todas as chaves do agente, o servidor recusa
-depois de algumas e você leva `Too many authentication failures` com a chave certa na mão.
-
-Se persistir, a chave pública não entrou na VM. Confira o `cloud-init.yaml`: ele tem que ter o
-conteúdo de `~/.ssh/capacita.pub`, e não o caminho do arquivo.
+O SSH **recusa** usar chave com permissão frouxa, e recusa `authorized_keys` que outros possam
+escrever. Se persistir, confira que a chave pública realmente entrou:
 
 ```bash
-multipass exec servidor -- cat /home/ubuntu/.ssh/authorized_keys
+cat ~/.ssh/authorized_keys
 ```
 
-### Perdi o acesso depois de mexer no sshd
+### `Too many authentication failures`
 
-Se você seguiu o guia, tinha uma sessão aberta. Desfaça por ela. Se não:
+O SSH ofereceu todas as chaves do seu agente e o servidor cortou antes de chegar na certa.
 
 ```bash
-multipass shell servidor
+ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes "$USER"@127.0.0.1
 ```
 
-Ele entra sem passar pelo `sshd`. **Numa VPS essa porta não existe**: por isso o guia insiste em
-`sudo sshd -t` antes do `reload`, e em testar num segundo terminal.
+### `Host key verification failed`
+
+A chave do host mudou (reinstalou o `sshd`, ou trocou de máquina).
+
+```bash
+ssh-keygen -R 127.0.0.1
+```
+
+### `docker: command not found` só pela SSH
+
+Uma sessão SSH não interativa carrega um `PATH` menor que o seu terminal. Confira:
+
+```bash
+ssh -i ~/.ssh/capacita "$USER"@127.0.0.1 'which -a docker'
+```
+
+Se não achar, o Docker foi instalado de um jeito que só existe no seu shell interativo (Docker
+Desktop com integração WSL, por exemplo). Instale o pacote do sistema, ou acrescente o caminho ao
+`~/.profile` do usuário.
 
 ---
 
