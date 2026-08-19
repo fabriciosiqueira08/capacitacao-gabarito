@@ -132,7 +132,7 @@ O `/32` significa "exatamente este endereço". Precisa também de:
 
 > Internet de casa troca de IP. Quando o SSH parar de conectar do nada, é isso: atualize a regra.
 
-**Este é o firewall que a sua VM local não tinha.** O `ufw` continua valendo dentro da máquina, e é
+**Este é o firewall que a Aula 4 não teve.** O `ufw` continua valendo dentro da máquina, e é
 uma segunda camada, mas o NSG é o que faz o pacote nem chegar.
 
 ### Primeiro acesso
