@@ -149,12 +149,10 @@ Baixe o [Insomnia](https://insomnia.rest/download) (mais simples) ou o
 
 ### GitHub
 
-Crie em [github.com](https://github.com) se ainda não tem. Depois **ative o GitHub Student Pack**
-em [education.github.com](https://education.github.com/pack) com seu e-mail `@aluno.ufop.edu.br`,
-a aprovação pode levar alguns dias, e você ganha créditos e ferramentas de graça.
+Crie uma conta em [github.com](https://github.com) se ainda não tem. É só isso: a capacitação não
+usa nada pago do GitHub.
 
-Instale o **GitHub CLI**, que na Aula 1 publica o seu projeto num comando e na Aula 4 cadastra os
-segredos do deploy:
+Instale o **GitHub CLI**, que na Aula 1 publica o seu projeto num comando:
 
 ```bash
 # Ubuntu / WSL2
