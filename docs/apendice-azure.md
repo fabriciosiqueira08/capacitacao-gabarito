@@ -9,9 +9,10 @@ IP público, com domínio, certificado de CA pública e deploy automático a cad
 US$100 de crédito, sem cartão de crédito, mediante e-mail institucional. A verificação acadêmica
 **pode demorar dias**; comece por ela.
 
-> Nada aqui substitui a Aula 4. O Ubuntu, o Docker, o Kamal e o `deploy.yml` são **os mesmos**. O que
-> este apêndice acrescenta é o que só existe quando a máquina está exposta ao mundo: firewall de
-> provedor, DNS, certificado de CA e um jeito de o GitHub entrar na sua máquina sem guardar senha.
+> Nada aqui substitui a Aula 4. O Docker, o Kamal e o `deploy.yml` são **os mesmos**. O que este
+> apêndice acrescenta é o que só existe quando a máquina não é a sua: provisionar um Ubuntu do zero,
+> firewall de provedor, DNS, certificado de CA, e um jeito de o GitHub entrar na máquina sem guardar
+> senha.
 
 ---
 
@@ -19,18 +20,20 @@ US$100 de crédito, sem cartão de crédito, mediante e-mail institucional. A ve
 
 | | Na Aula 4 | Aqui |
 |---|---|---|
-| A máquina | `multipass launch` | portal da Azure: região, tamanho, imagem, cota |
-| IP | privado | público, e o mundo inteiro alcança |
-| Firewall | `ufw` | `ufw` **mais** o NSG da Azure |
+| A máquina | a sua, já configurada | um Ubuntu cru, no portal da Azure |
+| Provisionar | nada: só instalar o `sshd` | `apt upgrade`, `ufw`, Docker, swap, endurecer o `sshd` |
+| IP | `127.0.0.1` | público, e o mundo inteiro alcança |
+| Firewall | nenhum | `ufw` **mais** o NSG da Azure |
 | Nome | `/etc/hosts` | DNS de verdade, no Cloudflare |
 | Certificado | autoassinado | Cloudflare Origin CA, com o público do Cloudflare na frente |
 | Deploy | `kamal deploy` no seu terminal | GitHub Actions, por OIDC |
-| Usuário | `ubuntu` | `azureuser` |
+| Usuário do SSH | o seu login | `azureuser` |
 
-Esse último muda uma linha do `.env`:
+Os dois últimos são duas linhas do `.env`:
 
 ```bash
-KAMAL_SSH_USER=azureuser
+export SERVER_IP=57.156.65.151      # em vez de 127.0.0.1
+export KAMAL_SSH_USER=azureuser     # em vez do seu login
 ```
 
 ---
@@ -127,24 +130,145 @@ O `/32` significa "exatamente este endereço". Precisa também de:
 **Este é o firewall que a sua VM local não tinha.** O `ufw` continua valendo dentro da máquina, e é
 uma segunda camada, mas o NSG é o que faz o pacote nem chegar.
 
-### Primeiro acesso, e o resto
+### Primeiro acesso
 
 ```bash
 ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP_PUBLICO
 ```
 
-Daqui em diante, **a seção 3 da Aula 4 inteira, sem mudar nada**: `apt upgrade`, `ufw`, Docker do
-repositório oficial, `usermod -aG docker azureuser`, swap, endurecer o SSH.
+O prompt vira `azureuser@vm-capacita`. **Você está dentro de outro computador**, e agora vem a parte
+que a Aula 4 não teve: deixar essa máquina pronta para servir.
 
-O swap deixa de ser exercício e passa a ser necessidade: uma `B1s` tem 1 GiB.
+---
+
+## 2. Provisionar o Ubuntu
+
+Na Aula 4 o servidor era a sua máquina, que já estava configurada. Aqui você recebe um Ubuntu cru, e
+tudo o que ele precisa você instala. **É este bloco que a nuvem acrescenta.**
+
+### Atualizar
+
+```bash
+sudo apt update && sudo apt upgrade -y
+test -f /var/run/reboot-required && sudo reboot
+```
+
+Numa máquina exposta isso não é higiene: é a correção das falhas que já foram descobertas desde a
+imagem ter sido publicada.
+
+### Firewall
+
+Uma máquina só deve aceitar conexão no que ela realmente serve. O Ubuntu traz o **ufw**
+(*Uncomplicated Firewall*), uma casca amigável sobre as regras do kernel.
+
+```bash
+sudo ufw default deny incoming     # nada entra...
+sudo ufw default allow outgoing    # ...mas a máquina pode sair
+sudo ufw allow 22/tcp              # SSH
+sudo ufw allow 80/tcp              # HTTP
+sudo ufw allow 443/tcp             # HTTPS
+sudo ufw enable
+sudo ufw status verbose
+```
+
+> **Libere a 22 antes do `enable`.** Habilitar o firewall com a 22 fechada, numa máquina remota, é o
+> jeito mais rápido de perder o acesso a ela.
+
+Aqui há **dois** firewalls: o `ufw` dentro da máquina e o NSG do provedor, fora dela. O de fora é o
+que importa mais, porque com ele o pacote nem chega. O `ufw` é a segunda camada, para o caso de a
+primeira estar mal configurada.
+
+### Docker, do repositório oficial
+
+O `apt install docker.io` do Ubuntu instala uma versão velha. Use o repositório da Docker:
+
+```bash
+sudo apt install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+sudo usermod -aG docker azureuser
+exit
+```
+
+**Saia e entre de novo**: grupo só vale em sessão nova.
+
+```bash
+ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'docker run --rm hello-world'
+```
+
+### Root e permissões
+
+`root` é o usuário que pode tudo, sem "tem certeza?". Você trabalha como `azureuser` e chama `sudo`
+quando precisa. Numa máquina exposta essa separação deixa de ser estilo: se alguém escapar da
+aplicação, cai num usuário sem privilégio.
+
+É a mesma razão de o Dockerfile criar um usuário `rails` e não rodar como root.
+
+### Swap
 
 ```bash
 ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'sudo bash -s' < scripts/server-swap.sh
 ```
 
+Uma `B1s` tem 1 GiB de RAM. Rails e Postgres juntos estouram isso, e o kernel mata o processo que
+estiver na frente (o *OOM killer*), com uma mensagem que não explica nada. 2 GiB de swap resolvem.
+
+Na Aula 4 isso não fazia falta, porque o seu notebook tem RAM sobrando. Aqui faz.
+
+### Endurecer o SSH
+
+**Mantenha a sessão atual aberta** enquanto testa em outro terminal.
+
+```bash
+sudo tee /etc/ssh/sshd_config.d/99-hardening.conf >/dev/null <<'EOF'
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+EOF
+
+sudo sshd -t          # valida a sintaxe ANTES de recarregar
+sudo systemctl reload ssh
+```
+
+Em outro terminal:
+
+```bash
+ssh -i ~/.ssh/azure-capacita azureuser@SEU_IP 'echo OK'
+```
+
+Só feche a primeira sessão depois que isso responder. Errar a config do SSH com uma sessão só aberta
+é o jeito clássico de perder acesso à máquina. E aqui, diferente da Aula 4, **você não está sentado
+na frente dela**: só sobra o Serial Console do portal da Azure, e é bom não depender dele.
+
+### E então, o deploy
+
+Daqui em diante é a Aula 4 sem mudar nada. No seu `.env`, duas linhas:
+
+```bash
+export SERVER_IP=57.156.65.151      # o IP público da VM
+export KAMAL_SSH_USER=azureuser
+```
+
+E `kamal setup`.
+
 ---
 
-## 2. Cloudflare e TLS
+## 3. Cloudflare e TLS
 
 ### Por que uma CA pública
 
@@ -220,7 +344,7 @@ proxy:
 
 ---
 
-## 3. OIDC: deploy sem senha
+## 4. OIDC: deploy sem senha
 
 O jeito comum seria criar um *client secret* na Azure e guardar como secret do GitHub. Problemas: ele
 é longo, vale por meses, e quem tiver acesso ao repositório tem acesso à sua Azure.
@@ -279,7 +403,7 @@ Chave separada dá para revogar o acesso do CI sem trocar o seu.
 
 ---
 
-## 4. O workflow de deploy
+## 5. O workflow de deploy
 
 `.github/workflows/deploy.yml` roda a cada push na `main`. O ponto delicado é o SSH: a porta 22 está
 fechada para a internet, e o runner do GitHub tem IP diferente a cada execução: não dá para liberar
@@ -364,7 +488,7 @@ já confiava.
 
 ---
 
-## 5. Antes de ir embora
+## 6. Antes de ir embora
 
 - [ ] **Desligar a VM** no portal (`Parar`). Parada, ela não consome crédito de computação. Uma
       `B1s` ligada 24h custa ~US$8/mês: os US$100 dão quase um ano, se você desligar.

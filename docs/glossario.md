@@ -41,10 +41,6 @@ falta é alguém em quem o cliente já confie tendo assinado. É por isso que o 
 em que confia; confiar na CA é confiar em quem ela assinou. Para uma CA pública assinar, você tem
 que provar que o domínio é seu.
 
-**cloud-init** — Padrão que quase todo provedor de nuvem usa para configurar uma VM no primeiro
-boot: usuários, chaves SSH, pacotes. É como a sua chave pública entra na máquina antes de ela
-existir.
-
 **Certificado** — Documento que afirma "esta chave pública pertence a este domínio", assinado por
 uma CA.
 
@@ -129,9 +125,6 @@ rate limit moram aí. `bin/rails middleware` lista a pilha.
 **Migration** — Mudança no banco, versionada em código, que roda uma vez em cada máquina.
 
 **Minitest** — O framework de teste que vem com o Rails.
-
-**Multipass** — Ferramenta da Canonical que cria VMs Ubuntu com um comando. É o que sobe o servidor
-da Aula 4.
 
 **mise** — Gerenciador de versões de runtime. O `pyenv` do mundo Ruby.
 
@@ -236,13 +229,17 @@ entradas da denylist têm o TTL do que restava do token.
 **Volume (Docker)** — Área de disco que sobrevive ao container. É o que faz o banco não sumir a cada
 deploy. **Não é backup.**
 
+**sshd** — O servidor de SSH: o programa que fica escutando na porta 22 e atende quem chega. Na
+Aula 4 você instala um na sua própria máquina, e é por ele que o Kamal entra.
+
 **ufw** — *Uncomplicated Firewall*. A casca amigável do firewall do Ubuntu. `ufw allow 22/tcp`.
+Aparece no apêndice de nuvem, onde a máquina está exposta.
 
 **VM** — *Virtual Machine*. Um computador inteiro simulado em software: kernel, disco, rede,
-usuários. É o que o Multipass cria no seu notebook, e é o que uma VPS é do outro lado.
+usuários. Uma VPS é uma dessas, alugada.
 
-**VPS** — *Virtual Private Server*. Uma VM alugada, num datacenter, com IP público. Mesma coisa que
-a VM da Aula 4 — só que exposta ao mundo e cobrada por hora ligada.
+**VPS** — *Virtual Private Server*. Uma VM alugada, num datacenter, com IP público. Você tem acesso
+root e opera tudo. É onde o `seem-backend` roda, e é o assunto do apêndice de nuvem.
 
 **WSL2** — *Windows Subsystem for Linux*. Um Linux de verdade dentro do Windows. Obrigatório para
 quem desenvolve Rails no Windows.

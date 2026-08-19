@@ -1,18 +1,18 @@
-# Kamal — deploy da automic-auth-api. Docs: https://kamal-deploy.org
+# Kamal: deploy da automic-auth-api. Docs: https://kamal-deploy.org
 #
-# Este arquivo é IGUAL para todo mundo da turma, e é o MESMO na VM local da
-# Aula 4 e numa VPS alugada. O que muda vem de variáveis de ambiente:
+# Este arquivo é IGUAL para todo mundo da turma, e é o MESMO que serviria num
+# servidor alugado. O que muda vem de variáveis de ambiente:
 #
-#   GHCR_USER          seu usuário do GitHub (dono da imagem no ghcr.io)
-#   SERVER_IP          o IP do servidor (multipass info servidor, ou o IP público da VPS)
-#   APP_HOST           o hostname servido, ex.: seunome.test
-#   KAMAL_SSH_USER     usuário do SSH no servidor (padrão: ubuntu)
-#   SSH_PORT           porta do SSH (padrão: 22; 2222 no plano B do Windows)
-#   SERVER_ARCH        amd64 (Intel/AMD) ou arm64 (Mac M1/M2/M3/M4)
+#   GHCR_USER       seu usuário do GitHub (dono da imagem no ghcr.io)
+#   APP_HOST        o hostname servido, ex.: seunome.test
+#   SERVER_ARCH     amd64 (Intel/AMD) ou arm64 (Mac M1/M2/M3/M4)
+#   SERVER_IP       onde o app roda. Na Aula 4 é 127.0.0.1: a sua própria
+#                   máquina. Numa VPS, o IP público dela.
+#   KAMAL_SSH_USER  usuário do SSH. Na Aula 4 é o seu próprio login.
 #
-# Na Aula 4 você preenche isso num .env e roda `source .env` antes do Kamal.
-# No pipeline da nuvem, vem das Variables do GitHub Actions (ver apendice-azure.md).
-# Primeiro deploy: `kamal setup`, uma vez só. Depois é sempre `kamal deploy`.
+# Você preenche isso num .env e roda `source .env` antes de qualquer comando do
+# Kamal. No pipeline da nuvem, vem das Variables do GitHub Actions (ver
+# docs/apendice-azure.md). Primeiro deploy: `kamal setup`, uma vez só.
 
 service: automic-auth-api
 
@@ -20,28 +20,25 @@ service: automic-auth-api
 # ghcr.io/<seu-usuario>/automic-auth-api.
 image: <%= ENV.fetch("GHCR_USER") %>/automic-auth-api
 
-# Sem login root: o Docker já está liberado para o usuário comum.
+# O Kamal conversa com o servidor por SSH. Na Aula 4 o servidor é a sua
+# máquina, então ele abre uma conexão SSH consigo mesma: mesmo caminho, mesmo
+# arquivo de configuração, e nada de especial no código.
 ssh:
-  user: <%= ENV.fetch("KAMAL_SSH_USER", "ubuntu") %>
-  # 22 quase sempre. Só muda quem alcança a VM por um encaminhamento de porta
-  # (ver o plano B do Windows em docs/00-preparacao.md).
+  user: <%= ENV.fetch("KAMAL_SSH_USER", ENV.fetch("USER", "root")) %>
   port: <%= ENV.fetch("SSH_PORT", "22") %>
   forward_agent: false
-
-# Onde o Kamal grava locks, auditoria e arquivos de ambiente no servidor.
-run_directory: /home/<%= ENV.fetch("KAMAL_SSH_USER", "ubuntu") %>/.kamal
 
 servers:
   web:
     hosts:
-      - <%= ENV.fetch("SERVER_IP") %>
+      - <%= ENV.fetch("SERVER_IP", "127.0.0.1") %>
 
 # O kamal-proxy termina o TLS e repassa para o Rails em HTTP interno.
 #
-# Na Aula 4 os PEM são de um certificado autoassinado que você gerou com openssl
-# (o navegador reclama, e essa reclamação é a aula sobre CA). Numa VPS atrás do
-# Cloudflare, são o certificado Origin CA. Em nenhum dos casos eles entram no
-# container do Rails.
+# Na Aula 4 os PEM são de um certificado autoassinado que você gerou com
+# openssl, e o navegador reclama dele: essa reclamação é a aula sobre CA.
+# Num servidor com domínio, são um certificado emitido por uma CA pública.
+# Em nenhum dos casos eles entram no container do Rails.
 proxy:
   ssl:
     certificate_pem: KAMAL_PROXY_SSL_CERTIFICATE
@@ -56,17 +53,16 @@ registry:
   password:
     - KAMAL_REGISTRY_PASSWORD
 
-# A imagem é buildada no seu notebook e roda no servidor: as duas arquiteturas
-# precisam bater. Como a VM da Aula 4 roda no seu próprio hardware, é a sua.
+# A imagem é buildada e roda na mesma máquina, então a arquitetura é a sua.
 builder:
   arch: <%= ENV.fetch("SERVER_ARCH", "amd64") %>
 
 env:
   clear:
-    # O Solid Queue roda dentro do Puma — sem processo separado. Uma VM
+    # O Solid Queue roda dentro do Puma, sem processo separado. Uma máquina
     # pequena não comporta um worker dedicado.
     SOLID_QUEUE_IN_PUMA: "true"
-    # 1 vCPU dividido com o Postgres: um worker só.
+    # Um worker só: o Postgres divide a mesma máquina.
     WEB_CONCURRENCY: "1"
     # Host do banco: é o nome do accessory na rede do Kamal.
     DB_HOST: automic-auth-api-db
@@ -85,12 +81,13 @@ env:
     - SMTP_USERNAME
     - SMTP_PASSWORD
 
-# PostgreSQL como accessory: um container no mesmo host, com volume próprio.
-# Não é banco gerenciado — é decisão consciente (ver docs/04-deploy.md).
+# PostgreSQL como accessory: um container gerenciado pelo Kamal, com volume
+# próprio. Não publica porta nenhuma no host, então ele não briga com o
+# Postgres de desenvolvimento que você subiu na Aula 1.
 accessories:
   db:
     image: postgres:16
-    host: <%= ENV.fetch("SERVER_IP") %>
+    host: <%= ENV.fetch("SERVER_IP", "127.0.0.1") %>
     env:
       clear:
         POSTGRES_USER: automic_auth_api
@@ -98,6 +95,6 @@ accessories:
       secret:
         # Mesmo valor de AUTOMIC_AUTH_API_DATABASE_PASSWORD.
         - POSTGRES_PASSWORD
-    # O volume é o que faz os dados sobreviverem a deploy e a rebuild do container.
+    # O volume é o que faz os dados sobreviverem a deploy e a rebuild.
     directories:
       - data:/var/lib/postgresql/data
