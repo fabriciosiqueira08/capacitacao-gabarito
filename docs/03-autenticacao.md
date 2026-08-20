@@ -878,8 +878,39 @@ o `exp`. Converta o `exp` para data: é daqui a 24 horas.
 > O jwt.io vai dizer *"invalid signature"*, e está certo: ele não tem o seu `JWT_SECRET`. Você só
 > quer **ler** o payload, e o fato de conseguir ler é justamente a lição.
 
-**Avançado**: acrescente um caractere no fim do token e chame `/me` de novo. Antes de rodar, decida
-o que espera. **O que você deve ver**: **401**, porque a assinatura deixou de bater.
+**Avançado 1**: acrescente um caractere no fim do token e chame `/me` de novo. Antes de rodar,
+decida o que espera. **O que você deve ver**: **401**, porque a assinatura deixou de bater.
+
+**Avançado 2: meça o ataque de temporização.** A seção 11 da Aula 2 falou do
+`DUMMY_PASSWORD_DIGEST`: o login roda o bcrypt mesmo quando o e-mail não existe, para que as duas
+respostas demorem o mesmo. Agora comprove.
+
+No terminal, com o servidor rodando:
+
+```bash
+API=localhost:3000/api/v1
+for i in 1 2 3; do
+  curl -s -o /dev/null -w "existe:     %{time_total}s\n" -X POST $API/sessions \
+    -H 'Content-Type: application/json' \
+    -d '{"email":"voce@aluno.ufop.edu.br","password":"SENHA_ERRADA@1","client":"mobile"}'
+  curl -s -o /dev/null -w "nao existe: %{time_total}s\n" -X POST $API/sessions \
+    -H 'Content-Type: application/json' \
+    -d '{"email":"ninguem@ufop.br","password":"SENHA_ERRADA@1","client":"mobile"}'
+done
+```
+
+**O que você deve ver**: os dois tempos praticamente iguais, com diferença de milissegundos.
+
+```
+existe:     0.172628s
+nao existe: 0.173308s
+existe:     0.176913s
+nao existe: 0.178417s
+```
+
+Sem aquela linha, o caso "não existe" responderia quase instantaneamente, porque não haveria bcrypt
+para rodar. **Um atacante cronometrando as respostas descobriria quem tem conta**, mesmo com a
+mensagem de erro sendo a mesma. Vazar informação pelo relógio é tão real quanto vazar pelo texto.
 
 > **No terminal, se preferir**: o comando abaixo captura o token do cabeçalho num só passo.
 >
