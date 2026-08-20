@@ -4,8 +4,8 @@ Material da capacitação de back-end da Automic: **4 encontros de ~3h** em que 
 zero, uma API de autenticação em Ruby on Rails e a publica com Docker, Kamal e HTTPS, num
 servidor que é a própria máquina de cada um.
 
-O app construído aqui é um recorte do [`seem-backend`](https://github.com/fabriciosiqueira08/seem-backend)
-— o back-end real da XXIII Semana de Estudos da Escola de Minas (SEEM). As decisões, os padrões e a
+O app construído aqui é um recorte do [`seem-backend`](https://github.com/fabriciosiqueira08/seem-backend),
+o back-end real da XXIII Semana de Estudos da Escola de Minas (SEEM). As decisões, os padrões e a
 infraestrutura são os mesmos; o que muda é o tamanho.
 
 > Esta capacitação segue a mesma lógica e formatação da capacitação de front-end do Gabriel Fiuza.
@@ -14,14 +14,14 @@ infraestrutura são os mesmos; o que muda é o tamanho.
 
 ## O que a turma vai ter no fim
 
-Uma API rodando em `https://<seu-nome>.test`, empacotada em Docker e publicada com Kamal, com
-quatro rotas de autenticação:
+Uma API rodando em `https://<seu-nome>.test`, empacotada em Docker e publicada com Kamal, com os
+cinco fluxos de autenticação:
 
 | Método | Rota | O que faz |
 |---|---|---|
 | `POST` | `/api/v1/registrations` | Cadastra o usuário e dispara um código por e-mail |
-| `POST` | `/api/v1/sessions` | Login — devolve um JWT |
-| `DELETE` | `/api/v1/sessions` | Logout — revoga o token de verdade, no servidor |
+| `POST` | `/api/v1/sessions` | Login: devolve um JWT no cabeçalho |
+| `DELETE` | `/api/v1/sessions` | Logout: revoga o token de verdade, no servidor |
 | `POST` | `/api/v1/password_resets/request` | Envia código de recuperação por e-mail |
 | `POST` | `/api/v1/password_resets/confirm` | Troca a senha e derruba as sessões ativas |
 

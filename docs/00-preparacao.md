@@ -199,7 +199,7 @@ ssh "$USER"@127.0.0.1 'echo FUNCIONOU'
 ```
 
 Ele vai pedir a sua senha (na Aula 4 isso vira uma chave) e tem que responder `FUNCIONOU`.
-**Mande o resultado no grupo.** Dez minutos hoje valem a aula inteira.
+**Mande o resultado no grupo.** Resolver isso hoje evita perder tempo de aula com instalação.
 
 > **WSL2**: o `sshd` não sobe sozinho a cada boot do Windows, a não ser que você habilite o systemd.
 > Se um dia o `ssh` parar de conectar do nada, é isso, e a saída é `sudo service ssh start`.
