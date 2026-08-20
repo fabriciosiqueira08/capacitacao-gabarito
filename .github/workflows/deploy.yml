@@ -15,9 +15,20 @@
 # Ver docs/apendice-azure.md, seção "OIDC".
 name: Deploy (Kamal)
 
+# Só roda quando VOCÊ manda, em Actions -> Deploy (Kamal) -> Run workflow.
+#
+# Não há gatilho por push, de propósito. Na Aula 4 o servidor é a máquina do
+# aluno, e o runner do GitHub não alcança um IP privado: um deploy automático
+# falharia em todo push, sem nada de errado no código.
+#
+# Quando a máquina tiver IP público (ver docs/apendice-azure.md), acrescente o
+# gatilho de volta:
+#
+#   on:
+#     push:
+#       branches: [ main ]
+#     workflow_dispatch:
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
     inputs:
       command:
