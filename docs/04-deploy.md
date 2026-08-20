@@ -1,7 +1,7 @@
 # Aula 4: Servidor, Docker, Kamal e deploy
 
-**Você sai daqui com**: a sua API no ar, em `https://seunome.test`, servida por
-um servidor Linux de verdade que você mesmo subiu, com HTTPS e deploy por um comando.
+**Você sai daqui com**: a sua API publicada em `https://seunome.test`, empacotada em Docker, servida
+com HTTPS, e com deploy e rollback num comando.
 **Gabarito**: `cd ~/capacitacao-gabarito && git checkout aula-04`
 
 > Este roteiro é a versão para a turma do guia de infraestrutura do `seem-backend`. As decisões são
@@ -31,8 +31,8 @@ Duas coisas que ajudam:
 **Hoje você vai encontrar mais erro do que nos outros encontros.** É assunto novo e ferramenta nova,
 e a maioria dos erros não tem nada a ver com programar. É assim para todo mundo, sempre.
 
-> E o fecho, para você já saber onde vai chegar: no fim do dia, três comandos `curl` vão te mostrar,
-> na tela, a diferença entre criptografia e confiança. É a Prática 6, e vale a aula.
+> No fim do dia, na Prática 6, três comandos `curl` mostram na tela a diferença entre criptografia
+> e confiança. São conceitos que costumam ficar embolados, e ali eles se separam.
 
 ---
 
@@ -572,7 +572,7 @@ getent hosts seunome.test    # tem que devolver o IP da VM
 
 ### Autoassinado, na prática
 
-Depois do deploy (seção 8), três comandos que valem a aula inteira.
+Depois do deploy (seção 8), três comandos, na ordem:
 
 > **Antes de rodar o primeiro, decida**: o seu servidor está servindo HTTPS de verdade, com um
 > certificado que você mesmo gerou. O `curl` vai funcionar ou vai reclamar? E se reclamar, vai ser
@@ -998,7 +998,7 @@ mais rodando `bin/rails server`.
 
 ### Prática 6: o certificado, com os olhos
 
-> Três comandos, e é a prática que mais ensina do dia.
+> Três comandos. Cada um responde uma parte da pergunta "o que o HTTPS garante, e o que não".
 
 > **Antes de rodar o primeiro, decida**: o seu servidor está servindo HTTPS de verdade, com um
 > certificado que você mesmo gerou. O `curl` vai funcionar ou vai reclamar? E se reclamar, vai ser

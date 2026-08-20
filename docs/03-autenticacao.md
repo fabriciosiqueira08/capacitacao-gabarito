@@ -1109,4 +1109,6 @@ falhas mais comuns em API.
 - `token_version` derruba tudo de uma vez, e é o que a troca de senha usa.
 - Em autenticação, respostas diferentes vazam informação. Uma resposta só, sempre.
 
-**Na próxima**: nada disso serve se está só na sua máquina. Vamos colocar no ar.
+**Na próxima**: hoje isso tudo roda com `bin/rails server`, e para de rodar quando você fecha o
+terminal. Vamos empacotar e publicar de verdade, com Docker, HTTPS e a possibilidade de voltar
+atrás quando um deploy der errado.

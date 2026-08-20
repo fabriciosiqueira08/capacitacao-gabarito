@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>Back-end,<br>do zero ao ar</title>
+<title>Back-end com<br>Ruby on Rails</title>
 <link rel="stylesheet" href="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/estilo.css">
 <style>@page { @bottom-left { content: "Capacitação Back-end · Fabrício Siqueira · Automic Jr. · 2026"; } }</style>
 </head>
@@ -10,9 +10,9 @@
 <div class="capa">
   <img class="capa-logo" src="file:///home/fabriciosiqueira/Documentos/pessoal/capacitacao-automic-fullstack/docs/pdf/assets/automic-logo-branca.png" alt="Automic">
   <p class="selo">Capacitação Back-end</p>
-  <h1>Back-end,<br>do zero ao ar</h1>
+  <h1>Back-end com<br>Ruby on Rails</h1>
   <hr class="linha">
-  <p class="resumo">Quatro encontros construindo uma API de autenticação em Ruby on Rails: do primeiro <code>curl</code> ao deploy com Docker, Kamal e HTTPS.</p>
+  <p class="resumo">Quatro encontros: HTTP e Ruby, banco de dados com ActiveRecord, as rotas de autenticação, e o deploy com Docker e Kamal.</p>
   <div class="assina">
     <p>Fabrício Siqueira</p>
     <p class="meta">Automic Jr. · 2026</p>
@@ -647,7 +647,7 @@ Sessão remota</strong>.</p>
 <pre><code class="language-bash">ssh &quot;$USER&quot;@127.0.0.1 'echo FUNCIONOU'
 </code></pre>
 <p>Ele vai pedir a sua senha (na Aula 4 isso vira uma chave) e tem que responder <code>FUNCIONOU</code>.
-<strong>Mande o resultado no grupo.</strong> Dez minutos hoje valem a aula inteira.</p>
+<strong>Mande o resultado no grupo.</strong> Resolver isso hoje evita perder tempo de aula com instalação.</p>
 <blockquote>
 <p><strong>WSL2</strong>: o <code>sshd</code> não sobe sozinho a cada boot do Windows, a não ser que você habilite o systemd.
 Se um dia o <code>ssh</code> parar de conectar do nada, é isso, e a saída é <code>sudo service ssh start</code>.</p>
@@ -4563,12 +4563,14 @@ falhas mais comuns em API.</p>
 <li><code>token_version</code> derruba tudo de uma vez, e é o que a troca de senha usa.</li>
 <li>Em autenticação, respostas diferentes vazam informação. Uma resposta só, sempre.</li>
 </ul>
-<p><strong>Na próxima</strong>: nada disso serve se está só na sua máquina. Vamos colocar no ar.</p>
+<p><strong>Na próxima</strong>: hoje isso tudo roda com <code>bin/rails server</code>, e para de rodar quando você fecha o
+terminal. Vamos empacotar e publicar de verdade, com Docker, HTTPS e a possibilidade de voltar
+atrás quando um deploy der errado.</p>
 <div class='quebra'></div>
 
 <h1 id="aula-4-servidor-docker-kamal-e-deploy">Aula 4: Servidor, Docker, Kamal e deploy</h1>
-<p><strong>Você sai daqui com</strong>: a sua API no ar, em <code>https://seunome.test</code>, servida por
-um servidor Linux de verdade que você mesmo subiu, com HTTPS e deploy por um comando.
+<p><strong>Você sai daqui com</strong>: a sua API publicada em <code>https://seunome.test</code>, empacotada em Docker, servida
+com HTTPS, e com deploy e rollback num comando.
 <strong>Gabarito</strong>: <code>cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-04</code></p>
 <blockquote>
 <p>Este roteiro é a versão para a turma do guia de infraestrutura do <code>seem-backend</code>. As decisões são
@@ -4591,8 +4593,8 @@ o tempo é melhor gasto entendendo o deploy do que esperando um provedor liberar
 <p><strong>Hoje você vai encontrar mais erro do que nos outros encontros.</strong> É assunto novo e ferramenta nova,
 e a maioria dos erros não tem nada a ver com programar. É assim para todo mundo, sempre.</p>
 <blockquote>
-<p>E o fecho, para você já saber onde vai chegar: no fim do dia, três comandos <code>curl</code> vão te mostrar,
-na tela, a diferença entre criptografia e confiança. É a Prática 6, e vale a aula.</p>
+<p>No fim do dia, na Prática 6, três comandos <code>curl</code> mostram na tela a diferença entre criptografia
+e confiança. São conceitos que costumam ficar embolados, e ali eles se separam.</p>
 </blockquote>
 <hr>
 <h2 id="1-o-que-e-colocar-no-ar">1. O que é colocar no ar</h2>
@@ -5060,7 +5062,7 @@ como administrador. É esse que o navegador do Windows consulta: o <code>/etc/ho
 dentro do WSL2.</p>
 </blockquote>
 <h3 id="autoassinado-na-pratica">Autoassinado, na prática</h3>
-<p>Depois do deploy (seção 8), três comandos que valem a aula inteira.</p>
+<p>Depois do deploy (seção 8), três comandos, na ordem:</p>
 <blockquote>
 <p><strong>Antes de rodar o primeiro, decida</strong>: o seu servidor está servindo HTTPS de verdade, com um
 certificado que você mesmo gerou. O <code>curl</code> vai funcionar ou vai reclamar? E se reclamar, vai ser
@@ -5630,7 +5632,7 @@ setup</code> duas vezes não estraga nada.</p>
 <hr>
 <h3 id="pratica-6-o-certificado-com-os-olhos">Prática 6: o certificado, com os olhos</h3>
 <blockquote>
-<p>Três comandos, e é a prática que mais ensina do dia.</p>
+<p>Três comandos. Cada um responde uma parte da pergunta "o que o HTTPS garante, e o que não".</p>
 <p><strong>Antes de rodar o primeiro, decida</strong>: o seu servidor está servindo HTTPS de verdade, com um
 certificado que você mesmo gerou. O <code>curl</code> vai funcionar ou vai reclamar? E se reclamar, vai ser
 por causa da criptografia ou por outra coisa?</p>

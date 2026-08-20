@@ -682,12 +682,12 @@ slides:
   - tipo: bullets
     titulo: "O QUE VOCÊS FIZERAM"
     bullets:
-      - "Uma API REST com cinco fluxos de autenticação. Testada."
+      - "Uma API REST com cinco fluxos de autenticação. 71 testes verdes."
       - "Senha hasheada, token assinado, sessão revogável de verdade."
-      - "Um servidor Linux provisionado por vocês: firewall, Docker, SSH."
-      - "Deploy com zero-downtime, HTTPS, banco com volume e backup."
-      - "Do zero. Em quatro encontros."
-      - "Está tudo no GitHub de vocês. É portfólio."
+      - "A própria máquina virou servidor: sshd, chave, e o Kamal entrando por SSH."
+      - "A API empacotada em Docker e publicada num registry."
+      - "HTTPS, zero-downtime, rollback, banco com volume, e backup."
+      - "Do zero. Em quatro encontros. E está no GitHub de vocês."
     notas: |
       Reserve os cinco minutos e leia isto devagar, olhando para eles.
       Quem fez raramente percebe o tamanho do que fez — o esforço esconde a
@@ -699,7 +699,7 @@ slides:
       - "O seem-backend está aberto. Agora vocês conseguem ler."
       - "Peguem uma coisa da lista anterior e implementem no projeto de vocês."
       - "Alugem uma VPS de verdade quando quiserem: o apêndice tem o caminho."
-      - "- e o deploy.yml é o mesmo. Muda uma variável."
+      - "- o deploy.yml é o mesmo: mudam DUAS linhas do .env."
       - "Dúvida daqui a três semanas ainda é dúvida. Podem me chamar."
     notas: |
       Deixe o canal aberto de verdade, e diga isso em voz alta. A pergunta

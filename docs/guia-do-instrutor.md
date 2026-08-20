@@ -16,8 +16,8 @@ O que precisa acontecer neles:
 
 1. **Quem é você**, em duas frases. Não é currículo, é contexto: por que *você* está dando isso.
 2. **De onde vem a capacitação**: é a continuação da do Fiuza. Lá foi o que o usuário vê.
-3. **Onde eles chegam**: *"no fim do encontro 4, cada um vai ter uma API própria no ar, funcionando,
-   que vocês construíram do zero."*
+3. **Onde eles chegam**: *"no fim do encontro 4, cada um vai ter a própria API publicada: em Docker,
+   atrás de HTTPS, com deploy e rollback num comando. Construída do zero por vocês."*
 
 E então uma frase que muda o resto do dia:
 

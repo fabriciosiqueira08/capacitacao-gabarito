@@ -178,11 +178,10 @@ def main():
             ALUNOS,
             f"Capacitação Back-end · {AUTOR} · Automic Jr. · {ANO}",
             combinado="apostila-completa",
-            titulo_combinado="Back-end,<br>do zero ao ar",
+            titulo_combinado="Back-end com<br>Ruby on Rails",
             resumo_combinado=(
-                "Quatro encontros construindo uma API de autenticação em Ruby on "
-                "Rails: do primeiro <code>curl</code> ao deploy com Docker, Kamal "
-                "e HTTPS."
+                "Quatro encontros: HTTP e Ruby, banco de dados com ActiveRecord, "
+                "as rotas de autenticação, e o deploy com Docker e Kamal."
             ),
         )
 
@@ -194,8 +193,8 @@ def main():
             combinado="roteiros-completo",
             titulo_combinado="Roteiros<br>do instrutor",
             resumo_combinado=(
-                "Cronograma, o que falar em cada bloco, as demos ao vivo, as "
-                "perguntas que a turma faz, e o plano B de cada encontro."
+                "Cronograma, o que falar em cada bloco, as demos, as perguntas "
+                "que a turma faz, e o plano B de cada encontro."
             ),
         )
 

@@ -75,8 +75,12 @@ Cortando de 1 a 5, fecha em **3h31**. Cortando os seis, **3h21**.
 Você se apresenta e diz de onde veio a capacitação: **é a continuação da do Fiuza**. Lá foi o que o
 usuário vê; aqui é o outro lado.
 
-Nos objetivos, a frase que prende: *"no fim do encontro 4, cada um de vocês vai ter uma URL
-`https://` própria, funcionando, que qualquer um do mundo consegue chamar."*
+Nos objetivos, a frase que prende: *"no fim do encontro 4, cada um de vocês vai ter a própria API
+empacotada e publicada, rodando em Docker atrás de HTTPS, com deploy e rollback num comando."*
+
+> **Não prometa que qualquer um do mundo vai poder chamar.** A API deles vai rodar na máquina
+> deles, e o nome resolve pelo `/etc/hosts`. Colocar num IP público é o apêndice, e são duas linhas
+> do `.env`. Prometer o público e entregar o local estraga o último dia.
 
 **E então o slide 3, que é o mais importante dos três primeiros minutos.** Não passe por ele
 rápido. A frase precisa sair da sua boca, olhando para a sala:
