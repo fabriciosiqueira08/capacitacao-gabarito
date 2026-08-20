@@ -12,6 +12,35 @@ slides e PDFs.
 
 ---
 
+## 0. Publicar o repositório da turma — **primeiro passo**
+
+Este repositório aqui é **o seu**: tem os slides, os roteiros e o guia do instrutor. O que a turma
+clona é um recorte dele, sem essas coisas.
+
+```bash
+./scripts/exportar-para-alunos.sh
+```
+
+Ele monta `../capacitacao-backend-alunos/` com as quatro branches de checkpoint, as apostilas, os
+PDFs da turma e o código do gabarito. Sem `slides/`, sem `roteiro-*`, sem `guia-do-instrutor.md`,
+sem este arquivo, e com o `README.md` já ajustado para não apontar para o que não foi junto.
+
+Confira e publique:
+
+```bash
+cd ../capacitacao-backend-alunos
+gh repo create capacitacao-backend --public --source=. --push
+git push --all
+```
+
+**Rode o script de novo sempre que mudar o material.** Ele apaga o destino e refaz do zero, então
+nunca desencontra daqui. Depois é `git push --all --force` no repositório da turma.
+
+> Se criar **privado**, cada aluno precisa ser adicionado como colaborador, senão o `git clone` da
+> preparação falha para eles.
+
+---
+
 ## 1. URL do repositório da capacitação — **preciso de você**
 
 É o link que o aluno usa para clonar o gabarito.

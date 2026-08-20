@@ -163,6 +163,20 @@ python3 slides/gerar_slides.py --aula 1       # só a Aula 1
 
 ---
 
+## Publicando para a turma
+
+Este repositório é o **do instrutor**. O que a turma clona é um recorte dele, sem os slides, os
+roteiros e o guia do instrutor:
+
+```bash
+./scripts/exportar-para-alunos.sh
+```
+
+Ele monta `../capacitacao-backend-alunos/`, com as quatro branches, as apostilas, os PDFs da turma e
+o código. Rode de novo sempre que o material mudar.
+
+---
+
 ## Rodando o gabarito
 
 Você não precisa disso para acompanhar a capacitação — só se quiser ver o projeto pronto
