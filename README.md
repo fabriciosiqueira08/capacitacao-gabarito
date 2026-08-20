@@ -1,179 +1,130 @@
-# Capacitação Back-end: Automic Jr.
+# Gabarito da Capacitação Back-end
 
-Material da capacitação de back-end da Automic: **4 encontros de ~3h** em que a turma constrói, do
-zero, uma API de autenticação em Ruby on Rails e a publica com Docker, Kamal e HTTPS, num
-servidor que é a própria máquina de cada um.
+Uma API de autenticação em Ruby on Rails: cadastro com confirmação por e-mail, login com JWT,
+logout que revoga o token de verdade, e recuperação de senha que derruba as sessões abertas.
 
-O app construído aqui é um recorte do [`seem-backend`](https://github.com/fabriciosiqueira08/seem-backend),
-o back-end real da XXIII Semana de Estudos da Escola de Minas (SEEM). As decisões, os padrões e a
+Este repositório é o **gabarito**: o código pronto, para consultar quando travar ou para comparar
+com o seu. **Você não escreve aqui** — o seu projeto é outro, e é nele que você trabalha.
+
+```
+~/capacitacao-gabarito/    ← este repo. Só leitura.
+~/automic_auth_api/        ← o seu projeto.
+```
+
+Travou num exercício? Abra o arquivo correspondente aqui, entenda, e escreva no seu.
+**Copiar sem ler é o único jeito de sair da capacitação sem aprender nada.**
+
+O app é um recorte do [`seem-backend`](https://github.com/fabriciosiqueira08/seem-backend), o
+back-end real da XXIII Semana de Estudos da Escola de Minas. As decisões, os padrões e a
 infraestrutura são os mesmos; o que muda é o tamanho.
-
-> Esta capacitação segue a mesma lógica e formatação da capacitação de front-end do Gabriel Fiuza.
 
 ---
 
-## O que a turma vai ter no fim
-
-Uma API rodando em `https://<seu-nome>.test`, empacotada em Docker e publicada com Kamal, com os
-cinco fluxos de autenticação:
+## As rotas
 
 | Método | Rota | O que faz |
 |---|---|---|
 | `POST` | `/api/v1/registrations` | Cadastra o usuário e dispara um código por e-mail |
-| `POST` | `/api/v1/sessions` | Login: devolve um JWT no cabeçalho |
-| `DELETE` | `/api/v1/sessions` | Logout: revoga o token de verdade, no servidor |
-| `POST` | `/api/v1/password_resets/request` | Envia código de recuperação por e-mail |
+| `POST` | `/api/v1/email_verifications/confirm` | Ativa a conta com o código de 6 dígitos |
+| `POST` | `/api/v1/email_verifications/resend` | Reenvia o código, respeitando um intervalo mínimo |
+| `POST` | `/api/v1/sessions` | Login. Devolve o JWT no cabeçalho `Authorization` |
+| `DELETE` | `/api/v1/sessions` | Logout. Revoga aquele token, no servidor |
+| `POST` | `/api/v1/password_resets/request` | Envia o código de recuperação |
 | `POST` | `/api/v1/password_resets/confirm` | Troca a senha e derruba as sessões ativas |
-
-Mais a confirmação de e-mail (`/api/v1/email_verifications/confirm` e `/resend`), que é o que faz o
-login só liberar depois que a conta é ativada, e duas rotas autenticadas: `GET /api/v1/me` e
-`GET /api/v1/me/login_events` (o histórico de acessos, que existe para exercitar associações).
-
----
-
-## Os quatro encontros
-
-| Aula | Tema | Termina com |
-|---|---|---|
-| **1** | O que é back-end, Ruby (para quem sabe Python) e o primeiro Rails | `GET /api/v1/status` respondendo JSON |
-| **2** | Banco de dados, ActiveRecord e o model `User` | `User` com validações e senha hasheada, testado no console |
-| **3** | As rotas de autenticação | Os cinco fluxos rodando e testados |
-| **4** | Servidor, Docker, Kamal e deploy | O app de cada um publicado, com HTTPS e rollback |
+| `GET` | `/api/v1/me` | Os dados de quem está autenticado |
+| `GET` | `/api/v1/me/login_events` | O histórico de acessos |
+| `GET` | `/api/v1/status` | Responde `ok`. Serve para saber se subiu |
 
 ---
 
-## Como você vai usar este repositório
+## Onde está cada coisa
 
-**Você não escreve neste repositório.** Ele é o **gabarito**: o código pronto, para consultar quando
-travar ou quando quiser comparar com o seu.
-
-Na Aula 1 você cria o **seu próprio projeto**, e é nele que você trabalha nos quatro encontros. Isso
-não é preciosismo: na Aula 4 o CI roda no **seu** repositório e a imagem Docker vai para a **sua**
-conta do GitHub Container Registry.
+O controller recebe a requisição e devolve a resposta. **A regra de negócio não mora nele**: fica
+num service, que devolve um `Struct` dizendo se deu certo.
 
 ```
-~/capacitacao-gabarito/    ← este repo. Só leitura.
-~/automic_auth_api/        ← o seu projeto. É aqui que você escreve.
+app/
+├── controllers/api/v1/        recebem e respondem
+│   ├── registrations_controller.rb   sessions_controller.rb
+│   ├── email_verifications_controller.rb
+│   ├── password_resets_controller.rb  me_controller.rb
+│   └── concerns/api/v1/
+│       ├── authentication.rb          o before_action que valida o token
+│       └── error_rendering.rb         um formato de erro só, para toda a API
+│
+├── services/                  a regra de negócio, um caso de uso por classe
+│   ├── auth/
+│   │   ├── issue_token.rb             monta e assina o JWT
+│   │   ├── decode_token.rb            verifica assinatura, expiração e versão
+│   │   ├── token_denylist.rb          é o que faz o logout revogar de verdade
+│   │   ├── token_secret.rb            de onde vem a chave que assina
+│   │   └── login.rb
+│   └── users/
+│       ├── register.rb                confirm_email_verification.rb
+│       ├── request_password_reset.rb  complete_password_reset.rb
+│       └── send_email_verification.rb  resend_email_verification.rb
+│
+├── models/
+│   ├── user.rb                        validações, has_secure_password
+│   ├── login_event.rb
+│   └── concerns/
+│       ├── email_verifiable.rb        emitir e conferir o código de ativação
+│       └── password_resettable.rb     o mesmo, para recuperação de senha
+│
+├── serializers/               decidem o que sai no JSON, e o que NÃO sai
+├── validators/                a política de senha, fora do model de propósito
+└── mailers/                   o e-mail com o código de 6 dígitos
 ```
 
-### O setup, uma vez só (Aula 1)
+**Para entender o sistema, leia nesta ordem**: `users/register.rb`, `auth/issue_token.rb`,
+`concerns/api/v1/authentication.rb`, `auth/token_denylist.rb` e `users/complete_password_reset.rb`.
+Cinco arquivos, e depois deles o resto se explica.
 
-```bash
-# 1. o gabarito, para consultar
-git clone <url-deste-repo> ~/capacitacao-gabarito
+---
 
-# 2. o seu projeto (o passo a passo está em docs/01-fundamentos.md)
-cd ~ && rails new automic_auth_api --api -d postgresql \
-  --skip-action-mailbox --skip-action-text --skip-active-storage \
-  --skip-jbuilder --skip-action-cable
-cd automic_auth_api && git init && git add -A && git commit -m "Projeto inicial"
+## Consultando cada etapa
 
-# 3. publique no SEU GitHub — a Aula 4 depende disso
-gh repo create automic_auth_api --private --source=. --push
-```
+Cada branch tem o código **até um ponto** da capacitação. Use quando quiser comparar com o seu sem
+ver o que ainda não foi explicado.
 
-### Consultando o gabarito
-
-Cada aula tem uma branch com o código **como ele fica no fim daquele encontro**:
-
-```bash
-cd ~/capacitacao-gabarito
-git checkout aula-01   # como ficou no fim da Aula 1
-git checkout aula-02   # …e assim por diante
-git checkout main      # tudo pronto, mais slides, PDFs e roteiros
-```
-
-Travou no meio de um exercício? Abra o arquivo correspondente no gabarito, entenda, e escreva no
-seu. **Copiar sem ler é o único jeito de sair daqui sem aprender nada.**
-
-Precisa mesmo copiar (a Aula 3 tem bastante código)? Então copie de propósito:
-
-```bash
-cd ~/capacitacao-gabarito && git checkout aula-03
-rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
-cd ~/automic_auth_api && bundle install && bin/rails db:migrate && bin/rails test
-```
-
-O `Gemfile` vai junto de propósito: a Aula 3 acrescenta as gems `jwt`, `rack-cors` e
-`letter_opener`. Sem ele, a aplicação nem sobe.
-
-| Branch | Contém |
+| Branch | O código tem |
 |---|---|
-| `aula-01` | App gerado + rota de status |
-| `aula-02` | + migrations, `User`, concerns, associações, validador de senha |
-| `aula-03` | + rotas, services, mailer, serializer, testes |
-| `aula-04` | + Dockerfile, Kamal, `.env.example`, GitHub Actions |
-| `main` | Tudo, mais os slides, os PDFs e os roteiros |
-
-Cada checkpoint carrega **o código daquele ponto e as apostilas até aquela aula** — nada além
-disso. Slides, PDFs e roteiros do instrutor são gerados e vivem só na `main`, para não ficarem
-desatualizados em quatro lugares a cada regeração.
-
----
-
-## Como as aulas são construídas
-
-Cada bloco de conteúdo termina numa **prática**: explica, faz, explica, faz. São **30 práticas** nos
-quatro encontros, de 5 a 35 minutos, todas com um item avançado para quem terminar antes.
-
-Na apostila, cada prática traz os comandos, uma linha **Confere** e uma tabela **Se der errado**, no
-formato *erro → causa → saída* — com os erros que acontecem de verdade, não os hipotéticos.
-
-| Aula | Práticas | Da mais básica à mais avançada |
-|---|--:|---|
-| 1 | 7 | `curl` na mão → Ruby no `irb` → projeto no ar → rota → teste → GitHub |
-| 2 | 8 | banco de pé → migrations → bcrypt no console → validador → model → associação → concerns → testes |
-| 3 | 8 | ler a arquitetura → cadastro → confirmação → token na mão → logout → recuperação → qualidade → forjar um token |
-| 4 | 7 | a máquina vira servidor → registry → `.env` → certificado → deploy → TLS com os olhos → produção |
-
-A sintaxe de Ruby que o projeto usa está na
-[seção 5 da Aula 1](docs/01-fundamentos.md), organizada como referência: cada construção diz **onde
-no projeto ela aparece**. O comparativo completo com Python fica em
-[`ruby-para-pythonistas.md`](docs/ruby-para-pythonistas.md).
-
----
-
-## Documentação
-
-| Arquivo | Para quê |
-|---|---|
-| [`docs/00-preparacao.md`](docs/00-preparacao.md) | **Leia antes do primeiro encontro.** O que instalar e quais contas criar. |
-| [`docs/01-fundamentos.md`](docs/01-fundamentos.md) | Apostila da Aula 1 |
-| [`docs/02-activerecord.md`](docs/02-activerecord.md) | Apostila da Aula 2 |
-| [`docs/03-autenticacao.md`](docs/03-autenticacao.md) | Apostila da Aula 3 |
-| [`docs/04-deploy.md`](docs/04-deploy.md) | Apostila da Aula 4 |
-| [`docs/apendice-azure.md`](docs/apendice-azure.md) | O mesmo deploy numa máquina alugada: provisionar o Ubuntu, Azure, Cloudflare, OIDC |
-| [`docs/ruby-para-pythonistas.md`](docs/ruby-para-pythonistas.md) | Cheat sheet Python ↔ Ruby, lado a lado |
-| [`docs/PREENCHER.md`](docs/PREENCHER.md) | **Leia primeiro**: o que ainda falta preencher antes de usar o material |
-| [`docs/guia-do-instrutor.md`](docs/guia-do-instrutor.md) | **Para quem apresenta, leia primeiro**: conduzir a sala, os três primeiros minutos, a curva de energia, o "não sei" |
-| [`docs/roteiro-de-tempo.md`](docs/roteiro-de-tempo.md) | **Para quem apresenta**: índice dos quatro roteiros de aula |
-| `docs/roteiro-aula-0N.md` | Runbook de cada encontro: cronograma, falas, demos, perguntas e plano B |
-| [`docs/glossario.md`](docs/glossario.md) | VM, VPS, ufw, CA, JWT, OTP, ORM, CI/CD… |
-| [`docs/troubleshooting.md`](docs/troubleshooting.md) | Erros que realmente acontecem, e a saída de cada um |
-
-## Slides
-
-Em [`slides/`](slides/). Os `.pptx` de cada aula ficam em `slides/build/` e são gerados por
-`slides/gerar_slides.py` a partir dos roteiros em `slides/conteudo/*.yml`.
+| `aula-01` | O app gerado e a rota `/api/v1/status` |
+| `aula-02` | `+` migrations, `User`, os dois concerns, `LoginEvent`, o validador de senha |
+| `aula-03` | `+` as rotas, os services, o mailer, os serializers e os testes |
+| `aula-04` | `+` `Dockerfile`, `config/deploy.yml` do Kamal, `.env.example`, GitHub Actions |
+| `main` | Tudo |
 
 ```bash
-python3 slides/gerar_slides.py                # gera as quatro aulas
-python3 slides/gerar_slides.py --aula 1       # só a Aula 1
+git checkout aula-02
+git checkout main
 ```
 
 ---
 
-## Rodando o gabarito
+## Rodando
 
-Você não precisa disso para acompanhar a capacitação — só se quiser ver o projeto pronto
-funcionando na sua máquina.
+Você não precisa disto para acompanhar a capacitação, só se quiser ver o projeto pronto funcionando.
 
 ```bash
 docker compose up -d          # sobe o Postgres
-bin/setup                     # instala gems e prepara o banco
+bin/setup                     # instala as gems e prepara o banco
 bin/rails server              # http://localhost:3000
+
 curl localhost:3000/api/v1/status
+bin/rails test                # 71 testes
 ```
 
-> Se você já tem um Postgres na porta 5432, use `DB_PORT=5433 docker compose up -d` e exporte
-> `DB_PORT=5433` no shell.
+> Já tem um Postgres na porta 5432? Use `DB_PORT=5433 docker compose up -d` e exporte
+> `DB_PORT=5433` **no mesmo shell** do `rails`.
+
+**Ruby 3.4.9 · Rails 8.1.3 · PostgreSQL 16 · bcrypt · JWT · Kamal**
+
+---
+
+## A apostila
+
+A apostila, o glossário e o troubleshooting **não estão aqui**: o instrutor entrega o PDF.
+
+É lá que estão o passo a passo, as práticas com o que você deve ver na tela a cada comando, e as
+tabelas de erro com o que costuma dar errado e a saída de cada caso.
