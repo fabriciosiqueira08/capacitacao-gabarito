@@ -75,7 +75,8 @@ p = pathlib.Path("README.md")
 if not p.exists(): raise SystemExit
 s = p.read_text()
 
-s = re.sub(r'\n## Slides\n.*?(?=\n---\n)', '\n', s, flags=re.S)
+for secao in ("Slides", "Publicando para a turma"):
+    s = re.sub(rf'\n## {secao}\n.*?(?=\n---\n)', '\n', s, flags=re.S)
 for linha in ("docs/PREENCHER.md", "docs/guia-do-instrutor.md",
               "docs/roteiro-de-tempo.md", "docs/roteiro-aula-0N.md"):
     s = re.sub(rf'^\|.*{re.escape(linha)}.*\|\n', '', s, flags=re.M)
