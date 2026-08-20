@@ -588,7 +588,7 @@ gem "bcrypt", "~> 3.1.7"
 bundle install
 ```
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
 bin/rails runner 'puts BCrypt::Password.create("teste")[0, 7]'
@@ -637,7 +637,7 @@ add_column :users, :password_reset_sent_at, :datetime
 bin/rails db:migrate
 ```
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
 bin/rails db:migrate:status                      # três linhas "up"
@@ -715,7 +715,7 @@ Benchmark.realtime { BCrypt::Password.create("Automic@2026") }                  
 Benchmark.realtime { 1000.times { Digest::SHA256.hexdigest("Automic@2026") } }  # MIL SHA-256
 ```
 
-**Confere**: o segundo comando fez **mil** hashes de SHA-256 e mesmo assim terminou muito antes do
+**O que você deve ver**: o segundo comando fez **mil** hashes de SHA-256 e mesmo assim terminou muito antes do
 primeiro, que fez **um** bcrypt.
 
 É essa diferença que protege o seu banco. Quem rouba a tabela de usuários testa senha em lote: com
@@ -778,7 +778,7 @@ e o `private` valendo da linha em diante.
 Ele fica fora do model porque o cadastro precisa validar a senha **antes** de existir um `User`
 (Aula 3), e a recuperação de senha valida de novo na hora de trocar.
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
 bin/rails runner 'p PasswordPolicyValidator.validate("abc")'
@@ -807,7 +807,7 @@ estourar. Descubra qual linha do código garante isso.
 Crie `app/models/user.rb` com `has_secure_password validations: false`, as seis validações, os três
 normalizadores e o `authenticate_by_email` (seções **4**, **5** e **11**).
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
 bin/rails runner '
@@ -858,7 +858,7 @@ has_many :login_events, dependent: :delete_all
 bin/rails db:migrate
 ```
 
-**Confere**, no console:
+**O que você deve ver**, no console:
 
 ```ruby
 u = User.first || User.create!(name: "Ana", email: "ana@ufop.br", password: "Automic@2026",
@@ -908,7 +908,7 @@ Métodos que cada um precisa ter:
 | `resend_verification_allowed?` | `password_reset_request_allowed?` |
 | — | `clear_password_reset_code!` |
 
-**Confere**, no console:
+**O que você deve ver**, no console:
 
 ```ruby
 u = User.first
@@ -970,7 +970,7 @@ bin/rubocop
 git add -A && git commit -m "Model User, concerns e associações" && git push
 ```
 
-**Confere**: **30 testes verdes.** O gabarito tem exatamente esse número.
+**O que você deve ver**: **30 testes verdes.** O gabarito tem exatamente esse número.
 
 **Se der errado**
 
