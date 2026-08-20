@@ -105,6 +105,17 @@ esquema        host          porta     caminho      query  fragmento
 
 ## 3. HTTP
 
+> **Antes de ler, veja acontecer.** Abra qualquer site no navegador, aperte `F12` e vá na aba
+> **Network** (ou Rede). Recarregue a página.
+>
+> Cada linha que apareceu é uma **requisição HTTP** que acabou de sair do seu computador. Clique em
+> uma: você vai ver o método, o status, os cabeçalhos e o corpo. São exatamente as quatro coisas que
+> esta seção explica, e você já tem elas na tela.
+>
+> Leva dois minutos e não precisa instalar nada. Faça agora, e leia o resto olhando de vez em quando
+> para aquela aba.
+
+
 Cliente é quem pede (navegador, app, outro servidor). Servidor é quem responde. **O cliente sempre
 começa a conversa**: o servidor nunca liga primeiro.
 

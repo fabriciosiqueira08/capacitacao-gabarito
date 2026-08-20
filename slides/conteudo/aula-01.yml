@@ -218,6 +218,22 @@ slides:
       # É por isso que localhost:3000 tem os dois pontos:
       # a porta não é a padrão.
 
+  - tipo: pratica
+    titulo: "MÃO NA MASSA: VEJA O HTTP ACONTECER"
+    bullets:
+      - "Abram o navegador em qualquer site. F12, aba Network."
+      - "Recarreguem a página."
+      - "Cada linha ali é uma requisição HTTP que acabou de sair do seu computador."
+      - "Cliquem numa: método, status, cabeçalhos, corpo."
+      - "É isso que a gente vai construir do outro lado. E dá para ver, agora."
+    notas: |
+      Dois minutos, e é a primeira coisa que eles FAZEM no dia. Vale muito.
+      Sem instalar nada, sem terminal, sem setup: só F12.
+      O ponto é chegar na teoria de HTTP com a turma já tendo VISTO requisição
+      acontecer. Depois disso, "método, status, cabeçalho" deixa de ser
+      vocabulário abstrato e vira nome de coisa que eles viram na tela.
+      Peça para alguém ler em voz alta o status de uma linha qualquer.
+
   - tipo: bullets
     titulo: "HTTP"
     bullets:

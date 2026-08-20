@@ -456,11 +456,11 @@ slides:
     titulo: "PRÁTICA 4: LOGIN, E O TOKEN NA MÃO"
     bullets:
       - "POST /sessions -> 200. O TOKEN VEM NO CABEÇALHO, não no corpo."
-      - "- aba Headers da resposta: Authorization: Bearer eyJ..."
-      - "Cole no header de GET /me  ->  VOCÊ DEVE VER: 200 com os seus dados."
+      - "- aba Headers: Authorization: Bearer eyJ..."
+      - "Cole no header de GET /me  ->  VOCÊ DEVE VER: 200, com os seus dados."
       - "O servidor não guardou sessão nenhuma. Ele LEU o token."
       - "Cole o token em jwt.io: ache sub, jti, ver e exp."
-      - "Avançado: acrescente um caractere no token e chame /me  ->  401."
+      - "Avançado: cronometre o login com e-mail que existe e que não existe."
       - "Apostila: Prática 4."
     notas: |
       ~20 minutos, o núcleo da aula.

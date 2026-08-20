@@ -1,6 +1,6 @@
 # Roteiro da Aula 1: back-end, Ruby e o primeiro Rails
 
-**Deck**: `slides/build/aula-01-fundamentos-de-back-end.pptx` (69 slides, sendo 5 de prática)
+**Deck**: `slides/build/aula-01-fundamentos-de-back-end.pptx` (70 slides, sendo 6 de prática)
 **Apostila da turma**: [`01-fundamentos.md`](01-fundamentos.md) · **Checkpoint**: `aula-01`
 **Antes de tudo**: [`guia-do-instrutor.md`](guia-do-instrutor.md) — conduzir a sala, não o conteúdo
 
@@ -36,35 +36,35 @@ atrasar, corte **conteúdo**, nunca prática.
 |:--|:--|:--|--:|
 | 00:00 | 1–3 | Abertura, objetivos e **o combinado de hoje** | 7 |
 | 00:07 | 4–11 | Ferramentas e setup | 23 |
-| 00:30 | 12–16 | O que é back-end | 12 |
-| 00:42 | 17–20 | Rede: servidor, IP, porta, DNS, URL | 13 |
-| 00:55 | 21–30 | HTTP, JSON e REST | 28 |
-| 01:23 | **31** | **Prática 1 — HTTP na mão** | 10 |
+| 00:30 | 12–20 | Back-end, cliente e servidor, rede e URL | 22 |
+| 00:52 | **21** | **Mão na massa: veja o HTTP acontecer (F12)** | 3 |
+| 00:55 | 22–31 | HTTP, JSON e REST | 28 |
+| 01:23 | **32** | **Prática 1: HTTP na mão** | 10 |
 | **01:33** | — | **Intervalo** | 10 |
-| 01:43 | 32–49 | Ruby para quem sabe Python | 44 |
-| 02:27 | **50** | **Prática 2 — Ruby no `irb`** | 10 |
-| 02:37 | 51–61 | Rails, MVC, Zeitwerk, ambientes | 22 |
-| 02:59 | **62** | **Práticas 3 e 4 — o projeto no ar** | 25 |
-| 03:24 | 63–64 | A primeira rota, e os dois diretórios | 8 |
-| 03:32 | **65** | **Prática 5 — a sua primeira rota** | 20 |
-| 03:52 | **67** | **Práticas 6 e 7 — teste e commit** | 20 |
-| 04:12 | 66, 68–69 | Git, recapitulação, fim | 5 |
+| 01:43 | 33–50 | Ruby para quem sabe Python | 44 |
+| 02:27 | **51** | **Prática 2: Ruby no `irb`** | 10 |
+| 02:37 | 52–62 | Rails, MVC, Zeitwerk, ambientes | 22 |
+| 02:59 | **63** | **Práticas 3 e 4: o projeto no ar** | 25 |
+| 03:24 | 64–65 | A primeira rota, e os dois diretórios | 8 |
+| 03:32 | **66** | **Prática 5: a sua primeira rota** | 20 |
+| 03:52 | **68** | **Práticas 6 e 7: teste e commit** | 20 |
+| 04:12 | 67, 69–70 | Git, recapitulação, fim | 5 |
 
-**Isso dá 4h17, e é a aula mais cheia das quatro.** Não cabe em 3h sem você decidir antes o que sai.
+**Isso dá 4h20, e é a aula mais cheia das quatro.** Não cabe em 3h sem você decidir antes o que sai.
 Corte **nesta ordem**, e decida na véspera:
 
 | # | O que cortar | Ganho |
 |:--|:--|--:|
 | 1 | **O bloco 4–11 inteiro** (Ferramentas). O setup é `00-preparacao.md`, de casa — aqui você só roda a checagem final, em 3 min | −20 |
-| 2 | Slides 42–44 (argumentos nomeados, `Struct`, exceções). Aparecem na Aula 3, no código real | −10 |
-| 3 | Slides 52 (`O TERMINAL`) e 66 (`GIT`), os dois marcados `# CORTÁVEL` | −7 |
-| 4 | Slides 55 (`DJANGO × RAILS`) e 60 (`TOUR DAS PASTAS`) — ficam na apostila | −6 |
+| 2 | Slides 44–46 (argumentos nomeados, `Struct`, exceções). Aparecem na Aula 3, no código real | −10 |
+| 3 | Slides 52 (`O TERMINAL`) e 67 (`GIT`), os dois marcados `# CORTÁVEL` | −7 |
+| 4 | Slides 56 (`DJANGO × RAILS`) e 61 (`TOUR DAS PASTAS`) — ficam na apostila | −6 |
 | 5 | Slide 20 (`DNS`) — volta na Aula 4 de qualquer jeito | −3 |
 | 6 | Práticas 6 e 7: faça só o teste em aula, e mande o commit de casa | −10 |
 
-Cortando de 1 a 5, fecha em **3h31**. Cortando os seis, **3h21**.
+Cortando de 1 a 5, fecha em **3h34**. Cortando os seis, **3h24**.
 
-> O slide 46 (`case` e a seta) **não corte**: a seta aparece no model da Aula 2.
+> O slide 47 (`case` e a seta) **não corte**: a seta aparece no model da Aula 2.
 
 ---
 
@@ -108,7 +108,7 @@ docker run --rm hello-world
 > ⚠️ **Ponto de não-retorno**: se passou de 00:35 e ainda tem gente instalando, **pare**. Pareie
 > quem travou com quem terminou e siga. Instalação é problema de casa, não de aula.
 
-### 00:30 · O que é back-end (12–16)
+### 00:30 · Back-end e rede (12–20)
 
 O slide 12 é a ponte com a capacitação anterior: mostre a coluna do front e diga "isso vocês já
 viram". O slide 13 tem o ponto que importa: **tudo que roda no navegador o usuário consegue ler e
@@ -116,7 +116,14 @@ alterar** — por isso a validação que vale é a do back.
 
 O restaurante (14) funciona bem. Volte nele quando falar de API.
 
-### 00:42 · Rede (17–20)
+### 00:52 · Mão na massa: o F12 (21)
+
+**Dois minutos, e é a primeira coisa que eles fazem no dia.** Sem instalar nada: só `F12`, aba
+Network, recarregar.
+
+Depois disso eles chegam na teoria de HTTP já tendo **visto** requisição acontecer, e "método,
+status, cabeçalho" deixa de ser vocabulário abstrato. Peça para alguém ler em voz alta o status de
+uma linha qualquer.
 
 Aqui muita gente descobre coisa que usava sem saber.
 
@@ -126,7 +133,7 @@ Aqui muita gente descobre coisa que usava sem saber.
 - **19**: desmonte a URL na tela. Pergunte: *"por que `localhost:3000` tem dois pontos e
   `google.com` não?"* Deixe alguém responder.
 
-### 00:55 · HTTP e REST (21–30)
+### 00:55 · HTTP e REST (22–31)
 
 **Slide 22 é o coração do bloco.** Uma requisição HTTP é texto puro. Se der, faça ao vivo:
 
@@ -146,7 +153,7 @@ No **26** (status codes), a pergunta: *"qual a diferença entre 401 e 403?"* —
 No **fim do bloco**, marque a frase: **HTTP não tem memória.** Escreva no quadro se tiver. É o
 problema inteiro da Aula 3.
 
-### 01:23 · Prática 1: HTTP na mão (31)
+### 01:23 · Prática 1: HTTP na mão (32)
 
 **A primeira vez que eles falam com um servidor sem navegador no meio.** Dez minutos, e circule.
 
@@ -163,7 +170,7 @@ isso hoje não confunde 404 com 500 na Aula 3.
 Quem terminar rápido: o item (e), o POST na mão com `-X`, `-H` e `-d`. É o que o Insomnia faz por
 baixo.
 
-### 01:43 · Ruby (32–49)
+### 01:43 · Ruby (33–50)
 
 O bloco mais longo. **Não leia os slides — rode no `irb` ao vivo.**
 
@@ -196,7 +203,7 @@ Pontos onde vale parar:
 - **47** — as três pegadinhas. Rode no `irb`: `7 / 2`, depois `7.0 / 2`. E `puts 'Olá #{1+1}'` com
   aspas simples. São 30 segundos e economizam um bug cada.
 
-### 02:27 · Prática 2: Ruby no `irb` (50)
+### 02:27 · Prática 2: Ruby no `irb` (51)
 
 Dez minutos no `irb`, e é a **única vez** na capacitação em que eles mexem em Ruby sem Rails no
 caminho. Não corte, mesmo atrasado.
@@ -215,7 +222,7 @@ puts "entrou" if 0     # entra! Só nil e false são falsos em Ruby.
 Quem terminar rápido: o item (h), escrever um módulo e incluir numa classe — é a Aula 2 chegando
 mais cedo.
 
-### 02:37 · Rails (51–61)
+### 02:37 · Rails (52–62)
 
 - **52** é a ideia central: você não configura o óbvio, você segue o combinado.
 - **55** (Django × Rails) — pergunte quem já usou Django ou Flask e ancore neles.
@@ -224,12 +231,12 @@ mais cedo.
 - **64** (`DOIS DIRETÓRIOS`) — **não corte**. É onde fica claro que o repositório da capacitação é
   gabarito e que o projeto é deles. Sem isso, metade da turma vai editar o repo errado.
 
-### 02:59 · Práticas 3 a 7: o projeto no ar (62, 65, 67)
+### 02:59 · Práticas 3 a 7: o projeto no ar (63, 66, 68)
 
 A entrega da aula, em três blocos separados por slides curtos. **Ninguém sai sem os 200 na tela e
 sem o projeto no GitHub deles.**
 
-**Prática 3 e 4 (slide 62, ~25 min)** — criar o projeto, subir banco e aplicação:
+**Prática 3 e 4 (slide 63, ~25 min)** — criar o projeto, subir banco e aplicação:
 
 ```bash
 rails new automic_auth_api --api -d postgresql \
@@ -251,11 +258,11 @@ bin/rails server              # e abrir /up
 > **Ponto de decisão**: se metade da turma não tiver o `/up` verde às 03:24, pare o conteúdo e
 > resolva junto. Sem isso, as práticas 5 a 7 não acontecem.
 
-**Prática 5 (slide 65, ~20 min)** — a rota. O erro clássico é
+**Prática 5 (slide 66, ~20 min)** — a rota. O erro clássico é
 `uninitialized constant Api::V1::StatusController`: o arquivo está no caminho errado. Volte ao
-slide 58 (Zeitwerk) e mostre a correspondência nome ↔ caminho na tela.
+slide 59 (Zeitwerk) e mostre a correspondência nome ↔ caminho na tela.
 
-**Práticas 6 e 7 (slide 67, ~20 min)** — o teste e o commit. **Faça o passo de quebrar o teste de
+**Práticas 6 e 7 (slide 68, ~20 min)** — o teste e o commit. **Faça o passo de quebrar o teste de
 propósito** (`"ok"` → `"OK"`): são 30 segundos, e é o que muda a relação deles com teste.
 
 > ⚠️ **Avise antes de eles darem push**: o CI que o `rails new` gera vai ficar **vermelho** neste
@@ -269,9 +276,9 @@ Quem travar em qualquer uma: projete o arquivo do gabarito (`~/capacitacao-gabar
 `aula-01`) e deixe a pessoa digitar. **Não mande copiar e colar** — o exercício inteiro são 20
 linhas.
 
-### 04:12 · Fecho (66, 68–69)
+### 04:12 · Fecho (67, 69–70)
 
-Recapitule em cinco frases (slide 68) e feche com o que vem: *"na próxima, a API ganha memória."*
+Recapitule em cinco frases (slide 69) e feche com o que vem: *"na próxima, a API ganha memória."*
 
 ---
 

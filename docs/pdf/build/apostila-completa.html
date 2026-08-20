@@ -836,6 +836,15 @@ esquema        host          porta     caminho      query  fragmento
 <p>É por isso que <code>localhost:3000</code> tem os dois pontos: a porta não é a padrão.</p>
 <hr>
 <h2 id="3-http">3. HTTP</h2>
+<blockquote>
+<p><strong>Antes de ler, veja acontecer.</strong> Abra qualquer site no navegador, aperte <code>F12</code> e vá na aba
+<strong>Network</strong> (ou Rede). Recarregue a página.</p>
+<p>Cada linha que apareceu é uma <strong>requisição HTTP</strong> que acabou de sair do seu computador. Clique em
+uma: você vai ver o método, o status, os cabeçalhos e o corpo. São exatamente as quatro coisas que
+esta seção explica, e você já tem elas na tela.</p>
+<p>Leva dois minutos e não precisa instalar nada. Faça agora, e leia o resto olhando de vez em quando
+para aquela aba.</p>
+</blockquote>
 <p>Cliente é quem pede (navegador, app, outro servidor). Servidor é quem responde. <strong>O cliente sempre
 começa a conversa</strong>: o servidor nunca liga primeiro.</p>
 <p>Uma <strong>requisição</strong> tem método, caminho, cabeçalhos e corpo. Uma <strong>resposta</strong> tem status, cabeçalhos
@@ -4267,8 +4276,31 @@ o <code>exp</code>. Converta o <code>exp</code> para data: é daqui a 24 horas.<
 <p>O jwt.io vai dizer <em>"invalid signature"</em>, e está certo: ele não tem o seu <code>JWT_SECRET</code>. Você só
 quer <strong>ler</strong> o payload, e o fato de conseguir ler é justamente a lição.</p>
 </blockquote>
-<p><strong>Avançado</strong>: acrescente um caractere no fim do token e chame <code>/me</code> de novo. Antes de rodar, decida
-o que espera. <strong>O que você deve ver</strong>: <strong>401</strong>, porque a assinatura deixou de bater.</p>
+<p><strong>Avançado 1</strong>: acrescente um caractere no fim do token e chame <code>/me</code> de novo. Antes de rodar,
+decida o que espera. <strong>O que você deve ver</strong>: <strong>401</strong>, porque a assinatura deixou de bater.</p>
+<p><strong>Avançado 2: meça o ataque de temporização.</strong> A seção 11 da Aula 2 falou do
+<code>DUMMY_PASSWORD_DIGEST</code>: o login roda o bcrypt mesmo quando o e-mail não existe, para que as duas
+respostas demorem o mesmo. Agora comprove.</p>
+<p>No terminal, com o servidor rodando:</p>
+<pre><code class="language-bash">API=localhost:3000/api/v1
+for i in 1 2 3; do
+  curl -s -o /dev/null -w &quot;existe:     %{time_total}s\n&quot; -X POST $API/sessions \
+    -H 'Content-Type: application/json' \
+    -d '{&quot;email&quot;:&quot;voce@aluno.ufop.edu.br&quot;,&quot;password&quot;:&quot;SENHA_ERRADA@1&quot;,&quot;client&quot;:&quot;mobile&quot;}'
+  curl -s -o /dev/null -w &quot;nao existe: %{time_total}s\n&quot; -X POST $API/sessions \
+    -H 'Content-Type: application/json' \
+    -d '{&quot;email&quot;:&quot;ninguem@ufop.br&quot;,&quot;password&quot;:&quot;SENHA_ERRADA@1&quot;,&quot;client&quot;:&quot;mobile&quot;}'
+done
+</code></pre>
+<p><strong>O que você deve ver</strong>: os dois tempos praticamente iguais, com diferença de milissegundos.</p>
+<pre><code>existe:     0.172628s
+nao existe: 0.173308s
+existe:     0.176913s
+nao existe: 0.178417s
+</code></pre>
+<p>Sem aquela linha, o caso "não existe" responderia quase instantaneamente, porque não haveria bcrypt
+para rodar. <strong>Um atacante cronometrando as respostas descobriria quem tem conta</strong>, mesmo com a
+mensagem de erro sendo a mesma. Vazar informação pelo relógio é tão real quanto vazar pelo texto.</p>
 <blockquote>
 <p><strong>No terminal, se preferir</strong>: o comando abaixo captura o token do cabeçalho num só passo.</p>
 <p><code>bash
