@@ -2,12 +2,8 @@
 /.bundle
 /log/*
 /tmp/*
-!/log/.keep
-!/tmp/.keep
 /storage/*
-!/storage/.keep
 /tmp/storage/*
-!/tmp/storage/.keep
 /config/master.key
 /config/credentials/*.key
 .env
