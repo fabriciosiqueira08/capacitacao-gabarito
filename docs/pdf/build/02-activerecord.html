@@ -203,6 +203,18 @@ validates :matricula, presence: true, uniqueness: true, format: { with: /\A\d{7}
 validates :terms_accepted_at, presence: true, on: :create
 validate  :password_meets_policy, if: -&gt; { password.present? }
 </code></pre>
+<p>A última linha chama um método <strong>seu</strong>, que você escreve no fim da classe, depois de um <code>private</code>.
+É ele que liga o validador da prática anterior ao ActiveRecord:</p>
+<pre><code class="language-ruby">  private
+
+  def password_meets_policy
+    PasswordPolicyValidator.validate(password).each do |message|
+      errors.add(:password, message)
+    end
+  end
+</code></pre>
+<p><code>errors.add</code> é como se acrescenta erro na mão. Cada mensagem que o validador devolveu vira um erro
+do campo <code>password</code>, e é por isso que <code>u.errors.full_messages</code> mostra todas de uma vez.</p>
 <ul>
 <li><code>validates</code> (plural) usa um validador pronto. <code>validate</code> (singular) chama um método seu.</li>
 <li><code>on: :create</code> só valida na criação: os termos são aceitos uma vez.</li>
@@ -224,6 +236,11 @@ def self.normalize_matricula(matricula)
 end
 </code></pre>
 <p>Sem isso o índice único não serve para nada: o banco acha que são valores diferentes.</p>
+<p>Repare que são <strong>métodos de classe</strong>, e não callbacks: eles não rodam sozinhos ao salvar. Quem os
+chama é quem recebe o dado de fora, e nesta aula é o <code>authenticate_by_email</code> (seção 11). Na Aula 3,
+o service de cadastro chama os três antes de criar o usuário.</p>
+<p>É uma escolha, e tem motivo: normalizar num callback esconde a transformação de quem lê o service, e
+faz o mesmo dado se comportar diferente conforme o caminho que ele tomou para chegar ali.</p>
 <hr>
 <h2 id="6-associacoes">6. Associações</h2>
 <p>Uma tabela nunca basta. Todo sistema real tem tabelas que se referem umas às outras: usuário tem
@@ -557,10 +574,15 @@ add_column :users, :password_reset_sent_at, :datetime
 <pre><code class="language-bash">bin/rails db:migrate:status                      # três linhas &quot;up&quot;
 sed -n '/create_table &quot;users&quot;/,/^  end/p' db/schema.rb | grep '^    t\.' | grep -vc 't\.index'
 </code></pre>
-<p>O segundo comando conta as colunas da tabela, e tem que sair <strong>16</strong>.</p>
+<p>O segundo comando conta as colunas da tabela, e tem que sair <strong>15</strong>: as 8 da primeira migration
+(seis suas mais as duas do <code>t.timestamps</code>), 4 da segunda e 3 da terceira.</p>
 <p>Repare em duas coisas que ele mostra: o <code>id</code> não está na lista, porque o <code>create_table</code> cria essa
 coluna sozinho e nem a menciona; e as duas linhas <code>t.index</code> que o comando descarta são os índices
 únicos de <code>email</code> e <code>matricula</code>, que são restrição do banco e não coluna.</p>
+<blockquote>
+<p>Na Aula 3 aparece uma décima sexta, o <code>token_version</code>, numa migration que vem junto com o código
+daquele dia. É ela que permite derrubar todas as sessões de um usuário de uma vez.</p>
+</blockquote>
 <p>Abra o <code>db/schema.rb</code> e leia: ele é o retrato do banco <strong>agora</strong>, montado sozinho pelas migrations.</p>
 <p><strong>Se der errado</strong></p>
 <blockquote>
@@ -605,7 +627,7 @@ nenhum para perder. Não tenha dó.</p>
 <td><code>bin/rails db:migrate:status</code>: a sua está <code>down</code>?</td>
 </tr>
 <tr>
-<td>saiu menos que 16</td>
+<td>saiu menos que 15</td>
 <td>falta alguma coluna</td>
 <td>compare com o gabarito: <code>git -C ~/capacitacao-gabarito show aula-02:db/schema.rb</code></td>
 </tr>
@@ -638,6 +660,10 @@ digest = BCrypt::Password.create(&quot;Automic@2026&quot;)
 BCrypt::Password.new(digest) == &quot;Automic@2026&quot;    # true
 BCrypt::Password.new(digest) == &quot;errada&quot;          # false
 </code></pre>
+<blockquote>
+<p>Ao rodar o bloco abaixo pode aparecer um aviso de três linhas dizendo que o <code>benchmark</code> vai sair
+das gems padrão no Ruby 4.0. É recado para quem mantém biblioteca, não para você. Ignore.</p>
+</blockquote>
 <pre><code class="language-ruby"># c) por que é lento de propósito
 require &quot;benchmark&quot;
 
@@ -815,8 +841,8 @@ puts u.password_digest[0, 20]
 </tr>
 <tr>
 <td>o e-mail salvou com maiúscula</td>
-<td>o normalizador não rodou</td>
-<td><code>normalizes :email, with: -&gt; (e) { e.strip.downcase }</code></td>
+<td>os normalizadores não rodam sozinhos, é preciso chamá-los</td>
+<td><code>User.normalize_email(...)</code> antes de criar, como o <code>authenticate_by_email</code> faz</td>
 </tr>
 <tr>
 <td><code>ArgumentError: wrong number of arguments</code></td>

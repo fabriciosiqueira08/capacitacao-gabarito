@@ -192,7 +192,7 @@ abrir a apostila na prática correspondente — não dite os comandos.
 | # | Slide | O que cobrar em voz alta |
 |:--|:--|:--|
 | 1 | 10 | O `docker compose ps` tem que dizer **healthy**, não `starting` |
-| 2 | 21 | Uma migration por vez, e `db:migrate` entre elas. A conferência é o **16** |
+| 2 | 21 | Uma migration por vez, e `db:migrate` entre elas. A conferência é o **15** |
 | 3 | 28 | Rodar o `create` duas vezes e ver dar diferente. Isso é o *salt* |
 | 4 e 5 | 33 | Quando `valid?` der `false`, o reflexo é `p u.errors.full_messages` |
 | 6 | 41 | O avançado (apagar o usuário e ver os eventos sumirem) vale fazer ao vivo |

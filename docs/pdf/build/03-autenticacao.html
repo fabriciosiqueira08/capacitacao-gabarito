@@ -539,15 +539,26 @@ propósito e entendendo <em>por que</em> cada peça existe.</p>
 <h3 id="pratica-1-traga-o-codigo-e-leia-a-arquitetura">Prática 1: Traga o código e leia a arquitetura</h3>
 <blockquote>
 <p>Pouco comando e muita leitura. A leitura é a parte que conta.</p>
+<p><strong>Antes do <code>rsync</code>, apague as suas migrations.</strong> As que você gerou na Aula 2 têm o horário em que
+<em>você</em> rodou o <code>generate</code>, e as do gabarito têm outro. Depois da cópia existiriam duas classes
+<code>CreateUsers</code> em <code>db/migrate/</code>, e o Rails para de funcionar inteiro com
+<code>Multiple migrations have the name CreateUsers</code>.</p>
+<p>Você não perde nada: as migrations do gabarito criam as mesmas tabelas, mais a do <code>token_version</code>.</p>
 </blockquote>
-<pre><code class="language-bash">cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03
+<pre><code class="language-bash">cd ~/automic_auth_api
+rm -rf db/migrate db/schema.rb
+
+cd ~/capacitacao-gabarito &amp;&amp; git checkout aula-03
 rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
 
 cd ~/automic_auth_api
 bundle install
-bin/rails db:migrate
+bin/rails db:drop db:create db:migrate
 bin/rails test
 </code></pre>
+<p>O <code>db:drop</code> é necessário pelo mesmo motivo: o seu banco tem registrado que rodou <em>as suas</em>
+migrations, e as do gabarito têm identificadores diferentes. Recriar é mais rápido que remendar, e
+não há dado nenhum para perder.</p>
 <p><strong>Confere</strong>: <strong>71 testes verdes.</strong> Se não deram, pare aqui e resolva antes de seguir. Todas as
 práticas seguintes dependem disso.</p>
 <blockquote>
@@ -626,6 +637,16 @@ muitos assim.</p>
 <td><code>rsync: command not found</code></td>
 <td>não instalado</td>
 <td><code>sudo apt install rsync</code> / <code>brew install rsync</code></td>
+</tr>
+<tr>
+<td><code>Multiple migrations have the name CreateUsers</code></td>
+<td>você não apagou as suas migrations antes do <code>rsync</code></td>
+<td><code>rm -rf db/migrate db/schema.rb</code>, refaça o <code>rsync</code>, e <code>bin/rails db:drop db:create db:migrate</code></td>
+</tr>
+<tr>
+<td><code>PG::DuplicateTable</code> ao migrar depois do <code>rsync</code></td>
+<td>o banco lembra das suas migrations antigas</td>
+<td><code>bin/rails db:drop db:create db:migrate</code></td>
 </tr>
 <tr>
 <td>o <code>rsync</code> jogou tudo na raiz do projeto</td>

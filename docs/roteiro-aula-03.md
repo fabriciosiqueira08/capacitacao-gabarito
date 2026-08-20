@@ -213,7 +213,7 @@ Cada uma tem, na apostila, os comandos, a conferência e uma tabela de erros.
 
 | # | Slide | O que cobrar em voz alta |
 |:--|:--|:--|
-| 1 | 16 | 71 testes verdes **antes** de seguir. Sem isso, nada depois funciona |
+| 1 | 16 | **Mande apagar `db/migrate` e `db/schema.rb` antes do rsync.** Senão ficam duas `CreateUsers` e o Rails morre. Depois: 71 verdes antes de seguir |
 | 2 | 20 | O `Content-Type` esquecido é o erro nº 1. E a mensagem do e-mail repetido: entrega quem tem conta? |
 | 3 | 25 | Login antes de confirmar dá **403**, não 401. A senha estava certa |
 | 4 | 42 | O servidor não guardou sessão nenhuma. Ele **leu** o token |

@@ -159,17 +159,24 @@ slides:
   - tipo: pratica
     titulo: "PRÁTICA 1: TRAGA O CÓDIGO E LEIA"
     bullets:
-      - "rsync do gabarito aula-03, bundle install, db:migrate."
-      - "Confere: bin/rails test  ->  71 verdes. NÃO siga sem isso."
-      - "Agora leia cinco arquivos, nesta ordem, abrindo no editor:"
-      - "- register.rb · issue_token.rb · authentication.rb"
-      - "- token_denylist.rb · complete_password_reset.rb"
-      - "Ache o Struct de retorno e os argumentos nomeados. Estão em todos."
+      - "APAGUE db/migrate e db/schema.rb ANTES do rsync."
+      - "- senão ficam duas CreateUsers e o Rails para de funcionar"
+      - "rsync, bundle install, e db:drop db:create db:migrate."
+      - "Confere: 71 testes verdes. NÃO siga sem isso."
+      - "Depois leia cinco arquivos: register, issue_token, authentication,"
+      - "- token_denylist e complete_password_reset."
       - "Apostila: Prática 1."
     notas: |
       ~20 minutos: 5 de comando, 15 de leitura. A leitura é a parte que conta.
-      Se o Gemfile não for junto no rsync, dá uninitialized constant
-      Rack::Cors. É o erro número um deste bloco.
+
+      ANTES DE MANDAR RODAR: pare e cobre o rm -rf db/migrate db/schema.rb.
+      As migrations que eles geraram na Aula 2 têm o horário deles; as do
+      gabarito têm outro. Sem apagar, ficam duas classes CreateUsers e o Rails
+      morre em QUALQUER comando, com "Multiple migrations have the name".
+      É o erro que trava a aula inteira no primeiro comando do dia.
+
+      O segundo erro do bloco é o Gemfile não ir junto no rsync, que dá
+      uninitialized constant Rack::Cors.
       Faça a leitura guiada projetando os cinco arquivos, um por um.
 
   - tipo: secao
