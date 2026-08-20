@@ -203,7 +203,7 @@ slides:
       - "Instale o openssh-server e suba com service ssh start."
       - "Gere o par de chaves da capacitação, e chmod 600 nela."
       - "Ponha a sua pública no seu próprio authorized_keys."
-      - "Confere, e é o que o Kamal precisa:"
+      - "VOCÊ DEVE VER, e é o que o Kamal precisa:"
       - "ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes \"$USER\"@127.0.0.1 \\"
       - "  'echo SSH_OK && docker -v'"
       - "Apostila: Prática 1, com a tabela de erros."
@@ -277,7 +277,7 @@ slides:
       - "- sem o -R, o deploy.yml vai pra raiz e o Kamal não acha nada"
       - "Crie o PAT (classic): write:packages e read:packages."
       - "- ele aparece UMA VEZ. Guarde agora"
-      - "Confere: ls config/deploy.yml .kamal/secrets .env.example"
+      - "VOCÊ DEVE VER: ls config/deploy.yml .kamal/secrets .env.example"
       - "Apostila: Prática 2."
     notas: |
       ~15 minutos.
@@ -394,8 +394,8 @@ slides:
       - "SERVER_IP e KAMAL_SSH_USER já vêm prontos: é a sua máquina e o seu login."
       - "SERVER_ARCH: o uname -m da prática anterior (x86_64 = amd64, aarch64 = arm64)."
       - "RAILS_MASTER_KEY é o CONTEÚDO de config/master.key."
-      - "Confere: git status NÃO pode mostrar o .env."
-      - "Confere: bundle exec kamal config roda sem erro."
+      - "VOCÊ DEVE VER: git status NÃO pode mostrar o .env."
+      - "VOCÊ DEVE VER: bundle exec kamal config roda sem erro."
       - "Apostila: Prática 3."
     notas: |
       ~15 minutos, e errar aqui é o que causa quase toda falha da Prática 6.
@@ -501,7 +501,7 @@ slides:
       - "openssl req -x509 ... -addext \"subjectAltName=DNS:seunome.test\""
       - "O subjectAltName NÃO é opcional. Sem ele, nenhum cliente aceita."
       - "echo \"SEU_IP  seunome.test\" | sudo tee -a /etc/hosts"
-      - "Confere: getent hosts seunome.test devolve o IP da VM."
+      - "VOCÊ DEVE VER: getent hosts seunome.test devolve o IP da VM."
       - "Windows: repita no hosts do WINDOWS, é ele que o navegador lê."
       - "Apostila: Prática 4."
     notas: |
@@ -572,7 +572,7 @@ slides:
     bullets:
       - "source .env  ·  bundle exec kamal config  (valida sem tocar em nada)"
       - "bundle exec kamal setup   — só na primeira vez."
-      - "Confere: curl --cacert tls/capacita-cert.pem https://seunome.test/..."
+      - "VOCÊ DEVE VER: curl --cacert tls/capacita-cert.pem https://seunome.test/..."
       - "{\"status\":\"ok\", ..., \"environment\":\"production\"}"
       - "Apostila: Prática 5, com a maior tabela de erros da capacitação."
     notas: |
@@ -647,7 +647,7 @@ slides:
       - "- e desta vez o e-mail chega na sua caixa de entrada de verdade."
       - "Mude a rota de status, commite, dê push (o CI roda) e kamal deploy."
       - "kamal app logs -f enquanto acontece: veja o novo subir AO LADO."
-      - "docker exec ... pg_dump ... | gzip: e confira que o arquivo não está vazio."
+      - "docker exec ... pg_dump ... | gzip  ->  ls -lh: alguns KB, não 20 bytes."
       - "kamal app stop e kamal accessory stop db liberam a máquina depois."
       - "Apostila: Prática 7."
     notas: |

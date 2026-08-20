@@ -292,7 +292,7 @@ de pé sem baixar a página inteira.</p>
 <p>A rota de status só aceita <code>GET</code>, então você vai levar um <code>404</code> ou <code>405</code>. <strong>O ponto não é o sucesso</strong>
 é você ter montado uma requisição com método, cabeçalho e corpo na mão, que é o que o Insomnia faz
 por baixo.</p>
-<p><strong>Confere</strong>: você consegue apontar, na saída do <code>-v</code>, onde termina a sua requisição e onde começa a
+<p><strong>O que você deve ver</strong>: você consegue apontar, na saída do <code>-v</code>, onde termina a sua requisição e onde começa a
 resposta. E consegue dizer o que significa cada um dos três números que viu: 200, 404 e o do POST.</p>
 <p><strong>Se der errado</strong></p>
 <table>
@@ -867,7 +867,7 @@ Pessoa.new(&quot;Ana&quot;).cumprimentar
 <blockquote>
 <p>O <code>def metodo = expressão</code> é o <em>endless method</em>, do Ruby 3. Serve para método de uma linha só.</p>
 </blockquote>
-<p><strong>Confere</strong>: você conseguiu explicar, em voz alta, por que <code>usuario["nome"]</code> deu <code>nil</code> e por que
+<p><strong>O que você deve ver</strong>: você conseguiu explicar, em voz alta, por que <code>usuario["nome"]</code> deu <code>nil</code> e por que
 <code>saudacao("Ana")</code> deu <code>ArgumentError</code>. Se conseguiu, a sintaxe entrou.</p>
 <p><strong>Se der errado</strong></p>
 <table>
@@ -1183,7 +1183,7 @@ cd automic_auth_api
 </code></pre>
 <p>Cada flag tira uma parte do Rails que este projeto não usa. <code>--api</code> é a mais importante: gera um
 Rails sem views e sem os middlewares de navegador.</p>
-<p><strong>Confere</strong>:</p>
+<p><strong>O que você deve ver</strong>:</p>
 <pre><code class="language-bash">ls                      # tem app/, config/, db/, test/
 cat Gemfile | head -5    # a linha do rails, com a versão
 bin/rails -v            # Rails 8.1.x
@@ -1262,7 +1262,7 @@ docker compose ps          # tem que aparecer &quot;healthy&quot;
 bin/rails db:prepare
 bin/rails server
 </code></pre>
-<p><strong>Confere</strong>: abra <code>http://localhost:3000/up</code>. Verde é a aplicação de pé, falando com o banco.</p>
+<p><strong>O que você deve ver</strong>: abra <code>http://localhost:3000/up</code>. Verde é a aplicação de pé, falando com o banco.</p>
 <p><strong>Se der errado</strong></p>
 <blockquote>
 <p>Esta é, de longe, a prática em que mais gente trava: em toda turma, em qualquer material. Os dois
@@ -1349,12 +1349,28 @@ esse</strong>, é o Zeitwerk que exige:</p>
   end
 end
 </code></pre>
-<p><strong>Confere</strong>:</p>
-<pre><code class="language-bash">bin/rails routes -g api        # a sua rota tem que aparecer na lista
-curl -i localhost:3000/api/v1/status
+<p><strong>O que você deve ver</strong>:</p>
+<pre><code class="language-bash">bin/rails routes -g api
 </code></pre>
-<p>Tem que vir <code>200</code> e o JSON. Depois monte a mesma requisição no Insomnia e confira o status ali
-também: é a ferramenta que você vai usar nas Aulas 3 e 4.</p>
+<pre><code>        Prefix Verb URI Pattern              Controller#Action
+ api_v1_status GET  /api/v1/status(.:format) api/v1/status#show
+</code></pre>
+<pre><code class="language-bash">curl -i localhost:3000/api/v1/status
+</code></pre>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{&quot;status&quot;:&quot;ok&quot;,&quot;service&quot;:&quot;automic-auth-api&quot;,&quot;environment&quot;:&quot;development&quot;}
+</code></pre>
+<p><strong>E agora a mesma coisa no Insomnia</strong>, que é a ferramenta que você vai usar nas Aulas 3 e 4. Crie
+uma requisição <code>GET</code> para <code>http://localhost:3000/api/v1/status</code> e mande.</p>
+<p>Você vai ver <strong>200</strong> em verde, o corpo formatado, e uma aba com os cabeçalhos. É a mesma requisição
+do <code>curl</code>, com uma tela em volta.</p>
+<blockquote>
+<p><strong>Faça isso depois de cada rota que criar</strong>, hoje e nas próximas aulas. Ver a rota responder no
+Insomnia logo depois de escrevê-la é o que fecha o ciclo entre "escrevi um arquivo" e "existe uma
+API funcionando".</p>
+</blockquote>
 <p><strong>Se der errado</strong></p>
 <blockquote>
 <p>O erro campeão aqui é <code>uninitialized constant</code>. Ele assusta porque parece dizer que a sua classe
@@ -1427,7 +1443,7 @@ end
 </code></pre>
 <pre><code class="language-bash">bin/rails test
 </code></pre>
-<p><strong>Confere</strong>: sai <code>1 runs, 2 assertions, 0 failures</code>. Agora <strong>quebre de propósito</strong>: troque <code>"ok"</code> por
+<p><strong>O que você deve ver</strong>: sai <code>1 runs, 2 assertions, 0 failures</code>. Agora <strong>quebre de propósito</strong>: troque <code>"ok"</code> por
 <code>"OK"</code> no teste, rode de novo, e leia a mensagem de falha inteira. Depois desfaça.</p>
 <p>Ver o teste falhar é o que prova que ele está realmente testando alguma coisa.</p>
 <p><strong>Se der errado</strong></p>
@@ -1481,7 +1497,7 @@ gh repo create automic_auth_api --private --source=. --push
 <pre><code class="language-bash">git remote add origin git@github.com:SEU-USUARIO/automic_auth_api.git
 git push -u origin main
 </code></pre>
-<p><strong>Confere</strong>:</p>
+<p><strong>O que você deve ver</strong>:</p>
 <pre><code class="language-bash">gh repo view --web        # abre o seu repositório no navegador
 git log --oneline         # os seus commits estão lá
 </code></pre>

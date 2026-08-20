@@ -28,7 +28,7 @@ que você vai fazer aqui é idêntico ao que se faz numa máquina alugada, e num
 o tempo é melhor gasto entendendo o deploy do que esperando um provedor liberar cota.</p>
 <p>Duas coisas que ajudam:</p>
 <p><strong>Um passo mal feito só aparece três passos depois.</strong> Por isso toda prática tem uma linha
-<strong>Confere</strong>. Não siga com ela vermelha, mesmo que pareça que dá.</p>
+<strong>O que você deve ver</strong>. Não siga com ela vermelha, mesmo que pareça que dá.</p>
 <p><strong>Hoje você vai encontrar mais erro do que nos outros encontros.</strong> É assunto novo e ferramenta nova,
 e a maioria dos erros não tem nada a ver com programar. É assim para todo mundo, sempre.</p>
 <blockquote>
@@ -742,7 +742,7 @@ mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh
 cat ~/.ssh/capacita.pub &gt;&gt; ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 </code></pre>
-<p><strong>Confere</strong>:</p>
+<p><strong>O que você deve ver</strong>:</p>
 <pre><code class="language-bash">ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes &quot;$USER&quot;@127.0.0.1 'echo SSH_OK &amp;&amp; docker -v'
 </code></pre>
 <p>Tem que sair <code>SSH_OK</code> e a versão do Docker. Se saiu, o Kamal tem tudo de que precisa.</p>
@@ -816,7 +816,7 @@ fora de <code>config/</code>, e o Kamal não acha nada.</p>
 <p>Crie o <strong>PAT (classic)</strong> no GitHub: <strong>Settings → Developer settings → Personal access tokens →
 Tokens (classic) → Generate new token</strong>, com <code>write:packages</code> e <code>read:packages</code>. Ele é mostrado
 <strong>uma vez</strong>.</p>
-<p><strong>Confere</strong>:</p>
+<p><strong>O que você deve ver</strong>:</p>
 <pre><code class="language-bash">ls config/deploy.yml .kamal/secrets .env.example
 uname -m        # x86_64 é amd64; aarch64 ou arm64 é arm64. Anote para o .env
 </code></pre>
@@ -872,11 +872,13 @@ cp .env.example .env
 $EDITOR .env
 source .env
 </code></pre>
-<p>O <code>.env.example</code> já vem com <code>SERVER_IP=127.0.0.1</code> e <code>KAMAL_SSH_USER="$USER"</code> preenchidos. O que
-falta você preencher: <code>GHCR_USER</code>, <code>SERVER_ARCH</code>, <code>APP_HOST</code>, <code>KAMAL_REGISTRY_PASSWORD</code> (o PAT),
+<p>O <code>.env.example</code> já vem com <code>SERVER_IP=127.0.0.1</code> e <code>KAMAL_SSH_USER="$USER"</code> preenchidos, porque o
+servidor é a sua máquina. O <code>SERVER_ARCH</code> é o <code>uname -m</code> da prática anterior, traduzido: <code>x86_64</code>
+vira <code>amd64</code>, e <code>aarch64</code> ou <code>arm64</code> viram <code>arm64</code>.</p>
+<p>O que falta você preencher: <code>GHCR_USER</code>, <code>SERVER_ARCH</code>, <code>APP_HOST</code>, <code>KAMAL_REGISTRY_PASSWORD</code> (o PAT),
 <code>RAILS_MASTER_KEY</code> (o conteúdo de <code>config/master.key</code>), <code>AUTOMIC_AUTH_API_DATABASE_PASSWORD</code>,
 <code>JWT_SECRET</code> (saída de <code>bin/rails secret</code>), <code>CORS_ORIGINS</code>, <code>MAILER_FROM</code> e os três <code>SMTP_*</code>.</p>
-<p><strong>Confere</strong>:</p>
+<p><strong>O que você deve ver</strong>:</p>
 <pre><code class="language-bash">git status                      # o .env NÃO pode aparecer
 bundle exec kamal config &gt; /dev/null &amp;&amp; echo &quot;config ok&quot;
 </code></pre>
@@ -929,7 +931,7 @@ openssl req -x509 -newkey rsa:2048 -sha256 -days 365 -nodes \
 echo &quot;127.0.0.1  seunome.test&quot; | sudo tee -a /etc/hosts
 getent hosts seunome.test
 </code></pre>
-<p><strong>Confere</strong>: o <code>getent</code> devolve <code>127.0.0.1</code>, e o certificado tem o SAN certo:</p>
+<p><strong>O que você deve ver</strong>: o <code>getent</code> devolve <code>127.0.0.1</code>, e o certificado tem o SAN certo:</p>
 <pre><code class="language-bash">openssl x509 -in tls/capacita-cert.pem -noout -text | grep -A1 &quot;Subject Alternative Name&quot;
 </code></pre>
 <blockquote>
@@ -980,7 +982,7 @@ espelha o <code>localhost</code> para o Windows, então <code>127.0.0.1</code> f
 bundle exec kamal config      # valida sem tocar em nada
 bundle exec kamal setup       # só na primeira vez
 </code></pre>
-<p><strong>Confere</strong>:</p>
+<p><strong>O que você deve ver</strong>:</p>
 <pre><code class="language-bash">curl --cacert tls/capacita-cert.pem https://seunome.test/api/v1/status
 </code></pre>
 <pre><code class="language-json">{&quot;status&quot;:&quot;ok&quot;,&quot;service&quot;:&quot;automic-auth-api&quot;,&quot;environment&quot;:&quot;production&quot;}
@@ -1086,7 +1088,7 @@ túnel subiu, e o que faltou foi a confiança.</p>
 </code></pre>
 <p>Funciona <strong>conferindo</strong>. Você não desligou nada: você disse ao <code>curl</code> em quem confiar.</p>
 <p>Abra também no navegador e leia o aviso.</p>
-<p><strong>Confere</strong>: escreva numa linha, para você mesmo, a diferença entre o segundo e o terceiro comando.
+<p><strong>O que você deve ver</strong>: escreva numa linha, para você mesmo, a diferença entre o segundo e o terceiro comando.
 Se conseguir, você entendeu o que uma CA é.</p>
 <p><strong>Se der errado</strong></p>
 <table>
@@ -1136,7 +1138,7 @@ ls -lh backup-*.sql.gz
 <li>[ ] Quando quiser liberar a máquina: <code>kamal app stop</code> para o app, e
       <code>kamal accessory stop db</code> para o banco. <code>kamal app boot</code> traz de volta.</li>
 </ul>
-<p><strong>Confere</strong>: o backup tem mais que alguns bytes, e o <code>kamal app logs</code> mostrou o container novo
+<p><strong>O que você deve ver</strong>: o backup tem mais que alguns bytes, e o <code>kamal app logs</code> mostrou o container novo
 subindo ao lado do antigo antes de trocar.</p>
 <p><strong>Se der errado</strong></p>
 <table>

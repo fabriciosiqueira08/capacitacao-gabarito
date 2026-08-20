@@ -162,7 +162,7 @@ slides:
       - "APAGUE db/migrate e db/schema.rb ANTES do rsync."
       - "- senão ficam duas CreateUsers e o Rails para de funcionar"
       - "rsync, bundle install, e db:drop db:create db:migrate."
-      - "Confere: 71 testes verdes. NÃO siga sem isso."
+      - "VOCÊ DEVE VER: 71 testes verdes. NÃO siga sem isso."
       - "Depois leia cinco arquivos: register, issue_token, authentication,"
       - "- token_denylist e complete_password_reset."
       - "Apostila: Prática 1."
@@ -212,11 +212,12 @@ slides:
   - tipo: pratica
     titulo: "PRÁTICA 2: CADASTRO NO TERMINAL"
     bullets:
-      - "curl -i -X POST $API/registrations com o JSON completo."
-      - "Confere: 201, e o e-mail abriu no navegador. ANOTE o código."
-      - "Monte a coleção inteira no Insomnia: são 8 requisições."
-      - "Avançado: cadastre o MESMO e-mail de novo. Que status, e que mensagem?"
-      - "A mensagem entrega ao atacante que aquele e-mail já existe?"
+      - "No INSOMNIA: POST /api/v1/registrations, body JSON."
+      - "VOCÊ DEVE VER: 201, e no corpo email_verified: false."
+      - "- e nenhum password nem digest: é o serializer decidindo"
+      - "O e-mail abriu no navegador. ANOTE o código de 6 dígitos."
+      - "Monte as outras 7 requisições da coleção. Você usa todas hoje."
+      - "Avançado: cadastre o MESMO e-mail. A mensagem entrega que ele existe?"
       - "Apostila: Prática 2."
     notas: |
       ~20 minutos. Primeira rota que cria alguma coisa.
@@ -264,9 +265,10 @@ slides:
   - tipo: pratica
     titulo: "PRÁTICA 3: O E-MAIL E A CONFIRMAÇÃO"
     bullets:
-      - "Tente logar ANTES de confirmar. Confere: 403 email_unverified."
-      - "A senha está certa. O que falta é a conta estar ativa."
-      - "POST /email_verifications/confirm com o código de 6 dígitos."
+      - "POST /sessions ANTES de confirmar."
+      - "VOCÊ DEVE VER: 403, code: email_unverified."
+      - "403 e não 401: a senha está CERTA, a conta é que não está ativa."
+      - "Depois POST /email_verifications/confirm com o código -> 200."
       - "Avançado: mande o MESMO código de novo. Funciona duas vezes? Por quê?"
       - "Apostila: Prática 3."
     notas: |
@@ -453,11 +455,12 @@ slides:
   - tipo: pratica
     titulo: "PRÁTICA 4: LOGIN, E O TOKEN NA MÃO"
     bullets:
-      - "Faça login e capture o token do cabeçalho Authorization."
-      - "curl $API/me -H \"Authorization: Bearer $TOKEN\"  ->  200"
+      - "POST /sessions -> 200. O TOKEN VEM NO CABEÇALHO, não no corpo."
+      - "- aba Headers da resposta: Authorization: Bearer eyJ..."
+      - "Cole no header de GET /me  ->  VOCÊ DEVE VER: 200 com os seus dados."
       - "O servidor não guardou sessão nenhuma. Ele LEU o token."
-      - "Cole o token em jwt.io. Ache o sub, o jti, o ver e o exp."
-      - "Avançado: troque UM caractere do token e chame /me. Que status?"
+      - "Cole o token em jwt.io: ache sub, jti, ver e exp."
+      - "Avançado: acrescente um caractere no token e chame /me  ->  401."
       - "Apostila: Prática 4."
     notas: |
       ~20 minutos, o núcleo da aula.
@@ -552,10 +555,11 @@ slides:
   - tipo: pratica
     titulo: "PRÁTICA 5: LOGOUT QUE REVOGA DE VERDADE"
     bullets:
-      - "DELETE /sessions com o token."
-      - "Depois: curl -i $API/me com o MESMO token."
-      - "Confere: 401. O token ainda é válido e ainda não expirou."
-      - "Sem a denylist, isso responderia 200 até o exp chegar."
+      - "Antes de rodar, APOSTE: o /me vai dar 200 ou 401?"
+      - "DELETE /sessions com o token  ->  200."
+      - "GET /me com o MESMO token  ->  VOCÊ DEVE VER: 401."
+      - "A assinatura ainda bate e o exp ainda está no futuro."
+      - "O servidor DECIDIU não aceitar: o jti está na denylist."
       - "Avançado: Rails.cache.read(\"denylist:<o-seu-jti>\") no console."
       - "Apostila: Prática 5."
     notas: |
@@ -622,12 +626,12 @@ slides:
   - tipo: pratica
     titulo: "PRÁTICA 6: RECUPERAÇÃO DE SENHA"
     bullets:
-      - "Faça login, guarde o token. Peça a recuperação e confirme a nova senha."
-      - "Depois chame /me com o token ANTIGO."
-      - "Confere: 401. Trocar a senha derrubou todas as sessões abertas."
-      - "É o token_version subindo. Quem roubou o seu token acabou de perdê-lo."
-      - "Confere também: peça recuperação para um e-mail que NÃO existe."
-      - "A resposta é idêntica. Isso é resistência a enumeração."
+      - "Login, guarde o token. Peça a recuperação, troque a senha."
+      - "Chame /me com o token ANTIGO  ->  VOCÊ DEVE VER: 401."
+      - "Trocar a senha derrubou TODAS as sessões, em todos os aparelhos."
+      - "- é o token_version subindo"
+      - "Agora peça recuperação para um e-mail que NÃO existe."
+      - "VOCÊ DEVE VER: a MESMA resposta. Ponha as duas lado a lado."
       - "Apostila: Prática 6."
     notas: |
       ~20 minutos, o fluxo mais completo do sistema.
@@ -686,6 +690,7 @@ slides:
     titulo: "PRÁTICA 7: TESTES E QUALIDADE"
     bullets:
       - "bin/rails test · bin/rubocop · bin/brakeman --no-pager"
+      - "VOCÊ DEVE VER: 71 verdes, 0 ofensas, No warnings found."
       - "Agora QUEBRE: comente a linha da denylist no authentication.rb."
       - "Rode os testes e veja QUAL fica vermelho."
       - "Era ele que estava te protegendo. Depois desfaça."
@@ -702,7 +707,7 @@ slides:
     bullets:
       - "Em decode_token.rb, troque o true por false (é o \"verifique a assinatura?\")."
       - "Forje um token assinado com OUTRO segredo, pelo rails runner."
-      - "Chame /me com ele. Confere: 200."
+      - "Chame /me com ele. VOCÊ DEVE VER: 200."
       - "Você acabou de entrar como outra pessoa, sem saber a senha dela."
       - "DESFAÇA, e rode os testes: um deles estava te protegendo disso."
       - "Apostila: Prática 8."

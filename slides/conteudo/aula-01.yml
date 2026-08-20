@@ -338,8 +338,9 @@ slides:
     titulo: "PRÁTICA 1: HTTP NA MÃO"
     bullets:
       - "curl -i https://api.seemxxiii.tech/api/v1/status"
+      - "VOCÊ DEVE VER:  HTTP/2 200  +  content-type: application/json"
       - "Troque o -i por -v. Ache o que VOCÊ mandou e o que ele respondeu."
-      - "Peça uma rota que não existe. Veja o 404 e repare: ele RESPONDEU."
+      - "Peça uma rota que não existe: vem 404, e repare que ele RESPONDEU."
       - "curl -I: só os cabeçalhos. É assim que se checa se um site está de pé."
       - "Avançado: monte um POST na mão, com -X, -H e -d."
       - "Apostila: Prática 1, com a tabela de erros."
@@ -602,10 +603,10 @@ slides:
     titulo: "PRÁTICA 2: RUBY NO IRB"
     bullets:
       - "irb. Descubra o tipo de tudo com .class"
-      - "puts \"entrou\" if 0    <- entra! Só nil e false são falsos."
-      - "Crie um hash e leia por símbolo. Depois tente por string."
-      - "[1,2,3].map { |n| n * n } e .select { |n| n.odd? }"
-      - "user = nil; user.email estoura. user&.email não."
+      - "puts \"entrou\" if 0   ->  VOCÊ DEVE VER: entrou (0 é verdadeiro!)"
+      - "usuario[:nome] -> \"Ana\"   ·   usuario[\"nome\"] -> nil"
+      - "[1,2,3].map { |n| n * n }  ->  [1, 4, 9]"
+      - "user = nil; user.email estoura. user&.email devolve nil."
       - "Avançado: escreva um módulo e inclua numa classe."
       - "Apostila: Prática 2, com os oito passos e a tabela de erros."
     notas: |

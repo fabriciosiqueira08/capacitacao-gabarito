@@ -559,7 +559,7 @@ bin/rails test
 <p>O <code>db:drop</code> é necessário pelo mesmo motivo: o seu banco tem registrado que rodou <em>as suas</em>
 migrations, e as do gabarito têm identificadores diferentes. Recriar é mais rápido que remendar, e
 não há dado nenhum para perder.</p>
-<p><strong>Confere</strong>: <strong>71 testes verdes.</strong> Se não deram, pare aqui e resolva antes de seguir. Todas as
+<p><strong>O que você deve ver</strong>: <strong>71 testes verdes.</strong> Se não deram, pare aqui e resolva antes de seguir. Todas as
 práticas seguintes dependem disso.</p>
 <blockquote>
 <p>O <code>Gemfile</code> vai junto porque esta aula acrescenta <code>jwt</code>, <code>rack-cors</code> e <code>letter_opener</code>. Sem ele a
@@ -661,25 +661,71 @@ muitos assim.</p>
 </tbody>
 </table>
 <hr>
-<h3 id="pratica-2-cadastro-no-terminal-e-no-insomnia">Prática 2: Cadastro, no terminal e no Insomnia</h3>
+<h3 id="pratica-2-cadastro-no-insomnia-e-no-terminal">Prática 2: Cadastro, no Insomnia e no terminal</h3>
 <blockquote>
-<p>A primeira rota que cria alguma coisa.</p>
+<p>A primeira rota que cria alguma coisa. Faça no <strong>Insomnia</strong>: é a ferramenta que você vai usar o
+resto da aula, e ela mostra status, cabeçalhos e corpo lado a lado, sem briga de aspas no shell.</p>
 </blockquote>
-<p>Com o servidor rodando (<code>bin/rails server</code>), num segundo terminal:</p>
-<pre><code class="language-bash">API=localhost:3000/api/v1
-EMAIL=voce@aluno.ufop.edu.br
-
-curl -i -X POST $API/registrations -H 'Content-Type: application/json' -d &quot;{
-  \&quot;name\&quot;:\&quot;Seu Nome\&quot;,\&quot;email\&quot;:\&quot;$EMAIL\&quot;,
-  \&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;confirm_password\&quot;:\&quot;Automic@2026\&quot;,
-  \&quot;course\&quot;:\&quot;Engenharia\&quot;,\&quot;matricula\&quot;:\&quot;2013333\&quot;,\&quot;check_terms_use\&quot;:true}&quot;
+<p>Com o servidor rodando (<code>bin/rails server</code>), monte no Insomnia:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Método</td>
+<td><code>POST</code></td>
+</tr>
+<tr>
+<td>URL</td>
+<td><code>http://localhost:3000/api/v1/registrations</code></td>
+</tr>
+<tr>
+<td>Header</td>
+<td><code>Content-Type: application/json</code></td>
+</tr>
+<tr>
+<td>Body</td>
+<td>JSON, abaixo</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Seu Nome&quot;,
+  &quot;email&quot;: &quot;voce@aluno.ufop.edu.br&quot;,
+  &quot;password&quot;: &quot;Automic@2026&quot;,
+  &quot;confirm_password&quot;: &quot;Automic@2026&quot;,
+  &quot;course&quot;: &quot;Engenharia&quot;,
+  &quot;matricula&quot;: &quot;2013333&quot;,
+  &quot;check_terms_use&quot;: true
+}
 </code></pre>
-<p><strong>Confere</strong>: <code>201</code>, e o e-mail abriu numa aba do navegador (é o <code>letter_opener</code>). <strong>Anote o código de
-6 dígitos.</strong></p>
-<p>Agora monte a mesma requisição no <strong>Insomnia</strong>, e aproveite para criar a coleção inteira: você vai
-usá-la o resto da aula. Todas com <code>Content-Type: application/json</code>:</p>
-<pre><code>POST   /api/v1/registrations
-POST   /api/v1/email_verifications/confirm
+<p><strong>O que você deve ver</strong>: status <strong>201 Created</strong>, e um corpo assim:</p>
+<pre><code class="language-json">{
+  &quot;message&quot;: &quot;Cadastro realizado. Enviamos um código para o seu e-mail.&quot;,
+  &quot;user&quot;: {
+    &quot;id&quot;: 1,
+    &quot;name&quot;: &quot;Seu Nome&quot;,
+    &quot;email&quot;: &quot;voce@aluno.ufop.edu.br&quot;,
+    &quot;email_verified&quot;: false,
+    &quot;course&quot;: &quot;Engenharia&quot;,
+    &quot;matricula&quot;: &quot;2013333&quot;,
+    &quot;created_at&quot;: &quot;2026-08-19T21:04:11Z&quot;
+  }
+}
+</code></pre>
+<p>Repare em três coisas, e elas são a aula inteira em miniatura:</p>
+<ul>
+<li><strong><code>email_verified</code> está <code>false</code>.</strong> A conta existe e ainda não serve para entrar.</li>
+<li><strong>Não há <code>password</code> nem <code>password_digest</code> na resposta.</strong> É o serializer decidindo o que sai.</li>
+<li><strong>O e-mail abriu numa aba do navegador</strong>, pelo <code>letter_opener</code>. <strong>Anote o código de 6 dígitos.</strong></li>
+</ul>
+<p>Agora crie no Insomnia as outras sete requisições da coleção, todas com o mesmo header. Você vai
+usá-las nas próximas práticas:</p>
+<pre><code>POST   /api/v1/email_verifications/confirm
 POST   /api/v1/email_verifications/resend
 POST   /api/v1/sessions
 DELETE /api/v1/sessions
@@ -687,8 +733,18 @@ POST   /api/v1/password_resets/request
 POST   /api/v1/password_resets/confirm
 GET    /api/v1/me
 </code></pre>
-<p><strong>Avançado</strong>: mande o cadastro de novo, com o mesmo e-mail. Que status vem? E que mensagem? Ela
-entrega ao atacante que aquele e-mail já existe?</p>
+<blockquote>
+<p><strong>Prefere o terminal?</strong> O mesmo cadastro, em <code>curl</code>. Ele funciona, mas o Insomnia guarda as
+requisições para reusar, e é isso que faz diferença nas próximas cinco práticas.</p>
+<p><code>bash
+API=localhost:3000/api/v1
+curl -i -X POST $API/registrations -H 'Content-Type: application/json' \
+  -d '{"name":"Seu Nome","email":"voce@aluno.ufop.edu.br",
+       "password":"Automic@2026","confirm_password":"Automic@2026",
+       "course":"Engenharia","matricula":"2013333","check_terms_use":true}'</code></p>
+</blockquote>
+<p><strong>Avançado</strong>: mande o <strong>mesmo cadastro</strong> de novo. Que status vem? Leia a mensagem e responda: ela
+entrega a um estranho que aquele e-mail já tem conta?</p>
 <p><strong>Se der errado</strong></p>
 <table>
 <thead>
@@ -705,34 +761,29 @@ entrega ao atacante que aquele e-mail já existe?</p>
 <td>a mensagem diz qual; o <code>params.expect</code> é rígido de propósito</td>
 </tr>
 <tr>
-<td><code>422</code> com lista de erros</td>
+<td><code>422</code> com <code>"code": "validation_failed"</code></td>
 <td>as validações da Aula 2 recusaram</td>
-<td>leia a lista: senha fraca, e-mail inválido, termos não aceitos</td>
+<td>leia o <code>details</code>: senha fraca, e-mail inválido, termos não aceitos</td>
 </tr>
 <tr>
 <td><code>415 Unsupported Media Type</code></td>
-<td>faltou o <code>-H 'Content-Type: application/json'</code></td>
-<td>acrescente</td>
+<td>falta o header <code>Content-Type: application/json</code></td>
+<td>no Insomnia, escolha o body do tipo JSON e ele põe sozinho</td>
 </tr>
 <tr>
 <td>o e-mail não abriu no navegador</td>
-<td><code>letter_opener</code> só funciona com o servidor rodando no seu desktop</td>
-<td>veja em <code>tmp/letter_opener/</code> ou no log do <code>rails server</code></td>
+<td>o <code>letter_opener</code> só abre com o servidor no seu desktop</td>
+<td>veja em <code>tmp/letter_opener/</code>, ou no log do <code>rails server</code></td>
 </tr>
 <tr>
 <td><code>Connection refused</code></td>
-<td>o <code>rails server</code> não está de pé</td>
-<td>suba-o no outro terminal</td>
+<td>o <code>bin/rails server</code> não está de pé</td>
+<td>suba-o num segundo terminal</td>
 </tr>
 <tr>
-<td>a resposta veio em HTML de erro</td>
+<td>a resposta veio em HTML</td>
 <td>exceção não tratada</td>
-<td>leia o log do <code>rails server</code>, não o <code>curl</code></td>
-</tr>
-<tr>
-<td>aspas quebrando no shell</td>
-<td>o JSON tem aspas dentro de aspas</td>
-<td>use o Insomnia, ou salve o JSON num arquivo e use <code>-d @arquivo.json</code></td>
+<td>leia o log do <code>rails server</code>, não a tela do Insomnia</td>
 </tr>
 </tbody>
 </table>
@@ -741,16 +792,22 @@ entrega ao atacante que aquele e-mail já existe?</p>
 <blockquote>
 <p>É aqui que fica claro por que existe conta "não ativada".</p>
 </blockquote>
-<pre><code class="language-bash"># tente entrar ANTES de confirmar
-curl -i -X POST $API/sessions -H 'Content-Type: application/json' \
-  -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;client\&quot;:\&quot;mobile\&quot;}&quot;
+<p><strong>Primeiro, tente entrar sem confirmar.</strong> No Insomnia, na requisição <code>POST /api/v1/sessions</code>:</p>
+<pre><code class="language-json">{ &quot;email&quot;: &quot;voce@aluno.ufop.edu.br&quot;, &quot;password&quot;: &quot;Automic@2026&quot;, &quot;client&quot;: &quot;mobile&quot; }
 </code></pre>
-<p><strong>Confere</strong>: <code>403 email_unverified</code>. A senha está certa. O que falta é a conta estar ativa.</p>
-<pre><code class="language-bash">curl -i -X POST $API/email_verifications/confirm -H 'Content-Type: application/json' \
-  -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;code\&quot;:\&quot;COLE_O_CODIGO\&quot;}&quot;
+<p><strong>O que você deve ver</strong>: status <strong>403 Forbidden</strong>.</p>
+<pre><code class="language-json">{ &quot;error&quot;: { &quot;code&quot;: &quot;email_unverified&quot;, &quot;message&quot;: &quot;...&quot; } }
 </code></pre>
-<p><strong>Avançado</strong>: mande o <strong>mesmo código</strong> de novo. Ele funciona duas vezes? Por quê? (Volte à Prática 7
-da Aula 2 se precisar.)</p>
+<p>Pare um segundo nesse número. <strong>A senha está certa.</strong> Não é 401 ("não sei quem você é"), é 403
+("sei quem você é, e você ainda não pode"). Foi essa distinção que você viu no slide de status
+codes da Aula 1.</p>
+<p><strong>Agora confirme</strong>, em <code>POST /api/v1/email_verifications/confirm</code>, com o código que veio no e-mail:</p>
+<pre><code class="language-json">{ &quot;email&quot;: &quot;voce@aluno.ufop.edu.br&quot;, &quot;code&quot;: &quot;COLE_O_CODIGO&quot; }
+</code></pre>
+<p><strong>O que você deve ver</strong>: status <strong>200</strong>, com uma mensagem de confirmação.</p>
+<p><strong>Avançado</strong>: mande o <strong>mesmo código</strong> de novo, sem mudar nada. Funciona duas vezes? Antes de rodar,
+decida qual você acha que é a resposta certa para um sistema, e por quê. (Se precisar, volte à
+Prática 7 da Aula 2: o código é apagado ao ser usado.)</p>
 <p><strong>Se der errado</strong></p>
 <table>
 <thead>
@@ -762,29 +819,29 @@ da Aula 2 se precisar.)</p>
 </thead>
 <tbody>
 <tr>
-<td><code>422 invalid_code</code> com o código certo</td>
-<td>você colou com espaço, ou o código já foi usado</td>
-<td>peça outro com <code>/email_verifications/resend</code></td>
+<td><code>422</code> com <code>invalid_code</code>, e o código está certo</td>
+<td>você colou com espaço, ou ele já foi usado</td>
+<td>peça outro em <code>POST /email_verifications/resend</code></td>
 </tr>
 <tr>
-<td><code>422 code_expired</code></td>
-<td>passaram os 15 minutos</td>
-<td><code>/email_verifications/resend</code></td>
+<td><code>422</code> com <code>code_expired</code></td>
+<td>passaram os 15 minutos de validade</td>
+<td><code>resend</code></td>
 </tr>
 <tr>
-<td><code>429</code> ou "aguarde" no resend</td>
+<td>a resposta pede para aguardar, no <code>resend</code></td>
 <td>há um intervalo mínimo entre reenvios</td>
-<td>espere o tempo indicado: é proteção contra abuso</td>
+<td>espere o tempo indicado; é proteção contra abuso</td>
 </tr>
 <tr>
-<td><code>403 email_unverified</code> mesmo depois de confirmar</td>
-<td>você confirmou outro e-mail</td>
-<td>confira o <code>$EMAIL</code> do shell</td>
+<td><code>403 email_unverified</code> <strong>depois</strong> de confirmar</td>
+<td>você confirmou um e-mail diferente do que está tentando logar</td>
+<td>confira que os dois JSON usam o mesmo endereço</td>
 </tr>
 <tr>
 <td>não acho o código</td>
 <td>a aba do <code>letter_opener</code> fechou</td>
-<td><code>ls tmp/letter_opener/</code> e abra o mais recente</td>
+<td><code>ls tmp/letter_opener/</code> e abra o arquivo mais recente</td>
 </tr>
 </tbody>
 </table>
@@ -793,20 +850,44 @@ da Aula 2 se precisar.)</p>
 <blockquote>
 <p>O núcleo da aula.</p>
 </blockquote>
-<pre><code class="language-bash">TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
-  -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;client\&quot;:\&quot;mobile\&quot;}&quot; \
+<p>Repita o <code>POST /api/v1/sessions</code>, agora com a conta já confirmada.</p>
+<p><strong>O que você deve ver</strong>: status <strong>200</strong>, este corpo,</p>
+<pre><code class="language-json">{
+  &quot;message&quot;: &quot;Login realizado com sucesso&quot;,
+  &quot;user&quot;: { &quot;id&quot;: 1, &quot;name&quot;: &quot;Seu Nome&quot;, &quot;email&quot;: &quot;voce@aluno.ufop.edu.br&quot;,
+            &quot;email_verified&quot;: true, &quot;course&quot;: &quot;Engenharia&quot;, &quot;matricula&quot;: &quot;2013333&quot;,
+            &quot;created_at&quot;: &quot;2026-08-19T21:04:11Z&quot; }
+}
+</code></pre>
+<p><strong>e, na aba de cabeçalhos da resposta, um <code>Authorization</code>:</strong></p>
+<pre><code>Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsInZlciI6MCwi...
+</code></pre>
+<p><strong>O token não vem no corpo, vem no cabeçalho.</strong> Copie o valor depois de <code>Bearer</code>. Ele tem quase
+200 caracteres.</p>
+<p>Agora use-o. Em <code>GET /api/v1/me</code>, acrescente o header:</p>
+<pre><code>Authorization: Bearer &lt;cole aqui&gt;
+</code></pre>
+<p><strong>O que você deve ver</strong>: status <strong>200</strong>, com os seus dados.</p>
+<p>E aqui está o ponto da aula: <strong>o servidor não guardou sessão nenhuma.</strong> Ele não consultou uma tabela
+de sessões, não tem sua conexão aberta, não lembra de você. Ele leu o token que você mandou,
+conferiu a assinatura, e soube quem era.</p>
+<p><strong>Leia o seu próprio token.</strong> Cole-o em <a href="https://jwt.io">jwt.io</a> e ache o <code>sub</code>, o <code>jti</code>, o <code>ver</code> e
+o <code>exp</code>. Converta o <code>exp</code> para data: é daqui a 24 horas.</p>
+<blockquote>
+<p>O jwt.io vai dizer <em>"invalid signature"</em>, e está certo: ele não tem o seu <code>JWT_SECRET</code>. Você só
+quer <strong>ler</strong> o payload, e o fato de conseguir ler é justamente a lição.</p>
+</blockquote>
+<p><strong>Avançado</strong>: acrescente um caractere no fim do token e chame <code>/me</code> de novo. Antes de rodar, decida
+o que espera. <strong>O que você deve ver</strong>: <strong>401</strong>, porque a assinatura deixou de bater.</p>
+<blockquote>
+<p><strong>No terminal, se preferir</strong>: o comando abaixo captura o token do cabeçalho num só passo.</p>
+<p><code>bash
+API=localhost:3000/api/v1; EMAIL=voce@aluno.ufop.edu.br
+TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}" \
   | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
-echo $TOKEN
-
-curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;        # 200
-</code></pre>
-<p><strong>Confere</strong>: <code>200</code>, com os seus dados. Repare que o servidor <strong>não guardou sessão nenhuma</strong>. Ele
-descobriu quem é você lendo o token.</p>
-<p>Agora <strong>leia o seu próprio token</strong>: cole o <code>$TOKEN</code> em <a href="https://jwt.io">jwt.io</a>. Ache o <code>sub</code>, o
-<code>jti</code>, o <code>ver</code> e o <code>exp</code>. Converta o <code>exp</code> para data e confirme que é daqui a 24 horas.</p>
-<p><strong>Avançado</strong>: troque um caractere do token e chame <code>/me</code> de novo. Que status vem, e por quê?</p>
-<pre><code class="language-bash">curl -i $API/me -H &quot;Authorization: Bearer ${TOKEN}x&quot;
-</code></pre>
+curl -i $API/me -H "Authorization: Bearer $TOKEN"</code></p>
+</blockquote>
 <p><strong>Se der errado</strong></p>
 <table>
 <thead>
@@ -818,19 +899,19 @@ descobriu quem é você lendo o token.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>$TOKEN</code> saiu vazio</td>
-<td>o <code>grep</code> não achou o cabeçalho</td>
-<td>rode o <code>curl -i</code> sozinho e veja se o <code>Authorization:</code> está na resposta</td>
+<td>não acho o token na resposta</td>
+<td>você está olhando o corpo</td>
+<td>ele vem no <strong>cabeçalho</strong> <code>Authorization</code>, na aba Headers da resposta</td>
 </tr>
 <tr>
 <td><code>401</code> logo depois do login</td>
-<td>o token não foi copiado inteiro</td>
-<td><code>echo $TOKEN \| wc -c</code>: tem que ter centenas de caracteres</td>
+<td>o token foi copiado pela metade, ou com espaço</td>
+<td>ele tem quase 200 caracteres, e não pode ter quebra de linha</td>
 </tr>
 <tr>
 <td><code>401 invalid_token</code></td>
-<td>você colou com quebra de linha</td>
-<td>o <code>tr -d '\r\n'</code> do comando existe para isso</td>
+<td>você copiou a palavra <code>Bearer</code> junto, duas vezes</td>
+<td>o header é <code>Bearer &lt;token&gt;</code>, uma vez só</td>
 </tr>
 <tr>
 <td><code>403</code> em vez de <code>200</code></td>
@@ -838,14 +919,14 @@ descobriu quem é você lendo o token.</p>
 <td>volte à Prática 3</td>
 </tr>
 <tr>
-<td><code>401 invalid_credentials</code></td>
-<td>senha errada: <strong>ou e-mail que não existe</strong></td>
+<td><code>401 invalid_credentials</code> no login</td>
+<td>senha errada, <strong>ou e-mail que não existe</strong></td>
 <td>é a mesma mensagem de propósito; veja a seção 7</td>
 </tr>
 <tr>
-<td>jwt.io diz "invalid signature"</td>
-<td>esperado: ele não tem o seu segredo</td>
-<td>você só quer ler o payload, não validar</td>
+<td><code>$TOKEN</code> vazio no terminal</td>
+<td>o <code>grep</code> não achou o cabeçalho</td>
+<td>rode o <code>curl -i</code> sozinho e confira que o <code>Authorization</code> está lá</td>
 </tr>
 </tbody>
 </table>
@@ -853,21 +934,24 @@ descobriu quem é você lendo o token.</p>
 <h3 id="pratica-5-logout-que-revoga-de-verdade">Prática 5: Logout que revoga de verdade</h3>
 <blockquote>
 <p>A prática que mostra a diferença entre "apagar no cliente" e "revogar no servidor".</p>
-<p><strong>Antes de rodar, decida</strong>: aquele token continua matematicamente válido e ainda não expirou. O
-segundo comando vai responder <code>200</code> ou <code>401</code>? A resposta é o assunto inteiro da seção 8.</p>
+<p><strong>Antes de rodar, decida</strong>: aquele token continua matematicamente válido, a assinatura ainda bate,
+e o <code>exp</code> ainda está no futuro. Depois do logout, o <code>GET /me</code> vai responder <code>200</code> ou <code>401</code>?</p>
+<p>A resposta é o assunto inteiro da seção 8. Aposte agora.</p>
 </blockquote>
-<pre><code class="language-bash">curl -i -X DELETE $API/sessions -H &quot;Authorization: Bearer $TOKEN&quot;
-curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;
+<p>No Insomnia, em <code>DELETE /api/v1/sessions</code>, com o mesmo header <code>Authorization: Bearer &lt;token&gt;</code>.</p>
+<p><strong>O que você deve ver</strong>: status <strong>200</strong>.</p>
+<pre><code class="language-json">{ &quot;message&quot;: &quot;Logout realizado com sucesso&quot; }
 </code></pre>
-<p><strong>Confere</strong>: o segundo comando tem que dar <strong><code>401</code></strong>. O token ainda é válido e ainda não expirou,
-mas está na denylist.</p>
-<p>Sem a denylist, esse <code>curl</code> responderia <code>200</code> até o <code>exp</code> chegar. <strong>É este teste que prova que o
-logout serve para alguma coisa.</strong></p>
-<p><strong>Avançado</strong>: veja a denylist por dentro, no console:</p>
-<pre><code class="language-ruby">Rails.cache.read(&quot;denylist:#{jti_do_seu_token}&quot;)
+<p>Agora repita o <code>GET /api/v1/me</code>, <strong>sem mudar nada</strong>, com o mesmo token de antes.</p>
+<p><strong>O que você deve ver</strong>: status <strong>401</strong>.</p>
+<p>Esse 401 é a aula. O token não expirou e a assinatura continua válida: o servidor simplesmente
+<strong>decidiu</strong> não aceitá-lo mais, porque o <code>jti</code> dele está na denylist. Sem esse mecanismo, o token
+continuaria funcionando por até 24 horas depois de você ter saído.</p>
+<p><strong>Avançado</strong>: veja a denylist por dentro. Pegue o <code>jti</code> no jwt.io e, no console:</p>
+<pre><code class="language-ruby">Rails.cache.read(&quot;denylist:COLE_O_JTI&quot;)
 </code></pre>
-<p>Pegue o <code>jti</code> no jwt.io. Por que a entrada tem TTL, e por que o TTL é exatamente o que restava do
-token?</p>
+<p>Duas perguntas para você mesmo: por que a entrada tem prazo de validade, e por que esse prazo é
+exatamente o que faltava para o token expirar?</p>
 <p><strong>Se der errado</strong></p>
 <table>
 <thead>
@@ -879,24 +963,24 @@ token?</p>
 </thead>
 <tbody>
 <tr>
-<td>o segundo <code>curl</code> respondeu <code>200</code></td>
-<td>o <code>DELETE</code> falhou antes</td>
-<td>rode-o com <code>-i</code> e leia o status</td>
+<td>o <code>GET /me</code> respondeu <code>200</code> depois do logout</td>
+<td>o <code>DELETE</code> não chegou a acontecer</td>
+<td>confira o status do <code>DELETE</code>: se não foi 200, o token não foi revogado</td>
 </tr>
 <tr>
 <td><code>401</code> já no <code>DELETE</code></td>
-<td>o token expirou ou já foi revogado</td>
-<td>faça login de novo e refaça</td>
+<td>o token expirou, ou já tinha sido revogado</td>
+<td>faça login de novo e refaça a prática</td>
 </tr>
 <tr>
-<td>a denylist não persiste entre reinícios</td>
-<td>o cache em dev é em memória</td>
-<td>é o esperado em desenvolvimento; em produção é o Solid Cache no Postgres</td>
+<td>a revogação some ao reiniciar o servidor</td>
+<td>em desenvolvimento o cache é em memória</td>
+<td>é o esperado; em produção é o Solid Cache, no Postgres</td>
 </tr>
 <tr>
 <td><code>Rails.cache.read</code> devolve <code>nil</code></td>
-<td><code>jti</code> errado, ou cache diferente</td>
-<td>copie o <code>jti</code> exato do jwt.io</td>
+<td><code>jti</code> errado, ou copiado com espaço</td>
+<td>copie o valor exato do jwt.io</td>
 </tr>
 </tbody>
 </table>
@@ -905,29 +989,38 @@ token?</p>
 <blockquote>
 <p>O fluxo mais completo do sistema, e o que tem a decisão de segurança mais sutil.</p>
 </blockquote>
-<p>Faça login de novo para ter um token válido:</p>
-<pre><code class="language-bash">TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
-  -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;password\&quot;:\&quot;Automic@2026\&quot;,\&quot;client\&quot;:\&quot;mobile\&quot;}&quot; \
-  | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
-
-curl -X POST $API/password_resets/request -H 'Content-Type: application/json' \
-  -d &quot;{\&quot;email\&quot;:\&quot;$EMAIL\&quot;}&quot;
-# pegue o código no navegador
-
-curl -i -X POST $API/password_resets/confirm -H 'Content-Type: application/json' -d &quot;{
-  \&quot;email\&quot;:\&quot;$EMAIL\&quot;,\&quot;code\&quot;:\&quot;COLE\&quot;,
-  \&quot;password\&quot;:\&quot;NovaSenha@9\&quot;,\&quot;confirm_password\&quot;:\&quot;NovaSenha@9\&quot;}&quot;
-
-curl -i $API/me -H &quot;Authorization: Bearer $TOKEN&quot;
+<p><strong>Faça login de novo</strong> para ter um token válido na mão, e guarde-o.</p>
+<p><strong>Peça a recuperação</strong>, em <code>POST /api/v1/password_resets/request</code>:</p>
+<pre><code class="language-json">{ &quot;email&quot;: &quot;voce@aluno.ufop.edu.br&quot; }
 </code></pre>
-<p><strong>Confere</strong>: o último dá <code>401</code>. Trocar a senha <strong>derrubou todas as sessões abertas</strong>. É o
-<code>token_version</code> sendo incrementado. Se alguém tinha roubado o seu token, acabou de perdê-lo.</p>
-<p><strong>Confere também, e é o ponto mais importante da prática:</strong></p>
-<pre><code class="language-bash">curl -i -X POST $API/password_resets/request -H 'Content-Type: application/json' \
-  -d '{&quot;email&quot;:&quot;ninguem-existe@ufop.br&quot;}'
+<p><strong>O que você deve ver</strong>: status <strong>200</strong>.</p>
+<pre><code class="language-json">{ &quot;message&quot;: &quot;Se o e-mail estiver cadastrado, enviamos um código para redefinir sua senha.&quot; }
 </code></pre>
-<p>Responde <strong>exatamente a mesma coisa</strong> do e-mail que existe. É a resistência a enumeração: um
-atacante não consegue usar esta rota para descobrir quem tem conta.</p>
+<p>Guarde essa frase; ela volta daqui a pouco. Pegue o código no navegador e <strong>troque a senha</strong>, em
+<code>POST /api/v1/password_resets/confirm</code>:</p>
+<pre><code class="language-json">{
+  &quot;email&quot;: &quot;voce@aluno.ufop.edu.br&quot;,
+  &quot;code&quot;: &quot;COLE_O_CODIGO&quot;,
+  &quot;password&quot;: &quot;NovaSenha@9&quot;,
+  &quot;confirm_password&quot;: &quot;NovaSenha@9&quot;
+}
+</code></pre>
+<p><strong>O que você deve ver</strong>: status <strong>200</strong>.</p>
+<p><strong>Agora o teste que importa.</strong> Repita o <code>GET /api/v1/me</code> com o token que você guardou antes de
+trocar a senha.</p>
+<p><strong>O que você deve ver</strong>: <strong>401</strong>.</p>
+<p>Trocar a senha <strong>derrubou todas as sessões abertas</strong>, em todos os aparelhos. É o <code>token_version</code>
+sendo incrementado: todo token emitido antes carrega o número antigo, e para de valer na hora. Se
+alguém tinha roubado o seu token, acabou de perdê-lo.</p>
+<p><strong>E o ponto mais importante da prática</strong>, que é fácil pular: repita o <code>password_resets/request</code> com
+um e-mail que <strong>não existe</strong>:</p>
+<pre><code class="language-json">{ &quot;email&quot;: &quot;ninguem-existe@ufop.br&quot; }
+</code></pre>
+<p><strong>O que você deve ver</strong>: <strong>exatamente a mesma resposta de antes</strong>, mesmo status, mesma frase, mesmo
+tempo. Ponha as duas lado a lado no Insomnia e compare.</p>
+<p>É a resistência a enumeração. Um atacante não consegue usar esta rota para descobrir quem tem conta,
+porque a API responde igual nos dois casos. <strong>É por isso que a mensagem é vaga</strong>: o "se o e-mail
+estiver cadastrado" não é timidez de redação, é a decisão de segurança aparecendo no texto.</p>
 <p><strong>Se der errado</strong></p>
 <table>
 <thead>
@@ -940,26 +1033,26 @@ atacante não consegue usar esta rota para descobrir quem tem conta.</p>
 <tbody>
 <tr>
 <td>o <code>/me</code> final respondeu <code>200</code></td>
-<td>o <code>confirm</code> falhou</td>
-<td>rode o <code>confirm</code> com <code>-i</code> e leia o status</td>
+<td>o <code>confirm</code> não chegou a acontecer</td>
+<td>confira o status do <code>confirm</code>: se não foi 200, a senha não mudou</td>
 </tr>
 <tr>
 <td><code>422</code> no <code>confirm</code></td>
-<td>senha nova não passa na política, ou não bate com a confirmação</td>
-<td>leia a lista de erros</td>
+<td>a senha nova não passa na política, ou não bate com a confirmação</td>
+<td>leia o <code>details</code> do erro</td>
 </tr>
 <tr>
 <td><code>422 invalid_code</code></td>
 <td>código errado, expirado, ou já usado</td>
-<td>peça outro com <code>/password_resets/request</code></td>
+<td>peça outro em <code>password_resets/request</code></td>
 </tr>
 <tr>
-<td>não veio e-mail para o endereço inexistente</td>
-<td>correto!</td>
-<td>é justamente o que se espera: resposta igual, e-mail nenhum</td>
+<td>não chegou e-mail para o endereço inexistente</td>
+<td><strong>correto</strong></td>
+<td>é justamente o esperado: resposta igual, e-mail nenhum</td>
 </tr>
 <tr>
-<td>esqueceu a senha nova</td>
+<td>esqueci a senha nova</td>
 <td>você trocou para <code>NovaSenha@9</code></td>
 <td>use ela nos próximos logins</td>
 </tr>
@@ -971,7 +1064,7 @@ atacante não consegue usar esta rota para descobrir quem tem conta.</p>
 bin/rubocop
 bin/brakeman --no-pager
 </code></pre>
-<p><strong>Confere</strong>: 71 testes verdes, RuboCop limpo, Brakeman sem aviso.</p>
+<p><strong>O que você deve ver</strong>: 71 testes verdes, RuboCop limpo, Brakeman sem aviso.</p>
 <p>Agora <strong>quebre um teste de propósito</strong> para ver a rede de segurança funcionando. Em
 <code>app/controllers/concerns/api/v1/authentication.rb</code>, comente a linha que consulta a denylist. Rode
 <code>bin/rails test</code> e veja <strong>qual</strong> teste fica vermelho. Depois desfaça.</p>
@@ -1029,7 +1122,7 @@ segredo</strong>:</p>
 </code></pre>
 <pre><code class="language-bash">curl -i $API/me -H &quot;Authorization: Bearer &lt;o-token-forjado&gt;&quot;
 </code></pre>
-<p><strong>Confere</strong>: responde <code>200</code>. Você acabou de entrar como outra pessoa, sem saber a senha dela.</p>
+<p><strong>O que você deve ver</strong>: responde <code>200</code>. Você acabou de entrar como outra pessoa, sem saber a senha dela.</p>
 <p><strong>Desfaça em seguida</strong> (volte o <code>true</code>) e rode <code>bin/rails test</code>: o teste "recusa token assinado com
 outro segredo" fica vermelho enquanto o <code>false</code> estiver lá. <strong>Era esse teste que estava te
 protegendo.</strong></p>

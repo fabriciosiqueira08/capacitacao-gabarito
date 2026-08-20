@@ -510,7 +510,7 @@ docker compose ps           # healthy
 </code></pre>
 <pre><code class="language-bash">bundle install
 </code></pre>
-<p><strong>Confere</strong>:</p>
+<p><strong>O que você deve ver</strong>:</p>
 <pre><code class="language-bash">bin/rails runner 'puts BCrypt::Password.create(&quot;teste&quot;)[0, 7]'
 </code></pre>
 <p>Sai algo como <code>$2a$12$</code>. Esse prefixo é o algoritmo e o custo: você vai entender os dois na
@@ -570,7 +570,7 @@ add_column :users, :password_reset_sent_at, :datetime
 </code></pre>
 <pre><code class="language-bash">bin/rails db:migrate
 </code></pre>
-<p><strong>Confere</strong>:</p>
+<p><strong>O que você deve ver</strong>:</p>
 <pre><code class="language-bash">bin/rails db:migrate:status                      # três linhas &quot;up&quot;
 sed -n '/create_table &quot;users&quot;/,/^  end/p' db/schema.rb | grep '^    t\.' | grep -vc 't\.index'
 </code></pre>
@@ -670,7 +670,7 @@ require &quot;benchmark&quot;
 Benchmark.realtime { BCrypt::Password.create(&quot;Automic@2026&quot;) }                  # UM bcrypt
 Benchmark.realtime { 1000.times { Digest::SHA256.hexdigest(&quot;Automic@2026&quot;) } }  # MIL SHA-256
 </code></pre>
-<p><strong>Confere</strong>: o segundo comando fez <strong>mil</strong> hashes de SHA-256 e mesmo assim terminou muito antes do
+<p><strong>O que você deve ver</strong>: o segundo comando fez <strong>mil</strong> hashes de SHA-256 e mesmo assim terminou muito antes do
 primeiro, que fez <strong>um</strong> bcrypt.</p>
 <p>É essa diferença que protege o seu banco. Quem rouba a tabela de usuários testa senha em lote: com
 SHA-256 ele testa bilhões por segundo, e com bcrypt, algumas dezenas. Diga em voz alta por que a
@@ -748,7 +748,7 @@ end
 e o <code>private</code> valendo da linha em diante.</p>
 <p>Ele fica fora do model porque o cadastro precisa validar a senha <strong>antes</strong> de existir um <code>User</code>
 (Aula 3), e a recuperação de senha valida de novo na hora de trocar.</p>
-<p><strong>Confere</strong>:</p>
+<p><strong>O que você deve ver</strong>:</p>
 <pre><code class="language-bash">bin/rails runner 'p PasswordPolicyValidator.validate(&quot;abc&quot;)'
 # a lista de erros
 bin/rails runner 'p PasswordPolicyValidator.validate(&quot;Automic@2026&quot;)'
@@ -797,7 +797,7 @@ estourar. Descubra qual linha do código garante isso.</p>
 <h3 id="pratica-5-o-model-user">Prática 5: O model <code>User</code></h3>
 <p>Crie <code>app/models/user.rb</code> com <code>has_secure_password validations: false</code>, as seis validações, os três
 normalizadores e o <code>authenticate_by_email</code> (seções <strong>4</strong>, <strong>5</strong> e <strong>11</strong>).</p>
-<p><strong>Confere</strong>:</p>
+<p><strong>O que você deve ver</strong>:</p>
 <pre><code class="language-bash">bin/rails runner '
 u = User.new(name: &quot;Ana&quot;, email: &quot;ana@ufop.br&quot;, password: &quot;Automic@2026&quot;,
              course: &quot;Automação&quot;, matricula: &quot;2011234&quot;, terms_accepted_at: Time.current)
@@ -864,7 +864,7 @@ puts u.password_digest[0, 20]
 </code></pre>
 <pre><code class="language-bash">bin/rails db:migrate
 </code></pre>
-<p><strong>Confere</strong>, no console:</p>
+<p><strong>O que você deve ver</strong>, no console:</p>
 <pre><code class="language-ruby">u = User.first || User.create!(name: &quot;Ana&quot;, email: &quot;ana@ufop.br&quot;, password: &quot;Automic@2026&quot;,
       course: &quot;Automação&quot;, matricula: &quot;2011234&quot;, terms_accepted_at: Time.current)
 u.login_events.create!(client: &quot;mobile&quot;, occurred_at: Time.current)
@@ -961,7 +961,7 @@ primeiro está inteiro na seção <strong>7. Concerns</strong>; o segundo é o m
 </tr>
 </tbody>
 </table>
-<p><strong>Confere</strong>, no console:</p>
+<p><strong>O que você deve ver</strong>, no console:</p>
 <pre><code class="language-ruby">u = User.first
 codigo = u.issue_email_verification_code!
 codigo                          # 6 dígitos
@@ -1043,7 +1043,7 @@ bruno:
 bin/rubocop
 git add -A &amp;&amp; git commit -m &quot;Model User, concerns e associações&quot; &amp;&amp; git push
 </code></pre>
-<p><strong>Confere</strong>: <strong>30 testes verdes.</strong> O gabarito tem exatamente esse número.</p>
+<p><strong>O que você deve ver</strong>: <strong>30 testes verdes.</strong> O gabarito tem exatamente esse número.</p>
 <p><strong>Se der errado</strong></p>
 <table>
 <thead>

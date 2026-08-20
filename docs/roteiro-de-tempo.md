@@ -52,7 +52,7 @@ mão.
 2. **Mande abrir a apostila** na prática correspondente — os comandos, a conferência e a tabela de
    erros estão lá. Não dite comando.
 3. **Circule.** As notas do slide dizem quais são os dois ou três erros que vão aparecer.
-4. **Cobre a conferência** antes de seguir. Toda prática tem uma linha "Confere".
+4. **Cobre a conferência** antes de seguir. Toda prática tem uma linha **O que você deve ver**, com o resultado esperado na tela.
 
 Cada prática tem, no fim, um item **avançado** para quem terminar antes. Use-o: é o que evita que
 metade da turma fique parada esperando a outra metade.
