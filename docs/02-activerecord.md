@@ -240,6 +240,22 @@ validates :terms_accepted_at, presence: true, on: :create
 validate  :password_meets_policy, if: -> { password.present? }
 ```
 
+A última linha chama um método **seu**, que você escreve no fim da classe, depois de um `private`.
+É ele que liga o validador da prática anterior ao ActiveRecord:
+
+```ruby
+  private
+
+  def password_meets_policy
+    PasswordPolicyValidator.validate(password).each do |message|
+      errors.add(:password, message)
+    end
+  end
+```
+
+`errors.add` é como se acrescenta erro na mão. Cada mensagem que o validador devolveu vira um erro
+do campo `password`, e é por isso que `u.errors.full_messages` mostra todas de uma vez.
+
 - `validates` (plural) usa um validador pronto. `validate` (singular) chama um método seu.
 - `on: :create` só valida na criação: os termos são aceitos uma vez.
 - `if:` recebe um lambda. Só valida a senha quando ela foi informada (na edição de perfil ela não é).
@@ -267,6 +283,13 @@ end
 ```
 
 Sem isso o índice único não serve para nada: o banco acha que são valores diferentes.
+
+Repare que são **métodos de classe**, e não callbacks: eles não rodam sozinhos ao salvar. Quem os
+chama é quem recebe o dado de fora, e nesta aula é o `authenticate_by_email` (seção 11). Na Aula 3,
+o service de cadastro chama os três antes de criar o usuário.
+
+É uma escolha, e tem motivo: normalizar num callback esconde a transformação de quem lê o service, e
+faz o mesmo dado se comportar diferente conforme o caminho que ele tomou para chegar ali.
 
 ---
 
@@ -621,11 +644,15 @@ bin/rails db:migrate:status                      # três linhas "up"
 sed -n '/create_table "users"/,/^  end/p' db/schema.rb | grep '^    t\.' | grep -vc 't\.index'
 ```
 
-O segundo comando conta as colunas da tabela, e tem que sair **16**.
+O segundo comando conta as colunas da tabela, e tem que sair **15**: as 8 da primeira migration
+(seis suas mais as duas do `t.timestamps`), 4 da segunda e 3 da terceira.
 
 Repare em duas coisas que ele mostra: o `id` não está na lista, porque o `create_table` cria essa
 coluna sozinho e nem a menciona; e as duas linhas `t.index` que o comando descarta são os índices
 únicos de `email` e `matricula`, que são restrição do banco e não coluna.
+
+> Na Aula 3 aparece uma décima sexta, o `token_version`, numa migration que vem junto com o código
+> daquele dia. É ela que permite derrubar todas as sessões de um usuário de uma vez.
 
 Abra o `db/schema.rb` e leia: ele é o retrato do banco **agora**, montado sozinho pelas migrations.
 
@@ -645,7 +672,7 @@ Abra o `db/schema.rb` e leia: ele é o retrato do banco **agora**, montado sozin
 | `An error has occurred, this and all later migrations canceled` | uma migration falhou no meio | **leia a linha seguinte**: é ela que diz o motivo. Conserte o arquivo e rode de novo |
 | `ActiveRecord::IrreversibleMigration` ao fazer `rollback` | a migration usou `change` com algo que não sabe desfazer | troque por `up`/`down`, ou refaça com `db:drop` |
 | o `schema.rb` não mudou | a migration não rodou | `bin/rails db:migrate:status`: a sua está `down`? |
-| saiu menos que 16 | falta alguma coluna | compare com o gabarito: `git -C ~/capacitacao-gabarito show aula-02:db/schema.rb` |
+| saiu menos que 15 | falta alguma coluna | compare com o gabarito: `git -C ~/capacitacao-gabarito show aula-02:db/schema.rb` |
 | `Multiple migrations have the name ...` | você gerou duas com o mesmo nome | apague a duplicada em `db/migrate/` |
 
 ---
@@ -676,6 +703,9 @@ digest = BCrypt::Password.create("Automic@2026")
 BCrypt::Password.new(digest) == "Automic@2026"    # true
 BCrypt::Password.new(digest) == "errada"          # false
 ```
+
+> Ao rodar o bloco abaixo pode aparecer um aviso de três linhas dizendo que o `benchmark` vai sair
+> das gems padrão no Ruby 4.0. É recado para quem mantém biblioteca, não para você. Ignore.
 
 ```ruby
 # c) por que é lento de propósito
@@ -804,7 +834,7 @@ bin/rails runner 'u = User.new(email: "NAO-E-EMAIL"); u.valid?; p u.errors.full_
 | `PG::UndefinedColumn: column "password_digest" does not exist` | a migration não rodou | `bin/rails db:migrate` |
 | `valid?` devolve `false` e você não sabe por quê | as mensagens estão no objeto | `p u.errors.full_messages`: sempre |
 | `valid?` devolve `true` com e-mail inválido | falta a validação de formato | releia a seção 5 |
-| o e-mail salvou com maiúscula | o normalizador não rodou | `normalizes :email, with: -> (e) { e.strip.downcase }` |
+| o e-mail salvou com maiúscula | os normalizadores não rodam sozinhos, é preciso chamá-los | `User.normalize_email(...)` antes de criar, como o `authenticate_by_email` faz |
 | `ArgumentError: wrong number of arguments` | passou posicional onde é nomeado | `User.new(name: ..., email: ...)` |
 
 ---
