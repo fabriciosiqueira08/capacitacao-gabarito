@@ -1279,6 +1279,7 @@ git log --oneline         # os seus commits estão lá
 | `remote origin already exists` | você rodou o `remote add` duas vezes | `git remote set-url origin <url>` |
 | `src refspec main does not match any` | você ainda não commitou nada | `git add -A && git commit -m "..."` primeiro |
 | `Updates were rejected` | o repositório remoto tem commits que você não tem | `git pull --rebase origin main` e empurre de novo |
+| o CI ficou **vermelho** logo depois do push | esperado na Aula 1: o job `test` roda `db:test:prepare`, que precisa de um `schema.rb` que ainda não existe | não é o seu código. Fica verde sozinho na Aula 2, ou veja a saída em [`troubleshooting.md`](troubleshooting.md) |
 
 ---
 
