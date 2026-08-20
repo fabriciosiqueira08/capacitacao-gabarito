@@ -1525,6 +1525,11 @@ git log --oneline         # os seus commits estão lá
 <td>o repositório remoto tem commits que você não tem</td>
 <td><code>git pull --rebase origin main</code> e empurre de novo</td>
 </tr>
+<tr>
+<td>o CI ficou <strong>vermelho</strong> logo depois do push</td>
+<td>esperado na Aula 1: o job <code>test</code> roda <code>db:test:prepare</code>, que precisa de um <code>schema.rb</code> que ainda não existe</td>
+<td>não é o seu código. Fica verde sozinho na Aula 2, ou veja a saída em <strong><code>troubleshooting.md</code></strong></td>
+</tr>
 </tbody>
 </table>
 <hr>

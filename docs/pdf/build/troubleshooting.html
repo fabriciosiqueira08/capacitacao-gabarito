@@ -31,6 +31,16 @@ rode <code>exec bash</code>.</p>
 <p>Docker Desktop → Settings → Resources → WSL Integration → habilite a distro <code>Ubuntu-24.04</code>.</p>
 <hr>
 <h2 id="banco">Banco</h2>
+<h3 id="docker-unknown-command-docker-compose"><code>docker: unknown command: docker compose</code></h3>
+<p>Você tem o Docker, mas sem o plugin do Compose. Algumas instalações trazem só o <code>docker-compose</code>
+antigo, separado, com hífen:</p>
+<pre><code class="language-bash">docker-compose up -d          # em vez de: docker compose up -d
+</code></pre>
+<p>Para instalar o plugin e usar a forma moderna:</p>
+<pre><code class="language-bash">sudo apt install -y docker-compose-plugin     # Ubuntu, Debian, WSL2
+sudo dnf install -y docker-compose-plugin     # Fedora
+</code></pre>
+<p>No Docker Desktop (Windows e macOS) o plugin já vem junto.</p>
 <h3 id="address-already-in-use-ao-subir-o-compose"><code>address already in use</code> ao subir o compose</h3>
 <p>Já existe um Postgres na sua máquina ocupando a 5432.</p>
 <pre><code class="language-bash">DB_PORT=5433 docker compose up -d
@@ -90,11 +100,25 @@ JSON e o <code>Content-Type: application/json</code>.</p>
 <hr>
 <h2 id="github">GitHub</h2>
 <h3 id="o-ci-ficou-vermelho-logo-no-primeiro-push">O CI ficou vermelho logo no primeiro push</h3>
-<p>O <code>rails new</code> já cria um <code>.github/workflows/ci.yml</code>, e ele roda sozinho a cada push. Nas Aulas 1 e 2
-ele deve passar. Se ficar vermelho, abra o log em <strong>Actions</strong> e veja qual dos três jobs quebrou:</p>
+<p>O <code>rails new</code> já cria um <code>.github/workflows/ci.yml</code>, e ele roda sozinho a cada push.</p>
+<p><strong>No fim da Aula 1 ele vai ficar vermelho, e não é você.</strong> O job <code>test</code> roda
+<code>bin/rails db:test:prepare test</code>, e o <code>db:test:prepare</code> precisa de um <code>db/schema.rb</code>, que só passa a
+existir depois da sua primeira migration. Como a Aula 1 não tem migration nenhuma, ele falha com:</p>
+<pre><code>db/schema.rb doesn't exist yet. Run `bin/rails db:migrate` to create it
+</code></pre>
+<p>Repare que <code>bin/rails test</code> sozinho <strong>passa</strong> na sua máquina: o comando que falha é só o do CI.</p>
+<p>Duas saídas, e as duas são legítimas:</p>
+<ul>
+<li><strong>Deixar quieto.</strong> Na Aula 2 você cria a primeira migration, o <code>schema.rb</code> nasce, e o CI fica
+  verde sozinho.</li>
+<li><strong>Consertar agora</strong>, trocando uma linha em <code>.github/workflows/ci.yml</code>:</li>
+</ul>
+<pre><code class="language-yaml">        run: bin/rails test          # em vez de: bin/rails db:test:prepare test
+</code></pre>
+<p>Nas outras aulas, se ficar vermelho, abra o log em <strong>Actions</strong> e veja qual dos três jobs quebrou:</p>
 <ul>
 <li><strong>lint</strong>: é o RuboCop. Rode <code>bin/rubocop -a</code> para corrigir o que dá sozinho.</li>
-<li><strong>test</strong>: rode <code>bin/rails test</code> na sua máquina; o erro é o mesmo.</li>
+<li><strong>test</strong>: rode <code>bin/rails test</code> na sua máquina; o erro costuma ser o mesmo.</li>
 <li><strong>scan_ruby</strong>: Brakeman ou uma gem com CVE. <code>bin/brakeman --no-pager</code> mostra o motivo.</li>
 </ul>
 <p>Na Aula 4 esse arquivo é substituído pelo nosso, que roda os testes contra um Postgres de verdade.</p>

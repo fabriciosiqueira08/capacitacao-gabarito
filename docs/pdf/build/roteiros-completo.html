@@ -775,6 +775,13 @@ resolva junto. Sem isso, as práticas 5 a 7 não acontecem.</p>
 slide 58 (Zeitwerk) e mostre a correspondência nome ↔ caminho na tela.</p>
 <p><strong>Práticas 6 e 7 (slide 67, ~20 min)</strong> — o teste e o commit. <strong>Faça o passo de quebrar o teste de
 propósito</strong> (<code>"ok"</code> → <code>"OK"</code>): são 30 segundos, e é o que muda a relação deles com teste.</p>
+<blockquote>
+<p>⚠️ <strong>Avise antes de eles darem push</strong>: o CI que o <code>rails new</code> gera vai ficar <strong>vermelho</strong> neste
+primeiro push, e não é culpa deles. O job de teste roda <code>db:test:prepare</code>, que precisa de um
+<code>db/schema.rb</code> que só nasce com a primeira migration, na Aula 2. Localmente <code>bin/rails test</code> passa.</p>
+<p>Dito antes, é uma curiosidade. Descoberto sozinho em casa, é uma noite achando que quebrou tudo.
+A saída está no <code>troubleshooting.md</code>, e o problema some sozinho na Aula 2.</p>
+</blockquote>
 <p>Quem travar em qualquer uma: projete o arquivo do gabarito (<code>~/capacitacao-gabarito</code>, branch
 <code>aula-01</code>) e deixe a pessoa digitar. <strong>Não mande copiar e colar</strong> — o exercício inteiro são 20
 linhas.</p>

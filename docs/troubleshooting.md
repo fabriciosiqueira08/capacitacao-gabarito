@@ -157,11 +157,32 @@ Olhe `error.details` na resposta: cada item tem `field` e `message`.
 
 ### O CI ficou vermelho logo no primeiro push
 
-O `rails new` já cria um `.github/workflows/ci.yml`, e ele roda sozinho a cada push. Nas Aulas 1 e 2
-ele deve passar. Se ficar vermelho, abra o log em **Actions** e veja qual dos três jobs quebrou:
+O `rails new` já cria um `.github/workflows/ci.yml`, e ele roda sozinho a cada push.
+
+**No fim da Aula 1 ele vai ficar vermelho, e não é você.** O job `test` roda
+`bin/rails db:test:prepare test`, e o `db:test:prepare` precisa de um `db/schema.rb`, que só passa a
+existir depois da sua primeira migration. Como a Aula 1 não tem migration nenhuma, ele falha com:
+
+```
+db/schema.rb doesn't exist yet. Run `bin/rails db:migrate` to create it
+```
+
+Repare que `bin/rails test` sozinho **passa** na sua máquina: o comando que falha é só o do CI.
+
+Duas saídas, e as duas são legítimas:
+
+- **Deixar quieto.** Na Aula 2 você cria a primeira migration, o `schema.rb` nasce, e o CI fica
+  verde sozinho.
+- **Consertar agora**, trocando uma linha em `.github/workflows/ci.yml`:
+
+```yaml
+        run: bin/rails test          # em vez de: bin/rails db:test:prepare test
+```
+
+Nas outras aulas, se ficar vermelho, abra o log em **Actions** e veja qual dos três jobs quebrou:
 
 - **lint**: é o RuboCop. Rode `bin/rubocop -a` para corrigir o que dá sozinho.
-- **test**: rode `bin/rails test` na sua máquina; o erro é o mesmo.
+- **test**: rode `bin/rails test` na sua máquina; o erro costuma ser o mesmo.
 - **scan_ruby**: Brakeman ou uma gem com CVE. `bin/brakeman --no-pager` mostra o motivo.
 
 Na Aula 4 esse arquivo é substituído pelo nosso, que roda os testes contra um Postgres de verdade.

@@ -254,6 +254,13 @@ slide 58 (Zeitwerk) e mostre a correspondência nome ↔ caminho na tela.
 **Práticas 6 e 7 (slide 67, ~20 min)** — o teste e o commit. **Faça o passo de quebrar o teste de
 propósito** (`"ok"` → `"OK"`): são 30 segundos, e é o que muda a relação deles com teste.
 
+> ⚠️ **Avise antes de eles darem push**: o CI que o `rails new` gera vai ficar **vermelho** neste
+> primeiro push, e não é culpa deles. O job de teste roda `db:test:prepare`, que precisa de um
+> `db/schema.rb` que só nasce com a primeira migration, na Aula 2. Localmente `bin/rails test` passa.
+>
+> Dito antes, é uma curiosidade. Descoberto sozinho em casa, é uma noite achando que quebrou tudo.
+> A saída está no `troubleshooting.md`, e o problema some sozinho na Aula 2.
+
 Quem travar em qualquer uma: projete o arquivo do gabarito (`~/capacitacao-gabarito`, branch
 `aula-01`) e deixe a pessoa digitar. **Não mande copiar e colar** — o exercício inteiro são 20
 linhas.
