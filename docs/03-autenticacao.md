@@ -662,7 +662,7 @@ O `db:drop` é necessário pelo mesmo motivo: o seu banco tem registrado que rod
 migrations, e as do gabarito têm identificadores diferentes. Recriar é mais rápido que remendar, e
 não há dado nenhum para perder.
 
-**Confere**: **71 testes verdes.** Se não deram, pare aqui e resolva antes de seguir. Todas as
+**O que você deve ver**: **71 testes verdes.** Se não deram, pare aqui e resolva antes de seguir. Todas as
 práticas seguintes dependem disso.
 
 > O `Gemfile` vai junto porque esta aula acrescenta `jwt`, `rack-cors` e `letter_opener`. Sem ele a
@@ -701,30 +701,59 @@ Em cada um, ache o `Struct` de retorno e os argumentos nomeados da Aula 1. **Ele
 
 ---
 
-### Prática 2: Cadastro, no terminal e no Insomnia
+### Prática 2: Cadastro, no Insomnia e no terminal
 
-> A primeira rota que cria alguma coisa.
+> A primeira rota que cria alguma coisa. Faça no **Insomnia**: é a ferramenta que você vai usar o
+> resto da aula, e ela mostra status, cabeçalhos e corpo lado a lado, sem briga de aspas no shell.
 
-Com o servidor rodando (`bin/rails server`), num segundo terminal:
+Com o servidor rodando (`bin/rails server`), monte no Insomnia:
 
-```bash
-API=localhost:3000/api/v1
-EMAIL=voce@aluno.ufop.edu.br
+| | |
+|---|---|
+| Método | `POST` |
+| URL | `http://localhost:3000/api/v1/registrations` |
+| Header | `Content-Type: application/json` |
+| Body | JSON, abaixo |
 
-curl -i -X POST $API/registrations -H 'Content-Type: application/json' -d "{
-  \"name\":\"Seu Nome\",\"email\":\"$EMAIL\",
-  \"password\":\"Automic@2026\",\"confirm_password\":\"Automic@2026\",
-  \"course\":\"Engenharia\",\"matricula\":\"2013333\",\"check_terms_use\":true}"
+```json
+{
+  "name": "Seu Nome",
+  "email": "voce@aluno.ufop.edu.br",
+  "password": "Automic@2026",
+  "confirm_password": "Automic@2026",
+  "course": "Engenharia",
+  "matricula": "2013333",
+  "check_terms_use": true
+}
 ```
 
-**Confere**: `201`, e o e-mail abriu numa aba do navegador (é o `letter_opener`). **Anote o código de
-6 dígitos.**
+**O que você deve ver**: status **201 Created**, e um corpo assim:
 
-Agora monte a mesma requisição no **Insomnia**, e aproveite para criar a coleção inteira: você vai
-usá-la o resto da aula. Todas com `Content-Type: application/json`:
+```json
+{
+  "message": "Cadastro realizado. Enviamos um código para o seu e-mail.",
+  "user": {
+    "id": 1,
+    "name": "Seu Nome",
+    "email": "voce@aluno.ufop.edu.br",
+    "email_verified": false,
+    "course": "Engenharia",
+    "matricula": "2013333",
+    "created_at": "2026-08-19T21:04:11Z"
+  }
+}
+```
+
+Repare em três coisas, e elas são a aula inteira em miniatura:
+
+- **`email_verified` está `false`.** A conta existe e ainda não serve para entrar.
+- **Não há `password` nem `password_digest` na resposta.** É o serializer decidindo o que sai.
+- **O e-mail abriu numa aba do navegador**, pelo `letter_opener`. **Anote o código de 6 dígitos.**
+
+Agora crie no Insomnia as outras sete requisições da coleção, todas com o mesmo header. Você vai
+usá-las nas próximas práticas:
 
 ```
-POST   /api/v1/registrations
 POST   /api/v1/email_verifications/confirm
 POST   /api/v1/email_verifications/resend
 POST   /api/v1/sessions
@@ -734,20 +763,30 @@ POST   /api/v1/password_resets/confirm
 GET    /api/v1/me
 ```
 
-**Avançado**: mande o cadastro de novo, com o mesmo e-mail. Que status vem? E que mensagem? Ela
-entrega ao atacante que aquele e-mail já existe?
+> **Prefere o terminal?** O mesmo cadastro, em `curl`. Ele funciona, mas o Insomnia guarda as
+> requisições para reusar, e é isso que faz diferença nas próximas cinco práticas.
+>
+> ```bash
+> API=localhost:3000/api/v1
+> curl -i -X POST $API/registrations -H 'Content-Type: application/json' \
+>   -d '{"name":"Seu Nome","email":"voce@aluno.ufop.edu.br",
+>        "password":"Automic@2026","confirm_password":"Automic@2026",
+>        "course":"Engenharia","matricula":"2013333","check_terms_use":true}'
+> ```
+
+**Avançado**: mande o **mesmo cadastro** de novo. Que status vem? Leia a mensagem e responda: ela
+entrega a um estranho que aquele e-mail já tem conta?
 
 **Se der errado**
 
 | Erro | Causa | Saída |
 |---|---|---|
 | `400 param is missing` | faltou um campo obrigatório no JSON | a mensagem diz qual; o `params.expect` é rígido de propósito |
-| `422` com lista de erros | as validações da Aula 2 recusaram | leia a lista: senha fraca, e-mail inválido, termos não aceitos |
-| `415 Unsupported Media Type` | faltou o `-H 'Content-Type: application/json'` | acrescente |
-| o e-mail não abriu no navegador | `letter_opener` só funciona com o servidor rodando no seu desktop | veja em `tmp/letter_opener/` ou no log do `rails server` |
-| `Connection refused` | o `rails server` não está de pé | suba-o no outro terminal |
-| a resposta veio em HTML de erro | exceção não tratada | leia o log do `rails server`, não o `curl` |
-| aspas quebrando no shell | o JSON tem aspas dentro de aspas | use o Insomnia, ou salve o JSON num arquivo e use `-d @arquivo.json` |
+| `422` com `"code": "validation_failed"` | as validações da Aula 2 recusaram | leia o `details`: senha fraca, e-mail inválido, termos não aceitos |
+| `415 Unsupported Media Type` | falta o header `Content-Type: application/json` | no Insomnia, escolha o body do tipo JSON e ele põe sozinho |
+| o e-mail não abriu no navegador | o `letter_opener` só abre com o servidor no seu desktop | veja em `tmp/letter_opener/`, ou no log do `rails server` |
+| `Connection refused` | o `bin/rails server` não está de pé | suba-o num segundo terminal |
+| a resposta veio em HTML | exceção não tratada | leia o log do `rails server`, não a tela do Insomnia |
 
 ---
 
@@ -755,31 +794,43 @@ entrega ao atacante que aquele e-mail já existe?
 
 > É aqui que fica claro por que existe conta "não ativada".
 
-```bash
-# tente entrar ANTES de confirmar
-curl -i -X POST $API/sessions -H 'Content-Type: application/json' \
-  -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}"
+**Primeiro, tente entrar sem confirmar.** No Insomnia, na requisição `POST /api/v1/sessions`:
+
+```json
+{ "email": "voce@aluno.ufop.edu.br", "password": "Automic@2026", "client": "mobile" }
 ```
 
-**Confere**: `403 email_unverified`. A senha está certa. O que falta é a conta estar ativa.
+**O que você deve ver**: status **403 Forbidden**.
 
-```bash
-curl -i -X POST $API/email_verifications/confirm -H 'Content-Type: application/json' \
-  -d "{\"email\":\"$EMAIL\",\"code\":\"COLE_O_CODIGO\"}"
+```json
+{ "error": { "code": "email_unverified", "message": "..." } }
 ```
 
-**Avançado**: mande o **mesmo código** de novo. Ele funciona duas vezes? Por quê? (Volte à Prática 7
-da Aula 2 se precisar.)
+Pare um segundo nesse número. **A senha está certa.** Não é 401 ("não sei quem você é"), é 403
+("sei quem você é, e você ainda não pode"). Foi essa distinção que você viu no slide de status
+codes da Aula 1.
+
+**Agora confirme**, em `POST /api/v1/email_verifications/confirm`, com o código que veio no e-mail:
+
+```json
+{ "email": "voce@aluno.ufop.edu.br", "code": "COLE_O_CODIGO" }
+```
+
+**O que você deve ver**: status **200**, com uma mensagem de confirmação.
+
+**Avançado**: mande o **mesmo código** de novo, sem mudar nada. Funciona duas vezes? Antes de rodar,
+decida qual você acha que é a resposta certa para um sistema, e por quê. (Se precisar, volte à
+Prática 7 da Aula 2: o código é apagado ao ser usado.)
 
 **Se der errado**
 
 | Erro | Causa | Saída |
 |---|---|---|
-| `422 invalid_code` com o código certo | você colou com espaço, ou o código já foi usado | peça outro com `/email_verifications/resend` |
-| `422 code_expired` | passaram os 15 minutos | `/email_verifications/resend` |
-| `429` ou "aguarde" no resend | há um intervalo mínimo entre reenvios | espere o tempo indicado: é proteção contra abuso |
-| `403 email_unverified` mesmo depois de confirmar | você confirmou outro e-mail | confira o `$EMAIL` do shell |
-| não acho o código | a aba do `letter_opener` fechou | `ls tmp/letter_opener/` e abra o mais recente |
+| `422` com `invalid_code`, e o código está certo | você colou com espaço, ou ele já foi usado | peça outro em `POST /email_verifications/resend` |
+| `422` com `code_expired` | passaram os 15 minutos de validade | `resend` |
+| a resposta pede para aguardar, no `resend` | há um intervalo mínimo entre reenvios | espere o tempo indicado; é proteção contra abuso |
+| `403 email_unverified` **depois** de confirmar | você confirmou um e-mail diferente do que está tentando logar | confira que os dois JSON usam o mesmo endereço |
+| não acho o código | a aba do `letter_opener` fechou | `ls tmp/letter_opener/` e abra o arquivo mais recente |
 
 ---
 
@@ -787,37 +838,69 @@ da Aula 2 se precisar.)
 
 > O núcleo da aula.
 
-```bash
-TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
-  -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}" \
-  | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
-echo $TOKEN
+Repita o `POST /api/v1/sessions`, agora com a conta já confirmada.
 
-curl -i $API/me -H "Authorization: Bearer $TOKEN"        # 200
+**O que você deve ver**: status **200**, este corpo,
+
+```json
+{
+  "message": "Login realizado com sucesso",
+  "user": { "id": 1, "name": "Seu Nome", "email": "voce@aluno.ufop.edu.br",
+            "email_verified": true, "course": "Engenharia", "matricula": "2013333",
+            "created_at": "2026-08-19T21:04:11Z" }
+}
 ```
 
-**Confere**: `200`, com os seus dados. Repare que o servidor **não guardou sessão nenhuma**. Ele
-descobriu quem é você lendo o token.
+**e, na aba de cabeçalhos da resposta, um `Authorization`:**
 
-Agora **leia o seu próprio token**: cole o `$TOKEN` em [jwt.io](https://jwt.io). Ache o `sub`, o
-`jti`, o `ver` e o `exp`. Converta o `exp` para data e confirme que é daqui a 24 horas.
-
-**Avançado**: troque um caractere do token e chame `/me` de novo. Que status vem, e por quê?
-
-```bash
-curl -i $API/me -H "Authorization: Bearer ${TOKEN}x"
 ```
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsInZlciI6MCwi...
+```
+
+**O token não vem no corpo, vem no cabeçalho.** Copie o valor depois de `Bearer `. Ele tem quase
+200 caracteres.
+
+Agora use-o. Em `GET /api/v1/me`, acrescente o header:
+
+```
+Authorization: Bearer <cole aqui>
+```
+
+**O que você deve ver**: status **200**, com os seus dados.
+
+E aqui está o ponto da aula: **o servidor não guardou sessão nenhuma.** Ele não consultou uma tabela
+de sessões, não tem sua conexão aberta, não lembra de você. Ele leu o token que você mandou,
+conferiu a assinatura, e soube quem era.
+
+**Leia o seu próprio token.** Cole-o em [jwt.io](https://jwt.io) e ache o `sub`, o `jti`, o `ver` e
+o `exp`. Converta o `exp` para data: é daqui a 24 horas.
+
+> O jwt.io vai dizer *"invalid signature"*, e está certo: ele não tem o seu `JWT_SECRET`. Você só
+> quer **ler** o payload, e o fato de conseguir ler é justamente a lição.
+
+**Avançado**: acrescente um caractere no fim do token e chame `/me` de novo. Antes de rodar, decida
+o que espera. **O que você deve ver**: **401**, porque a assinatura deixou de bater.
+
+> **No terminal, se preferir**: o comando abaixo captura o token do cabeçalho num só passo.
+>
+> ```bash
+> API=localhost:3000/api/v1; EMAIL=voce@aluno.ufop.edu.br
+> TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
+>   -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}" \
+>   | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
+> curl -i $API/me -H "Authorization: Bearer $TOKEN"
+> ```
 
 **Se der errado**
 
 | Erro | Causa | Saída |
 |---|---|---|
-| `$TOKEN` saiu vazio | o `grep` não achou o cabeçalho | rode o `curl -i` sozinho e veja se o `Authorization:` está na resposta |
-| `401` logo depois do login | o token não foi copiado inteiro | `echo $TOKEN \| wc -c`: tem que ter centenas de caracteres |
-| `401 invalid_token` | você colou com quebra de linha | o `tr -d '\r\n'` do comando existe para isso |
+| não acho o token na resposta | você está olhando o corpo | ele vem no **cabeçalho** `Authorization`, na aba Headers da resposta |
+| `401` logo depois do login | o token foi copiado pela metade, ou com espaço | ele tem quase 200 caracteres, e não pode ter quebra de linha |
+| `401 invalid_token` | você copiou a palavra `Bearer` junto, duas vezes | o header é `Bearer <token>`, uma vez só |
 | `403` em vez de `200` | a conta não está verificada | volte à Prática 3 |
-| `401 invalid_credentials` | senha errada: **ou e-mail que não existe** | é a mesma mensagem de propósito; veja a seção 7 |
-| jwt.io diz "invalid signature" | esperado: ele não tem o seu segredo | você só quer ler o payload, não validar |
+| `401 invalid_credentials` no login | senha errada, **ou e-mail que não existe** | é a mesma mensagem de propósito; veja a seção 7 |
+| `$TOKEN` vazio no terminal | o `grep` não achou o cabeçalho | rode o `curl -i` sozinho e confira que o `Authorization` está lá |
 
 ---
 
@@ -825,37 +908,44 @@ curl -i $API/me -H "Authorization: Bearer ${TOKEN}x"
 
 > A prática que mostra a diferença entre "apagar no cliente" e "revogar no servidor".
 
-> **Antes de rodar, decida**: aquele token continua matematicamente válido e ainda não expirou. O
-> segundo comando vai responder `200` ou `401`? A resposta é o assunto inteiro da seção 8.
+> **Antes de rodar, decida**: aquele token continua matematicamente válido, a assinatura ainda bate,
+> e o `exp` ainda está no futuro. Depois do logout, o `GET /me` vai responder `200` ou `401`?
+>
+> A resposta é o assunto inteiro da seção 8. Aposte agora.
 
-```bash
-curl -i -X DELETE $API/sessions -H "Authorization: Bearer $TOKEN"
-curl -i $API/me -H "Authorization: Bearer $TOKEN"
+No Insomnia, em `DELETE /api/v1/sessions`, com o mesmo header `Authorization: Bearer <token>`.
+
+**O que você deve ver**: status **200**.
+
+```json
+{ "message": "Logout realizado com sucesso" }
 ```
 
-**Confere**: o segundo comando tem que dar **`401`**. O token ainda é válido e ainda não expirou,
-mas está na denylist.
+Agora repita o `GET /api/v1/me`, **sem mudar nada**, com o mesmo token de antes.
 
-Sem a denylist, esse `curl` responderia `200` até o `exp` chegar. **É este teste que prova que o
-logout serve para alguma coisa.**
+**O que você deve ver**: status **401**.
 
-**Avançado**: veja a denylist por dentro, no console:
+Esse 401 é a aula. O token não expirou e a assinatura continua válida: o servidor simplesmente
+**decidiu** não aceitá-lo mais, porque o `jti` dele está na denylist. Sem esse mecanismo, o token
+continuaria funcionando por até 24 horas depois de você ter saído.
+
+**Avançado**: veja a denylist por dentro. Pegue o `jti` no jwt.io e, no console:
 
 ```ruby
-Rails.cache.read("denylist:#{jti_do_seu_token}")
+Rails.cache.read("denylist:COLE_O_JTI")
 ```
 
-Pegue o `jti` no jwt.io. Por que a entrada tem TTL, e por que o TTL é exatamente o que restava do
-token?
+Duas perguntas para você mesmo: por que a entrada tem prazo de validade, e por que esse prazo é
+exatamente o que faltava para o token expirar?
 
 **Se der errado**
 
 | Erro | Causa | Saída |
 |---|---|---|
-| o segundo `curl` respondeu `200` | o `DELETE` falhou antes | rode-o com `-i` e leia o status |
-| `401` já no `DELETE` | o token expirou ou já foi revogado | faça login de novo e refaça |
-| a denylist não persiste entre reinícios | o cache em dev é em memória | é o esperado em desenvolvimento; em produção é o Solid Cache no Postgres |
-| `Rails.cache.read` devolve `nil` | `jti` errado, ou cache diferente | copie o `jti` exato do jwt.io |
+| o `GET /me` respondeu `200` depois do logout | o `DELETE` não chegou a acontecer | confira o status do `DELETE`: se não foi 200, o token não foi revogado |
+| `401` já no `DELETE` | o token expirou, ou já tinha sido revogado | faça login de novo e refaça a prática |
+| a revogação some ao reiniciar o servidor | em desenvolvimento o cache é em memória | é o esperado; em produção é o Solid Cache, no Postgres |
+| `Rails.cache.read` devolve `nil` | `jti` errado, ou copiado com espaço | copie o valor exato do jwt.io |
 
 ---
 
@@ -863,46 +953,66 @@ token?
 
 > O fluxo mais completo do sistema, e o que tem a decisão de segurança mais sutil.
 
-Faça login de novo para ter um token válido:
+**Faça login de novo** para ter um token válido na mão, e guarde-o.
 
-```bash
-TOKEN=$(curl -s -D- -o /dev/null -X POST $API/sessions -H 'Content-Type: application/json' \
-  -d "{\"email\":\"$EMAIL\",\"password\":\"Automic@2026\",\"client\":\"mobile\"}" \
-  | grep -i '^authorization:' | sed 's/.*Bearer //I' | tr -d '\r\n')
+**Peça a recuperação**, em `POST /api/v1/password_resets/request`:
 
-curl -X POST $API/password_resets/request -H 'Content-Type: application/json' \
-  -d "{\"email\":\"$EMAIL\"}"
-# pegue o código no navegador
-
-curl -i -X POST $API/password_resets/confirm -H 'Content-Type: application/json' -d "{
-  \"email\":\"$EMAIL\",\"code\":\"COLE\",
-  \"password\":\"NovaSenha@9\",\"confirm_password\":\"NovaSenha@9\"}"
-
-curl -i $API/me -H "Authorization: Bearer $TOKEN"
+```json
+{ "email": "voce@aluno.ufop.edu.br" }
 ```
 
-**Confere**: o último dá `401`. Trocar a senha **derrubou todas as sessões abertas**. É o
-`token_version` sendo incrementado. Se alguém tinha roubado o seu token, acabou de perdê-lo.
+**O que você deve ver**: status **200**.
 
-**Confere também, e é o ponto mais importante da prática:**
-
-```bash
-curl -i -X POST $API/password_resets/request -H 'Content-Type: application/json' \
-  -d '{"email":"ninguem-existe@ufop.br"}'
+```json
+{ "message": "Se o e-mail estiver cadastrado, enviamos um código para redefinir sua senha." }
 ```
 
-Responde **exatamente a mesma coisa** do e-mail que existe. É a resistência a enumeração: um
-atacante não consegue usar esta rota para descobrir quem tem conta.
+Guarde essa frase; ela volta daqui a pouco. Pegue o código no navegador e **troque a senha**, em
+`POST /api/v1/password_resets/confirm`:
+
+```json
+{
+  "email": "voce@aluno.ufop.edu.br",
+  "code": "COLE_O_CODIGO",
+  "password": "NovaSenha@9",
+  "confirm_password": "NovaSenha@9"
+}
+```
+
+**O que você deve ver**: status **200**.
+
+**Agora o teste que importa.** Repita o `GET /api/v1/me` com o token que você guardou antes de
+trocar a senha.
+
+**O que você deve ver**: **401**.
+
+Trocar a senha **derrubou todas as sessões abertas**, em todos os aparelhos. É o `token_version`
+sendo incrementado: todo token emitido antes carrega o número antigo, e para de valer na hora. Se
+alguém tinha roubado o seu token, acabou de perdê-lo.
+
+**E o ponto mais importante da prática**, que é fácil pular: repita o `password_resets/request` com
+um e-mail que **não existe**:
+
+```json
+{ "email": "ninguem-existe@ufop.br" }
+```
+
+**O que você deve ver**: **exatamente a mesma resposta de antes**, mesmo status, mesma frase, mesmo
+tempo. Ponha as duas lado a lado no Insomnia e compare.
+
+É a resistência a enumeração. Um atacante não consegue usar esta rota para descobrir quem tem conta,
+porque a API responde igual nos dois casos. **É por isso que a mensagem é vaga**: o "se o e-mail
+estiver cadastrado" não é timidez de redação, é a decisão de segurança aparecendo no texto.
 
 **Se der errado**
 
 | Erro | Causa | Saída |
 |---|---|---|
-| o `/me` final respondeu `200` | o `confirm` falhou | rode o `confirm` com `-i` e leia o status |
-| `422` no `confirm` | senha nova não passa na política, ou não bate com a confirmação | leia a lista de erros |
-| `422 invalid_code` | código errado, expirado, ou já usado | peça outro com `/password_resets/request` |
-| não veio e-mail para o endereço inexistente | correto! | é justamente o que se espera: resposta igual, e-mail nenhum |
-| esqueceu a senha nova | você trocou para `NovaSenha@9` | use ela nos próximos logins |
+| o `/me` final respondeu `200` | o `confirm` não chegou a acontecer | confira o status do `confirm`: se não foi 200, a senha não mudou |
+| `422` no `confirm` | a senha nova não passa na política, ou não bate com a confirmação | leia o `details` do erro |
+| `422 invalid_code` | código errado, expirado, ou já usado | peça outro em `password_resets/request` |
+| não chegou e-mail para o endereço inexistente | **correto** | é justamente o esperado: resposta igual, e-mail nenhum |
+| esqueci a senha nova | você trocou para `NovaSenha@9` | use ela nos próximos logins |
 
 ---
 
@@ -914,7 +1024,7 @@ bin/rubocop
 bin/brakeman --no-pager
 ```
 
-**Confere**: 71 testes verdes, RuboCop limpo, Brakeman sem aviso.
+**O que você deve ver**: 71 testes verdes, RuboCop limpo, Brakeman sem aviso.
 
 Agora **quebre um teste de propósito** para ver a rede de segurança funcionando. Em
 `app/controllers/concerns/api/v1/authentication.rb`, comente a linha que consulta a denylist. Rode
@@ -958,7 +1068,7 @@ bin/rails runner 'puts JWT.encode({sub: User.first.id, ver: 0, jti: "x",
 curl -i $API/me -H "Authorization: Bearer <o-token-forjado>"
 ```
 
-**Confere**: responde `200`. Você acabou de entrar como outra pessoa, sem saber a senha dela.
+**O que você deve ver**: responde `200`. Você acabou de entrar como outra pessoa, sem saber a senha dela.
 
 **Desfaça em seguida** (volte o `true`) e rode `bin/rails test`: o teste "recusa token assinado com
 outro segredo" fica vermelho enquanto o `false` estiver lá. **Era esse teste que estava te

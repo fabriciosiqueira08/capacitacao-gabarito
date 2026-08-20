@@ -26,7 +26,7 @@ o tempo é melhor gasto entendendo o deploy do que esperando um provedor liberar
 Duas coisas que ajudam:
 
 **Um passo mal feito só aparece três passos depois.** Por isso toda prática tem uma linha
-**Confere**. Não siga com ela vermelha, mesmo que pareça que dá.
+**O que você deve ver**. Não siga com ela vermelha, mesmo que pareça que dá.
 
 **Hoje você vai encontrar mais erro do que nos outros encontros.** É assunto novo e ferramenta nova,
 e a maioria dos erros não tem nada a ver com programar. É assim para todo mundo, sempre.
@@ -811,7 +811,7 @@ cat ~/.ssh/capacita.pub >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
 ssh -i ~/.ssh/capacita -o IdentitiesOnly=yes "$USER"@127.0.0.1 'echo SSH_OK && docker -v'
@@ -855,7 +855,7 @@ Crie o **PAT (classic)** no GitHub: **Settings → Developer settings → Person
 Tokens (classic) → Generate new token**, com `write:packages` e `read:packages`. Ele é mostrado
 **uma vez**.
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
 ls config/deploy.yml .kamal/secrets .env.example
@@ -886,12 +886,15 @@ $EDITOR .env
 source .env
 ```
 
-O `.env.example` já vem com `SERVER_IP=127.0.0.1` e `KAMAL_SSH_USER="$USER"` preenchidos. O que
-falta você preencher: `GHCR_USER`, `SERVER_ARCH`, `APP_HOST`, `KAMAL_REGISTRY_PASSWORD` (o PAT),
+O `.env.example` já vem com `SERVER_IP=127.0.0.1` e `KAMAL_SSH_USER="$USER"` preenchidos, porque o
+servidor é a sua máquina. O `SERVER_ARCH` é o `uname -m` da prática anterior, traduzido: `x86_64`
+vira `amd64`, e `aarch64` ou `arm64` viram `arm64`.
+
+O que falta você preencher: `GHCR_USER`, `SERVER_ARCH`, `APP_HOST`, `KAMAL_REGISTRY_PASSWORD` (o PAT),
 `RAILS_MASTER_KEY` (o conteúdo de `config/master.key`), `AUTOMIC_AUTH_API_DATABASE_PASSWORD`,
 `JWT_SECRET` (saída de `bin/rails secret`), `CORS_ORIGINS`, `MAILER_FROM` e os três `SMTP_*`.
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
 git status                      # o .env NÃO pode aparecer
@@ -925,7 +928,7 @@ echo "127.0.0.1  seunome.test" | sudo tee -a /etc/hosts
 getent hosts seunome.test
 ```
 
-**Confere**: o `getent` devolve `127.0.0.1`, e o certificado tem o SAN certo:
+**O que você deve ver**: o `getent` devolve `127.0.0.1`, e o certificado tem o SAN certo:
 
 ```bash
 openssl x509 -in tls/capacita-cert.pem -noout -text | grep -A1 "Subject Alternative Name"
@@ -955,7 +958,7 @@ bundle exec kamal config      # valida sem tocar em nada
 bundle exec kamal setup       # só na primeira vez
 ```
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
 curl --cacert tls/capacita-cert.pem https://seunome.test/api/v1/status
@@ -1023,7 +1026,7 @@ Funciona **conferindo**. Você não desligou nada: você disse ao `curl` em quem
 
 Abra também no navegador e leia o aviso.
 
-**Confere**: escreva numa linha, para você mesmo, a diferença entre o segundo e o terceiro comando.
+**O que você deve ver**: escreva numa linha, para você mesmo, a diferença entre o segundo e o terceiro comando.
 Se conseguir, você entendeu o que uma CA é.
 
 **Se der errado**
@@ -1058,7 +1061,7 @@ ls -lh backup-*.sql.gz
 - [ ] Quando quiser liberar a máquina: `kamal app stop` para o app, e
       `kamal accessory stop db` para o banco. `kamal app boot` traz de volta.
 
-**Confere**: o backup tem mais que alguns bytes, e o `kamal app logs` mostrou o container novo
+**O que você deve ver**: o backup tem mais que alguns bytes, e o `kamal app logs` mostrou o container novo
 subindo ao lado do antigo antes de trocar.
 
 **Se der errado**
