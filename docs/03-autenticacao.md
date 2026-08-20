@@ -638,15 +638,29 @@ Oito práticas. As sete primeiras são o fluxo real, na ordem em que um usuário
 
 > Pouco comando e muita leitura. A leitura é a parte que conta.
 
+> **Antes do `rsync`, apague as suas migrations.** As que você gerou na Aula 2 têm o horário em que
+> *você* rodou o `generate`, e as do gabarito têm outro. Depois da cópia existiriam duas classes
+> `CreateUsers` em `db/migrate/`, e o Rails para de funcionar inteiro com
+> `Multiple migrations have the name CreateUsers`.
+>
+> Você não perde nada: as migrations do gabarito criam as mesmas tabelas, mais a do `token_version`.
+
 ```bash
+cd ~/automic_auth_api
+rm -rf db/migrate db/schema.rb
+
 cd ~/capacitacao-gabarito && git checkout aula-03
 rsync -a app config db test Gemfile Gemfile.lock ~/automic_auth_api/
 
 cd ~/automic_auth_api
 bundle install
-bin/rails db:migrate
+bin/rails db:drop db:create db:migrate
 bin/rails test
 ```
+
+O `db:drop` é necessário pelo mesmo motivo: o seu banco tem registrado que rodou *as suas*
+migrations, e as do gabarito têm identificadores diferentes. Recriar é mais rápido que remendar, e
+não há dado nenhum para perder.
 
 **Confere**: **71 testes verdes.** Se não deram, pare aqui e resolva antes de seguir. Todas as
 práticas seguintes dependem disso.
@@ -680,6 +694,8 @@ Em cada um, ache o `Struct` de retorno e os argumentos nomeados da Aula 1. **Ele
 | `PendingMigrationError` | as migrations novas não rodaram | `bin/rails db:migrate` |
 | menos de 71 testes | o `rsync` não trouxe `test/` | confira que `test/` estava na lista |
 | `rsync: command not found` | não instalado | `sudo apt install rsync` / `brew install rsync` |
+| `Multiple migrations have the name CreateUsers` | você não apagou as suas migrations antes do `rsync` | `rm -rf db/migrate db/schema.rb`, refaça o `rsync`, e `bin/rails db:drop db:create db:migrate` |
+| `PG::DuplicateTable` ao migrar depois do `rsync` | o banco lembra das suas migrations antigas | `bin/rails db:drop db:create db:migrate` |
 | o `rsync` jogou tudo na raiz do projeto | você usou caminho errado | os caminhos são relativos e a barra final importa; refaça exatamente como está escrito |
 | conflito com arquivos seus da Aula 2 | o `rsync` sobrescreveu | é o esperado: a partir daqui o gabarito é a base |
 
