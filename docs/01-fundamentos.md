@@ -245,7 +245,7 @@ A rota de status só aceita `GET`, então você vai levar um `404` ou `405`. **O
 é você ter montado uma requisição com método, cabeçalho e corpo na mão, que é o que o Insomnia faz
 por baixo.
 
-**Confere**: você consegue apontar, na saída do `-v`, onde termina a sua requisição e onde começa a
+**O que você deve ver**: você consegue apontar, na saída do `-v`, onde termina a sua requisição e onde começa a
 resposta. E consegue dizer o que significa cada um dos três números que viu: 200, 404 e o do POST.
 
 **Se der errado**
@@ -815,7 +815,7 @@ Pessoa.new("Ana").cumprimentar
 
 > O `def metodo = expressão` é o *endless method*, do Ruby 3. Serve para método de uma linha só.
 
-**Confere**: você conseguiu explicar, em voz alta, por que `usuario["nome"]` deu `nil` e por que
+**O que você deve ver**: você conseguiu explicar, em voz alta, por que `usuario["nome"]` deu `nil` e por que
 `saudacao("Ana")` deu `ArgumentError`. Se conseguiu, a sintaxe entrou.
 
 **Se der errado**
@@ -1056,7 +1056,7 @@ cd automic_auth_api
 Cada flag tira uma parte do Rails que este projeto não usa. `--api` é a mais importante: gera um
 Rails sem views e sem os middlewares de navegador.
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
 ls                      # tem app/, config/, db/, test/
@@ -1120,7 +1120,7 @@ bin/rails db:prepare
 bin/rails server
 ```
 
-**Confere**: abra `http://localhost:3000/up`. Verde é a aplicação de pé, falando com o banco.
+**O que você deve ver**: abra `http://localhost:3000/up`. Verde é a aplicação de pé, falando com o banco.
 
 **Se der errado**
 
@@ -1175,15 +1175,37 @@ module Api
 end
 ```
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
-bin/rails routes -g api        # a sua rota tem que aparecer na lista
+bin/rails routes -g api
+```
+
+```
+        Prefix Verb URI Pattern              Controller#Action
+ api_v1_status GET  /api/v1/status(.:format) api/v1/status#show
+```
+
+```bash
 curl -i localhost:3000/api/v1/status
 ```
 
-Tem que vir `200` e o JSON. Depois monte a mesma requisição no Insomnia e confira o status ali
-também: é a ferramenta que você vai usar nas Aulas 3 e 4.
+```
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{"status":"ok","service":"automic-auth-api","environment":"development"}
+```
+
+**E agora a mesma coisa no Insomnia**, que é a ferramenta que você vai usar nas Aulas 3 e 4. Crie
+uma requisição `GET` para `http://localhost:3000/api/v1/status` e mande.
+
+Você vai ver **200** em verde, o corpo formatado, e uma aba com os cabeçalhos. É a mesma requisição
+do `curl`, com uma tela em volta.
+
+> **Faça isso depois de cada rota que criar**, hoje e nas próximas aulas. Ver a rota responder no
+> Insomnia logo depois de escrevê-la é o que fecha o ciclo entre "escrevi um arquivo" e "existe uma
+> API funcionando".
 
 **Se der errado**
 
@@ -1227,7 +1249,7 @@ end
 bin/rails test
 ```
 
-**Confere**: sai `1 runs, 2 assertions, 0 failures`. Agora **quebre de propósito**: troque `"ok"` por
+**O que você deve ver**: sai `1 runs, 2 assertions, 0 failures`. Agora **quebre de propósito**: troque `"ok"` por
 `"OK"` no teste, rode de novo, e leia a mensagem de falha inteira. Depois desfaça.
 
 Ver o teste falhar é o que prova que ele está realmente testando alguma coisa.
@@ -1262,7 +1284,7 @@ git remote add origin git@github.com:SEU-USUARIO/automic_auth_api.git
 git push -u origin main
 ```
 
-**Confere**:
+**O que você deve ver**:
 
 ```bash
 gh repo view --web        # abre o seu repositório no navegador
