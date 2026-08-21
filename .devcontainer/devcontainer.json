@@ -1,0 +1,41 @@
+{
+  "name": "Capacitação Back-end",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+  "features": {
+    // Deixa o `docker` funcionar aqui de dentro, falando com o Docker da sua
+    // máquina. É o que a Aula 4 precisa para o Kamal buildar e publicar.
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    // O `gh` da Aula 1, para criar o repositório num comando.
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  // 3000 é o Rails; 5432 é o Postgres, se você quiser abrir num cliente de
+  // banco da sua máquina.
+  "forwardPorts": [3000, 5432],
+  "portsAttributes": {
+    "3000": { "label": "Rails", "onAutoForward": "notify" },
+    "5432": { "label": "PostgreSQL" }
+  },
+
+  "postCreateCommand": "bundle install",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Shopify.ruby-lsp",
+        "aki77.rails-db-schema",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "vscode-icons-team.vscode-icons"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  "remoteUser": "vscode"
+}
