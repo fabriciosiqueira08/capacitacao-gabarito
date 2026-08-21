@@ -3,6 +3,13 @@ Rails.application.routes.draw do
   # É o que load balancers e monitores de uptime chamam (ver Aula 4).
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # A caixa de entrada de desenvolvimento: todo e-mail que a aplicação
+  # "enviaria" fica em http://localhost:3000/letter_opener.
+  #
+  # Só existe em development — em produção esta linha nem é avaliada, e o
+  # e-mail sai de verdade por SMTP (Aula 4).
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
+
   # Toda a API vive sob /api/v1. A versão no caminho permite lançar uma /v2
   # sem quebrar quem já usa a /v1 — o app na loja demora a atualizar.
   namespace :api do

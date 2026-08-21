@@ -33,8 +33,15 @@ gem "thruster", require: false
 gem "rack-cors"
 
 group :development do
-  # Abre o e-mail no navegador em vez de tentar enviar. Sem SMTP em dev.
-  gem "letter_opener", "~> 1.10"
+  # Sem SMTP em dev: o e-mail é guardado e servido numa caixa de entrada em
+  # http://localhost:3000/letter_opener, em vez de sair pela rede.
+  #
+  # É a versão "web" de propósito. O letter_opener original tenta abrir o
+  # arquivo no navegador DA MÁQUINA, e num WSL2, num container ou num
+  # servidor sem tela não existe navegador para abrir — o envio falhava e
+  # derrubava o cadastro. Aqui não há nada a abrir: é uma rota da própria
+  # aplicação, e funciona igual em qualquer sistema.
+  gem "letter_opener_web", "~> 3.0"
 end
 
 group :development, :test do
