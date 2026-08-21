@@ -1,0 +1,48 @@
+# O ambiente da capacitação, em dois containers.
+#
+# Você não roda este arquivo na mão: o VS Code o levanta quando você aceita
+# "Reopen in Container". Mas vale ler, porque é o mesmo desenho do
+# compose.yaml da Aula 1 e do deploy.yml da Aula 4: uma aplicação, um banco,
+# e um volume que faz os dados sobreviverem.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # O código vem da sua máquina, montado aqui dentro.
+    volumes:
+      - ../..:/workspaces:cached
+
+    # O container precisa ficar de pé esperando você, e não rodar um
+    # comando e morrer.
+    command: sleep infinity
+
+    environment:
+      # É assim que o config/database.yml acha o banco: pelo NOME do
+      # serviço. Containers na mesma rede se enxergam por nome, sem IP —
+      # exatamente o que o DB_HOST do deploy.yml faz na Aula 4.
+      DB_HOST: db
+      DB_USER: automic
+      DB_PASSWORD: automic
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: automic
+      POSTGRES_PASSWORD: automic
+      POSTGRES_DB: automic_auth_api_development
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U automic"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:

@@ -1,0 +1,20 @@
+# Este projeto roda em Linux: no WSL2 do aluno, no container do devcontainer e
+# na imagem Docker do deploy. Quebra de linha do Windows (CRLF) num arquivo
+# executável faz o interpretador não ser encontrado — e o erro que aparece não
+# fala em CRLF nenhum:
+#
+#   bin/rails: /usr/bin/env: 'ruby\r': No such file or directory
+#   exec /rails/bin/docker-entrypoint: no such file or directory
+#
+# `eol=lf` obriga a cópia de trabalho a ficar em LF mesmo em quem clona no
+# Windows com core.autocrlf=true.
+* text=auto eol=lf
+
+# Binários não são texto e não devem ser normalizados.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.pptx binary
