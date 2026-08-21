@@ -1,6 +1,7 @@
 # Action Mailer configurado por variáveis de ambiente.
 #
-# Em desenvolvimento não há SMTP: o letter_opener abre o e-mail no navegador.
+# Em desenvolvimento não há SMTP: o letter_opener grava o e-mail em
+# tmp/letter_opener/ e tenta abrir no navegador.
 # Em produção, SMTP_ADDRESS e companhia vêm dos secrets do Kamal (Aula 4).
 
 Rails.application.configure do
@@ -25,6 +26,16 @@ Rails.application.configure do
   elsif Rails.env.development?
     config.action_mailer.delivery_method = :letter_opener
     config.action_mailer.perform_deliveries = true
-    config.action_mailer.raise_delivery_errors = true
+    # `false` aqui, e é de propósito que seja o oposto do ramo de cima.
+    #
+    # O letter_opener grava o e-mail em disco e SÓ DEPOIS tenta abrir o
+    # navegador. Num ambiente sem navegador — WSL2, container, servidor sem
+    # tela — essa segunda parte estoura. Com `true`, a exceção subiria até o
+    # rescue do service, que devolveria falha, e o cadastro responderia 422
+    # com o usuário já gravado no banco: um beco sem saída.
+    #
+    # O e-mail está escrito em tmp/letter_opener/ de qualquer jeito, então não
+    # conseguir abrir a janela não é motivo para derrubar o fluxo.
+    config.action_mailer.raise_delivery_errors = false
   end
 end
