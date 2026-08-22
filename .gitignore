@@ -10,6 +10,11 @@
 .env.*
 !.env.example
 
+# O certificado e a chave da Aula 4. A chave privada JAMAIS vai para o Git —
+# é o mesmo princípio do master.key, e a Prática 4 gera os dois dentro do
+# projeto, onde um `git add -A` distraído os pegaria.
+/tls/
+
 # Editores
 .DS_Store
 *.swp
