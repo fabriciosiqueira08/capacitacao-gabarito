@@ -75,6 +75,7 @@ checa 1 "Docker"            "docker -v"            "Docker version" "Docker Desk
 checa 1 "o engine responde" "timeout 15 docker info --format '{{.ServerVersion}}'" "^[0-9]" "abra o Docker Desktop e espere a baleia parar de se mexer"
 checa 1 "docker compose"    "docker compose version" "Docker Compose" "no Docker Desktop já vem junto; no Linux: apt install docker-compose-plugin"
 checa 1 "git"               "git --version"        "git version"    "sudo apt install -y git"
+checa 1 "identidade do git"  "git config --global user.email" "@"         "git config --global user.name 'Seu Nome' && git config --global user.email 'seu@email.com' — sem isso o commit da Prática 7 não sai"
 
 if ! $NO_CONTAINER; then
   avisa '[ "$(ruby -e "print RUBY_VERSION" 2>/dev/null)" ] && ! command -v ruby | grep -q mise' \
