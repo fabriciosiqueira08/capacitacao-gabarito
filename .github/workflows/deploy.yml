@@ -101,7 +101,7 @@ jobs:
       # Sem senha e sem client secret: a Azure confia no token que o GitHub
       # emite para ESTE repositório, nesta branch.
       - name: Entra na Azure com OIDC
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
